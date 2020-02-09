@@ -2,7 +2,8 @@ import os
 from model.resultaat import omzet_per_klant_laatste_zes_maanden
 from model.winstgevendheid import winst_per_klant
 from layout.basic_layout import headersize, midsize
-from layout.block import HBlock, VBlock, TextBlock, Table, Page
+from layout.block import HBlock, VBlock, TextBlock, Page
+from layout.table import Table
 
 
 def render_klant_page():

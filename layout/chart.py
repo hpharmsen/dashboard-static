@@ -13,8 +13,8 @@ def randomString(stringLength=3):
 
 
 class Chart(Block):
-    def __init__(self, width, height, title, labels, values, colors, bg_color='', limited=False):
-        super().__init__(id=id, width=width, height=height, bg_color=bg_color, limited=limited)
+    def __init__(self, width, height, title, labels, values, colors, bg_color='', limited=False, link=None):
+        super().__init__(id=id, width=width, height=height, bg_color=bg_color, limited=limited, link=link)
         self.id = pattern.sub('', title) + '_' + randomString()
         self.title = title
         self.labels = labels
@@ -138,8 +138,9 @@ class StackedBarChart(Chart):
         max_axis_value=None,
         data_labels=[],
         limited=False,
+        link = None
     ):
-        super().__init__(width, height, title, labels, values, colors, bg_color, limited)
+        super().__init__(width, height, title, labels, values, colors, bg_color, limited, link)
 
         self.type = 'horizontalBar' if horizontal else 'bar'
 

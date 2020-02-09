@@ -1,6 +1,7 @@
 import os
 from layout.basic_layout import headersize, midsize, defsize
-from layout.block import Block, VBlock, HBlock, TextBlock, Table, Page
+from layout.block import Block, VBlock, HBlock, TextBlock, Page
+from layout.table import Table
 from layout.chart import StackedBarChart
 from model.tor import tor_projecten, tor_total_budget, tor_total_spent, tor_perc_spent, tor_facturen, tor_per_maand
 

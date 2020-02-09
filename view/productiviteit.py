@@ -1,6 +1,7 @@
 import os
 from layout.basic_layout import doFormat, headersize
-from layout.block import HBlock, VBlock, TextBlock, Table, Page
+from layout.block import HBlock, VBlock, TextBlock, Page
+from layout.table import Table
 from model.productiviteit import (
     productiviteit_overzicht,
     tuple_of_productie_users,

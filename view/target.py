@@ -2,7 +2,8 @@ import os
 from datetime import datetime
 
 from layout.basic_layout import headersize, midsize
-from layout.block import HBlock, VBlock, TextBlock, Table, Page
+from layout.block import HBlock, VBlock, TextBlock, Page
+from layout.table import Table
 from model.target import users_and_targets
 from model.productiviteit import fraction_of_the_year_past
 from layout.chart import StackedBarChart

@@ -1,6 +1,7 @@
 import os
 from layout.basic_layout import midsize, headersize
-from layout.block import HBlock, VBlock, TextBlock, Table, Page
+from layout.block import HBlock, VBlock, TextBlock, Page
+from layout.table import Table
 from model.jira_issues import (
     service_jql,
     service_issues_per_status,

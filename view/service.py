@@ -1,6 +1,7 @@
 import os
 from layout.basic_layout import defsize, midsize, headersize
-from layout.block import Block, HBlock, VBlock, TextBlock, Table, Page
+from layout.block import Block, HBlock, VBlock, TextBlock, Page
+from layout.table import Table
 from model.service import (
     omzet_op_service_projecten,
     service_omzet_door_serviceteam,

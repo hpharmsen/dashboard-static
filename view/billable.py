@@ -1,5 +1,6 @@
 import os
-from layout.block import TextBlock, Table, Page, Grid, VBlock
+from layout.block import TextBlock, Page, Grid, VBlock
+from layout.table import Table
 from layout.basic_layout import headersize, midsize
 from layout.chart import ScatterChart
 from model.productiviteit import tuple_of_productie_users, billable_trend_person

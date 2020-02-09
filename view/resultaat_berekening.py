@@ -1,6 +1,7 @@
 import os
 from model.caching import load_cache
-from layout.block import TextBlock, Block, Table, Page, VBlock, HBlock, Grid
+from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
+from layout.table import Table
 from layout.basic_layout import defsize, midsize, headersize
 from model.resultaat import (
     omzet_tm_vorige_maand,

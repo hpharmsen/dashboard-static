@@ -96,7 +96,7 @@ def omzet_deze_maand():
         van de afgelopen maand plus die van de huidige maand.'''
     m = virtuele_maand()
     y = datetime.today().year
-    query = f'''select round(sum( invoice_amount)) as turnover 
+    query = f'''select ifnull(round(sum( invoice_amount)),0) as turnover 
                 from invoice 
                 where year(invoice_date)={y} and month(invoice_date)>={m}'''
     return db.value(query)
@@ -369,7 +369,7 @@ def bijgewerkt():
 @reportz(hours=24)
 def omzet_per_klant_laatste_zes_maanden():
     ''' Tabel van klantnaam, omzet '''
-    query = '''select name as klant, sum( invoice_amount) as omzet from invoice i, project p, customer c 
+    query = '''select name as klant, ifnull(sum( invoice_amount),0) as omzet from invoice i, project p, customer c 
                where p.customerId=c.id and i.project_id=p.Id and invoice_date > date_add( curdate(), interval -6 MONTH) 
                group by c.id order by omzet desc'''
     df = db.dataframe(query)
@@ -383,7 +383,7 @@ def update_omzet_per_dag():
     ''' Tabel van dag, omzet '''
     trend_name = 'omzet_per_dag'
     last_day = trends.last_registered_day(trend_name)
-    query = f'''select day, round(sum(turnover)) as turnover from (select day, pu.user, hours*hourlyRate as turnover from timesheet ts
+    query = f'''select day, ifnull(round(sum(turnover)),0) as turnover from (select day, pu.user, hours*hourlyRate as turnover from timesheet ts
     join project_user pu on pu.projectId = ts.projectId and pu.user=ts.user
     where taskId=-2 and day > "{last_day}" and weekday(day)<5 and day < date_add( curdate(), interval -1 DAY)
     group by day, user) q1
@@ -421,7 +421,7 @@ def update_omzet_per_week():
 def toekomstige_omzet_per_week():
     last_day = trends.last_registered_day('omzet_per_week')
     query = f'''
-    select min(day) as monday, round(sum(dayturnover)) as weekturnover from 
+    select min(day) as monday, ifnull(round(sum(dayturnover)),0) as weekturnover from 
         (select day, sum(turnover) as dayturnover from
             (select date(startDate) as day, pl.name as user, 
                     least((enddate - startDate)/10000,8) * pu.hourlyRate as turnover

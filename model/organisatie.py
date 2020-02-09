@@ -5,7 +5,7 @@ from model.caching import reportz
 
 FTE_SHEET = 'Begroting 2020'
 FTE_TAB = 'Personeelsplanning'
-FTE_ROW = 29
+FTE_ROW = 30
 FTE_START_COL = 4
 
 
@@ -25,7 +25,8 @@ def aantal_fte():
 def aantal_fte_begroot():
     tab = sheet_tab(FTE_SHEET, FTE_TAB)
     m = datetime.today().month
-    return sheet_value(tab, FTE_ROW, FTE_START_COL + m - 1)
+    res = sheet_value(tab, FTE_ROW, FTE_START_COL + m - 1)
+    return res
 
 
 #

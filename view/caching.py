@@ -1,4 +1,5 @@
-from layout.block import Table, Page
+from layout.block import Page
+from layout.table import Table
 from model.caching import cache as saved_cache
 
 
