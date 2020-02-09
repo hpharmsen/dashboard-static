@@ -418,6 +418,7 @@ def update_omzet_per_week():
     for rec in table:
         trends.update(trend_name, rec['weekturnover'], rec['monday'])
 
+
 def toekomstige_omzet_per_week():
     last_day = trends.last_registered_day('omzet_per_week')
     query = f'''
@@ -436,6 +437,7 @@ def toekomstige_omzet_per_week():
     order by day'''
     table = db.table(query)
     return table
+
 
 @reportz(hours=24)
 def top_x_klanten_laatste_zes_maanden(number=3):

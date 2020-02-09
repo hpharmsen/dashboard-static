@@ -3,7 +3,7 @@ from datetime import datetime
 from sources import database as db
 from model.caching import reportz
 
-#@reportz(hours=24)
+# @reportz(hours=24)
 def project_budget_status():
     y = datetime.today().year
     sql = f'''select p.id as id, name, title, pm, project_type, sum(hours) as hours, budget, budget_correction_amount, 

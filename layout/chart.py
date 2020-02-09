@@ -138,7 +138,7 @@ class StackedBarChart(Chart):
         max_axis_value=None,
         data_labels=[],
         limited=False,
-        link = None
+        link=None,
     ):
         super().__init__(width, height, title, labels, values, colors, bg_color, limited, link)
 

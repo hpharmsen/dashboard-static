@@ -52,16 +52,16 @@ def render_target_page():
     }'''
 
     chart = StackedBarChart(
-                800,
-                840,
-                '',
-                ['bereikt', 'boven target', 'onder target', 'nog te doen'],
-                [bereikt, boven_target, onder_target, nog_te_doen],
-                [blauw, groen, rood, grijs],
-                bottom_label=namen,
-                horizontal=True,
-                data_labels=['', '', '', data_labels_js],
-            )
+        800,
+        840,
+        '',
+        ['bereikt', 'boven target', 'onder target', 'nog te doen'],
+        [bereikt, boven_target, onder_target, nog_te_doen],
+        [blauw, groen, rood, grijs],
+        bottom_label=namen,
+        horizontal=True,
+        data_labels=['', '', '', data_labels_js],
+    )
 
     page = Page([TextBlock('Targets', headersize), VBlock([TextBlock('Per persoon met target en tot nu toe'), chart])])
     page.render('output/target.html')

@@ -19,7 +19,7 @@ class Block:
         limited=False,
         tooltip='',
         padding=40,
-        link = None
+        link=None,
     ):
         self.id = id
         self.width = width
@@ -30,7 +30,7 @@ class Block:
         self.limited = limited  # If True, this block should not be shown when rendered with limited=1
         self.tooltip = tooltip  # If set, shows this text as an html over tooltip
         self.padding = padding  # Distance to next object
-        self.link = link # Anchor for this block
+        self.link = link  # Anchor for this block
 
     def add_absolute_block(self, left, top, block, link=''):
         ''' Will be deprecated '''
@@ -39,7 +39,7 @@ class Block:
     def add_block(self, block, link=''):
         self.children += [(block, link)]
 
-    def content(self):
+    def render_content(self):
         return ''
 
     def render_children(self, limited=False):
@@ -96,7 +96,7 @@ class Block:
         tooltip_text = f'<span class="tooltiptext">{wrap(self.tooltip,42)}</span>' if self.tooltip else ''
         res = f'''<div {id} {tooltip_class} style="{position_str} {width} {height} {padding} background-color:{self.bg_color}; ">
                     {tooltip_text}
-                    {self.content()}
+                    {self.render_content()}
                     {self.render_children(limited=limited)}
                     </div>
                 '''
@@ -115,7 +115,7 @@ class HBlock(Block):
             id=id,
             align_children='horizontal',
             limited=limited,
-            link=link
+            link=link,
         )
 
 
@@ -129,7 +129,7 @@ class VBlock(Block):
             id=id,
             align_children='vertical',
             limited=limited,
-            link = link
+            link=link,
         )
 
 
@@ -148,9 +148,11 @@ class TextBlock(Block):
         url=None,
         limited=False,
         tooltip='',
-        padding=30.
+        padding=30.0,
     ):
-        super().__init__([], width=width, height=height, bg_color=bg_color, limited=limited, tooltip=tooltip, padding=padding)
+        super().__init__(
+            [], width=width, height=height, bg_color=bg_color, limited=limited, tooltip=tooltip, padding=padding
+        )
         self.text = doFormat(text, format)
         self.font_size = font_size
         self.font_family = font_family
@@ -161,7 +163,7 @@ class TextBlock(Block):
             self.color = color
         self.url = url
 
-    def content(self):
+    def render_content(self):
         colorstr = f'color:{self.color};' if self.color else ''
         res = f'''<span style="font-size:{self.font_size}px; {colorstr} font-family:{self.font_family}; {self.style}">{self.text}</span>'''
         if self.url:

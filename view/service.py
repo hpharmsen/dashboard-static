@@ -1,7 +1,7 @@
 import os
 from layout.basic_layout import defsize, midsize, headersize
 from layout.block import Block, HBlock, VBlock, TextBlock, Page
-from layout.table import Table
+from layout.table import Table, TableConfig
 from model.service import (
     omzet_op_service_projecten,
     service_omzet_door_serviceteam,
@@ -44,9 +44,7 @@ def render_service_page():
             TextBlock('Team', midsize),
             Table(
                 service_omzet_per_persoon(),
-                headers=['Persoon', 'Service omzet'],
-                aligns=['left', 'right'],
-                formats=['', '€'],
+                TableConfig(headers=['Persoon', 'Service omzet'], aligns=['left', 'right'], formats=['', '€']),
             ),
         ]
     )
@@ -56,9 +54,11 @@ def render_service_page():
             TextBlock('Klanten', midsize),
             Table(
                 service_klanten(),
-                headers=['Klant', 'project', 'billable uren', 'totaal uren', 'omzet', 'per uur'],
-                aligns=['left', 'left', 'right', 'right', 'right', 'right'],
-                formats=['', '', '€', '€', '€', '€'],
+                TableConfig(
+                    headers=['Klant', 'project', 'billable uren', 'totaal uren', 'omzet', 'per uur'],
+                    aligns=['left', 'left', 'right', 'right', 'right', 'right'],
+                    formats=['', '', '€', '€', '€', '€'],
+                ),
             ),
         ]
     )

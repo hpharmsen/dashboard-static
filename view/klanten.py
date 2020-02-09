@@ -1,9 +1,10 @@
 import os
 from model.resultaat import omzet_per_klant_laatste_zes_maanden
-from model.winstgevendheid import winst_per_klant
+
+# from model.winstgevendheid import winst_per_klant
 from layout.basic_layout import headersize, midsize
-from layout.block import HBlock, VBlock, TextBlock, Page
-from layout.table import Table
+from layout.block import VBlock, TextBlock, Page
+from layout.table import Table, TableConfig
 
 
 def render_klant_page():
@@ -11,7 +12,10 @@ def render_klant_page():
     omzet = VBlock(
         [
             TextBlock('Omzet laatste 6 maanden', midsize),
-            Table(omzet_per_klant_laatste_zes_maanden(), aligns=['left', 'right', 'right'], formats=['', '€', '%']),
+            Table(
+                omzet_per_klant_laatste_zes_maanden(),
+                TableConfig(aligns=['left', 'right', 'right'], formats=['', '€', '%']),
+            ),
         ]
     )
 
