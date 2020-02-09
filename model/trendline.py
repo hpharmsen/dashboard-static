@@ -5,7 +5,7 @@ import json
 import datetime
 
 # from model.productiviteit import billable_perc_iedereen
-from layout.chart import ScatterChart
+from layout.chart import ScatterChart, ChartConfig
 
 TREND_FILE = os.path.dirname(__file__) + '/trends.json'
 
@@ -47,7 +47,15 @@ class TrendLines:
     def chart(self, trendname, width, height, x_start='', y_start=None, y_max=None):
         xy = [{'x': a[0], 'y': a[1]} for a in self.trends[trendname] if a[0] >= x_start]
         scatterchart = ScatterChart(
-            width, height, value=xy, color='#6666cc', fill_color='#ddeeff', x_type='date', y_start=y_start, y_max=y_max
+            xy,
+            ChartConfig(
+                width=width,
+                height=height,
+                colors=['#6666cc', '#ddeeff'],
+                x_type='date',
+                min_y_axis=y_start,
+                max_y_axis=y_max,
+            ),
         )
         return scatterchart
 

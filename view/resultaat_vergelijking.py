@@ -10,7 +10,7 @@ from model.resultaat_vergelijking import (
     winst_vorig_jaar_per_maand,
     MAANDEN,
 )
-from layout.chart import LineChart
+from layout.chart import LineChart, ChartConfig
 
 
 def render_resultaat_vergelijking_page():
@@ -19,13 +19,14 @@ def render_resultaat_vergelijking_page():
         [
             TextBlock('Omzet vergelijking', midsize),
             LineChart(
-                900,
-                600,
-                '',
-                ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                 [omzet_per_maand(), omzet_begroot_per_maand(), omzet_vorig_jaar_per_maand()],
-                ['#4285f4', '#f4b400', '#db4437'],
-                bottom_labels=['Omzet', 'Omzet begroot', 'Omzet vorig jaar'],
+                ChartConfig(
+                    width=900,
+                    height=600,
+                    labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                    colors=['#4285f4', '#f4b400', '#db4437'],
+                    bottom_labels=['Omzet', 'Omzet begroot', 'Omzet vorig jaar'],
+                ),
             ),
         ]
     )
@@ -34,13 +35,14 @@ def render_resultaat_vergelijking_page():
         [
             TextBlock('Winst vergelijking', midsize),
             LineChart(
-                900,
-                600,
-                '',
-                MAANDEN,
                 [winst_per_maand(), winst_begroot_per_maand(), winst_vorig_jaar_per_maand()],
-                ['#4285f4', '#f4b400', '#db4437'],
-                bottom_labels=['Winst', 'Winst begroot', 'Winst vorig jaar'],
+                ChartConfig(
+                    width=900,
+                    height=600,
+                    labels=MAANDEN,
+                    colors=['#4285f4', '#f4b400', '#db4437'],
+                    bottom_labels=['Winst', 'Winst begroot', 'Winst vorig jaar'],
+                ),
             ),
         ],
         limited=True,

@@ -1,7 +1,7 @@
 import os
 from model.caching import load_cache
 from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
-from layout.table import Table
+from layout.table import Table, TableConfig
 from layout.basic_layout import defsize, midsize, headersize
 from model.resultaat import (
     omzet_tm_vorige_maand,
@@ -165,12 +165,14 @@ def onderhanden_block():
             TextBlock('Onderhanden werk', midsize),
             Table(
                 data,
-                headers=['Klant', 'Project', 'Gedaan', 'Gefactureerd', 'Onderhanden'],
-                aligns=['left', 'left', 'right', 'right', 'right'],
-                formats=['', '', '€', '€', '€'],
-                totals=[0, 0, 0, 0, 1],
-                row_linking=lambda l, v: f'https://oberview.oberon.nl/project/{v[0]}',
-                hide_columns=[0],  # Hide the id column
+                TableConfig(
+                    headers=['Klant', 'Project', 'Gedaan', 'Gefactureerd', 'Onderhanden'],
+                    aligns=['left', 'left', 'right', 'right', 'right'],
+                    formats=['', '', '€', '€', '€'],
+                    totals=[0, 0, 0, 0, 1],
+                    row_linking=lambda l, v: f'https://oberview.oberon.nl/project/{v[0]}',
+                    hide_columns=[0],  # Hide the id column
+                ),
             ),
         ]
     )
@@ -179,12 +181,14 @@ def onderhanden_block():
 def tor_done_block():
     return Table(
         gedaan_werk_tor_table(),
-        headers=['Onderdeel', 'Gedaan'],
-        aligns=['left', 'right'],
-        formats=['', '€'],
-        totals=[0, 1],
-        row_linking=lambda l, v: f'https://oberview.oberon.nl/project/{v[0]}',
-        hide_columns=[0],  # Hide the id column
+        TableConfig(
+            headers=['Onderdeel', 'Gedaan'],
+            aligns=['left', 'right'],
+            formats=['', '€'],
+            totals=[0, 1],
+            row_linking=lambda l, v: f'https://oberview.oberon.nl/project/{v[0]}',
+            hide_columns=[0],  # Hide the id column
+        ),
     )
 
 

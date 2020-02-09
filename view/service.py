@@ -9,7 +9,7 @@ from model.service import (
     service_klanten,
     service_omzet_persoon_maand,
 )
-from layout.chart import BarChart
+from layout.chart import BarChart, ChartConfig
 
 
 def render_service_page():
@@ -28,13 +28,15 @@ def render_service_page():
             TextBlock('Omzet', midsize),
             omzet_staat,
             BarChart(
-                500,
-                500,
-                'Omzet per persoon per maand',
-                list(range(1, 13)),
                 data,
-                ['#4285f4', '#db4437', '#f4b400', '#0f9d58', '#9900ff', '#46bdc6'],
-                bottom_labels=users,
+                ChartConfig(
+                    width=500,
+                    height=500,
+                    title='Omzet per persoon per maand',
+                    labels=list(range(1, 13)),
+                    colors=['#4285f4', '#db4437', '#f4b400', '#0f9d58', '#9900ff', '#46bdc6'],
+                    bottom_labels=users,
+                ),
             ),
         ]
     )

@@ -2,7 +2,7 @@ import os
 from layout.block import TextBlock, Page, Grid, VBlock
 from layout.table import Table
 from layout.basic_layout import headersize, midsize
-from layout.chart import ScatterChart
+from layout.chart import ScatterChart, ChartConfig
 from model.productiviteit import tuple_of_productie_users, billable_trend_person
 
 
@@ -16,14 +16,15 @@ def render_billable_page():
     for user in users:
         chartdata = [{'x': rec['datum'].strftime('%Y-%m-%d'), 'y': rec['hours']} for rec in billable_trend_person(user)]
         chart = ScatterChart(
-            400,
-            220,
-            value=chartdata,
-            color='#6666cc',
-            fill_color='#ddeeff',
-            y_start=0,
-            y_max=40,  # Max 40 billable hours per week
-            x_type='date',
+            chartdata,
+            ChartConfig(
+                width=400,
+                height=220,
+                colors=['#6666cc', '#ddeeff'],
+                min_y_axis=0,
+                max_y_axis=40,  # Max 40 billable hours per week
+                x_type='date',
+            ),
         )
         user_block = VBlock([TextBlock(user, font_size=midsize), chart])
         grid.set_cell(row, col, user_block)

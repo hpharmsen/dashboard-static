@@ -9,11 +9,11 @@ from layout.block import Block, wrap
 
 class TableConfig(NamedTuple):
     id: str = ''
-    headers: str = None
+    headers: List = []
     aligns: List = []  # e.g. ['left','left','right']
     formats: List = []  # see basic_layout.doFormat for options
     totals: List = []  # which columns should have totals e.g. [0,0,1,1]
-    row_coloring = None  # Callback that determines how table rows should be colored
+    row_coloring: Callable = None  # Callback that determines how table rows should be colored
     cell_coloring: Callable = None  # Callback that determines how table cells should be colored
     cell_hovering: Callable = None  # Callback that determines the tooltip for a cell
     row_linking: Callable = None  # Callback that determines the linked url of a row

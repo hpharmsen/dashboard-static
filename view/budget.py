@@ -1,6 +1,6 @@
 import os
 from layout.block import TextBlock, Page
-from layout.table import Table
+from layout.table import Table, TableConfig
 from layout.basic_layout import headersize
 from model.budget import project_budget_status
 
@@ -28,24 +28,38 @@ def render_budget_status_page():
             TextBlock('Budget status', headersize),
             Table(
                 data,
-                headers=[
-                    'klant',
-                    'project',
-                    'pm',
-                    'type',
-                    'uren',
-                    'budget',
-                    'correctie',
-                    'gefactureerd',
-                    'verschil',
-                    'percentueel',
-                    'laatste factuur',
-                ],
-                aligns=['left', 'left', 'left', 'left', 'right', 'right', 'right', 'right', 'right', 'right', 'right'],
-                hide_columns=[0, 8, 10],
-                cell_coloring=budget_status_coloring,
-                row_linking=lambda l, v: f'https://oberview.oberon.nl/project/{v[0]}',
-                cell_hovering=budget_status_hovering,
+                TableConfig(
+                    headers=[
+                        'klant',
+                        'project',
+                        'pm',
+                        'type',
+                        'uren',
+                        'budget',
+                        'correctie',
+                        'gefactureerd',
+                        'verschil',
+                        'percentueel',
+                        'laatste factuur',
+                    ],
+                    aligns=[
+                        'left',
+                        'left',
+                        'left',
+                        'left',
+                        'right',
+                        'right',
+                        'right',
+                        'right',
+                        'right',
+                        'right',
+                        'right',
+                    ],
+                    hide_columns=[0, 8, 10],
+                    cell_coloring=budget_status_coloring,
+                    row_linking=lambda l, v: f'https://oberview.oberon.nl/project/{v[0]}',
+                    cell_hovering=budget_status_hovering,
+                ),
             ),
         ]
     )

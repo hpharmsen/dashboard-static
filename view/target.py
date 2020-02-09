@@ -58,7 +58,7 @@ def render_target_page():
         ['bereikt', 'boven target', 'onder target', 'nog te doen'],
         [bereikt, boven_target, onder_target, nog_te_doen],
         [blauw, groen, rood, grijs],
-        bottom_label=namen,
+        bottom_labels=namen,
         horizontal=True,
         data_labels=['', '', '', data_labels_js],
     )

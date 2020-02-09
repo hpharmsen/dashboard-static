@@ -74,7 +74,9 @@ def render_productiviteit_page():
         )
 
         chartdata = [{'x': rec['datum'].strftime('%Y-%m-%d'), 'y': rec['hours']} for rec in billable_trend_person(user)]
-        chart = ScatterChart(400, 400, value=chartdata, color='#6666cc', fill_color='#ddeeff', y_start=0, x_type='date')
+        chart = ScatterChart(
+            400, 400, values=chartdata, color='#6666cc', fill_color='#ddeeff', y_start=0, x_type='date'
+        )
 
         page = Page([TextBlock(f'Productiviteit {user}', headersize), chart, productiviteit_table])
         page.render(f'output/productiviteit_{user}.html')

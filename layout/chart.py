@@ -1,9 +1,11 @@
 import re
 import random
 import string
+from typing import NamedTuple, List
+
 from layout.block import Block
 
-pattern = re.compile('[\W_]+')
+id_pattern = re.compile('[\W_]+')
 
 
 def randomString(stringLength=3):
@@ -12,19 +14,36 @@ def randomString(stringLength=3):
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
+class ChartConfig(NamedTuple):
+    width: int
+    height: int
+    title: str = ''
+    labels: List = []  # Legend labels
+    colors: List = []
+    bg_color: str = '#ffffff'
+    link: str = None
+    bottom_labels: List = []  # for Bar, StackedBar and Line
+    data_labels: List = []  # Labels for in the chart itself. Currently only implemented for StackedBarChart
+    max_y_axis: float = None  # Currently only for StackedBarChart and ScatterChart
+    min_y_axis: float = None  # Currently only for ScatterChart
+    horizontal: bool = False  # Currently only for StackedBarChart
+    x_type: str = 'float'  # Currently only for ScatterChart
+
+
 class Chart(Block):
-    def __init__(self, width, height, title, labels, values, colors, bg_color='', limited=False, link=None):
-        super().__init__(id=id, width=width, height=height, bg_color=bg_color, limited=limited, link=link)
-        self.id = pattern.sub('', title) + '_' + randomString()
-        self.title = title
-        self.labels = labels
-        self.values = values
-        self.colors = colors
+    def __init__(self, values, config, limited=False):
+        id = id_pattern.sub('', config.title) + '_' + randomString()
+        super().__init__(
+            id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link, limited=limited
+        )
         self.datasets = f'''[{{
-                    data: {str(self.values)},
-                    backgroundColor: {str(self.colors)},
+                    data: {str(values)},
+                    backgroundColor: {str(config.colors)},
                     label: ''
-                }}]'''
+                }}]'''  #!! Moet backgroundColor niet config.bg_color zijn??
+        self.values = values
+        self.config = config
+        self.labels = config.labels  # Can be overwritten
         self.canvas_height_difference = 150  # Difference between div height and canvas height, can be overwritten
 
     def do_render(self, left, top, position):
@@ -63,8 +82,8 @@ class Chart(Block):
 
 
 class PieChart(Chart):
-    def __init__(self, width, height, title, labels, values, colors, bg_color='', limited=False):
-        super().__init__(width, height, title, labels, values, colors, bg_color, limited)
+    def __init__(self, values, config, limited=False):
+        super().__init__(values, config, limited)
 
         self.type = 'doughnut'
         self.options = f'''{{
@@ -84,20 +103,19 @@ class PieChart(Chart):
 
 
 class BarChart(Chart):
-    def __init__(self, width, height, title, labels, values, colors, bg_color='', bottom_labels=[], limited=False):
-        super().__init__(width, height, title, labels, values, colors, bg_color, limited)
+    def __init__(self, values, config, limited=False):
+        super().__init__(values, config, limited)
 
         self.type = 'bar'
 
         self.datasets = '['
-        for label, value, color in zip(bottom_labels, self.values, self.colors):
+        for label, value, color in zip(config.bottom_labels, values, config.colors):
             self.datasets += f'''{{
                                     label: '{label}',
                                     data: {value},
                                     backgroundColor: '{color}'
                                   }},'''
         self.datasets = self.datasets[:-1] + ']'
-        self.labels = labels
 
         self.options = f'''{{
             title: {{
@@ -124,34 +142,19 @@ class BarChart(Chart):
 
 
 class StackedBarChart(Chart):
-    def __init__(
-        self,
-        width,
-        height,
-        title,
-        labels,
-        values,
-        colors,
-        bg_color='',
-        bottom_label='',
-        horizontal=False,
-        max_axis_value=None,
-        data_labels=[],
-        limited=False,
-        link=None,
-    ):
-        super().__init__(width, height, title, labels, values, colors, bg_color, limited, link)
+    def __init__(self, values, config, limited=False):
+        super().__init__(values, config, limited)
 
-        self.type = 'horizontalBar' if horizontal else 'bar'
+        self.type = 'horizontalBar' if config.horizontal else 'bar'
 
         # Make datalabels as long as the rest, set a default and replace default where it was specified in data_labels param
         dl = ['{display: false }'] * len(values)
-        for i, val in enumerate(data_labels):
+        for i, val in enumerate(config.data_labels):
             if val:
                 dl[i] = val
 
         self.datasets = '['
-        for label, value, color, dls in zip(self.labels, self.values, self.colors, dl):
+        for label, value, color, dls in zip(config.labels, self.values, config.colors, dl):
             if type(value) != type([]):
                 value = [value]
             self.datasets += f'''{{
@@ -161,12 +164,11 @@ class StackedBarChart(Chart):
                                     datalabels: {dls} 
                                   }},'''
         self.datasets = self.datasets[:-1] + ']'
-        if not bottom_label:
-            bottom_label = title
-        elif type(bottom_label) == type([]):
-            bottom_label = "', '".join(bottom_label)
-        self.labels = f"['{bottom_label}']"
-        ticks = f',ticks: {{max: {max_axis_value}}}' if max_axis_value else ''
+        if not config.bottom_labels:
+            bottom_labels = [config.title]
+        bottom_label_string = "', '".join(bottom_labels)
+        self.labels = f"['{bottom_label_string}']"
+        ticks = f',ticks: {{max: {config.max_y_axis}}}' if config.max_y_axis else ''
         self.options = f'''{{
                 title: {{
                     display: false
@@ -179,12 +181,12 @@ class StackedBarChart(Chart):
 
 
 class LineChart(Chart):
-    def __init__(self, width, height, title, labels, values, colors, bg_color='', bottom_labels=[], limited=False):
-        super().__init__(width, height, title, labels, values, colors, bg_color, limited)
+    def __init__(self, values, config, limited=False):
+        super().__init__(values, config, limited)
 
         self.type = 'line'
         self.datasets = '['
-        for label, value, color in zip(bottom_labels, self.values, self.colors):
+        for label, value, color in zip(config.bottom_labels, values, config.colors):
             self.datasets += f'''{{
                                     label: '{label}',
                                     data: {value},
@@ -193,7 +195,7 @@ class LineChart(Chart):
                                     fill: false, 
                                   }},'''
         self.datasets = self.datasets[:-1] + ']'
-        self.labels = labels
+        # self.labels = config.labels
 
         self.options = f'''{{
                 title: {{
@@ -213,47 +215,37 @@ class LineChart(Chart):
         }}'''
 
 
+BORDER_COLOR = 0
+FILL_COLOR = 1
+
+
 class ScatterChart(Chart):
-    def __init__(
-        self,
-        width,
-        height,
-        title='',
-        label='',
-        value=0,
-        color='#66666',
-        bg_color='#ffffff',
-        fill_color='#ddeeff',
-        limited=False,
-        x_type='float',
-        y_start=None,
-        y_max=None,
-    ):
-        super().__init__(width, height, title, [label], [value], [color], bg_color, limited)
+    def __init__(self, values, config, limited=False):
+        super().__init__(values, config, limited)
 
         self.type = 'line'
         self.datasets = '['
-        if x_type == 'date':
+        if config.x_type == 'date':
             valuestr = '['
-            for v in value:
+            for v in values:
                 valuestr += f"{{ 'x':'{v['x']}', 'y': {v['y']} }}, "
             valuestr = valuestr[:-2] + ']'
         else:
-            valuestr = value
+            valuestr = values
         self.datasets += f'''{{
-                                label: '{label}',
+                                label: '{config.title}',
                                 data: {valuestr},
-                                borderColor: '{color}',
-                                backgroundColor: '{fill_color}',
+                                borderColor: '{config.colors[BORDER_COLOR]}',
+                                backgroundColor: '{config.colors[FILL_COLOR]}',
                                 borderWidth: 1, 
                                 fill: true, 
                               }},'''
         self.datasets = self.datasets[:-1] + ']'
-        self.labels = []
+        # self.labels = []
         self.canvas_height_difference = 0  # Is for scatter chart other than for other chart types
 
-        ymin = '' if y_start == None else f'suggestedMin: {y_start},'
-        ymax = '' if y_max == None else f'max: {y_max},'
+        ymin = '' if config.min_y_axis == None else f'suggestedMin: {config.min_y_axis},'
+        ymax = '' if config.max_y_axis == None else f'max: {config.max_y_axis},'
         self.options = f'''{{
             title: {{
                 display: false

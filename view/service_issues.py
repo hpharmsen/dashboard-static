@@ -1,7 +1,7 @@
 import os
 from layout.basic_layout import midsize, headersize
 from layout.block import HBlock, VBlock, TextBlock, Page
-from layout.table import Table
+from layout.table import Table, TableConfig
 from model.jira_issues import (
     service_jql,
     service_issues_per_status,
@@ -19,11 +19,13 @@ def issue_table(title, function, row_coloring=None, row_linking=None):
             TextBlock('per ' + title, midsize),
             Table(
                 function(),
-                headers=[title, 'aantal'],
-                aligns=['left', 'right'],
-                totals=[0, 1],
-                row_coloring=row_coloring,
-                row_linking=row_linking,
+                TableConfig(
+                    headers=[title, 'aantal'],
+                    aligns=['left', 'right'],
+                    totals=[0, 1],
+                    row_coloring=row_coloring,
+                    row_linking=row_linking,
+                ),
             ),
         ]
     )
@@ -107,9 +109,11 @@ def render_service_issues_page():
             TextBlock('belangrijkst om op te pakken', midsize),
             Table(
                 belangrijkste_service_issues(),
-                headers=['issue', 'status', 'prioriteit', 'dagen inactief', 'assignee', 'punten'],
-                aligns=['left', 'left', 'left', 'center', 'left', 'center'],
-                row_linking=lambda l, v: 'https://teamoberon.atlassian.net/browse/' + v[0],
+                TableConfig(
+                    headers=['issue', 'status', 'prioriteit', 'dagen inactief', 'assignee', 'punten'],
+                    aligns=['left', 'left', 'left', 'center', 'left', 'center'],
+                    row_linking=lambda l, v: 'https://teamoberon.atlassian.net/browse/' + v[0],
+                ),
             ),
         ]
     )

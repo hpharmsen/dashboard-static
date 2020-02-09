@@ -1,8 +1,8 @@
 import os
 from layout.basic_layout import headersize, midsize, defsize
 from layout.block import Block, VBlock, HBlock, TextBlock, Page
-from layout.table import Table
-from layout.chart import StackedBarChart
+from layout.table import Table, TableConfig
+from layout.chart import StackedBarChart, ChartConfig
 from model.tor import tor_projecten, tor_total_budget, tor_total_spent, tor_perc_spent, tor_facturen, tor_per_maand
 
 
@@ -21,11 +21,13 @@ def render_tor_page():
             TextBlock('Projectoverzicht', midsize),
             Table(
                 tor_projecten(),
-                headers=['id', 'title', 'Budget', 'Uren', 'Besteed', 'Percentage besteed'],
-                aligns=['left', 'left', 'right', 'right', 'right', 'right'],
-                formats=['', '', '€', '0', '€', '%'],
-                totals=[0, 0, 1, 1, 1, 0],
-                row_linking=lambda l, v: f'https://oberview.oberon.nl/project/{v[0]}',
+                TableConfig(
+                    headers=['id', 'title', 'Budget', 'Uren', 'Besteed', 'Percentage besteed'],
+                    aligns=['left', 'left', 'right', 'right', 'right', 'right'],
+                    formats=['', '', '€', '0', '€', '%'],
+                    totals=[0, 0, 1, 1, 1, 0],
+                    row_linking=lambda l, v: f'https://oberview.oberon.nl/project/{v[0]}',
+                ),
             ),
         ]
     )
@@ -38,14 +40,15 @@ def render_tor_page():
         [
             TextBlock('Grafiek', midsize),
             StackedBarChart(
-                500,
-                440,
-                '',
-                ['besteed', 'beschikbaar', 'over budget'],
                 [besteed, beschikbaar, overbudget],
-                ['#55c', '#5c5', '#C55'],
-                bottom_label=bottom_labels,
-                horizontal=True,
+                ChartConfig(
+                    width=500,
+                    height=440,
+                    labels=['besteed', 'beschikbaar', 'over budget'],
+                    colors=['#55c', '#5c5', '#C55'],
+                    bottom_labels=bottom_labels,
+                    horizontal=True,
+                ),
             ),
         ]
     )
@@ -55,10 +58,12 @@ def render_tor_page():
             TextBlock('Per maand', midsize),
             Table(
                 tor_per_maand(),
-                headers=['maand', 'uren', 'besteed', 'per partner'],
-                aligns=['left', 'right', 'right', 'right'],
-                formats=['', 0, '€', '€'],
-                totals=[0, 1, 1, 1],
+                TableConfig(
+                    headers=['maand', 'uren', 'besteed', 'per partner'],
+                    aligns=['left', 'right', 'right', 'right'],
+                    formats=['', 0, '€', '€'],
+                    totals=[0, 1, 1, 1],
+                ),
             ),
         ]
     )
@@ -68,10 +73,12 @@ def render_tor_page():
             TextBlock('Gefactureerd', midsize),
             Table(
                 tor_facturen(),
-                headers=['factuur', 'datum', 'bedrag', 'status'],
-                aligns=['left', 'left', 'right', 'left'],
-                formats=['', '', '€', ''],
-                totals=[0, 0, 1, 0],
+                TableConfig(
+                    headers=['factuur', 'datum', 'bedrag', 'status'],
+                    aligns=['left', 'left', 'right', 'left'],
+                    formats=['', '', '€', ''],
+                    totals=[0, 0, 1, 0],
+                ),
             ),
         ]
     )

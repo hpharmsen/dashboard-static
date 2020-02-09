@@ -4,8 +4,8 @@ from dateutil.relativedelta import relativedelta
 
 from model.caching import load_cache
 from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
-from layout.table import Table
-from layout.chart import StackedBarChart, ScatterChart
+from layout.table import Table, TableConfig
+from layout.chart import StackedBarChart, ScatterChart, ChartConfig
 from layout.basic_layout import defsize, midsize, headersize
 from model.organisatie import aantal_mensen, aantal_fte, aantal_fte_begroot
 from model.productiviteit import (
@@ -42,7 +42,7 @@ def sales_block():
             ),
             trends.chart('sales_waarde', 250, 150, y_start=0),
             TextBlock('Top 5 sales kansen', midsize),
-            Table(top_x_sales(5), headers=[], aligns=['left', 'right'], formats=['', '€']),
+            Table(top_x_sales(5), TableConfig(headers=[], aligns=['left', 'right'], formats=['', '€'])),
         ],
         'sales.html',
     )
@@ -57,10 +57,7 @@ def klanten_block():
             TextBlock('Top 3 klanten laatste 6 maanden', defsize, padding=10, color='gray'),
             Table(
                 top_x_klanten_laatste_zes_maanden(3),
-                headers=[],
-                aligns=['left', 'right', 'right'],
-                formats=['', '€', '%'],
-                totals=[0, 0, 1],
+                TableConfig(headers=[], aligns=['left', 'right', 'right'], formats=['', '€', '%'], totals=[0, 0, 1]),
             ),
         ],
         'clients.html',
@@ -277,7 +274,9 @@ def omzet_prognose_chart():
     return VBlock(
         [
             TextBlock('...en de komende zes', defsize, color='gray', limited=False),
-            ScatterChart(250, 150, value=xy, color='#6666cc', fill_color='#ddeeff', x_type='date', y_start=0),
+            ScatterChart(
+                xy, ChartConfig(width=250, height=150, colors=['#6666cc', '#ddeeff'], x_type='date', min_y_axis=0)
+            ),
         ]
     )
 
@@ -303,13 +302,14 @@ def debiteuren_block():
         [
             TextBlock('Debiteuren', midsize),
             StackedBarChart(
-                240,
-                470,
-                '',
-                ['<30 dg', '30-60 dg', '60-90 dg', '> 90 dg'],
                 debiteuren_30_60_90(),
-                ['#7C7', '#FD0', '#FFA500', '#c00'],
-                max_axis_value=350000,
+                ChartConfig(
+                    width=240,
+                    height=470,
+                    labels=['<30 dg', '30-60 dg', '60-90 dg', '> 90 dg'],
+                    colors=['#7C7', '#FD0', '#FFA500', '#c00'],
+                    max_y_axis=350000,
+                ),
             ),
         ],
         link='debiteuren.html',
