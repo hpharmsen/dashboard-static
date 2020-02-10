@@ -29,6 +29,26 @@ from model.resultaat import (
 from model.sales import sales_waarde, werk_in_pijplijn, top_x_sales
 from model.trendline import trends
 
+
+def render_dashboard():
+
+    page = Page(
+        [
+            HBlock(
+                [
+                    VBlock([sales_block(), klanten_block()]),
+                    VBlock([resultaat_block(), pijplijn_block(), organisatie_block()]),
+                    VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
+                    VBlock([rocks_block(), debiteuren_block()]),
+                ]
+            )
+        ]
+    )
+
+    page.render('output/dashboard.html')
+    page.render('output/limited/dashboard.html', limited=True)
+
+
 ######### Kolom 1: Sales + Klanten ###########
 
 
@@ -115,7 +135,8 @@ def resultaat_block():
                     )
                 ]
             ),
-        ]
+        ],
+        link="resultaat_berekening.html",
     )
     return resultaat
 
@@ -333,25 +354,6 @@ def debiteuren_block():
 #     return PieChart(
 #         240, 520, 'omzet per product', product_types, product_turnovers, ['#5c5', '#C55', '#55C', '#555', '#5CC']
 #     )
-
-
-def render_dashboard():
-
-    page = Page(
-        [
-            HBlock(
-                [
-                    VBlock([sales_block(), klanten_block()]),
-                    VBlock([resultaat_block(), pijplijn_block(), organisatie_block()]),
-                    VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
-                    VBlock([rocks_block(), debiteuren_block()]),
-                ]
-            )
-        ]
-    )
-
-    page.render('output/dashboard.html')
-    page.render('output/limited/dashboard.html', limited=True)
 
 
 if __name__ == '__main__':

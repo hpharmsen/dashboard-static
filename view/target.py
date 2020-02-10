@@ -6,7 +6,7 @@ from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table
 from model.target import users_and_targets
 from model.productiviteit import fraction_of_the_year_past
-from layout.chart import StackedBarChart
+from layout.chart import StackedBarChart, ChartConfig
 
 groen = '#5c5'
 blauw = '#55c'
@@ -52,15 +52,16 @@ def render_target_page():
     }'''
 
     chart = StackedBarChart(
-        800,
-        840,
-        '',
-        ['bereikt', 'boven target', 'onder target', 'nog te doen'],
         [bereikt, boven_target, onder_target, nog_te_doen],
-        [blauw, groen, rood, grijs],
-        bottom_labels=namen,
-        horizontal=True,
-        data_labels=['', '', '', data_labels_js],
+        ChartConfig(
+            width=800,
+            height=840,
+            labels=['bereikt', 'boven target', 'onder target', 'nog te doen'],
+            colors=[blauw, groen, rood, grijs],
+            bottom_labels=namen,
+            horizontal=True,
+            data_labels=['', '', '', data_labels_js],
+        ),
     )
 
     page = Page([TextBlock('Targets', headersize), VBlock([TextBlock('Per persoon met target en tot nu toe'), chart])])

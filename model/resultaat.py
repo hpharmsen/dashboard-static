@@ -6,6 +6,14 @@ from sources.googlesheet import sheet_tab, sheet_value
 from sources import database as db
 from model.trendline import trends
 
+onderhanden_2019 = 105098.0
+# Accell	-65.295
+# NuTest	-5.700
+# Ben	-15.903
+# CEO -18.200
+tor_onderhanden_2019 = 80741.0
+
+
 DATA_OMZET_ROW = 24
 DATA_UITBESTEED_ROW = 25
 DATA_ONDERHANDEN_ROW = 26
@@ -43,7 +51,7 @@ def omzet_werkelijk():
     return opbrengsten_tm_vorige_maand() + omzet_deze_maand() + onderhanden_werk()
 
 
-@reportz(hours=200)
+# @reportz(hours=200)
 def laatste_maand_data(row):
     ''' Retourneert data uit de laatst ingevulde boekhouding kolom van het data sheet '''
     if virtuele_maand() == 1:
@@ -56,7 +64,8 @@ def laatste_maand_data(row):
 @reportz
 def omzet_tm_vorige_maand():
     ''' Gefactureerde omzet t/m vorige maand zoals gerapporteerd in de boekhouding '''
-    return laatste_maand_data(DATA_OMZET_ROW)
+    res = laatste_maand_data(DATA_OMZET_ROW)
+    return res
 
 
 @reportz
@@ -77,16 +86,17 @@ def subsidie_tm_vorige_maand():
     return laatste_maand_data(DATA_SUBSIDIE_ROW)
 
 
-@reportz(hours=200)
+@reportz(hours=24)
 def opbrengsten_tm_vorige_maand():
     ''' De bruto marge tot en met de vorige maand (zoals gerapporteerd in de boekhouding), inclusief subsidie maar zonder onderhanden werk '''
     if virtuele_maand() == 1:
-        return -99554  #!! Correctie begin jaar
+        return -onderhanden_2019  #!! Correctie begin jaar
     col = virtuele_maand() + 2
     tab = sheet_tab('Oberon key cijfers', 'Data')
     totaal = sheet_value(tab, 28, col)
     onderhanden = sheet_value(tab, 26, col)
-    return totaal - onderhanden - 99554  #!! Correctie begin jaar
+    res = totaal - onderhanden - onderhanden_2019  #!! Correctie begin jaar
+    return res
 
 
 @reportz(hours=1)
@@ -99,7 +109,8 @@ def omzet_deze_maand():
     query = f'''select ifnull(round(sum( invoice_amount)),0) as turnover 
                 from invoice 
                 where year(invoice_date)={y} and month(invoice_date)>={m}'''
-    return db.value(query)
+    res = db.value(query)
+    return res
 
 
 # @reportz(hours=24)
@@ -130,7 +141,8 @@ def omzet_deze_maand():
 ##### Onderhanden werk #####
 def onderhanden_werk():
     ''' Werk dat is gedaan maar nog niet gefactueerd '''
-    return onderhanden_werk_uurbasis() + onderhanden_werk_fixed() + onderhanden_werk_tor()
+    res = onderhanden_werk_uurbasis() + onderhanden_werk_fixed() + onderhanden_werk_tor()
+    return res
 
 
 @reportz(hours=1)
@@ -207,13 +219,10 @@ def invoiced_tor():
     return db.value(sql)
 
 
-def tor_meegeteld_in_vorige_jaren():
-    return 80242.0
-
-
 @reportz(hours=1)
 def onderhanden_werk_tor():
-    return gedaan_werk_tor() * 3 / 4 - invoiced_tor() - tor_meegeteld_in_vorige_jaren()
+    res = gedaan_werk_tor() * 3 / 4 - invoiced_tor() - tor_onderhanden_2019
+    return res
 
 
 ##### BEGROTE OMZET #####
@@ -356,7 +365,7 @@ def virtuele_maand():
     return vm
 
 
-@reportz(hours=24)
+# @reportz(hours=24)
 def bijgewerkt():
     ''' Checkt in de Resultaat tab van het Keycijders sheet of de boekhouding van afgelopen
         maand al is ingevuld. '''

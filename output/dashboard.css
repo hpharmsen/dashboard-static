@@ -1,7 +1,6 @@
 p, a, span, td, th {font-family:arial; font-size:12px; white-space: nowrap;}
 a {text-decoration:none; color:#333}
 #menubar a { color: #66C }
-a:hover {text-decoration:underline}
 a td, a th { min-width:5em; color:#333}
 
 table { border-collapse: collapse;}

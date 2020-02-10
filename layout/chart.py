@@ -164,8 +164,7 @@ class StackedBarChart(Chart):
                                     datalabels: {dls} 
                                   }},'''
         self.datasets = self.datasets[:-1] + ']'
-        if not config.bottom_labels:
-            bottom_labels = [config.title]
+        bottom_labels = config.bottom_labels if config.bottom_labels else [config.title]
         bottom_label_string = "', '".join(bottom_labels)
         self.labels = f"['{bottom_label_string}']"
         ticks = f',ticks: {{max: {config.max_y_axis}}}' if config.max_y_axis else ''

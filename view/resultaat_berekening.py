@@ -18,7 +18,6 @@ from model.resultaat import (
     gedaan_werk_tor_table,
     gedaan_werk_tor,
     invoiced_tor,
-    tor_meegeteld_in_vorige_jaren,
     onderhanden_werk_tor,
     omzet_begroot,
     omzet_werkelijk,
@@ -31,6 +30,8 @@ from model.resultaat import (
     virtuele_maand,
     virtuele_dag,
     begroting_maandomzet,
+    onderhanden_2019,
+    tor_onderhanden_2019,
 )
 from model.resultaat_vergelijking import MAANDEN
 
@@ -88,12 +89,6 @@ def add_row(grid, *args, header=False, bold=False):
     grid.add_row(row)
 
 
-onderhanden_2019 = 86813.0
-# Accell	-65.295
-# NuTest	-5.615
-# Ben	-15.903
-
-
 def winst_berekening_block():
     grid = Grid(cols=5, aligns=['left', 'right', 'right', 'right', 'right'], has_header=True)
 
@@ -103,7 +98,7 @@ def winst_berekening_block():
     naam_vorige_maand = MAANDEN[huidige_maand - 2]
     naam_huidige_maand = MAANDEN[huidige_maand - 1]
 
-    omzet_begroot_tm_huidige_maand = begroting_maandomzet(huidige_maand)
+    # omzet_begroot_tm_huidige_maand = begroting_maandomzet(huidige_maand)
     # omzet_begroot_tm_vorige_maand = begroting_maandomzet(huidige_maand - 1)
     # omzet_begroot_deze_maand_tot_nu = vd / 30 * (omzet_begroot_tm_huidige_maand - omzet_begroot_tm_vorige_maand)
     totaal_opbrengsten = opbrengsten_tm_vorige_maand() + omzet_deze_maand() + onderhanden_werk()
@@ -201,7 +196,7 @@ def tor_block():
     add_row(tor_grid, 'Nog te factureren', gedaan_werk_tor() / 2 - invoiced_tor(), bold=True)
     add_row(tor_grid)
     add_row(tor_grid, 'Activeren (25%)', gedaan_werk_tor() / 4)
-    add_row(tor_grid, 'Meegeteld met 2019', tor_meegeteld_in_vorige_jaren())
+    add_row(tor_grid, 'Meegeteld met 2019', -tor_onderhanden_2019)
     add_row(tor_grid, 'Meetellen als onderhanden', onderhanden_werk_tor(), bold=True)
 
     return VBlock([TextBlock('TOR 3', midsize), tor_done_block(), tor_grid])
