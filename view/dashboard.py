@@ -3,7 +3,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 from model.caching import load_cache
-from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
+from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.table import Table, TableConfig
 from layout.chart import StackedBarChart, ScatterChart, ChartConfig
 from layout.basic_layout import defsize, midsize, headersize

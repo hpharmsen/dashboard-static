@@ -6,6 +6,12 @@ from layout.basic_layout import doFormat
 
 Kformatter = partial(doFormat, format='K')
 
+# Block: children=[],  align_children='absolute',; id='',
+# HVBlock: children=[], id=''
+# Text: text, font_size=12,; color='',; font_family='Arial',; style='',; format=''
+
+# width=None,; height=None,; bg_color='white', link/url, tooltip, padding
+
 
 class Block:
     def __init__(

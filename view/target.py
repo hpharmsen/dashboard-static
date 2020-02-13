@@ -2,8 +2,7 @@ import os
 from datetime import datetime
 
 from layout.basic_layout import headersize, midsize
-from layout.block import HBlock, VBlock, TextBlock, Page
-from layout.table import Table
+from layout.block import TextBlock, Page, HBlock
 from model.target import users_and_targets
 from model.productiviteit import fraction_of_the_year_past
 from layout.chart import StackedBarChart, ChartConfig
@@ -18,23 +17,26 @@ def render_target_page():
     data = users_and_targets(datetime.today().year)  # .values.tolist()
 
     fraction = fraction_of_the_year_past()
+    # Pandas operaties op de hele lijst tegelijk
     data['bereikt'] = data.apply(lambda row: round(min(row.result, row.target * fraction)), axis=1)
     data['onder_target'] = data.apply(lambda row: max(0, round(row.target * fraction - row.result)), axis=1)
     data['boven_target'] = data.apply(lambda row: max(0, round(row.result - row.target * fraction)), axis=1)
     data['rest'] = data.apply(lambda row: row.target - round(row.result - row.boven_target), axis=1)
-    # data['colheaders'] =   data.apply( lambda row: f'{row.user} {round(row.result)} ({round((row.result/row.target/fraction-1)*100.0)}%)', axis=1)
-    # target_now = [t[1]*fraction_of_the_year_past() for t in targets]
 
-    # bereikt = [min(t[2],t[1]*) for t in targets]
-    # onder_target = [min(0,t[1]*fraction_of_the_year_past()-t[2]) for t in targets]
-    # boven_target = [min(0,t[2]-t[1]*fraction_of_the_year_past()) for t in targets]
-    # nog_te_doen = [t[1]+max(t[2],t[1]*fraction_of_the_year_past()) for t in targets]
+    # Maak er lijsten van t.b.v. de grafiek
     namen = data['user'].tolist()
     bereikt = data['bereikt'].tolist()
     boven_target = data['boven_target'].tolist()
     onder_target = data['onder_target'].tolist()
     nog_te_doen = data['rest'].tolist()
 
+    # Totalen
+    totaal_result = data['result'].sum()
+    totaal_target = data['target'].sum() * fraction
+    totaal_boven_target = totaal_result - totaal_target
+    totaal_percentueel = totaal_result / totaal_target * 100 - 100
+
+    # Wat specifieke chart.js code om de getalletjes in de balken te krijgen in de grafiek
     data_labels_js = '''{
         color: '#FFFFFF',
         anchor : 'start',
@@ -64,7 +66,22 @@ def render_target_page():
         ),
     )
 
-    page = Page([TextBlock('Targets', headersize), VBlock([TextBlock('Per persoon met target en tot nu toe'), chart])])
+    page = Page(
+        [
+            TextBlock('Targets', headersize),
+            TextBlock('Per persoon met target en tot nu toe'),
+            chart,
+            HBlock(
+                [
+                    TextBlock(f'Totaal t.o.v. target', color='gray'),
+                    TextBlock(totaal_boven_target, midsize, format='+'),
+                    TextBlock('uur', color='gray'),
+                    TextBlock(totaal_percentueel, midsize, format='+%'),
+                ]
+            ),
+        ]
+    )
+
     page.render('output/target.html')
 
 
