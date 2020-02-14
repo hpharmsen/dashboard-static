@@ -44,20 +44,17 @@ class TrendLines:
         with open(self.trendfile, 'w') as f:
             f.write(json.dumps(self.trends, indent=4))
 
-    def chart(self, trendname, width, height, x_start='', y_start=None, y_max=None):
+    def chart(self, trendname, width, height, x_start='', min_y_axis=None, max_y_axis=None):
         xy = [{'x': a[0], 'y': a[1]} for a in self.trends[trendname] if a[0] >= x_start]
-        scatterchart = ScatterChart(
-            xy,
-            ChartConfig(
+        chart_config = ChartConfig(
                 width=width,
                 height=height,
                 colors=['#6666cc', '#ddeeff'],
                 x_type='date',
-                min_y_axis=y_start,
-                max_y_axis=y_max,
-            ),
-        )
-        return scatterchart
+                min_y_axis=min_y_axis,
+                max_y_axis=max_y_axis,
+            )
+        return ScatterChart(xy, chart_config )
 
 
 trends = TrendLines()

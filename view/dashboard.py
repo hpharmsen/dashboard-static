@@ -60,7 +60,7 @@ def sales_block():
             TextBlock(
                 sales_waarde(), headersize, format='K', tooltip='Som van openstaande trajecten<br/>maal hun kans.'
             ),
-            trends.chart('sales_waarde', 250, 150, y_start=0),
+            trends.chart('sales_waarde', 250, 150, min_y_axis=0),
             TextBlock('Top 5 sales kansen', midsize),
             Table(top_x_sales(5), TableConfig(headers=[], aligns=['left', 'right'], formats=['', '€'])),
         ],
@@ -144,14 +144,14 @@ def resultaat_block():
 def pijplijn_block():
     pijplijn = VBlock(
         [
-            TextBlock('in de pijplijn', defsize, padding=10, color='gray'),
+            TextBlock('In de pijplijn', defsize, padding=10, color='gray'),
             TextBlock(
                 werk_in_pijplijn(),
                 headersize,
                 format='K',
                 tooltip='Werk dat binnengehaald is maar nog niet uitgevoerd.',
             ),
-            trends.chart('werk_in_pijplijn', 250, 150, y_start=0),
+            trends.chart('werk_in_pijplijn', 250, 150, min_y_axis=0),
         ]
     )
     return pijplijn
@@ -279,7 +279,7 @@ def omzet_chart():
     return VBlock(
         [
             TextBlock('Omzet per week, laatste zes maanden...', defsize, color='gray', limited=False),
-            trends.chart('omzet_per_week', 250, 150, x_start=six_months_ago(), y_start=0),
+            trends.chart('omzet_per_week', 250, 150, x_start=six_months_ago(), min_y_axis=0, max_y_axis=60000),
         ]
     )
 
@@ -296,7 +296,7 @@ def omzet_prognose_chart():
         [
             TextBlock('...en de komende zes', defsize, color='gray', limited=False),
             ScatterChart(
-                xy, ChartConfig(width=250, height=150, colors=['#6666cc', '#ddeeff'], x_type='date', min_y_axis=0)
+                xy, ChartConfig(width=250, height=150, colors=['#6666cc', '#ddeeff'], x_type='date', min_y_axis=0, max_y_axis=60000)
             ),
         ]
     )

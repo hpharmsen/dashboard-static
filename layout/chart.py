@@ -262,14 +262,22 @@ class ScatterChart(Chart):
                     type: 'time',
                     position: 'bottom',
                     time: {{
-						parser: 'YYYY-MM-DD'
+						parser: 'YYYY-MM-DD',
+						unit: 'month',
+						displayFormats: {{
+                            month: '     MMM'
+                        }},
+                        unitStepSize: 1
 					}},
                     ticks: {{
                         fontSize:9
                     }},
 					scaleLabel: {{
 						display: true
-					}}
+					}},
+                    gridLines: {{
+                        offsetGridLines: false
+                    }}
                 }}],      
                 yAxes: [{{
                     ticks: {{

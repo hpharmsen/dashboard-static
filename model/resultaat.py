@@ -371,8 +371,8 @@ def bijgewerkt():
         maand al is ingevuld. '''
     tab = sheet_tab('Oberon key cijfers', 'Resultaat')
     vm = vorige_maand()
-    data = sheet_value(tab, 4, vorige_maand() + 2)
-    return sheet_value(tab, 4, vorige_maand() + 2)
+    data = sheet_value(tab, 4, vm + 2)
+    return data
 
 
 @reportz(hours=24)

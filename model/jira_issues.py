@@ -115,7 +115,7 @@ def flatten(issue):
     issue = issue['fields']
     issue['key'] = key
     issue['project'] = issue['project']['name']
-    issue['assignee'] = issue['assignee']['name'] if issue['assignee'] else 'Unassigned'
+    issue['assignee'] = issue['assignee']['displayName'] if issue['assignee'] else 'Unassigned'
     issue['priority_id'] = int(issue['priority']['id'])
     issue['priority'] = issue['priority']['name']
     issue['updated'] = issue['updated'].split('T')[0]
