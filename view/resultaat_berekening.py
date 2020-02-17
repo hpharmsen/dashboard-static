@@ -23,6 +23,7 @@ from model.resultaat import (
     omzet_werkelijk,
     omzet_verschil,
     omzet_verschil_percentage,
+    kosten_werkelijk,
     winst_begroot,
     winst_werkelijk,
     winst_verschil,
@@ -101,15 +102,9 @@ def winst_berekening_block():
     # omzet_begroot_tm_huidige_maand = begroting_maandomzet(huidige_maand)
     # omzet_begroot_tm_vorige_maand = begroting_maandomzet(huidige_maand - 1)
     # omzet_begroot_deze_maand_tot_nu = vd / 30 * (omzet_begroot_tm_huidige_maand - omzet_begroot_tm_vorige_maand)
-    totaal_opbrengsten = opbrengsten_tm_vorige_maand() + omzet_deze_maand() + onderhanden_werk()
-
     kosten_begroot_deze_maand_tot_nu = (
         vd / 30 * (kosten_begroot_tm_maand(huidige_maand) - kosten_begroot_tm_maand(vorige_maand))
     )
-    ntb_bonussen = (
-        bonussen_tm_vorige_maand()
-    )  # Volgens mij hoeft dit niet want zit al in begroot * (1 + vd / 30 / huidige_maand)
-    totaal_kosten = kosten_boekhoudkundig_tm_vorige_maand() + ntb_bonussen + kosten_begroot_deze_maand_tot_nu
 
     add_row(grid, '', f'Boekhouding (t/m {naam_vorige_maand})', 'Correctie', 'Totaal nu', 'Begroot', bold=True)
     add_row(
@@ -119,12 +114,12 @@ def winst_berekening_block():
     add_row(grid, f'Subsidie t/m {naam_vorige_maand}', subsidie_tm_vorige_maand(), '', '', '')
     add_row(grid, f'Omzet vanaf {naam_huidige_maand}', '', omzet_deze_maand(), '', '')
     add_row(grid, f'Onderhanden werk', '', onderhanden_werk(), '', '')
-    add_row(grid, f'Opbrengsten', '', '', totaal_opbrengsten, omzet_begroot(), bold=True)
+    add_row(grid, f'Opbrengsten', '', '', omzet_werkelijk(), omzet_begroot(), bold=True)
     add_row(grid)
     add_row(
         grid, f'Kosten t/m {naam_vorige_maand}', kosten_boekhoudkundig_tm_vorige_maand(), '', '', '',
     )
-    add_row(grid, f'Ntb bonussen per nu', '', ntb_bonussen, '', '')
+    add_row(grid, f'Ntb bonussen per nu', '', bonussen_tm_vorige_maand(), '', '')
     add_row(
         grid, f'(Geschatte) kosten vanaf {naam_huidige_maand}', '', kosten_begroot_deze_maand_tot_nu, '', '',
     )
@@ -133,13 +128,13 @@ def winst_berekening_block():
         f'Kosten',
         '',
         '',
-        totaal_kosten,
+        kosten_werkelijk(),
         kosten_begroot_tm_maand(huidige_maand - 1) + kosten_begroot_deze_maand_tot_nu,
         bold=True,
     )
     add_row(grid)
     add_row(
-        grid, 'Winst', '', '', totaal_opbrengsten - totaal_kosten, winst_begroot(), bold=True,
+        grid, 'Winst', '', '', omzet_werkelijk() - kosten_werkelijk(), winst_begroot(), bold=True,
     )
     return VBlock([TextBlock('Winstberekening', midsize), grid], id="Winstberekening")
 

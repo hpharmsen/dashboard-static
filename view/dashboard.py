@@ -296,7 +296,10 @@ def omzet_prognose_chart():
         [
             TextBlock('...en de komende zes', defsize, color='gray', limited=False),
             ScatterChart(
-                xy, ChartConfig(width=250, height=150, colors=['#6666cc', '#ddeeff'], x_type='date', min_y_axis=0, max_y_axis=60000)
+                xy,
+                ChartConfig(
+                    width=250, height=150, colors=['#6666cc', '#ddeeff'], x_type='date', min_y_axis=0, max_y_axis=60000
+                ),
             ),
         ]
     )
