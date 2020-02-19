@@ -16,11 +16,30 @@ grijs = '#ccc'
 def render_target_page():
     data = users_and_targets(datetime.today().year)  # .values.tolist()
 
-    fraction = fraction_of_the_year_past()
+    page = Page(
+        [
+            TextBlock('Targets', headersize),
+            TextBlock('Per persoon met target en tot nu toe'),
+            targets_chart(data, 800, 840),
+            totalen_block(data),
+        ]
+    )
+
+    page.render('output/target.html')
+
+
+def targets_chart(data, width, height):
+
+    # fraction = fraction_of_the_year_past()
     # Pandas operaties op de hele lijst tegelijk
-    data['bereikt'] = data.apply(lambda row: round(min(row.result, row.target * fraction)), axis=1)
-    data['onder_target'] = data.apply(lambda row: max(0, round(row.target * fraction - row.result)), axis=1)
-    data['boven_target'] = data.apply(lambda row: max(0, round(row.result - row.target * fraction)), axis=1)
+    data['fraction_of_the_year'] = data.apply(lambda row: fraction_of_the_year_past(row.start_day), axis=1)
+    data['bereikt'] = data.apply(lambda row: round(min(row.result, row.target * row.fraction_of_the_year)), axis=1)
+    data['onder_target'] = data.apply(
+        lambda row: max(0, round(row.target * row.fraction_of_the_year - row.result)), axis=1
+    )
+    data['boven_target'] = data.apply(
+        lambda row: max(0, round(row.result - row.target * row.fraction_of_the_year)), axis=1
+    )
     data['rest'] = data.apply(lambda row: row.target - round(row.result - row.boven_target), axis=1)
 
     # Maak er lijsten van t.b.v. de grafiek
@@ -29,12 +48,6 @@ def render_target_page():
     boven_target = data['boven_target'].tolist()
     onder_target = data['onder_target'].tolist()
     nog_te_doen = data['rest'].tolist()
-
-    # Totalen
-    totaal_result = data['result'].sum()
-    totaal_target = data['target'].sum() * fraction
-    totaal_boven_target = totaal_result - totaal_target
-    totaal_percentueel = totaal_result / totaal_target * 100 - 100
 
     # Wat specifieke chart.js code om de getalletjes in de balken te krijgen in de grafiek
     data_labels_js = '''{
@@ -53,11 +66,11 @@ def render_target_page():
         }
     }'''
 
-    chart = StackedBarChart(
+    return StackedBarChart(
         [bereikt, boven_target, onder_target, nog_te_doen],
         ChartConfig(
-            width=800,
-            height=840,
+            width=width,
+            height=height,
             labels=['bereikt', 'boven target', 'onder target', 'nog te doen'],
             colors=[blauw, groen, rood, grijs],
             bottom_labels=namen,
@@ -66,23 +79,22 @@ def render_target_page():
         ),
     )
 
-    page = Page(
+
+def totalen_block(data):
+    # Totalen
+    totaal_result = data['result'].sum()
+    totaal_target = data['target'].sum() * fraction_of_the_year_past()
+    totaal_boven_target = totaal_result - totaal_target
+    totaal_percentueel = totaal_result / totaal_target * 100 - 100
+
+    return HBlock(
         [
-            TextBlock('Targets', headersize),
-            TextBlock('Per persoon met target en tot nu toe'),
-            chart,
-            HBlock(
-                [
-                    TextBlock(f'Totaal t.o.v. target', color='gray'),
-                    TextBlock(totaal_boven_target, midsize, format='+'),
-                    TextBlock('uur', color='gray'),
-                    TextBlock(totaal_percentueel, midsize, format='+%'),
-                ]
-            ),
+            TextBlock(f'Totaal t.o.v. target', color='gray'),
+            TextBlock(totaal_boven_target, midsize, format='+'),
+            TextBlock('uur', color='gray'),
+            TextBlock(totaal_percentueel, midsize, format='+%'),
         ]
     )
-
-    page.render('output/target.html')
 
 
 if __name__ == '__main__':
