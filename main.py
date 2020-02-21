@@ -9,6 +9,7 @@
 # - Recruitment funnel?
 # - FTE grafiek, ook begroot en vorig jaar
 # - Vergelijking met de begroting per maand (Ik vind het een beetje jammer dat ik nu niet meer per maand met het opgestelde budget kan vergelijken, of kijk ik niet goed?)
+# Headers gaan niet goed bij hidecolumn. Zie onderhanden_block()
 
 import sys
 import os
@@ -76,6 +77,7 @@ def render_all_pages():
 
 def copy_to_directie_folder():
     # De oplossing: Voeg /user/sbin/cron toe aan System Preferences -> Security & Privacy -> Full Disk Access
+    # Alle files zie je in finder dialog met Option - Shift - Punt
     if not os.path.isdir(DIRECTIE_FOLDER):
         return
 

@@ -16,7 +16,6 @@ from model.productiviteit import (
 )
 from model.resultaat import (
     omzet_begroot,
-    omzet_werkelijk,
     omzet_verschil_percentage,
     winst_begroot,
     winst_werkelijk,
@@ -25,7 +24,7 @@ from model.resultaat import (
     update_omzet_per_week,
     debiteuren_30_60_90,
     toekomstige_omzet_per_week,
-)
+    opbrengsten)
 from model.sales import sales_waarde, werk_in_pijplijn, top_x_sales
 from model.trendline import trends
 
@@ -107,7 +106,7 @@ def resultaat_block():
                     VBlock(
                         [
                             TextBlock(omzet_begroot(), defsize, format='K', padding=5, limited=False),
-                            TextBlock(omzet_werkelijk(), defsize, format='K', limited=False),
+                            TextBlock(opbrengsten(), defsize, format='K', limited=False),
                         ]
                     ),
                     TextBlock(omzet_verschil_percentage(), midsize, format='+%', limited=False),
