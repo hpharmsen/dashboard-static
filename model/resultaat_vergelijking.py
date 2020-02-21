@@ -1,9 +1,18 @@
 import os
 from datetime import datetime
 from model.caching import reportz
-from model.resultaat import BEGROTING_SHEET, BEGROTING_TAB, RESULTAAT_TAB, RESULTAAT_INKOMSTEN_ROW, \
-    BEGROTING_INKOMSTEN_ROW, BEGROTING_WINST_ROW, RESULTAAT_WINST_ROW, FACTUREN_VORIG_JAAR_ROW, WINST_VORIG_JAAR_ROW, \
-    BEGROTING_INKOMSTEN_VORIG_JAAR_ROW
+from model.resultaat import (
+    BEGROTING_SHEET,
+    BEGROTING_TAB,
+    RESULTAAT_TAB,
+    RESULTAAT_INKOMSTEN_ROW,
+    BEGROTING_INKOMSTEN_ROW,
+    BEGROTING_WINST_ROW,
+    RESULTAAT_WINST_ROW,
+    FACTUREN_VORIG_JAAR_ROW,
+    WINST_VORIG_JAAR_ROW,
+    BEGROTING_INKOMSTEN_VORIG_JAAR_ROW,
+)
 from sources.googlesheet import sheet_tab, sheet_value
 
 MAANDEN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]

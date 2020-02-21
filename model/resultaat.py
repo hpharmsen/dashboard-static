@@ -6,7 +6,7 @@ from sources.googlesheet import sheet_tab, sheet_value
 from sources import database as db
 from model.trendline import trends
 
-#ONDERHANDEN_2019 = 105098.0
+# ONDERHANDEN_2019 = 105098.0
 # Accell  -65.295 Gefactureerd op 7-1-2020
 # NuTest   -5.700 Gefactureerd op 31-1-2020
 # Ben	  -15.903 Gefactureerd op 13-1-2020
@@ -42,7 +42,7 @@ def omzet_verschil_percentage():
     return 100 * omzet_verschil() / omzet_begroot()
 
 
-#@reportz
+# @reportz
 def omzet_verschil():
     ''' Hoeveel de omzet boven de begrote omzet ligt. '''
     o = opbrengsten()
@@ -50,14 +50,23 @@ def omzet_verschil():
     return o - b
 
 
-#@reportz
+# @reportz
+
 
 def opbrengsten():
-    res = omzet_tm_vorige_maand() + subsidie_tm_vorige_maand() - onderhanden_vorig_jaar() + omzet_deze_maand() + onderhanden_werk()
+    res = (
+        omzet_tm_vorige_maand()
+        + subsidie_tm_vorige_maand()
+        - onderhanden_vorig_jaar()
+        + omzet_deze_maand()
+        + onderhanden_werk()
+    )
     return res
+
 
 def onderhanden_vorig_jaar():
     return -laatste_maand_resultaat(53)
+
 
 # @reportz(hours=200)
 def laatste_maand_resultaat(row):
@@ -72,7 +81,7 @@ def laatste_maand_resultaat(row):
     return res * 1000
 
 
-#@reportz
+# @reportz
 def omzet_tm_vorige_maand():
     ''' Gefactureerde omzet t/m vorige maand zoals gerapporteerd in de boekhouding '''
     res = laatste_maand_resultaat(RESULTAAT_OMZET_ROW)
@@ -91,13 +100,13 @@ def onderhanden_tm_vorige_maand():
     return laatste_maand_resultaat(RESULTAAT_ONDERHANDEN_ROW)
 
 
-#@reportz
+# @reportz
 def subsidie_tm_vorige_maand():
     ''' Ontvangen subsidie t/m vorige maand zoals gerapporteerd in de boekhouding '''
     return laatste_maand_resultaat(RESULTAAT_SUBSIDIE_ROW)
 
 
-#@reportz(hours=24)
+# @reportz(hours=24)
 def opbrengsten_tm_vorige_maand():
     ''' De bruto marge tot en met de vorige maand (zoals gerapporteerd in de boekhouding), inclusief subsidie maar zonder onderhanden werk '''
     return laatste_maand_resultaat(RESULTAAT_INKOMSTEN_ROW) + laatste_maand_resultaat(RESULTAAT_ONDERHANDEN_ROW)
@@ -110,7 +119,7 @@ def opbrengsten_tm_vorige_maand():
     # return res * 1000
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def omzet_deze_maand():
     ''' De omzet die volgens Oberview vanaf deze virtuele maand is gefactureerd.
         Als de afgelopen maand nog niet is verwerkt in de boekhouding is dat dus de omzet
@@ -156,7 +165,7 @@ def onderhanden_werk():
     return res
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def onderhanden_werk_uurbasis_table():
     ''' Uurbasis werk dat is gedaan maar nog niet gefactueerd, per project
         Als tabel met velden name, title, done, invoiced, onderhanden '''
@@ -181,7 +190,7 @@ def onderhanden_werk_uurbasis():
     return df['onderhanden'].sum()
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def onderhanden_werk_fixed_table():
     ''' Fixed price werk dat is gedaan maar nog niet gefactueerd, per project.
         Als tabel met velden name, title, done, invoiced, onderhanden '''
@@ -200,14 +209,14 @@ def onderhanden_werk_fixed_table():
     return db.dataframe(query)
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def onderhanden_werk_fixed():
     ''' Fixed price werk dat is gedaan maar nog niet gefactueerd '''
     df = onderhanden_werk_fixed_table()
     return df['onderhanden'].sum()
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def gedaan_werk_tor_table():
     sql = '''select p.id, p.title, sum(hours*pu.hourlyRate) as done 
              from project p 
@@ -218,19 +227,19 @@ def gedaan_werk_tor_table():
     return db.dataframe(sql)
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def gedaan_werk_tor():
     df = gedaan_werk_tor_table()
     return df['done'].sum()
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def invoiced_tor():
     sql = 'select sum(invoice_amount) from invoice i join project p on p.id=i.project_id where customerId=125'
     return db.value(sql)
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def onderhanden_werk_tor():
     res = gedaan_werk_tor() * 3 / 4 - invoiced_tor() - tor_onderhanden_2019
     return res
@@ -239,7 +248,7 @@ def onderhanden_werk_tor():
 ##### BEGROTE OMZET #####
 
 
-#@reportz(hours=24)
+# @reportz(hours=24)
 def omzet_begroot():
     ''' Begrote omzet tot en met vandaag. '''
     h = begroting_maandomzet(virtuele_maand())
@@ -248,7 +257,7 @@ def omzet_begroot():
     return v + vd / 30 * (h - v)
 
 
-#@reportz(hours=24)
+# @reportz(hours=24)
 def begroting_maandomzet(maand):
     ''' Begrote omzet van de meegegeven maand. Komt uit het begroting sheet. '''
     if maand == 0:
@@ -286,13 +295,13 @@ def kosten_boekhoudkundig_tm_vorige_maand():
 def bonussen_tm_vorige_maand():
     ''' Nog niet in de boekhouding verwerkte verwachte bonussen t/m vorige maand '''
     return (
-            laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW)
-            # + laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW + 1)
-            # + laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW + 2)
+        laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW)
+        # + laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW + 1)
+        # + laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW + 2)
     )
 
 
-#@reportz(hours=24)
+# @reportz(hours=24)
 def kosten_begroot_deze_maand():
     ''' '''
     d = virtuele_dag()
@@ -301,7 +310,7 @@ def kosten_begroot_deze_maand():
     return res
 
 
-#@reportz(hours=24)
+# @reportz(hours=24)
 def kosten_begroot_tm_maand(m):
     ''' Begrote kosten t/m maand m  '''
     if m == 0:
@@ -311,7 +320,7 @@ def kosten_begroot_tm_maand(m):
     return res
 
 
-#@reportz(hours=24)
+# @reportz(hours=24)
 def kosten_begroot():
     ''' Het begrote aantal kosten t/m nu '''
     res = kosten_begroot_tm_maand(virtuele_maand() - 1) + kosten_begroot_deze_maand()

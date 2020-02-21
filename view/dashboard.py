@@ -24,7 +24,8 @@ from model.resultaat import (
     update_omzet_per_week,
     debiteuren_30_60_90,
     toekomstige_omzet_per_week,
-    opbrengsten)
+    opbrengsten,
+)
 from model.sales import sales_waarde, werk_in_pijplijn, top_x_sales
 from model.trendline import trends
 

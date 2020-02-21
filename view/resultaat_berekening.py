@@ -31,7 +31,10 @@ from model.resultaat import (
     virtuele_dag,
     begroting_maandomzet,
     tor_onderhanden_2019,
-    opbrengsten, kosten_begroot_deze_maand, onderhanden_vorig_jaar)
+    opbrengsten,
+    kosten_begroot_deze_maand,
+    onderhanden_vorig_jaar,
+)
 from model.resultaat_vergelijking import MAANDEN
 
 
@@ -99,7 +102,7 @@ def winst_berekening_block():
     add_row(
         grid, f'Omzet t/m {naam_vorige_maand}', omzet_tm_vorige_maand(), '', '', '',
     )
-    #add_row(grid, f'Uitbesteed werk t/m {naam_vorige_maand}', uitbesteed_tm_vorige_maand(), '', '')
+    # add_row(grid, f'Uitbesteed werk t/m {naam_vorige_maand}', uitbesteed_tm_vorige_maand(), '', '')
     add_row(grid, f'Subsidie t/m {naam_vorige_maand}', subsidie_tm_vorige_maand(), '', '', '')
     add_row(grid, f'Omzet aan vorig jaar toe te schrijven', '', -onderhanden_vorig_jaar(), '', '')
     add_row(grid, f'Omzet vanaf {naam_huidige_maand}', '', omzet_deze_maand(), '', '')
@@ -146,7 +149,7 @@ def onderhanden_block():
             Table(
                 data,
                 TableConfig(
-                    headers=['Id','Klant', 'Project', 'Gedaan', 'Gefactureerd', 'Onderhanden'],
+                    headers=['Id', 'Klant', 'Project', 'Gedaan', 'Gefactureerd', 'Onderhanden'],
                     aligns=['left', 'left', 'right', 'right', 'right'],
                     formats=['', '', '€', '€', '€'],
                     totals=[0, 0, 0, 0, 1],
