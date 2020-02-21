@@ -318,7 +318,7 @@ def rocks_block():
     rocks_grid.add_row(rocks_row('RdB', '3. Salesconcept (open source, Oberon, maatwerk)', 'red'))
     rocks_grid.add_row(rocks_row('HPH', '4. Qikker Ja mits / Nee beslissing', 'orange'))
 
-    return VBlock([TextBlock('Q1 Rocks', headersize), rocks_grid])
+    return VBlock([TextBlock('Q1 Rocks', headersize), rocks_grid], limited=True)
 
 
 def debiteuren_block():

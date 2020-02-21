@@ -9,8 +9,8 @@ from model.resultaat import (
     BEGROTING_INKOMSTEN_ROW,
     BEGROTING_WINST_ROW,
     RESULTAAT_WINST_ROW,
-    FACTUREN_VORIG_JAAR_ROW,
-    WINST_VORIG_JAAR_ROW,
+    RESULTAAT_FACTUREN_VORIG_JAAR_ROW,
+    BEGROTING_WINST_VORIG_JAAR_ROW,
     BEGROTING_INKOMSTEN_VORIG_JAAR_ROW,
 )
 from sources.googlesheet import sheet_tab, sheet_value
@@ -55,7 +55,7 @@ def winst_per_maand():
 def winst_vorig_jaar_per_maand():
     y = datetime.today().year
     tab = sheet_tab(BEGROTING_SHEET, BEGROTING_TAB)
-    return [to_int(s) for s in tab[WINST_VORIG_JAAR_ROW - 1][2:14]]
+    return [to_int(s) for s in tab[BEGROTING_WINST_VORIG_JAAR_ROW - 1][2:14]]
 
 
 @reportz(hours=24)
