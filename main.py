@@ -11,8 +11,6 @@
 # - Wat een klant heeft uitgegeven
 # - Chart per prio
 # jira credentials in config.ini
-# <built-in function id> komt in html in klanten/percentages tabel
-# Billable per persoon per week: x as bij iedereen hetzelfde (26 wk) maken.
 
 import sys
 import os

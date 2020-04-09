@@ -337,52 +337,19 @@ def billable_trend_person(user):
 def billable_trend_person_week(user):
     # Aantal billable uren per weeknummer
     sql = f'''
-            select year(day) as year, week(day) as weekno, user, sum(hours) as hours
+            select year(day) as year, week(day) as weekno, sum(hours) as hours
             from timesheet ts
             where taskId in (-2,-4,-6) and day > DATE_SUB(curdate(), INTERVAL 6 MONTH) and ts.user='{user}'
             group by week(day) '''
     res = db.table(sql)
-    if not res:
-        return []
-    if res[0]['year'] != res[-1]['year']:
-        y1, y2 = split_by_year(res)
-        res = complete(y1) + complete(y2)
+    res_rec = {r['weekno']: r['hours'] for r in res}
+    curweek = int(datetime.now().strftime('%V'))
+    if curweek >= 26:
+        weeks = range(curweek - 26, curweek)
     else:
-        res = complete(res)
-    res = [weekno_to_date(rec) for rec in res]
+        weeks = list(range(curweek + 26, 53)) + list(range(1, curweek))
+    res = [{'weekno': week, 'hours': res_rec.get(week, 0)} for week in weeks]
     return res
-
-
-def split_by_year(list):
-    y1 = list[0]['year']
-    y2 = list[-1]['year']
-    if y1 > y2:
-        y1, y2 = y2, y1
-
-    list1 = [rec for rec in list if rec['year'] == y1]
-    list2 = [rec for rec in list if rec['year'] == y2]
-    if list1[-1]['weekno'] == 1:
-        # Exception: this should be part of the next year
-        if list2[0]['weekno'] == 1:
-            # Join the last week of the previous year with the first week of this year
-            list2[0]['hours'] = list2[0]['hours'] + list1[-1]['hours']
-        else:
-            # Week should be in list 2
-            list1[-1]['year'] = list2[0]['year']
-            list2 = [list1[-1]] + list2
-        list1 = list1[:-1]
-    return list1, list2
-
-
-def complete(list):
-    what_weekno_should_be = list[0]['weekno']
-    for rec in list[1:]:
-        what_weekno_should_be += 1
-        if rec['weekno'] != what_weekno_should_be:
-            list += [{'year': list[0]['year'], 'weekno': what_weekno_should_be, 'user': rec['user'], 'hours': 0}]
-            what_weekno_should_be += 1
-    list = sorted(list, key=lambda x: x['weekno'])
-    return list
 
 
 def weekno_to_date(rec):

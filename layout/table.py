@@ -23,7 +23,7 @@ class TableConfig(NamedTuple):
 
 
 class Table(Block):
-    def __init__(self, data: list = [], config: TableConfig = None, limited=False):
+    def __init__(self, data: list = [], config: TableConfig = None, id='', limited=False):
         super().__init__(id=id, limited=limited)
 
         self.data = data
