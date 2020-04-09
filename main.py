@@ -3,18 +3,22 @@
 # - Script draaiend krijgen op de synology
 # - Beter systeem ipv limited
 # Productiviteit
-#  - Billabe per tarief jr/mr/sr?
 #  - Effective rate= Bruto marge / alle declarabele uren (DDA: 96 bij een listprice van 103)
 # Organisatie
-# - Recruitment funnel?
 # - FTE grafiek, ook begroot en vorig jaar
 # - Vergelijking met de begroting per maand (Ik vind het een beetje jammer dat ik nu niet meer per maand met het opgestelde budget kan vergelijken, of kijk ik niet goed?)
-# Headers gaan niet goed bij hidecolumn. Zie onderhanden_block()
+# Serviceklant pagina
+# - Wat een klant heeft uitgegeven
+# - Chart per prio
+# jira credentials in config.ini
+# <built-in function id> komt in html in klanten/percentages tabel
+# Billable per persoon per week: x as bij iedereen hetzelfde (26 wk) maken.
 
 import sys
 import os
 import shutil
 import subprocess
+import errno
 
 from model.caching import load_cache, clear_cache
 from view.billable import render_billable_page
@@ -98,12 +102,30 @@ def copy_to_team_folder():
         print(LIMITED_FOLDER, 'not found')
 
 
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            print(f'{s} -> {d}')
+            shutil.copy2(s, d)
+
+
 def try_copy_file(source, destination):
     print(f'{source} -> {destination}')
-    try:
-        shutil.copyfile(source, destination)
-    except Exception as e:
-        print(f'Error copying {source} {str(e)}')
+    if os.path.isfile(source):
+        try:
+            shutil.copyfile(source, destination)
+        except Exception as e:
+            print(f'Error copying file {source} {str(e)}')
+    else:
+        copytree(source, destination)
+        # try:
+        #     copytree(source, destination)
+        # except Error as e:
+        #     print('Directory could not be not copied due to OS error. Error: %s' % e)
 
 
 def doMount(host, share, mount_command='/sbin/mount_smbfs', protocol='', user='guest', password='', share_path=None):

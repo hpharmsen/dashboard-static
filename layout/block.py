@@ -238,6 +238,9 @@ class Page(Block):
         with open(filename, 'w') as f:
 
             timestamp = cache_time_stamp().strftime('%d-%m %H:%M')
+            base = (
+                '..' if filename.count('klanten/') else '.'
+            )  # Als file in subdir: base=..  Kan netter voor subsubs etc.
 
             template = 'template_limited.html' if limited else 'template.html'
             with open(Path(__file__).resolve().parent / template) as t:
@@ -246,6 +249,7 @@ class Page(Block):
                 template_html.replace('[timestamp]', timestamp)
                 .replace('[children]', self.render_children(limited))
                 .replace('[onloadcode]', self.onloadcode)
+                .replace('[base]', base)
             )
             f.write(page_html)
 

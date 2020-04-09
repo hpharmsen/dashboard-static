@@ -4,6 +4,12 @@ from datetime import datetime
 from layout.basic_layout import defsize, midsize, headersize
 from layout.block import Block, HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
+from model.jira_issues import (
+    service_issues_per_status,
+    service_issues_per_laatste_update,
+    belangrijkste_service_issues,
+    service_issues_per_prioriteit,
+)
 from model.service import (
     # omzet_op_service_projecten,
     # service_omzet_door_serviceteam,
@@ -28,10 +34,47 @@ from view.target import targets_chart
 
 def render_service_page():
 
-    page = Page([TextBlock('Service', headersize), targets_block(), HBlock([service_klanten_block()])])
+    page = Page([TextBlock('Service', headersize), issues_block(), targets_block(), service_klanten_block()])
 
     page.render('output/service.html')
     page.render('output/limited/service.html', limited=1)
+
+
+def issues_block():
+    highest_priority = service_issues_per_prioriteit()[0]
+    prio_issues_color = 'red' if highest_priority[1] > 6 else 'green'
+    longest_open = service_issues_per_laatste_update()[-1]
+    long_open_color = 'red' if longest_open[1] > 0 else 'green'
+    most_important = belangrijkste_service_issues()[0]
+
+    return VBlock(
+        [
+            TextBlock('Issues', midsize),
+            HBlock(
+                [
+                    VBlock(
+                        [
+                            TextBlock(highest_priority[0] + ' issues', defsize, color='gray', padding=10),
+                            TextBlock(highest_priority[1], headersize, color=prio_issues_color),
+                        ]
+                    ),
+                    VBlock(
+                        [
+                            TextBlock(longest_open[0] + ' open', defsize, color='gray', padding=10),
+                            TextBlock(longest_open[1], headersize, color=long_open_color),
+                        ]
+                    ),
+                    VBlock(
+                        [
+                            TextBlock('Oldest open issue', defsize, color='gray', padding=10),
+                            TextBlock(most_important[0], headersize),
+                            TextBlock(f'{most_important[3]} days inactive', defsize, color='gray', padding=10),
+                        ]
+                    ),
+                ]
+            ),
+        ]
+    )
 
 
 # def service_omzet_block():
@@ -74,29 +117,36 @@ def render_service_page():
 #     )
 
 
-def service_klanten_block():
-    klanten = VBlock(
-        [
-            TextBlock('Klanten', midsize),
-            Table(
-                service_klanten(),
-                TableConfig(
-                    headers=['Klant', 'project', 'billable uren', 'totaal uren', 'omzet', 'per uur'],
-                    aligns=['left', 'left', 'right', 'right', 'right', 'right'],
-                    formats=['', '', '0', '0', '€', '€'],
-                ),
-            ),
-        ]
-    )
-    return klanten
-
-
 def targets_block():
     team = service_team()
     data = users_and_targets(datetime.today().year, specific_users=team)
     return VBlock([TextBlock('Targets', midsize), targets_chart(data, 800, 340)])
 
 
+def service_klanten_block():
+    def link_to_client_page(row_index, row):
+        if row[2]:
+            return f'klanten/{row[2]}.html'
+
+    klanten = service_klanten()
+    return VBlock(
+        [
+            TextBlock('Klanten', midsize),
+            Table(
+                klanten,
+                TableConfig(
+                    headers=['Klant', 'project', 'billable uren', 'totaal uren', 'omzet', 'per uur'],
+                    aligns=['left', 'left', 'right', 'right', 'right', 'right'],
+                    formats=['', '', '0', '0', '€', '€'],
+                    hide_columns=[2],
+                    row_linking=link_to_client_page,
+                ),
+            ),
+        ]
+    )
+
+
 if __name__ == '__main__':
+
     os.chdir('..')
     render_service_page()

@@ -21,17 +21,29 @@ class TrendLines:
             date = datetime.date.today()
         datestr = date.strftime('%Y-%m-%d')
         trend = self.trends[trendname]
-        if trend and trend[-1][0] == datestr:
-            trend[-1][1] = value
-        else:
-            trend += [[datestr, value]]
+        for i in reversed(range(len(trend))):
+            if trend and trend[i][0] == datestr:
+                trend[i][1] = value
+                return
+        trend += [[datestr, value]]
 
     def last_registered_day(self, trendname):
         trend = self.trends.get(trendname)
         if not trend:
             y = datetime.datetime.today().year
             return f'{y - 1}-12-31'
-        return max([t[0] for t in trend])
+        return trend[-1][0]
+        # return max([t[0] for t in trend])
+
+    def second_last_registered_day(self, trendname):
+        trend = self.trends.get(trendname)
+        if not trend:
+            y = datetime.datetime.today().year
+            return f'{y - 1}-12-31'
+        if len(trend) >= 2:
+            return trend[-2][0]
+        else:
+            return trend[-1[0]]
 
     def load(self):
         with open(self.trendfile) as f:
@@ -53,6 +65,7 @@ class TrendLines:
             x_type='date',
             min_y_axis=min_y_axis,
             max_y_axis=max_y_axis,
+            y_axis_max_ticks=5,
         )
         return ScatterChart(xy, chart_config)
 

@@ -14,9 +14,11 @@ class TableConfig(NamedTuple):
     formats: List = []  # see basic_layout.doFormat for options
     totals: List = []  # which columns should have totals e.g. [0,0,1,1]
     row_coloring: Callable = None  # Callback that determines how table rows should be colored
-    cell_coloring: Callable = None  # Callback that determines how table cells should be colored
-    cell_hovering: Callable = None  # Callback that determines the tooltip for a cell
     row_linking: Callable = None  # Callback that determines the linked url of a row
+    cell_coloring: Callable = None  # Callback that determines how table cell backgrounds should be colored
+    cell_text_coloring: Callable = None  # Callback that determines how table cell texts should be colored
+    cell_hovering: Callable = None  # Callback that determines the tooltip for a cell
+    cell_linking: Callable = None  # Callback that determines the linked url of a cell
     hide_columns: List = []  # List the numbers of the columns that should not be visible (0-based)
 
 
@@ -92,8 +94,11 @@ class Table(Block):
                 formatted_field = doFormat(field, format)
                 coloring = ''
                 if self.config.cell_coloring:
-                    coloring = self.config.cell_coloring(row_index, col_index, field)
-                    coloring = f' background-color:{coloring}' if coloring else ''
+                    color = self.config.cell_coloring(row_index, col_index, field)
+                    coloring += f' background-color:{color};' if color else ''
+                if self.config.cell_text_coloring:
+                    color = self.config.cell_text_coloring(row_index, col_index, field)
+                    coloring += f' color:{color};' if color else ''
                 tooltip_class = tooltip_text = ''
                 if self.config.cell_hovering:
                     tooltip = self.config.cell_hovering(row_index, col_index, fullline)

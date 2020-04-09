@@ -1,4 +1,5 @@
 import os
+import urllib
 from layout.basic_layout import midsize, headersize
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
@@ -13,12 +14,14 @@ from model.jira_issues import (
 )
 
 
-def issue_table(title, function, row_coloring=None, row_linking=None):
+def issue_table(title, retrieve_issues_function, row_coloring=None, row_linking=None):
+    issues = retrieve_issues_function()
+    assert len(issues[0]) == 2  # Type en count
     return VBlock(
         [
             TextBlock('per ' + title, midsize),
             Table(
-                function(),
+                issues,
                 TableConfig(
                     headers=[title, 'aantal'],
                     aligns=['left', 'right'],
@@ -31,19 +34,44 @@ def issue_table(title, function, row_coloring=None, row_linking=None):
     )
 
 
-def priority_coloring(line_number, values):
-    if values[0] == 'Critical':
+def issue_table_split(title, retrieve_issues_function, cell_text_coloring=None, cell_linking=None, row_linking=None):
+    issues = retrieve_issues_function()
+    assert len(issues[0]) == 3  # Type, count aan Oberon geassigned, count aan klant geassigned
+    return VBlock(
+        [
+            TextBlock('per ' + title, midsize),
+            Table(
+                issues,
+                TableConfig(
+                    headers=[title, 'Oberon', 'Klant'],
+                    aligns=['left', 'right', 'right'],
+                    totals=[0, 1, 1],
+                    cell_text_coloring=cell_text_coloring,
+                    row_linking=row_linking,
+                    cell_linking=cell_linking,
+                ),
+            ),
+        ]
+    )
+
+
+def priority_coloring(row_index, col_index, field):
+    if field == 'Critical':
         return 'red'
-    if values[0] == 'Major':
+    if col_index == 2:
+        return
+    if field == 'Major':
         return 'orange'
     return None
 
 
-def time_open_coloring(line_number, values):
-    if values[0] in ('< 1 dag', '< 2 dagen'):
+def time_open_coloring(row_index, col_index, field):
+    if field in ('< 1 dag', '< 2 dagen'):
         return 'green'
-    if values[0] == '30 dagen of meer':
+    if field == '30 dagen of meer':
         return 'red'
+    if col_index == 1 and field == '< 30 dagen':
+        return 'orange'
     return None
 
 
@@ -67,7 +95,7 @@ def time_open_linking(l, v):
 
 
 JIRA_LINK = 'https://teamoberon.atlassian.net/issues/?filter=-4&jql='
-BASE_LINK = JIRA_LINK + service_jql()
+BASE_LINK = JIRA_LINK + urllib.parse.quote(service_jql())
 
 
 def priomap(priority):
@@ -82,25 +110,25 @@ def priomap(priority):
 
 def render_service_issues_page():
 
-    prioriteit = issue_table(
-        'prioriteit',
+    prioriteit = issue_table_split(
+        'per prioriteit',
         service_issues_per_prioriteit,
-        row_coloring=priority_coloring,
-        row_linking=lambda l, v: BASE_LINK + f" AND priority = {priomap(v[0])}",
+        cell_text_coloring=priority_coloring,
+        row_linking=lambda l, v: BASE_LINK + f" AND priority = {priomap(v[0])}",  # TODO cell linking van maken
     )
     persoon = issue_table(
-        'persoon', service_issues_per_persoon, row_linking=lambda l, v: BASE_LINK + f' AND assignee = %22{v[0]}%22 '
+        'per persoon', service_issues_per_persoon, row_linking=lambda l, v: BASE_LINK + f' AND assignee = %22{v[0]}%22 '
     )
-    status = issue_table(
-        'status', service_issues_per_status, row_linking=lambda l, v: BASE_LINK + f' AND status = %22{v[0]}%22 '
+    status = issue_table_split(
+        'per status', service_issues_per_status, row_linking=lambda l, v: BASE_LINK + f' AND status = %22{v[0]}%22 '
     )
-    project = issue_table(
-        'project', service_issues_per_project, row_linking=lambda l, v: BASE_LINK + f' AND project = %22{v[0]}%22 '
+    project = issue_table_split(
+        'per project', service_issues_per_project, row_linking=lambda l, v: BASE_LINK + f' AND project = %22{v[0]}%22 '
     )
-    update = issue_table(
-        'laatste update',
+    update = issue_table_split(
+        'per laatste update',
         service_issues_per_laatste_update,
-        row_coloring=time_open_coloring,
+        cell_text_coloring=time_open_coloring,
         row_linking=time_open_linking,
     )
 

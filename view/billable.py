@@ -1,9 +1,10 @@
 import os
+import datetime
 from layout.block import TextBlock, Page, Grid, VBlock
 from layout.table import Table
 from layout.basic_layout import headersize, midsize
-from layout.chart import ScatterChart, ChartConfig
-from model.productiviteit import tuple_of_productie_users, billable_trend_person
+from layout.chart import ScatterChart, ChartConfig, BarChart
+from model.productiviteit import tuple_of_productie_users, billable_trend_person, billable_trend_person_week
 
 
 def render_billable_page():
@@ -14,19 +15,32 @@ def render_billable_page():
     row = 0
     col = 0
     for user in users:
-        chartdata = [{'x': rec['datum'].strftime('%Y-%m-%d'), 'y': rec['hours']} for rec in billable_trend_person(user)]
-        chart = ScatterChart(
-            chartdata,
+        # chartdata = [{'x': rec['datum'].strftime('%Y-%m-%d'), 'y': rec['hours']} for rec in billable_trend_person(user)]
+        trend = billable_trend_person_week(user)
+        # chartdata = [{'x': rec['date'], 'y': rec['hours']} for rec in trend]
+        # chart = ScatterChart(
+        #     chartdata,
+        #     ChartConfig(
+        #         width=400,
+        #         height=220,
+        #         colors=['#6666cc', '#ddeeff'],
+        #         min_y_axis=0,
+        #         max_y_axis=40,  # Max 40 billable hours per week
+        #         x_type='',
+        #     ),
+        # )
+        hours = [int(round(rec['hours'])) for rec in trend]
+        labels = [str(rec['weekno']) for rec in trend]
+        chart = BarChart(
+            hours,
             ChartConfig(
-                width=400,
-                height=220,
-                colors=['#6666cc', '#ddeeff'],
-                min_y_axis=0,
-                max_y_axis=40,  # Max 40 billable hours per week
-                x_type='date',
+                width=400, height=220, colors=['#ddeeff'], bottom_labels=labels, max_y_axis=40, y_axis_max_ticks=5
             ),
         )
-        user_block = VBlock([TextBlock(user, font_size=midsize), chart])
+        y = datetime.datetime.today().year
+        m = datetime.datetime.today().month
+        link = f'https://pmt.oberon.nl/ts/overview?month={m}&year={y}&user={user}'
+        user_block = VBlock([TextBlock(user, font_size=midsize), chart], link=link)
         grid.set_cell(row, col, user_block)
         col += 1
         if col == cols:
@@ -36,9 +50,7 @@ def render_billable_page():
     page = Page(
         [
             TextBlock('Billable uren', headersize),
-            TextBlock(
-                'Billable uren per week het afgelopen half jaar gemeten in blokken van twee weken.', color="gray"
-            ),
+            TextBlock('Billable uren per week het afgelopen halfjaar.', color="gray"),
             grid,
         ]
     )

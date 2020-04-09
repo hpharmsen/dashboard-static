@@ -4,12 +4,21 @@ import pandas as pd
 
 scriptpath = Path(__file__).resolve().parent
 
-DB = None
+# DB = None
+#
+#
+# def get_db():
+#     global DB
+#     return DB or dbClass.from_inifile(scriptpath / 'db.ini')
+#
+# scriptpath = Path(__file__).resolve().parent
+
+db = None
 
 
 def get_db():
-    global DB
-    return DB or dbClass.from_inifile(scriptpath / 'db.ini')
+    global db
+    return db or dbClass.from_inifile(scriptpath / 'db.ini')
 
 
 # def dict_list(query):

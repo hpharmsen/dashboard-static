@@ -28,6 +28,8 @@ class ChartConfig(NamedTuple):
     min_y_axis: float = None  # Currently only for ScatterChart
     horizontal: bool = False  # Currently only for StackedBarChart
     x_type: str = 'float'  # Currently only for ScatterChart
+    y_axis_max_ticks: int = 0
+    y_axis_font_size: int = 0
 
 
 class Chart(Block):
@@ -36,15 +38,20 @@ class Chart(Block):
         super().__init__(
             id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link, limited=limited
         )
+
         self.datasets = f'''[{{
                     data: {str(values)},
                     backgroundColor: {str(config.colors)},
-                    label: ''
+                    label: 'abc'
                 }}]'''  #!! Moet backgroundColor niet config.bg_color zijn??
         self.values = values
         self.config = config
         self.labels = config.labels  # Can be overwritten
         self.canvas_height_difference = 150  # Difference between div height and canvas height, can be overwritten
+        self.ymin = 'min: 0,' if config.min_y_axis == None else f'suggestedMin: {config.min_y_axis},'
+        self.ymax = '' if config.max_y_axis == None else f'max: {config.max_y_axis},'
+        self.y_axis_max_ticks = f'maxTicksLimit: {config.y_axis_max_ticks},' if config.y_axis_max_ticks else ''
+        self.y_axis_font_size = f'fontSize: {config.y_axis_font_size if config.y_axis_font_size else 9},'
 
     def do_render(self, left, top, position):
         data = f'''{{
@@ -107,18 +114,23 @@ class BarChart(Chart):
         super().__init__(values, config, limited)
 
         self.type = 'bar'
+        # colors = config.colors if len(config.colors) == 1 else config.colors * len(values)
 
-        self.datasets = '['
-        for label, value, color in zip(config.bottom_labels, values, config.colors):
-            self.datasets += f'''{{
-                                    label: '{label}',
-                                    data: {value},
-                                    backgroundColor: '{color}'
-                                  }},'''
-        self.datasets = self.datasets[:-1] + ']'
-
+        colors = config.colors * len(values) if len(config.colors) == 1 else config.colors
+        # self.datasets = '['
+        # for label, value, color in zip(config.bottom_labels, values, config.colors):
+        self.datasets = f'''[{{
+                                    label: "",
+                                    data: {values},
+                                    backgroundColor: {colors}
+                                  }}]'''
+        # self.datasets = self.datasets[:-1] + ']'
+        self.labels = config.bottom_labels
         self.options = f'''{{
             title: {{
+                display: false
+            }},
+            legend: {{
                 display: false
             }},
             scales: {{
@@ -128,11 +140,15 @@ class BarChart(Chart):
                 }}],
                 yAxes: [{{
                     ticks: {{
-                        min:0,
+                        {self.y_axis_max_ticks}
+                        {self.y_axis_font_size}
+                        {self.ymin}
+                        {self.ymax}
                     }}
-                }}]
+                }}]      
             }}
         }}'''
+        self.canvas_height_difference = 0
 
     def render(self, align='', limited=False):
         return super().render(align, limited)
@@ -174,7 +190,15 @@ class StackedBarChart(Chart):
                 }},
             scales: {{
                 xAxes: [{{stacked: true}}],
-                yAxes: [{{stacked: true {ticks}}}]
+                yAxes: [{{
+                    stacked: true,
+                    ticks: {{
+                        {self.y_axis_max_ticks}
+                        {self.y_axis_font_size}
+                        {self.ymin}
+                        {self.ymax}
+                    }}
+                }}]
             }}
         }}'''
 
@@ -207,7 +231,10 @@ class LineChart(Chart):
                 }}],
                 yAxes: [{{
                     ticks: {{
-                        min:0,
+                        {self.y_axis_max_ticks}
+                        {self.y_axis_font_size}
+                        {self.ymin}
+                        {self.ymax}
                     }}
                 }}]
             }}
@@ -243,8 +270,6 @@ class ScatterChart(Chart):
         # self.labels = []
         self.canvas_height_difference = 0  # Is for scatter chart other than for other chart types
 
-        ymin = '' if config.min_y_axis == None else f'suggestedMin: {config.min_y_axis},'
-        ymax = '' if config.max_y_axis == None else f'max: {config.max_y_axis},'
         self.options = f'''{{
             title: {{
                 display: false
@@ -281,10 +306,10 @@ class ScatterChart(Chart):
                 }}],      
                 yAxes: [{{
                     ticks: {{
-                        maxTicksLimit: 3,
-                        fontSize:9,
-                        {ymin}
-                        {ymax}
+                        {self.y_axis_max_ticks}
+                        {self.y_axis_font_size}
+                        {self.ymin}
+                        {self.ymax}
                     }}
                 }}]      
             }}

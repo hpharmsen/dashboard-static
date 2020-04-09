@@ -122,9 +122,9 @@ def service_team():
 
 # @reportz(hours=60)
 def service_klanten():
-    query = f'''select name, title, round(ifnull(b,0)) as billable, round(ifnull(tt,0)) as total, round(ifnull(tu,0)) as turnover, round(ifnull(tu/tt,0)) as hourly 
+    query = f'''select name, title, JiraURL, round(ifnull(b,0)) as billable, round(ifnull(tt,0)) as total, round(ifnull(tu,0)) as turnover, round(ifnull(tu/tt,0)) as hourly 
                 from (
-                    select name, title, SUM(CASE WHEN taskId=-2 THEN hours END) AS b, SUM(hours) AS tt, 
+                    select name, title, JiraURL, SUM(CASE WHEN taskId=-2 THEN hours END) AS b, SUM(hours) AS tt, 
                            SUM(CASE WHEN taskId=-2 THEN hours END) * pu.hourlyRate as tu 
                     from timesheet ts 
                     join project p on ts.projectId=p.Id 

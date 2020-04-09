@@ -19,7 +19,7 @@ def parse_date(date_str):
     return d, m, y
 
 
-@reportz(hours=60)
+# @reportz(hours=60)
 def loonkosten_per_persoon():
     ''' Dict met gegevens uit het contracten sheet met user als key
         en velden:
@@ -132,7 +132,7 @@ def kosten_project_jaar(projectId, y):
     kosten = 0
     query = f'select user, sum(hours) as hours from timesheet where projectId={projectId} and year(day)={y}'
     for rec in db.table(query):
-        kosten += rec['hours'] * uurkosten_pp[rec['user']]
+        kosten += rec['hours'] * uurkosten_pp.get(rec['user'], 12.5 * 1.15)  # Default voor de uurloners
     return kosten
 
 

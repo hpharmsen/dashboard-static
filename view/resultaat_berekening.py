@@ -34,6 +34,7 @@ from model.resultaat import (
     opbrengsten,
     kosten_begroot_deze_maand,
     onderhanden_vorig_jaar,
+    gedaan_werk_tor_dit_jaar,
 )
 from model.resultaat_vergelijking import MAANDEN
 
@@ -183,9 +184,9 @@ def tor_block():
     add_row(tor_grid, 'Gefactureerd', invoiced_tor())
     add_row(tor_grid, 'Nog te factureren', gedaan_werk_tor() / 2 - invoiced_tor(), bold=True)
     add_row(tor_grid)
-    add_row(tor_grid, 'Activeren (25%)', gedaan_werk_tor() / 4)
-    add_row(tor_grid, 'Meegeteld met 2019', -tor_onderhanden_2019)
-    add_row(tor_grid, 'Meetellen als onderhanden', onderhanden_werk_tor(), bold=True)
+    add_row(tor_grid, 'Werk gedaan dit jaar', gedaan_werk_tor_dit_jaar())
+    add_row(tor_grid, 'Activeren (25%)', gedaan_werk_tor_dit_jaar() / 4)
+    add_row(tor_grid, 'Onderhanden = te fact + activeren', onderhanden_werk_tor(), bold=True)
 
     return VBlock([TextBlock('TOR 3', midsize), tor_done_block(), tor_grid])
 

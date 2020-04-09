@@ -280,7 +280,8 @@ def omzet_chart():
         [
             TextBlock('Omzet per week, laatste zes maanden...', defsize, color='gray', limited=False),
             trends.chart('omzet_per_week', 250, 150, x_start=six_months_ago(), min_y_axis=0, max_y_axis=60000),
-        ]
+        ],
+        link='billable.html',
     )
 
 
@@ -313,12 +314,16 @@ def rocks_block():
         return [TextBlock(owner, color='green'), TextBlock(rock), TextBlock('⬤', color=status)]
 
     rocks_grid = Grid(cols=3)
-    rocks_grid.add_row(rocks_row('Gert', '1. CTO rol "technische standaardisatie" beleggen.', 'red'))
-    rocks_grid.add_row(rocks_row('Gert', '2. Nieuwe pand bekend', 'orange'))
-    rocks_grid.add_row(rocks_row('RdB', '3. Salesconcept (open source, Oberon, maatwerk)', 'red'))
-    rocks_grid.add_row(rocks_row('HPH', '4. Qikker Ja mits / Nee beslissing', 'orange'))
+    rocks_grid.add_row(rocks_row('Gert', '1. Nieuwe pand bekend', 'yellow'))
+    rocks_grid.add_row(
+        rocks_row('Martijn', '2. Pijplijn vullen (evt met WINNRS) - Sales management - Partnerkanalen', 'yellow')
+    )
+    rocks_grid.add_row(rocks_row('RdB', '3. Salesconcept (open source, Oberon, maatwerk)', 'orange'))
+    rocks_grid.add_row(rocks_row('RdB', '4. WINNRS effectiever of eruit', 'red'))
+    rocks_grid.add_row(rocks_row('HPH', '5. Qikker due dilligence', 'orange'))
+    rocks_grid.add_row(rocks_row('HPH', '6. MT-rollen duidelijker', 'yellow'))
 
-    return VBlock([TextBlock('Q1 Rocks', headersize), rocks_grid], limited=True)
+    return VBlock([TextBlock('Q2 Rocks', headersize), rocks_grid], limited=True)
 
 
 def debiteuren_block():
@@ -332,7 +337,7 @@ def debiteuren_block():
                     height=470,
                     labels=['<30 dg', '30-60 dg', '60-90 dg', '> 90 dg'],
                     colors=['#7C7', '#FD0', '#FFA500', '#c00'],
-                    max_y_axis=350000,
+                    max_y_axis=450000,
                 ),
             ),
         ],

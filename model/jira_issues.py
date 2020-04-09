@@ -1,10 +1,12 @@
 import collections
 from datetime import datetime
 from dateutil import parser as dateparser
-from jira import JIRA  # pip install jira
+from jira import JIRA, JIRAError  # pip install jira
 from sources import database as db
 
 from model.caching import reportz
+
+DEFAULT_FIELDS = ['created', 'assignee', 'project', 'priority', 'updated', 'summary', 'status', 'labels', 'resolution']
 
 # Get token at: https://id.atlassian.com/manage/api-tokens
 jira = JIRA(
@@ -14,48 +16,52 @@ jira = JIRA(
 SORT_ON_COUNT = 1
 
 
-@reportz(hours=0.1)
-def service_jira_keys():
-    # From Oberview
-    query = 'SELECT JiraURL FROM project p JOIN customer c on c.id=p.customerId WHERE project_type = "service" and JiraURL != ""'
-    all_jira_keys = [p.key for p in jira.projects()]
-    return [rec['JiraURL'] for rec in db.table(query) if rec['JiraURL'] in all_jira_keys]
+@reportz(hours=24)
+def alle_issues_van_project(project_key):
+    return jira_issues_and_where_the_ball_is('', project_keys=[project_key])
 
 
-def service_jql():
-    keys = '%22' + '%22, %22'.join(service_jira_keys()) + '%22'
-    return f'resolution = Unresolved AND project in ({keys}) AND status not in (suspended)'
+def open_issues_van_project(project_key):
+    issues = jira_issues_and_where_the_ball_is(service_jql(), project_keys=[project_key])
+    grouped = group_issues_by_field(issues, 'status', sort_field='status_id')
+    return grouped
 
 
-def jira_issues(
-    jql,
-    fields=['created', 'assignee', 'project', 'priority', 'updated', 'summary', 'status', 'labels'],
-    project_keys=None,
-):
-    if project_keys:
-        issues = []
-        for key in project_keys:
-            project_jql = jql + ' and project=' + key
-            try:
-                issues += jira.search_issues(project_jql, maxResults=999, json_result=True, fields=fields)['issues']
-                a = 1
-            except:
-                continue
-    else:
-        issues = jira.search_issues(jql, maxResults=999, json_result=True, fields=fields)['issues']
-    return [flatten(issue) for issue in issues]
+@reportz(hours=1)
+def service_issues_per_status():
+    return group_issues_by_field(service_issues(), 'status', sort_field='status_id', split_by_where_the_ball_is=True)
 
 
-@reportz(hours=0.1)
-def service_issues():
-    return jira_issues('resolution = Unresolved AND status not in (suspended) ', project_keys=service_jira_keys())
+@reportz(hours=1)
+def service_issues_per_prioriteit():
+    return group_issues_by_field(
+        service_issues(), 'priority', sort_field='priority_id', split_by_where_the_ball_is=True
+    )
 
 
-@reportz(hours=0.1)
-def service_assigned_to_oberon():
-    return jira_issues(
-        'resolution = Unresolved AND status not in (suspended) and assignee in membersOf(Oberon)',
-        project_keys=service_jira_keys(),
+@reportz(hours=1)
+def service_issues_per_persoon():
+    issues = service_issues()
+    res = group_issues_by_field(issues, 'assignee')
+    return res
+
+
+@reportz(hours=1)
+def service_issues_per_project():
+    return group_issues_by_field(
+        service_issues(), 'project', sort_field=SORT_ON_COUNT, reverse=True, split_by_where_the_ball_is=True
+    )
+
+
+@reportz(hours=1)
+def service_issues_per_maand():
+    return group_issues_by_field(service_issues(), 'updated_month', reverse=True)
+
+
+@reportz(hours=1)
+def service_issues_per_laatste_update():
+    return group_issues_by_field(
+        service_issues(), 'time_since_update', sort_field='updated', reverse=True, split_by_where_the_ball_is=True
     )
 
 
@@ -76,10 +82,8 @@ def belangrijkste_service_issues():
     clients = db.table(query)
     client_points = {rec['JiraURL']: rec['hourly'] for rec in clients}
 
-    issues = jira_issues(
-        'resolution = Unresolved AND status not in (suspended) and assignee in membersOf(Oberon) and reporter not in membersOf(Oberon)',
-        project_keys=service_jira_keys(),
-    )
+    issues = service_assigned_to_oberon('reporter not in membersOf(Oberon)')
+
     issues = [issue for issue in issues if not 'support' in issue['labels']]
 
     for issue in issues:
@@ -97,6 +101,86 @@ def belangrijkste_service_issues():
 
     issues = sorted(issues, key=lambda a: -a['points'])
     return [[r['key'], r['status'], r['priority'], r['days_open'], r['assignee'], r['points']] for r in issues[:10]]
+
+
+@reportz(hours=2)
+def service_issues():
+    return jira_issues_and_where_the_ball_is(service_jql())
+
+
+@reportz(hours=1)
+def service_assigned_to_oberon(extra_constraint=''):
+    jql = jql_add(service_jql(), '(assignee in membersOf(Oberon) OR assignee=EMPTY)')
+    if extra_constraint:
+        jql = jql_add(jql, extra_constraint)
+    return jira_issues(jql)
+
+
+def service_jql():
+    keys = '"' + '", "'.join(service_jira_keys()) + '"'
+    jql = f'resolution = Unresolved AND project in ({keys}) AND status not in (suspended) AND (labels != support OR labels is empty)'
+    return jql
+
+
+@reportz(hours=1)
+def service_jira_keys():
+    # From Oberview
+    query = 'SELECT JiraURL FROM project p JOIN customer c on c.id=p.customerId WHERE project_type = "service" and JiraURL != ""'
+    all_jira_keys = [p.key for p in jira.projects()]
+    return [rec['JiraURL'] for rec in db.table(query) if rec['JiraURL'] in all_jira_keys]
+
+
+def jira_issues_and_where_the_ball_is(jql, fields=DEFAULT_FIELDS, project_keys=None):
+    assigned_to_oberon = jira_issues(jql_add(jql, 'assignee in membersOf(Oberon)'), fields, project_keys)
+    for issue in assigned_to_oberon:
+        issue['where_the_ball_is'] = 'oberon'
+    assigned_to_client = jira_issues(jql_add(jql, 'assignee not in membersOf(Oberon)'), fields, project_keys)
+    for issue in assigned_to_client:
+        issue['where_the_ball_is'] = 'client'
+    return assigned_to_oberon + assigned_to_client
+
+
+def jira_issues(
+    jql, fields=DEFAULT_FIELDS, project_keys=None,
+):
+    if project_keys:  #!! Is dit nog nodig?
+        issues = []
+        for key in project_keys:
+            project_jql = jql_add(jql, f"project='{key}'")
+            issues += find_issues(project_jql, fields)
+    else:
+        issues = find_issues(jql, fields)
+    return [flatten(issue) for issue in issues]
+
+
+def find_issues(jql, fields):
+    block_size = 100
+    block_num = 0
+    issues = []
+    while True:
+        start_idx = block_num * block_size
+
+        try:
+            iss = jira.search_issues(jql, startAt=start_idx, maxResults=block_size, json_result=True, fields=fields)[
+                'issues'
+            ]
+        except JIRAError as e:
+            raise e
+            # break
+        if len(iss) == 0:
+            # Retrieve issues until there are no more to come
+            break
+        issues += iss
+        block_num += 1
+        if block_num > 100:
+            break
+    return issues
+
+
+def jql_add(jql, extra_constraint):
+    if jql and not jql.strip().endswith(' and'):
+        jql += ' and '
+    return jql + extra_constraint
 
 
 def time_since_update(updated):
@@ -123,6 +207,7 @@ def flatten(issue):
     issue['time_since_update'] = time_since_update(issue['updated'])
     issue['status_id'] = int(issue['status']['id'])
     issue['status'] = issue['status']['name']
+    issue['resolution'] = issue['resolution']['name'] if issue['resolution'] else 'Unresolved'
     return issue
 
 
@@ -144,9 +229,16 @@ status_sort = {
 }
 
 
-def group(issues, group_field, sort_field=None, reverse=False):
-    counted = collections.Counter([i[group_field] for i in issues])
-    result = list(counted.items())
+def group_issues_by_field(issues, group_field, sort_field=None, reverse=False, split_by_where_the_ball_is=False):
+    if split_by_where_the_ball_is:
+        oberon_issues, client_issues = split_on_condition(issues, lambda a: a['where_the_ball_is'] == 'oberon')
+        keys = collections.Counter([i[group_field] for i in issues]).keys()
+        oberon_result = counts_list(oberon_issues, group_field)
+        client_result = counts_list(client_issues, group_field)
+        result = [(key, oberon_result.get(key, 0), client_result.get(key, 0)) for key in keys]
+    else:
+        counts = counts_list(issues, group_field)
+        result = list(counts.items())
 
     if sort_field == SORT_ON_COUNT:
         sort_func = lambda a: a[1]
@@ -161,38 +253,23 @@ def group(issues, group_field, sort_field=None, reverse=False):
     return sorted(result, key=sort_func, reverse=reverse)
 
 
-@reportz(hours=0.1)
-def service_issues_per_status():
-    return group(service_issues(), 'status', sort_field='status_id')
+def split_on_condition(seq, condition):
+    a, b = [], []
+    for item in seq:
+        (a if condition(item) else b).append(item)
+    return a, b
 
 
-@reportz(hours=0.1)
-def service_issues_per_prioriteit():
-    return group(service_issues(), 'priority', sort_field='priority_id')
+def counts_list(issues, group_field):
+    counted = collections.Counter([i[group_field] for i in issues])
+    return counted  # result = list(counted.items())
+    return result
 
 
-@reportz(hours=0.1)
-def service_issues_per_persoon():
-    return group(service_issues(), 'assignee')
-
-
-@reportz(hours=0.1)
-def service_issues_per_project():
-    return group(service_issues(), 'project', sort_field=SORT_ON_COUNT, reverse=True)
-
-
-@reportz(hours=0.1)
-def service_issues_per_maand():
-    return group(service_issues(), 'updated_month', reverse=True)
-
-
-@reportz(hours=0.1)
-def service_issues_per_laatste_update():
-    return group(service_issues(), 'time_since_update', sort_field='updated', reverse=True)
-
+#############
 
 if __name__ == '__main__':
-    print(belangrijkste_service_issues())
+    print(service_issues_per_status())
     # issues = service_issues()
     # print(service_issues_per_status())
     # print(service_issues_per_prioriteit())
