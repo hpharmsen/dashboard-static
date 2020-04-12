@@ -3,17 +3,21 @@ from datetime import datetime
 from dateutil import parser as dateparser
 from jira import JIRA, JIRAError  # pip install jira
 from sources import database as db
-
+import configparser
+from pathlib import Path
 from model.caching import reportz
 
 DEFAULT_FIELDS = ['created', 'assignee', 'project', 'priority', 'updated', 'summary', 'status', 'labels', 'resolution']
+SORT_ON_COUNT = 1
+
+ini = configparser.ConfigParser()
+ini.read(Path(__file__).resolve().parent / 'credentials.ini')
+jira_user = ini['jira']['user']
+jira_key = ini['jira']['key']
+jira_server = ini['jira']['server']
 
 # Get token at: https://id.atlassian.com/manage/api-tokens
-jira = JIRA(
-    basic_auth=('hph@oberon.nl', 'KmClaydlK4Hgee4Xelho6E5B'), options={'server': 'https://teamoberon.atlassian.net'}
-)
-
-SORT_ON_COUNT = 1
+jira = JIRA(basic_auth=(jira_user, jira_key), options={'server': jira_server})
 
 
 @reportz(hours=24)

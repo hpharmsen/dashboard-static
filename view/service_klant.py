@@ -5,7 +5,7 @@ from functools import partial
 from layout.basic_layout import defsize, midsize, headersize
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
-from model.jira_issues import alle_issues_van_project, open_issues_van_project
+from sources.jira_issues import alle_issues_van_project, open_issues_van_project
 from model.service import service_klanten
 from view.service_issues import BASE_LINK
 

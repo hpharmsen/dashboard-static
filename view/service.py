@@ -2,10 +2,9 @@ import os
 from datetime import datetime
 
 from layout.basic_layout import defsize, midsize, headersize
-from layout.block import Block, HBlock, VBlock, TextBlock, Page
+from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
-from model.jira_issues import (
-    service_issues_per_status,
+from sources.jira_issues import (
     service_issues_per_laatste_update,
     belangrijkste_service_issues,
     service_issues_per_prioriteit,
@@ -18,7 +17,6 @@ from model.service import (
     # service_omzet_persoon_maand,
     service_team,
 )
-from layout.chart import BarChart, ChartConfig
 
 # TODO:
 # Targets chart voor serviceteam mensen aanpassen aan wanneer ze begonnen zijn

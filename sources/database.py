@@ -9,7 +9,7 @@ scriptpath = Path(__file__).resolve().parent
 #
 # def get_db():
 #     global DB
-#     return DB or dbClass.from_inifile(scriptpath / 'db.ini')
+#     return DB or dbClass.from_inifile(scriptpath / 'credentials.ini')
 #
 # scriptpath = Path(__file__).resolve().parent
 
@@ -18,7 +18,7 @@ db = None
 
 def get_db():
     global db
-    return db or dbClass.from_inifile(scriptpath / 'db.ini')
+    return db or dbClass.from_inifile(scriptpath / 'credentials.ini')
 
 
 # def dict_list(query):

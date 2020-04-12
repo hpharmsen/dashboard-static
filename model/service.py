@@ -3,7 +3,7 @@ import os
 # from datetime import datetime
 
 # from sources.googlesheet import sheet_tab, sheet_value, to_int
-# from model.caching import reportz
+from model.caching import reportz
 from sources import database as db
 
 
@@ -120,7 +120,7 @@ def service_team():
 #     return UURLOON * (1.1 * res['bill'] + res['prj'])
 
 
-# @reportz(hours=60)
+@reportz(hours=60)
 def service_klanten():
     query = f'''select name, title, JiraURL, round(ifnull(b,0)) as billable, round(ifnull(tt,0)) as total, round(ifnull(tu,0)) as turnover, round(ifnull(tu/tt,0)) as hourly 
                 from (

@@ -43,7 +43,7 @@ class Chart(Block):
                     data: {str(values)},
                     backgroundColor: {str(config.colors)},
                     label: 'abc'
-                }}]'''  #!! Moet backgroundColor niet config.bg_color zijn??
+                }}]'''
         self.values = values
         self.config = config
         self.labels = config.labels  # Can be overwritten
@@ -120,10 +120,10 @@ class BarChart(Chart):
         # self.datasets = '['
         # for label, value, color in zip(config.bottom_labels, values, config.colors):
         self.datasets = f'''[{{
-                                    label: "",
-                                    data: {values},
-                                    backgroundColor: {colors}
-                                  }}]'''
+                                label: "",
+                                data: {values},
+                                backgroundColor: {colors}
+                              }}]'''
         # self.datasets = self.datasets[:-1] + ']'
         self.labels = config.bottom_labels
         self.options = f'''{{
@@ -314,3 +314,50 @@ class ScatterChart(Chart):
                 }}]      
             }}
         }}'''
+
+
+# class Option():
+#     def __init__(self, name, contents=None):
+#         self.name = name
+#         self.contents = contents
+#
+#     def render(self, chart):
+#         if not self.contents:
+#             if hasattr( chart, self.name ):
+#                 return self.name + ':' + self.str(getattr( chart, self.name ))
+#             else:
+#                 return ''
+#         else:
+#             contents = [option.render(chart) for option in self.contents]
+#             content_string =  ','.join([c for c in contents if c])
+#             name_qualifier = self.name + ':' if self.name else ''
+#             return name_qualifier + '{' + content_string + '}'
+#
+#     def str(self, value):
+#         if isinstance(value, bool):
+#             return str(value).lower()
+#         else:
+#             return str(value)
+#
+# class Test():
+#     def __init__(self):
+#         self.display = False
+#         self.radius = 3
+#
+# if __name__=='__main__':
+#
+#     chart = Test()
+#
+#     structure = Option( '', [
+#             Option( 'legend', [
+#                 Option( 'display' ),
+#                 Option( 'size' )
+#                 ]),
+#             Option( 'elements', [
+#                 Option( 'point', [
+#                     Option('radius')
+#                 ])
+#             ])
+#         ])
+#
+#     print( structure.render( chart ) )

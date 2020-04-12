@@ -3,7 +3,7 @@ Icon?
 output eind 2019/
 *$py.
 output/
-sources/db.ini
+sources/credentials.ini
 sources/oauth_key.json
 tmp.py
 model/cache.tmp
