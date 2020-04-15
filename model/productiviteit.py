@@ -223,23 +223,6 @@ def geboekte_uren_user(user, only_clients=0, billable=0, fromdate=None, untildat
     return db.value(sql)
 
 
-######### BESCHIKBAAR ##########
-
-
-# def beschikbare_uren(productie_users=0):
-#     y = datetime.today().year
-#     sql = f'select user, 0.85 * sum(hours) as hours from timesheet where year(day)={y}'
-#     if productie_users:
-#         sql += ' and user in {tuple(productie_users())}'
-#     sql += ' group by user'
-#     return db.dataframe(sql)
-
-
-# def beschikbare_uren_persoon(user):
-#    df = geboekte_uren()
-#    return int(df.loc[df['user'] == user]['hours'])
-
-
 @reportz(hours=24)
 def beschikbare_uren_productie(fromdate=None, untildate=None):
     df = geboekte_uren(only_productie_users=1, fromdate=fromdate, untildate=untildate)
@@ -253,9 +236,6 @@ def beschikbare_uren_iedereen(fromdate=None, untildate=None):
 
 
 ###### PRODUCTIEF ############
-# def productieve_uren_persoon(user):
-#    df = geboekte_uren(productie_users=0, billable=0)
-#    return df.loc[df['user'] == user]['hours']
 
 
 @reportz(hours=2)
@@ -272,10 +252,6 @@ def productieve_uren_iedereen(fromdate=None, untildate=None):
 
 ########## BILLABLE ############
 
-# def billable_uren_persoon(user):
-#    df = geboekte_uren(productie_users=1, billable=1)
-#    return df.loc[df['user'] == user]['hours']
-
 
 @reportz(hours=2)
 def billable_uren_productie(fromdate=None, untildate=None):
@@ -290,8 +266,6 @@ def billable_uren_iedereen(fromdate=None, untildate=None):
 
 
 # Percentages
-
-
 def productiviteit_perc_productie(fromdate=None, untildate=None):
     return 100 * productieve_uren_productie(fromdate, untildate) / beschikbare_uren_productie(fromdate, untildate)
 
@@ -310,37 +284,15 @@ def billable_perc_iedereen(fromdate=None, untildate=None):
     return res
 
 
-@reportz(hours=48)
-def billable_trend_person(user):
-    # Aantal billable uren per week gemeten in timeslots van twee weken van 26 weken geleden tot aan nu
-    sql = f'''select date_add( curdate(), interval -slot*14-7 DAY) as datum, ifnull(amount/2,0) as hours from 
-                (select 12 as slot union all select 11 union all select 10 union all select 9 union all 
-                 select 8 union all select 7 union all select 6 union all select 5 union all select 4 union all 
-                 select 3 union all select 2 union all select 1 union all select 0) as slots
-              left join (
-                select datediff(now(), day) DIV 14 as timegroup, sum(hours) as amount
-                from timesheet ts
-                join project p on p.id=ts.projectId
-                where day<=now() 
-                  and datediff(now(), day) < 26*7 
-                  and user='{user}'
-                  and (taskId=-2 
-                    or taskId=-6 
-                    or (p.project_type='fixed' and p.customerId!=4)
-                      )
-                group by timegroup) timegroups 
-              on timegroups.timegroup = slots.slot'''
-    return db.table(sql)
-
-
-# @reportz(hours=48)
+@reportz(hours=8)
 def billable_trend_person_week(user):
     # Aantal billable uren per weeknummer
     sql = f'''
-            select year(day) as year, week(day) as weekno, sum(hours) as hours
+            select year(day) as year, week(day,6) as weekno, sum(hours) as hours
             from timesheet ts
-            where taskId in (-2,-4,-6) and day > DATE_SUB(curdate(), INTERVAL 6 MONTH) and ts.user='{user}'
-            group by week(day) '''
+            where taskId in (-2,-4,-6) and day > DATE_SUB(curdate(), INTERVAL 6 MONTH) 
+              and week(day,6) < week(curdate(),6) and ts.user='{user}'
+            group by week(day,6) order by year(day), week(day)  '''
     res = db.table(sql)
     res_rec = {r['weekno']: r['hours'] for r in res}
     curweek = int(datetime.now().strftime('%V'))
