@@ -8,6 +8,8 @@ sources/oauth_key.json
 tmp.py
 model/cache.tmp
 model/trends.json
+admin.pw
+sources/ga_oauth_key.json
 
 # C extensions
 *.so
