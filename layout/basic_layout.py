@@ -17,8 +17,14 @@ def doFormat(item, format=None):
             formatted = f'{item / 1000:,.0f} K'.replace(',', '.')
         elif format == '%':
             formatted = f"{item:.0f}%"
+        elif format == '%1':
+            formatted = f"{item:.1f}%"
         elif format == '.':
             formatted = f"{item:,.0f}".replace(',', '.')
+        elif format == '.1':
+            formatted = f"{item:,.1f}".replace(',', '.')
+        elif format == '.2':
+            formatted = f"{item:,.2f}".replace(',', '.')
         elif format == '€':
             formatted = f"€ {item:,.0f}".replace(',', '.')
         elif format == '.5':

@@ -34,8 +34,8 @@ class Table(Block):
         elif len(data) > 0 and isinstance(data[0], dict):
             self._convert_data_from_dict_list_to_list_of_lists()
 
-        if self.config.hide_columns:
-            self._hide_columns()
+        #if self.config.hide_columns:
+        #    self._hide_columns()
 
     def _convert_data_from_dataframe_to_list_of_lists(self):
         if self.headers == None:
@@ -47,8 +47,9 @@ class Table(Block):
             self.headers = self.data[0].keys()
         self.data = [list(d.values()) for d in self.data]
 
-    def _hide_columns(self):
-        self.headers = [header for index, header in enumerate(self.headers) if not index in self.config.hide_columns]
+    #def _hide_columns(self):
+    #    #self.headers = [header for index, header in enumerate(self.headers) if not index in self.config.hide_columns]
+    #    pass
 
     def render_content(self):
         res = '<table class="plain">'

@@ -4,6 +4,8 @@ from model.trendline import trends
 
 
 def to_int(s):
+    if type(s) == int:
+        return s
     return int(s.replace('€ ', '').replace('.', '').replace('%', ''))
 
 
@@ -26,11 +28,18 @@ def sales_waarde():
 @reportz(hours=24)
 def sales_waarde_details():
     tab = sheet_tab('Sales - force', 'Kansen')
-    data_rows = [
-        row[:2] + [to_int(row[2])] + [to_int(row[3])] + [row[4]] + [to_int(row[6])] + [row[13]]
-        for row in tab[3:]
-        if is_int(row[5]) and 0 < to_int(row[5]) < 60
-    ]
+    data_rows = []
+    for row in tab[3:]:
+        if not is_int(row[2]):
+            row[2] = 0
+        if is_int(row[5]) and 0 < to_int(row[5]) < 60:
+            data_rows += [row[:2] + [to_int(row[2])] + [to_int(row[3])] + [row[4]] + [to_int(row[6])] + [row[13]]]
+
+    #data_rows = [
+    #    row[:2] + [to_int(row[2])] + [to_int(row[3])] + [row[4]] + [to_int(row[6])] + [row[13]]
+    #    for row in tab[3:]
+    #    if is_int(row[5]) and 0 < to_int(row[5]) < 60
+    #]
     return data_rows
 
 

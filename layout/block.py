@@ -112,7 +112,7 @@ class Block:
 
 
 class HBlock(Block):
-    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', limited=False, link=None):
+    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', limited=False, link=None, tooltip=None):
         super().__init__(
             children=children,
             width=width,
@@ -122,11 +122,12 @@ class HBlock(Block):
             align_children='horizontal',
             limited=limited,
             link=link,
+            tooltip=tooltip
         )
 
 
 class VBlock(Block):
-    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', limited=False, link=None):
+    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', limited=False, link=None, tooltip=None):
         super().__init__(
             children=children,
             width=width,
@@ -136,6 +137,7 @@ class VBlock(Block):
             align_children='vertical',
             limited=limited,
             link=link,
+            tooltip=tooltip
         )
 
 

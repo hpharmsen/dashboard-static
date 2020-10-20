@@ -1,4 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+
+from model.utilities import fraction_of_the_year_past
 from sources import database as db
 from model.caching import reportz
 from sources.googlesheet import sheet_tab, to_int
@@ -125,7 +127,10 @@ def tuple_of_productie_users():
     return [
         rec['name']
         for rec in db.table(
-            'select name from planning_location where searchOrder>0 order by planning_locationGroupId, searchOrder'
+            '''select name from planning_location pl 
+               left join user u on u.username=pl.name
+                where pl.searchOrder>0 and u.status=1 
+                order by planning_locationGroupId, searchOrder'''
         )
     ]
 
@@ -167,16 +172,6 @@ def cijfers_werknemers_value(user, key):
 def user_target(user):
     return cijfers_werknemers_value(user, 'Target jaar')
 
-
-# @reportz(hours=24)
-def fraction_of_the_year_past(start_day=None):
-    if start_day:
-        start_date_time = datetime.combine(start_day, datetime.min.time())
-    else:
-        y = datetime.today().year
-        start_date_time = datetime(y, 1, 1)
-    days_in_the_year = (datetime.today() - start_date_time).days + 1
-    return days_in_the_year / 365
 
 
 def user_target_now(user):
@@ -226,13 +221,13 @@ def geboekte_uren_user(user, only_clients=0, billable=0, fromdate=None, untildat
 @reportz(hours=24)
 def beschikbare_uren_productie(fromdate=None, untildate=None):
     df = geboekte_uren(only_productie_users=1, fromdate=fromdate, untildate=untildate)
-    return df['hours'].sum() * 0.85
+    return df['hours'].sum() * 0.9
 
 
 @reportz(hours=24)
 def beschikbare_uren_iedereen(fromdate=None, untildate=None):
     df = geboekte_uren(only_productie_users=0, fromdate=fromdate, untildate=untildate)
-    return df['hours'].sum() * 0.85
+    return df['hours'].sum() * 0.9
 
 
 ###### PRODUCTIEF ############
@@ -283,6 +278,11 @@ def billable_perc_iedereen(fromdate=None, untildate=None):
     trends.update('billable_hele_team', round(res, 1))
     return res
 
+def percentage_directe_werknemers():
+    '''DDA Cijfer. Is het percentage productiemedewerkers tov het geheel'''
+    untildate = datetime.today()
+    fromdate = untildate  - timedelta(days=183)
+    return  100 * beschikbare_uren_productie(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
 
 @reportz(hours=8)
 def billable_trend_person_week(user):

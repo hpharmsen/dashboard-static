@@ -43,7 +43,7 @@ class TrendLines:
         if len(trend) >= 2:
             return trend[-2][0]
         else:
-            return trend[-1[0]]
+            return trend[-1][0]
 
     def load(self):
         with open(self.trendfile) as f:

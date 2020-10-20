@@ -27,7 +27,6 @@ from view.service import render_service_page
 from view.service_issues import render_service_issues_page
 from view.winstgevendheid import render_winstgevendheid_page
 from view.klanten import render_klant_page
-from view.resultaat_vergelijking import render_resultaat_vergelijking_page
 from view.tor import render_tor_page
 from view.resultaat_berekening import render_resultaat_berekening
 from view.budget import render_budget_status_page
@@ -64,7 +63,7 @@ def render_all_pages():
     render_sales_page()
     render_service_page()
     render_klant_page()
-    render_resultaat_vergelijking_page()
+    #render_resultaat_vergelijking_page()
     render_debiteuren_page()
     # render_productiviteit_page()
     render_billable_page()

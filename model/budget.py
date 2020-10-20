@@ -25,13 +25,15 @@ def project_budget_status():
                 f' and (p.phase=90 or day<="{project["last_invoice"]}")' if project['last_invoice'] else ''
             )
 
-            sql = f'''select ifnull(sum(budget),0) from (select pu.hourlyRate * sum(hours) as budget
-                    from project_user pu 
-                    left join timesheet ts on ts.projectId=pu.projectId and ts.user=pu.user
-                    left join project p on p.id=pu.projectId
-                    where pu.projectId={project['id']} and (taskId in (-2,-4,-6) and management_costs=0) {only_before_last_invoice}
-                    group by pu.projectId, pu.user
-                    having budget>0) q2'''
+            sql = f'''select ifnull(sum(normalBudget),0)+ifnull(sum(criticalBudget),0) from (
+                        select pu.hourlyRate *  sum(if(taskId!=-6,hours,0)) as normalBudget, 
+                               pu.hourlyRateCritical * sum(if(taskId=-6,hours,0)) as criticalBudget
+                        from project_user pu 
+                        left join timesheet ts on ts.projectId=pu.projectId and ts.user=pu.user
+                        left join project p on p.id=pu.projectId
+                        where pu.projectId={project['id']} and taskId in (-2,-4,-6) {only_before_last_invoice}
+                        group by pu.user ) q2
+            '''
             project['budget'] += db.value(sql)
         project['budget_status'] = project['invoiced'] - project['budget'] - project['budget_correction_amount']
         try:

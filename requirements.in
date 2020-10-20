@@ -1,0 +1,9 @@
+gspread
+numpy
+oauth2client
+pandas
+PyMySQL
+jira
+pytest
+googleanalytics
+-e git+https://github.com/hpharmsen/hplib#egg=hplib

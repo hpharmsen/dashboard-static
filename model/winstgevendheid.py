@@ -5,7 +5,8 @@ import pandas as pd
 from sources.googlesheet import sheet_tab, sheet_value, to_int, to_float
 from sources import database as db
 from model.caching import reportz
-from model.productiviteit import productiviteit_overzicht, fraction_of_the_year_past
+from model.productiviteit import productiviteit_overzicht
+from model.utilities import fraction_of_the_year_past
 from model.resultaat import virtuele_maand
 
 MT_SALARIS = 122024
@@ -59,9 +60,10 @@ def loonkosten_per_persoon():
                 if y == datetime.today().year:
                     end_year_fraction = (m - 1) / 12 + d / 365
 
+            kosten_ft = to_float(line[kosten_col]) if line[kosten_col] else 0
             users[line[id_col]] = {
                 'bruto': to_float(line[bruto_col]),
-                'kosten_ft': to_float(line[kosten_col]),
+                'kosten_ft': kosten_ft,
                 'uren': to_int(line[uren_col]),
                 'loonkosten': 12 * to_float(line[kosten_col]) * to_int(line[uren_col]) / 40,
                 'fraction_of_the_year_worked': end_year_fraction - start_year_fraction,

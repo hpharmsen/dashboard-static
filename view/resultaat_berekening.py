@@ -9,7 +9,7 @@ from model.resultaat import (
     # uitbesteed_tm_vorige_maand,
     onderhanden_werk,
     subsidie_tm_vorige_maand,
-    opbrengsten_tm_vorige_maand,
+    #opbrengsten_tm_vorige_maand,
     kosten_boekhoudkundig_tm_vorige_maand,
     bonussen_tm_vorige_maand,
     kosten_begroot_tm_maand,
@@ -36,7 +36,8 @@ from model.resultaat import (
     onderhanden_vorig_jaar,
     gedaan_werk_tor_dit_jaar,
 )
-from model.resultaat_vergelijking import MAANDEN
+#from model.resultaat_vergelijking import MAANDEN
+MAANDEN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 
 def line(key, value, format='K'):

@@ -4,7 +4,7 @@ from datetime import datetime
 from layout.basic_layout import headersize, midsize
 from layout.block import TextBlock, Page, HBlock
 from model.target import users_and_targets
-from model.productiviteit import fraction_of_the_year_past
+from model.utilities import fraction_of_the_year_past
 from layout.chart import StackedBarChart, ChartConfig
 
 groen = '#5c5'
@@ -40,7 +40,7 @@ def targets_chart(data, width, height):
     data['boven_target'] = data.apply(
         lambda row: max(0, round(row.result - row.target * row.fraction_of_the_year)), axis=1
     )
-    data['rest'] = data.apply(lambda row: row.target - round(row.result - row.boven_target), axis=1)
+    data['rest'] = data.apply(lambda row: round(row.target - row.onder_target - row.bereikt - row.boven_target), axis=1)
 
     # Maak er lijsten van t.b.v. de grafiek
     namen = data['user'].tolist()

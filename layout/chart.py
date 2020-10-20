@@ -24,10 +24,14 @@ class ChartConfig(NamedTuple):
     link: str = None
     bottom_labels: List = []  # for Bar, StackedBar and Line
     data_labels: List = []  # Labels for in the chart itself. Currently only implemented for StackedBarChart
+    max_x_axis: float = None  # Currently only for StackedBarChart and ScatterChart
+    min_x_axis: float = None  # Currently only for ScatterChart
     max_y_axis: float = None  # Currently only for StackedBarChart and ScatterChart
     min_y_axis: float = None  # Currently only for ScatterChart
     horizontal: bool = False  # Currently only for StackedBarChart
     x_type: str = 'float'  # Currently only for ScatterChart
+    x_axis_max_ticks: int = 0
+    x_axis_font_size: int = 0
     y_axis_max_ticks: int = 0
     y_axis_font_size: int = 0
 
@@ -48,6 +52,10 @@ class Chart(Block):
         self.config = config
         self.labels = config.labels  # Can be overwritten
         self.canvas_height_difference = 150  # Difference between div height and canvas height, can be overwritten
+        self.xmin = 'min: 0,' if config.min_x_axis == None else f'min: "{config.min_x_axis}",' if isinstance(config.min_x_axis, str) else f'suggestedMin: {config.min_x_axis},'
+        self.xmax = '' if config.max_x_axis == None else f'max: "{config.max_x_axis}",' if isinstance(config.max_x_axis, str) else f'max: {config.max_x_axis},'
+        self.x_axis_max_ticks = f'maxTicksLimit: {config.x_axis_max_ticks},' if config.x_axis_max_ticks else ''
+        self.x_axis_font_size = f'fontSize: {config.x_axis_font_size if config.x_axis_font_size else 9},'
         self.ymin = 'min: 0,' if config.min_y_axis == None else f'suggestedMin: {config.min_y_axis},'
         self.ymax = '' if config.max_y_axis == None else f'max: {config.max_y_axis},'
         self.y_axis_max_ticks = f'maxTicksLimit: {config.y_axis_max_ticks},' if config.y_axis_max_ticks else ''
@@ -135,6 +143,12 @@ class BarChart(Chart):
             }},
             scales: {{
                 xAxes: [{{
+                     ticks: {{
+                        {self.x_axis_max_ticks}
+                        {self.x_axis_font_size}
+                        {self.xmin}
+                        {self.xmax}
+                    }},
                     categoryPercentage: 0.9,
                     barPercentage: 0.9
                 }}],
@@ -189,7 +203,15 @@ class StackedBarChart(Chart):
                     display: false
                 }},
             scales: {{
-                xAxes: [{{stacked: true}}],
+                xAxes: [{{
+                    ticks: {{
+                        {self.x_axis_max_ticks}
+                        {self.x_axis_font_size}
+                        {self.xmin}
+                        {self.xmax}
+                    }},
+                    stacked: true
+                }}],
                 yAxes: [{{
                     stacked: true,
                     ticks: {{
@@ -226,6 +248,12 @@ class LineChart(Chart):
                 }},
             scales: {{
                 xAxes: [{{
+                    ticks: {{
+                        {self.x_axis_max_ticks}
+                        {self.x_axis_font_size}
+                        {self.xmin}
+                        {self.xmax}
+                    }},
                     categoryPercentage: 0.9,
                     barPercentage: 0.9
                 }}],
@@ -292,6 +320,10 @@ class ScatterChart(Chart):
 						displayFormats: {{
                             month: '     MMM'
                         }},
+                        {self.x_axis_max_ticks}
+                        {self.x_axis_font_size}
+                        {self.xmin}
+                        {self.xmax}
                         unitStepSize: 1
 					}},
                     ticks: {{
