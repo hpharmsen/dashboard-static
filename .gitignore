@@ -5,6 +5,7 @@ output eind 2019/
 output/
 sources/credentials.ini
 sources/oauth_key.json
+sources/ga.py
 tmp.py
 model/cache.tmp
 model/trends.json

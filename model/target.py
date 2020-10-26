@@ -11,6 +11,7 @@ def users_and_targets(year, specific_users=None):
               from target t
               join timesheet ts on ts.user=t.user 
               join project p on p.id=ts.projectId
+              join user u on ts.user=u.username and u.status=1
               where year(ts.day)='{year}' and t.year='{year}' and taskId in (-2,-6) and customerId<>4 {user_constraint}
               group by t.user
            '''
