@@ -1,7 +1,6 @@
 # TODO
 # Algemeen
 # - Script draaiend krijgen op de synology
-# - Beter systeem ipv limited
 # Productiviteit
 #  - Effective rate= Bruto marge / alle declarabele uren (DDA: 96 bij een listprice van 103)
 # Organisatie
@@ -11,6 +10,9 @@
 # - Wat een klant heeft uitgegeven
 # - Chart per prio
 # jira credentials in config.ini
+#
+# - Vergelijking met begroting
+# - Geen sys.exit bij een fout maar fouten tonen in het dashboard   
 
 import sys
 import os
@@ -34,7 +36,6 @@ from view.target import render_target_page
 
 OUTPUT_FOLDER = 'output/'
 DIRECTIE_FOLDER = '/Volumes/Downloads/hp/dashboard/'
-LIMITED_FOLDER = '/Volumes/Downloads/dashboard/'
 
 
 def main():
@@ -42,7 +43,6 @@ def main():
     initialize_cache()
     render_all_pages()
     copy_to_directie_folder()
-    copy_to_team_folder()
 
 
 def cd_to_script_path():
@@ -83,20 +83,8 @@ def copy_to_directie_folder():
         return
 
     print('Pushing to directie folder')
-    for f in [f for f in os.listdir(OUTPUT_FOLDER) if f != 'limited']:
+    for f in [f for f in os.listdir(OUTPUT_FOLDER)]:
         try_copy_file(OUTPUT_FOLDER + f, DIRECTIE_FOLDER + f)
-        if f.split('.')[-1] in ('png', 'js', 'css') or f == 'login.html':  # Copy generic files to limited folder too
-            try_copy_file(OUTPUT_FOLDER + f, 'output/limited/' + f)
-
-
-def copy_to_team_folder():
-    # copy the limited stuff to download.oberon.nl/dashboard
-    if os.path.isdir(LIMITED_FOLDER):
-        print('Pushing to team folder')
-        for f in os.listdir(f'{OUTPUT_FOLDER}limited'):
-            try_copy_file(f'{OUTPUT_FOLDER}limited/' + f, LIMITED_FOLDER + f)
-    else:
-        print(LIMITED_FOLDER, 'not found')
 
 
 def copytree(src, dst, symlinks=False, ignore=None):

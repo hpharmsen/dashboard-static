@@ -71,7 +71,6 @@ def render_budget_status_page():
     # row_linking = lambda line, value: 'https://oberview.oberon.nl/facturen/openstaand'
 
     page.render('output/budget.html')
-    page.render('output/limited/budget.html', limited=1)
 
 
 if __name__ == '__main__':

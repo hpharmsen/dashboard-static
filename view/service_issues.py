@@ -151,7 +151,6 @@ def render_service_issues_page():
     page = Page([TextBlock('Openstaande service issues', headersize), VBlock([row1, row2])])
 
     page.render('output/service_issues.html')
-    page.render('output/limited/service_issues.html', limited=1)
 
 
 if __name__ == '__main__':

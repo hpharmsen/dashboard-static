@@ -30,6 +30,8 @@ def render_target_page():
 
 def targets_chart(data, width, height):
 
+    if not len(data):
+        return TextBlock('No targets data for targets_chart')
     # fraction = fraction_of_the_year_past()
     # Pandas operaties op de hele lijst tegelijk
     data['fraction_of_the_year'] = data.apply(lambda row: fraction_of_the_year_past(row.start_day), axis=1)
@@ -85,7 +87,7 @@ def totalen_block(data):
     totaal_result = data['result'].sum()
     totaal_target = data['target'].sum() * fraction_of_the_year_past()
     totaal_boven_target = totaal_result - totaal_target
-    totaal_percentueel = totaal_result / totaal_target * 100 - 100
+    totaal_percentueel = totaal_result / totaal_target * 100 - 100 if totaal_target else 0
 
     return HBlock(
         [

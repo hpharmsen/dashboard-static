@@ -27,7 +27,11 @@ def get_db():
 
 def value(query):
     res = get_db().execute(query)[0]
-    return float(res[list(res.keys())[0]])
+    res = res[list(res.keys())[0]]
+    if res:
+        return float(res)
+    else:
+        return 0
 
 
 def dataframe(query):

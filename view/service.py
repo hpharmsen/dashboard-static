@@ -35,7 +35,6 @@ def render_service_page():
     page = Page([TextBlock('Service', headersize), issues_block(), targets_block(), service_klanten_block()])
 
     page.render('output/service.html')
-    page.render('output/limited/service.html', limited=1)
 
 
 def issues_block():
@@ -118,6 +117,8 @@ def issues_block():
 def targets_block():
     team = service_team()
     data = users_and_targets(datetime.today().year, specific_users=team)
+    if not len(data):
+        return TextBlock( f'targets for {datetime.today().year} are missing')
     return VBlock([TextBlock('Targets', midsize), targets_chart(data, 800, 340)])
 
 

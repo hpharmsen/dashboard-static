@@ -44,14 +44,12 @@ def render_resultaat_vergelijking_page():
                     bottom_labels=['Winst', 'Winst begroot', 'Winst vorig jaar'],
                 ),
             ),
-        ],
-        limited=True,
+        ]
     )
 
     page = Page([TextBlock('Resultaat', headersize), VBlock([omzet, winst])])
 
     page.render('output/resultaat_vergelijking.html')
-    page.render('output/limited/resultaat_vergelijking.html', limited=True)
 
 
 if __name__ == '__main__':

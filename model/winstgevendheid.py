@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import datetime
 import pandas as pd
 
@@ -54,7 +55,11 @@ def loonkosten_per_persoon():
                 start_year_fraction = 0
             end_year_fraction = fraction_of_the_year_past()
             if line in ex_werknemers:
-                d, m, y = parse_date(line[end_date_col])
+                try:
+                    d, m, y = parse_date(line[end_date_col])
+                except:
+                    print( 'End date is not filled in for ' + line[2])
+                    sys.exit()
                 if y < datetime.today().year:
                     continue
                 if y == datetime.today().year:
@@ -65,7 +70,7 @@ def loonkosten_per_persoon():
                 'bruto': to_float(line[bruto_col]),
                 'kosten_ft': kosten_ft,
                 'uren': to_int(line[uren_col]),
-                'loonkosten': 12 * to_float(line[kosten_col]) * to_int(line[uren_col]) / 40,
+                'loonkosten': 12 * kosten_ft * to_int(line[uren_col]) / 40,
                 'fraction_of_the_year_worked': end_year_fraction - start_year_fraction,
             }
     return users

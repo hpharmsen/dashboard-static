@@ -23,8 +23,8 @@ class TableConfig(NamedTuple):
 
 
 class Table(Block):
-    def __init__(self, data: list = [], config: TableConfig = None, id='', limited=False):
-        super().__init__(id=id, limited=limited)
+    def __init__(self, data: list = [], config: TableConfig = None, id=''):
+        super().__init__(id=id)
 
         self.data = data
         self.config = config
@@ -123,7 +123,7 @@ class Table(Block):
         res += '</table>'
         return res
 
-    def render_children(self, limited=False):
+    def render_children(self):
         return ''  # overwrite Block's render_children
 
 

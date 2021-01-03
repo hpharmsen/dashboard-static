@@ -89,7 +89,6 @@ def render_tor_page():
     page = Page([TextBlock('TOR 3', headersize), VBlock([row1, row2])])
 
     page.render('output/tor.html')
-    page.render('output/limited/tor.html', limited=1)
 
 
 if __name__ == '__main__':

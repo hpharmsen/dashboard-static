@@ -7,6 +7,7 @@ from sources import database as db
 from model.trendline import trends
 
 tor_onderhanden_2019 = 80741.0
+TOR_MAX_BUDGET = 672424
 
 BEGROTING_SHEET = 'Begroting 2020'
 BEGROTING_TAB = 'Begroting'
@@ -252,7 +253,9 @@ def invoiced_tor():
 def onderhanden_werk_tor():
     # Werk tellen we voor de helft mee. Werk van dit jaar zelfs vor 3/4 want het deel wat we activeren
     # telt ook mee, alleen niet van vorig jaar want dat telden we toen al met de winst mee.
-    res = gedaan_werk_tor() / 2 + gedaan_werk_tor_dit_jaar() / 4 - invoiced_tor()
+    # Maar e.e.a. wel gemaximeerd tot het maximale afgesproken budget.
+    res = min(TOR_MAX_BUDGET * 3/4, gedaan_werk_tor() / 2 + gedaan_werk_tor_dit_jaar() / 4) - invoiced_tor()
+    res = TOR_MAX_BUDGET * 3/4 - invoiced_tor() - tor_onderhanden_2019
     return res
 
 

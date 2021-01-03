@@ -40,7 +40,6 @@ def render_sales_page():
     page = Page([TextBlock('Sales', headersize), HBlock([sales_trajecten, pijplijn])])
 
     page.render('output/sales.html')
-    page.render('output/limited/sales.html', limited=1)
 
 
 if __name__ == '__main__':

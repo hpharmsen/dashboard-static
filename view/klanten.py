@@ -30,12 +30,10 @@ def render_klant_page():
     #             formats=['', '.', '€', '€', '€'],
     #         ),
     #     ],
-    #     limited=True,
     # )
 
     page = Page([TextBlock('Klanten', headersize), omzet])
     page.render('output/clients.html')
-    page.render('output/limited/clients.html', limited=1)
 
 
 if __name__ == '__main__':

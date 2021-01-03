@@ -5,10 +5,10 @@ from layout.chart import id_pattern, randomString, ChartConfig
 
 
 class SankeyChart(Block):
-    def __init__(self, values, config, limited=False):
+    def __init__(self, values, config):
         id = id_pattern.sub('', config.title) + '_' + randomString()
         super().__init__(
-            id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link, limited=limited
+            id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link
         )
         self.canvas_height_difference = 150  # Difference between div height and canvas height, can be overwritten
         self.values = values
@@ -126,14 +126,10 @@ class SankeyChart(Block):
                   }}
             </script>'''
 
-    def render(self, align='', limited=False):
-        if self.limited and limited:
-            return ''
+    def render(self, align=''):
         return self.do_render(0, 0, 'relative')
 
-    def render_absolute(self, left, top, limited=False):
-        if self.limited and limited:
-            return ''
+    def render_absolute(self, left, top):
         return self.do_render(left, top, 'absolute')
 
 
@@ -226,4 +222,3 @@ if __name__ == '__main__':
     page = Page([chart])
 
     page.render('output/sankey.html')
-    #page.render('output/limited/sales.html', limited=1)

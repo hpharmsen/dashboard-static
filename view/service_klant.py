@@ -22,7 +22,6 @@ def render_service_klant_page(klant, issues):
     page = Page([TextBlock(klant['name'], headersize), issues_block(issues), open_issues_block(klant['JiraURL'])])
 
     page.render(f'output/klanten/{klant["JiraURL"]}.html')
-    page.render(f'output/limited/klanten/{klant["JiraURL"]}.html', limited=1)
 
 
 def UTC_to_datetime(utc_string):

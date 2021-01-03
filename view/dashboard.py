@@ -63,7 +63,6 @@ def render_dashboard():
     )
 
     page.render('output/dashboard.html')
-    page.render('output/limited/dashboard.html', limited=True)
 
 
 ######### Kolom 1: Sales + Klanten ###########
@@ -112,48 +111,48 @@ def resultaat_block():
     resultaat = VBlock(
         [
             TextBlock('Resultaat', headersize),
-            TextBlock('Omzet', defsize, color='gray', padding=10, limited=False),
+            TextBlock('Omzet', defsize, color='gray', padding=10),
             HBlock(
                 [
                     VBlock(
                         [
-                            TextBlock('Begroot', defsize, color='gray', padding=5, limited=False),
-                            TextBlock('Werkelijk', defsize, color='gray', limited=False),
+                            TextBlock('Begroot', defsize, color='gray', padding=5),
+                            TextBlock('Werkelijk', defsize, color='gray'),
                         ]
                     ),
                     VBlock(
                         [
-                            TextBlock(omzet_begroot(), defsize, format='K', padding=5, limited=False),
-                            TextBlock(opbrengsten(), defsize, format='K', limited=False),
+                            TextBlock(omzet_begroot(), defsize, format='K', padding=5),
+                            TextBlock(opbrengsten(), defsize, format='K'),
                         ]
                     ),
-                    TextBlock(omzet_verschil_percentage(), midsize, format='+%', limited=False),
+                    TextBlock(omzet_verschil_percentage(), midsize, format='+%'),
                 ]
             ),
-            TextBlock('Winst', defsize, color='gray', padding=10, limited=True),
+            TextBlock('Winst', defsize, color='gray', padding=10),
             VBlock(
                 [
                     HBlock(
                         [
                             VBlock(
                                 [
-                                    TextBlock('Begroot', defsize, color='gray', padding=5, limited=True),
-                                    TextBlock('Werkelijk', defsize, color='gray', limited=True),
+                                    TextBlock('Begroot', defsize, color='gray', padding=5),
+                                    TextBlock('Werkelijk', defsize, color='gray'),
                                 ]
                             ),
                             VBlock(
                                 [
-                                    TextBlock(winst_begroot(), defsize, format='K', padding=5, limited=True),
-                                    TextBlock(winst_werkelijk(), defsize, format='K', limited=True),
+                                    TextBlock(winst_begroot(), defsize, format='K', padding=5),
+                                    TextBlock(winst_werkelijk(), defsize, format='K'),
                                 ]
                             ),
-                            TextBlock(winst_verschil(), midsize, format='+K', color=winst_coloring, limited=True),
+                            TextBlock(winst_verschil(), midsize, format='+K', color=winst_coloring),
                         ]
                     ),
                     HBlock(  [TextBlock('Winstpercentage', color=GRAY, padding=5),
                               TextBlock(winst_percentage, format='%', color=winst_percentage_coloring,
                                         tooltip='Gemiddeld bij DDA in 2019: 7%, high performers: 16%')
-                              ], limited=True)
+                              ])
                 ]
             ),
         ],
@@ -323,7 +322,7 @@ def omzet_chart():
     update_omzet_per_week()
     return VBlock(
         [
-            TextBlock('Omzet per week, laatste zes maanden...', defsize, color=GRAY, limited=False),
+            TextBlock('Omzet per week, laatste zes maanden...', defsize, color=GRAY),
             trends.chart('omzet_per_week', 250, 150, x_start=six_months_ago(), min_y_axis=0, max_y_axis=60000),
         ],
         link = 'billable.html',
@@ -342,7 +341,7 @@ def omzet_prognose_chart():
     ]
     return VBlock(
         [
-            TextBlock('...en de komende zes', defsize, color=GRAY, limited=False),
+            TextBlock('...en de komende zes', defsize, color=GRAY),
             ScatterChart(
                 xy,
                 ChartConfig(
@@ -370,7 +369,7 @@ def rocks_block():
     rocks_grid.add_row(rocks_row('Gert', '4. Zomertijd nuttig inzetten'))
     rocks_grid.add_row(rocks_row('RdB', '5. TOR live'))
 
-    return VBlock([TextBlock('Q3 Rocks', headersize), rocks_grid], limited=True)
+    return VBlock([TextBlock('Q3 Rocks', headersize), rocks_grid])
 
 
 def debiteuren_block():
@@ -411,11 +410,11 @@ def corona_block():
             # Soms is avg None, dan rekenen we het zelf uit
             corona_besmet = (corona_json['infectious_people_count']['last_value']['infectious_high'] +
                              corona_json['infectious_people_count']['last_value']['infectious_low'])/2
-        corona_color = dependent_color(corona_besmet, 5000, 1000)
+        corona_color = dependent_color(corona_besmet, 3600, 1200)
         reproduction_index = corona_json['reproduction_index_last_known_average']['last_value']['reproduction_index_avg']
         if reproduction_index == None:
             reproduction_index = '-'
-        reproduction_color = dependent_color(reproduction_index, 1, .7)
+        reproduction_color = dependent_color(reproduction_index, 1, .75)
         format =  '.2'
     except:
         pass

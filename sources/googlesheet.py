@@ -55,6 +55,8 @@ def sheet_value(tab, row, col):
 
 
 def to_float(s):
+    if not s:
+        return 0
     return float(str(s).replace('€', '').replace('.', '').replace('%', '').replace(' ', '').replace(',', '.'))
 
 

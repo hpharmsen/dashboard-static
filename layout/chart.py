@@ -37,10 +37,10 @@ class ChartConfig(NamedTuple):
 
 
 class Chart(Block):
-    def __init__(self, values, config, limited=False):
+    def __init__(self, values, config):
         id = id_pattern.sub('', config.title) + '_' + randomString()
         super().__init__(
-            id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link, limited=limited
+            id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link
         )
 
         self.datasets = f'''[{{
@@ -85,20 +85,16 @@ class Chart(Block):
         
             </script>'''
 
-    def render(self, align='', limited=False):
-        if self.limited and limited:
-            return ''
+    def render(self, align=''):
         return self.do_render(0, 0, 'relative')
 
-    def render_absolute(self, left, top, limited=False):
-        if self.limited and limited:
-            return ''
+    def render_absolute(self, left, top):
         return self.do_render(left, top, 'absolute')
 
 
 class PieChart(Chart):
-    def __init__(self, values, config, limited=False):
-        super().__init__(values, config, limited)
+    def __init__(self, values, config):
+        super().__init__(values, config)
 
         self.type = 'doughnut'
         self.options = f'''{{
@@ -118,8 +114,8 @@ class PieChart(Chart):
 
 
 class BarChart(Chart):
-    def __init__(self, values, config, limited=False):
-        super().__init__(values, config, limited)
+    def __init__(self, values, config):
+        super().__init__(values, config)
 
         self.type = 'bar'
         # colors = config.colors if len(config.colors) == 1 else config.colors * len(values)
@@ -164,16 +160,16 @@ class BarChart(Chart):
         }}'''
         self.canvas_height_difference = 0
 
-    def render(self, align='', limited=False):
-        return super().render(align, limited)
+    def render(self, align=''):
+        return super().render(align)
 
-    def render_absolute(self, left, top, limited=False):
-        return super().render_absolute(left, top, limited)
+    def render_absolute(self, left, top):
+        return super().render_absolute(left, top)
 
 
 class StackedBarChart(Chart):
-    def __init__(self, values, config, limited=False):
-        super().__init__(values, config, limited)
+    def __init__(self, values, config):
+        super().__init__(values, config)
 
         self.type = 'horizontalBar' if config.horizontal else 'bar'
 
@@ -226,8 +222,8 @@ class StackedBarChart(Chart):
 
 
 class LineChart(Chart):
-    def __init__(self, values, config, limited=False):
-        super().__init__(values, config, limited)
+    def __init__(self, values, config):
+        super().__init__(values, config)
 
         self.type = 'line'
         self.datasets = '['
@@ -274,8 +270,8 @@ FILL_COLOR = 1
 
 
 class ScatterChart(Chart):
-    def __init__(self, values, config, limited=False):
-        super().__init__(values, config, limited)
+    def __init__(self, values, config):
+        super().__init__(values, config)
 
         self.type = 'line'
         self.datasets = '['

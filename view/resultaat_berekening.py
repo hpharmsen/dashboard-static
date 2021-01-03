@@ -9,7 +9,7 @@ from model.resultaat import (
     # uitbesteed_tm_vorige_maand,
     onderhanden_werk,
     subsidie_tm_vorige_maand,
-    #opbrengsten_tm_vorige_maand,
+    # opbrengsten_tm_vorige_maand,
     kosten_boekhoudkundig_tm_vorige_maand,
     bonussen_tm_vorige_maand,
     kosten_begroot_tm_maand,
@@ -34,7 +34,7 @@ from model.resultaat import (
     opbrengsten,
     kosten_begroot_deze_maand,
     onderhanden_vorig_jaar,
-    gedaan_werk_tor_dit_jaar,
+    gedaan_werk_tor_dit_jaar, TOR_MAX_BUDGET,
 )
 #from model.resultaat_vergelijking import MAANDEN
 MAANDEN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
@@ -178,16 +178,19 @@ def tor_done_block():
 
 
 def tor_block():
+    te_factureren = min(TOR_MAX_BUDGET,gedaan_werk_tor()) / 2
     tor_grid = Grid(cols=2, aligns=['left', 'right'], has_header=True)
-    add_row(tor_grid, 'TOR Fatuuratie')
+    add_row(tor_grid, 'TOR Facturatie')
     add_row(tor_grid, 'Werk gedaan', gedaan_werk_tor())
-    add_row(tor_grid, 'Te factureren (50%)', gedaan_werk_tor() / 2)
+    add_row(tor_grid, f'Te factureren (50% van max {TOR_MAX_BUDGET})', te_factureren)
     add_row(tor_grid, 'Gefactureerd', invoiced_tor())
-    add_row(tor_grid, 'Nog te factureren', gedaan_werk_tor() / 2 - invoiced_tor(), bold=True)
+    add_row(tor_grid, 'Nog te factureren', te_factureren - invoiced_tor(), bold=True)
     add_row(tor_grid)
-    add_row(tor_grid, 'Werk gedaan dit jaar', gedaan_werk_tor_dit_jaar())
-    add_row(tor_grid, 'Activeren (25%)', gedaan_werk_tor_dit_jaar() / 4)
-    add_row(tor_grid, 'Onderhanden = te fact + activeren', onderhanden_werk_tor(), bold=True)
+    #add_row(tor_grid, 'Werk gedaan dit jaar', gedaan_werk_tor_dit_jaar())
+    add_row(tor_grid, 'Activeren (50% van te factureren)', te_factureren/2)
+    add_row(tor_grid, 'Nog te factureren', te_factureren - invoiced_tor())
+    add_row(tor_grid, 'Tor onderhanden vorig jaar', -tor_onderhanden_2019)
+    add_row(tor_grid, 'Onderhandenwerk TOR dit jaar', onderhanden_werk_tor(), bold=True)
 
     return VBlock([TextBlock('TOR 3', midsize), tor_done_block(), tor_grid])
 

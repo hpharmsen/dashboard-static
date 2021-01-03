@@ -22,7 +22,6 @@ class Block:
         bg_color='white',
         align_children='absolute',
         id='',
-        limited=False,
         tooltip='',
         padding=40,
         link=None,
@@ -33,7 +32,6 @@ class Block:
         self.bg_color = bg_color
         self.align_children = align_children
         self.children = [(child, '') for child in children]
-        self.limited = limited  # If True, this block should not be shown when rendered with limited=1
         self.tooltip = tooltip  # If set, shows this text as an html over tooltip
         self.padding = padding  # Distance to next object
         self.link = link  # Anchor for this block
@@ -48,36 +46,31 @@ class Block:
     def render_content(self):
         return ''
 
-    def render_children(self, limited=False):
+    def render_children(self):
         res = ''
         if self.align_children == 'absolute':
             for left, top, child, link in self.children:
-                c = child.render_absolute(left, top, limited=limited)
+                c = child.render_absolute(left, top)
                 if link:
                     c = f'<a href="{link}" class="link">{c}</a>'
                 res += '\n' + c
         else:
             for child, link in self.children:
-                c = child.render(self.align_children, limited=limited)
+                c = child.render(self.align_children)
                 if link:
                     c = f'<a href="{link}" class="link">{c}</a>'
                 res += '\n' + c
         return res
 
-    def render_absolute(self, left=None, top=None, limited=False):
-        if self.limited and limited:
-            return ''
-
-        return self.do_render('absolute', left=left, top=top, limited=limited)
+    def render_absolute(self, left=None, top=None):
+        return self.do_render('absolute', left=left, top=top)
         # return f'''<div style="position:absolute; left:{left}px; top:{top}px; {width} {height} background-color:{self.bg_color}">
         #             {self.content()}
-        #             {self.render_children(limited=limited)}
+        #             {self.render_children()}
         #             </div>
         #         '''
 
-    def render(self, align='', limited=False):
-        if self.limited and limited:
-            return ''
+    def render(self, align=''):
         id = f'id="{self.id}"' if self.id else ''
 
         clear = 'clear:both;' if align == 'vertical' else ''
@@ -88,9 +81,9 @@ class Block:
             padding = f'padding-bottom:{self.padding}px;'
         else:
             padding = ''
-        return self.do_render('relative', id=id, clear=clear, float=float, padding=padding, limited=limited)
+        return self.do_render('relative', id=id, clear=clear, float=float, padding=padding)
 
-    def do_render(self, position, id='', clear='', float='', padding='', left=None, top=None, limited=False):
+    def do_render(self, position, id='', clear='', float='', padding='', left=None, top=None):
         height = f'height:{self.height}px; ' if self.height else ''
         width = f'width:{self.width}px; ' if self.width else ''
         position_str = (
@@ -103,7 +96,7 @@ class Block:
         res = f'''<div {id} {tooltip_class} style="{position_str} {width} {height} {padding} background-color:{self.bg_color}; ">
                     {tooltip_text}
                     {self.render_content()}
-                    {self.render_children(limited=limited)}
+                    {self.render_children()}
                     </div>
                 '''
         if self.link:
@@ -112,7 +105,7 @@ class Block:
 
 
 class HBlock(Block):
-    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', limited=False, link=None, tooltip=None):
+    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', link=None, tooltip=None):
         super().__init__(
             children=children,
             width=width,
@@ -120,14 +113,13 @@ class HBlock(Block):
             bg_color=bg_color,
             id=id,
             align_children='horizontal',
-            limited=limited,
             link=link,
             tooltip=tooltip
         )
 
 
 class VBlock(Block):
-    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', limited=False, link=None, tooltip=None):
+    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', link=None, tooltip=None):
         super().__init__(
             children=children,
             width=width,
@@ -135,7 +127,6 @@ class VBlock(Block):
             bg_color=bg_color,
             id=id,
             align_children='vertical',
-            limited=limited,
             link=link,
             tooltip=tooltip
         )
@@ -154,12 +145,11 @@ class TextBlock(Block):
         style='',
         format='',
         url=None,
-        limited=False,
         tooltip='',
         padding=30.0,
     ):
         super().__init__(
-            [], width=width, height=height, bg_color=bg_color, limited=limited, tooltip=tooltip, padding=padding
+            [], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding
         )
         self.text = doFormat(text, format)
         self.font_size = font_size
@@ -191,8 +181,8 @@ def wrap(s, width):
 
 
 class Grid(Block):
-    def __init__(self, rows=0, cols=0, width=None, height=None, id='', aligns=None, limited=False, has_header=False):
-        super().__init__(width=width, height=height, id=id, limited=limited)
+    def __init__(self, rows=0, cols=0, width=None, height=None, id='', aligns=None, has_header=False):
+        super().__init__(width=width, height=height, id=id)
         self.rows = rows
         self.cols = cols
         self.cells = [[None for i in range(cols)] for j in range(rows)]
@@ -211,14 +201,14 @@ class Grid(Block):
         assert col < self.cols
         self.cells[row][col] = block
 
-    def render_children(self, limited=False):
+    def render_children(self):
         width = f' width="{self.width}"' if self.width else ''
         res = f'<table{width} class="grid">'
         for row in range(self.rows):
             res += '<tr>'
             for col in range(self.cols):
                 child = self.cells[row][col]
-                childHtml = child.render(limited=self.limited) if child else '&nbsp'
+                childHtml = child.render() if child else '&nbsp'
                 align = f'align="{self.aligns[col]}"' if self.aligns else ''
                 tag = 'th' if row == 0 and self.has_header else 'td'
                 res += f'<{tag} {align}>{childHtml}</{tag}>\n'
@@ -236,7 +226,7 @@ class Page(Block):
         ''' Add extra js code to be run in window.onload'''
         self.onloadcode += code
 
-    def render(self, filename, limited=False):
+    def render(self, filename):
         with open(filename, 'w') as f:
 
             timestamp = cache_time_stamp().strftime('%d-%m %H:%M')
@@ -244,16 +234,16 @@ class Page(Block):
                 '..' if filename.count('klanten/') else '.'
             )  # Als file in subdir: base=..  Kan netter voor subsubs etc.
 
-            template = 'template_limited.html' if limited else 'template.html'
+            template = 'template.html'
             with open(Path(__file__).resolve().parent / template) as t:
                 template_html = t.read()
             page_html = (
                 template_html.replace('[timestamp]', timestamp)
-                .replace('[children]', self.render_children(limited))
+                .replace('[children]', self.render_children())
                 .replace('[onloadcode]', self.onloadcode)
                 .replace('[base]', base)
             )
             f.write(page_html)
 
-    def render_absolute(self, left=None, top=None, limited=False):
+    def render_absolute(self, left=None, top=None):
         raise ('Page has no render absolute')

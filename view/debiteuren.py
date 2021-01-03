@@ -23,7 +23,6 @@ def render_debiteuren_page():
     )
 
     page.render('output/debiteuren.html')
-    page.render('output/limited/debiteuren.html', limited=1)
 
 
 if __name__ == '__main__':

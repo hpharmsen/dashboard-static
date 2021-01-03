@@ -11,6 +11,10 @@ model/cache.tmp
 model/trends.json
 admin.pw
 sources/ga_oauth_key.json
+.DS_Store
+output eind 2020/
+venv
+venv3.8
 
 # C extensions
 *.so
