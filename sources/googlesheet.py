@@ -20,6 +20,8 @@ def convert_value(value):
 SHEETS = {}
 
 import os
+
+
 def get_spreadsheet(sheet_name):
     if not SHEETS.get(sheet_name):
         # oAuth authentication. Json file created using explanation at: http://gspread.readthedocs.org/en/latest/oauth2.html
@@ -27,7 +29,7 @@ def get_spreadsheet(sheet_name):
 
         # Sheetn should be shared with: 859748496829-pm6qtlliimaqt35o8nqcti0h77doigla@developer.gserviceaccount.com
         scopes = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-        print( os.getcwd())
+        print(os.getcwd())
         credentials = ServiceAccountCredentials.from_json_keyfile_name('sources/oauth_key.json', scopes=scopes)
         gc = gspread.authorize(credentials)
         try:

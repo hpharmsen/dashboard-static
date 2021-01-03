@@ -15,7 +15,8 @@ from model.productiviteit import (
     productiviteit_perc_productie,
     productiviteit_perc_iedereen,
     billable_perc_productie,
-    billable_perc_iedereen, percentage_directe_werknemers,
+    billable_perc_iedereen,
+    percentage_directe_werknemers,
 )
 from model.resultaat import (
     omzet_begroot,
@@ -27,19 +28,21 @@ from model.resultaat import (
     update_omzet_per_week,
     debiteuren_30_60_90,
     toekomstige_omzet_per_week,
-    opbrengsten, gemiddelde_betaaltermijn,
+    opbrengsten,
+    gemiddelde_betaaltermijn,
 )
 from model.sales import sales_waarde, werk_in_pijplijn, top_x_sales
 from model.trendline import trends
 
-GREEN = 'green' #'#7C7'
+GREEN = 'green'  #'#7C7'
 YELLOW = '#FD0'
 ORANGE = '#FFA500'
 RED = '#c00'
 BLACK = '#000'
 GRAY = 'gray'
 
-def dependent_color( value, red_treshold, green_treshold ):
+
+def dependent_color(value, red_treshold, green_treshold):
     if red_treshold < green_treshold:
         return RED if value < red_treshold else GREEN if value > green_treshold else BLACK
     else:
@@ -55,8 +58,8 @@ def render_dashboard():
                     VBlock([sales_block(), klanten_block()]),
                     VBlock([resultaat_block(), pijplijn_block(), organisatie_block()]),
                     VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
-                    VBlock([#rocks_block(),
-                        debiteuren_block()]), corona_block()
+                    VBlock([debiteuren_block()]),  # rocks_block(),
+                    corona_block(),
                 ]
             )
         ]
@@ -80,7 +83,7 @@ def sales_block():
             TextBlock('Top 5 sales kansen', midsize),
             Table(top_x_sales(5), TableConfig(headers=[], aligns=['left', 'right'], formats=['', '€'])),
         ],
-        link = 'sales.html',
+        link='sales.html',
     )
     return sales
 
@@ -96,7 +99,7 @@ def klanten_block():
                 TableConfig(headers=[], aligns=['left', 'right', 'right'], formats=['', '€', '%'], totals=[0, 0, 1]),
             ),
         ],
-        link = 'clients.html',
+        link='clients.html',
     )
     return klanten
 
@@ -106,7 +109,7 @@ def klanten_block():
 
 def resultaat_block():
     winst_coloring = lambda value: dependent_color(value, -20, 10)
-    winst_percentage = int( winst_werkelijk() / opbrengsten() * 100)
+    winst_percentage = int(winst_werkelijk() / opbrengsten() * 100)
     winst_percentage_coloring = lambda value: dependent_color(value, 10, 15)
     resultaat = VBlock(
         [
@@ -149,28 +152,35 @@ def resultaat_block():
                             TextBlock(winst_verschil(), midsize, format='+K', color=winst_coloring),
                         ]
                     ),
-                    HBlock(  [TextBlock('Winstpercentage', color=GRAY, padding=5),
-                              TextBlock(winst_percentage, format='%', color=winst_percentage_coloring,
-                                        tooltip='Gemiddeld bij DDA in 2019: 7%, high performers: 16%')
-                              ])
+                    HBlock(
+                        [
+                            TextBlock('Winstpercentage', color=GRAY, padding=5),
+                            TextBlock(
+                                winst_percentage,
+                                format='%',
+                                color=winst_percentage_coloring,
+                                tooltip='Gemiddeld bij DDA in 2019: 7%, high performers: 16%',
+                            ),
+                        ]
+                    ),
                 ]
             ),
         ],
-        link = "resultaat_berekening.html",
+        link="resultaat_berekening.html",
     )
     return resultaat
 
 
 def pijplijn_block():
     in_pijplijn_value = werk_in_pijplijn()
-    in_pijplijn_color = dependent_color( in_pijplijn_value, 250000, 400000)
+    in_pijplijn_color = dependent_color(in_pijplijn_value, 250000, 400000)
     pijplijn = VBlock(
         [
             TextBlock('In de pijplijn', defsize, padding=10, color=GRAY),
             TextBlock(
                 in_pijplijn_value,
                 headersize,
-                color = in_pijplijn_color,
+                color=in_pijplijn_color,
                 format='K',
                 tooltip='Werk dat binnengehaald is maar nog niet uitgevoerd.',
             ),
@@ -184,8 +194,7 @@ def organisatie_block():
     fte = aantal_fte()
     fte_begroot = aantal_fte_begroot()
     verzuim = verzuimpercentage()
-    verzuim_color = dependent_color(verzuim, 3, 1 )
-
+    verzuim_color = dependent_color(verzuim, 3, 1)
 
     organisatie = VBlock(
         [
@@ -208,24 +217,28 @@ def organisatie_block():
                     ),
                 ]
             ),
-            HBlock([
-                VBlock(
-                    [
-                        TextBlock('Verzuimpercentage', defsize, padding=5, color=GRAY),
-                        TextBlock(verzuim, midsize, format='%1', color=verzuim_color),
-                    ], tooltip='Gemiddeld bij DDA in 2019: 3.0%'
-                ),
-                VBlock(
-                    [
-                        TextBlock('Vrije dagen pool', defsize, padding=5, color=GRAY),
-                        HBlock([
-                            TextBlock(vrije_dagen_pool(), midsize, format='.1', color=BLACK, padding=0),
-                            TextBlock('dagen/fte', color=GRAY, padding=0)
-                        ])
-                    ]
-
-                )]
-            )
+            HBlock(
+                [
+                    VBlock(
+                        [
+                            TextBlock('Verzuimpercentage', defsize, padding=5, color=GRAY),
+                            TextBlock(verzuim, midsize, format='%1', color=verzuim_color),
+                        ],
+                        tooltip='Gemiddeld bij DDA in 2019: 3.0%',
+                    ),
+                    VBlock(
+                        [
+                            TextBlock('Vrije dagen pool', defsize, padding=5, color=GRAY),
+                            HBlock(
+                                [
+                                    TextBlock(vrije_dagen_pool(), midsize, format='.1', color=BLACK, padding=0),
+                                    TextBlock('dagen/fte', color=GRAY, padding=0),
+                                ]
+                            ),
+                        ]
+                    ),
+                ]
+            ),
         ]
     )
     return organisatie
@@ -287,8 +300,13 @@ def productiviteit_block():
             ),
             HBlock(
                 [
-                    TextBlock(f'Productie ({int(percentage_directe_werknemers())}%)', defsize, padding=0, color=GRAY,
-                              tooltip='DDA noemt dit directe werknemers. Daar is het gemiddeld 86% van het werknemersbestand.'),
+                    TextBlock(
+                        f'Productie ({int(percentage_directe_werknemers())}%)',
+                        defsize,
+                        padding=0,
+                        color=GRAY,
+                        tooltip='DDA noemt dit directe werknemers. Daar is het gemiddeld 86% van het werknemersbestand.',
+                    ),
                     productiviteit_perc_productie_block,
                     billable_perc_productie_block,
                 ]
@@ -299,7 +317,7 @@ def productiviteit_block():
                     productiviteit_perc_iedereen_block,
                     billable_perc_iedereen_block,
                 ]
-            )
+            ),
         ]
     )
 
@@ -325,15 +343,15 @@ def omzet_chart():
             TextBlock('Omzet per week, laatste zes maanden...', defsize, color=GRAY),
             trends.chart('omzet_per_week', 250, 150, x_start=six_months_ago(), min_y_axis=0, max_y_axis=60000),
         ],
-        link = 'billable.html',
+        link='billable.html',
     )
 
 
 def omzet_prognose_chart():
     # En in de toekomst
     six_months_from_now = datetime.date.today() + relativedelta(months=6)
-    six_months_from_now_str = six_months_from_now.strftime( '%Y-%m-%d')
-    today_str = datetime.date.today().strftime( '%Y-%m-%d')
+    six_months_from_now_str = six_months_from_now.strftime('%Y-%m-%d')
+    today_str = datetime.date.today().strftime('%Y-%m-%d')
     xy = [
         {'x': a['monday'], 'y': a['weekturnover']}
         for a in toekomstige_omzet_per_week()
@@ -345,8 +363,14 @@ def omzet_prognose_chart():
             ScatterChart(
                 xy,
                 ChartConfig(
-                    width=250, height=150, colors=['#6666cc', '#ddeeff'], x_type='date',
-                    min_x_axis = today_str, max_x_axis=six_months_from_now_str, min_y_axis=0, max_y_axis=60000
+                    width=250,
+                    height=150,
+                    colors=['#6666cc', '#ddeeff'],
+                    x_type='date',
+                    min_x_axis=today_str,
+                    max_x_axis=six_months_from_now_str,
+                    min_y_axis=0,
+                    max_y_axis=60000,
                 ),
             ),
         ]
@@ -362,9 +386,7 @@ def rocks_block():
 
     rocks_grid = Grid(cols=3)
     rocks_grid.add_row(rocks_row('HPH', '1. Verhuizen'))
-    rocks_grid.add_row(
-        rocks_row('HPH', '2. Qikker def. besluit')
-    )
+    rocks_grid.add_row(rocks_row('HPH', '2. Qikker def. besluit'))
     rocks_grid.add_row(rocks_row('Martijn', '3. Marketing vol op gang'))
     rocks_grid.add_row(rocks_row('Gert', '4. Zomertijd nuttig inzetten'))
     rocks_grid.add_row(rocks_row('RdB', '5. TOR live'))
@@ -378,9 +400,13 @@ def debiteuren_block():
     return VBlock(
         [
             TextBlock('Debiteuren', headersize),
-            TextBlock( 'Betaaltermijn in dagen', defsize, color=GRAY, padding=12),
-            TextBlock( round(betaaltermijn,0), midsize, color=betaaltermijn_color,
-                       tooltip='Gemiddeld bij DDA in 2019: 40 dagen' ),
+            TextBlock('Betaaltermijn in dagen', defsize, color=GRAY, padding=12),
+            TextBlock(
+                round(betaaltermijn, 0),
+                midsize,
+                color=betaaltermijn_color,
+                tooltip='Gemiddeld bij DDA in 2019: 40 dagen',
+            ),
             StackedBarChart(
                 debiteuren_30_60_90(),
                 ChartConfig(
@@ -389,11 +415,12 @@ def debiteuren_block():
                     labels=['<30 dg', '30-60 dg', '60-90 dg', '> 90 dg'],
                     colors=[GREEN, YELLOW, ORANGE, RED],
                     max_y_axis=450000,
-                )
-            )
+                ),
+            ),
         ],
-        link = 'debiteuren.html',
+        link='debiteuren.html',
     )
+
 
 def corona_block():
     corona_url = 'https://coronadashboard.rijksoverheid.nl/json/NL.json'
@@ -403,30 +430,35 @@ def corona_block():
     reproduction_color = RED
     format = None
     try:
-        with urllib.request.urlopen( corona_url ) as f:
-            corona_json = json.load( f )
+        with urllib.request.urlopen(corona_url) as f:
+            corona_json = json.load(f)
         corona_besmet = corona_json['infectious_people_count']['last_value']['infectious_avg']
         if corona_besmet == None:
             # Soms is avg None, dan rekenen we het zelf uit
-            corona_besmet = (corona_json['infectious_people_count']['last_value']['infectious_high'] +
-                             corona_json['infectious_people_count']['last_value']['infectious_low'])/2
+            corona_besmet = (
+                corona_json['infectious_people_count']['last_value']['infectious_high']
+                + corona_json['infectious_people_count']['last_value']['infectious_low']
+            ) / 2
         corona_color = dependent_color(corona_besmet, 3600, 1200)
-        reproduction_index = corona_json['reproduction_index_last_known_average']['last_value']['reproduction_index_avg']
+        reproduction_index = corona_json['reproduction_index_last_known_average']['last_value'][
+            'reproduction_index_avg'
+        ]
         if reproduction_index == None:
             reproduction_index = '-'
-        reproduction_color = dependent_color(reproduction_index, 1, .75)
-        format =  '.2'
+        reproduction_color = dependent_color(reproduction_index, 1, 0.75)
+        format = '.2'
     except:
         pass
     return VBlock(
-                [
-                    TextBlock('Corona', headersize),
-                    TextBlock('Geschat aantal met Corona besmette mensen in Nederland', defsize, padding=5, color=GRAY),
-                    TextBlock(corona_besmet, midsize, color=corona_color),
-                    TextBlock('Reproductie index', defsize, padding=5, color=GRAY),
-                    TextBlock(reproduction_index, midsize, format=format, color=reproduction_color),
-                ]
-            )
+        [
+            TextBlock('Corona', headersize),
+            TextBlock('Geschat aantal met Corona besmette mensen in Nederland', defsize, padding=5, color=GRAY),
+            TextBlock(corona_besmet, midsize, color=corona_color),
+            TextBlock('Reproductie index', defsize, padding=5, color=GRAY),
+            TextBlock(reproduction_index, midsize, format=format, color=reproduction_color),
+        ]
+    )
+
 
 # def project_type_chart():
 #     # Omzet per type project pie chart

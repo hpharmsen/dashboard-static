@@ -173,7 +173,6 @@ def user_target(user):
     return cijfers_werknemers_value(user, 'Target jaar')
 
 
-
 def user_target_now(user):
     return fraction_of_the_year_past() * user_target(user)
 
@@ -278,11 +277,13 @@ def billable_perc_iedereen(fromdate=None, untildate=None):
     trends.update('billable_hele_team', round(res, 1))
     return res
 
+
 def percentage_directe_werknemers():
     '''DDA Cijfer. Is het percentage productiemedewerkers tov het geheel'''
     untildate = datetime.today()
-    fromdate = untildate  - timedelta(days=183)
-    return  100 * beschikbare_uren_productie(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
+    fromdate = untildate - timedelta(days=183)
+    return 100 * beschikbare_uren_productie(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
+
 
 @reportz(hours=8)
 def billable_trend_person_week(user):

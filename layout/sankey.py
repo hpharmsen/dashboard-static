@@ -7,15 +7,13 @@ from layout.chart import id_pattern, randomString, ChartConfig
 class SankeyChart(Block):
     def __init__(self, values, config):
         id = id_pattern.sub('', config.title) + '_' + randomString()
-        super().__init__(
-            id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link
-        )
+        super().__init__(id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link)
         self.canvas_height_difference = 150  # Difference between div height and canvas height, can be overwritten
         self.values = values
 
     def do_render(self, left, top, position):
 
-        values_json = json.dumps( self.values )
+        values_json = json.dumps(self.values)
         return f'''
             <!-- Add style to links or they won't appear properly-->
             <style>
@@ -141,7 +139,8 @@ if __name__ == '__main__':
         ('Huisvesting', 30),
         ('Afschrijvingen', 8),
         ('Marketing', 38),
-        ('Overige kosten', 99)]
+        ('Overige kosten', 99),
+    ]
 
     turnovers = [
         ('Accell IT', 386096),
@@ -185,7 +184,8 @@ if __name__ == '__main__':
         ('VVV Schiermonnikoog', 600),
         ('Zoetermeer', 420),
         ('Apple', 221),
-        ('Metroprop', 150)]
+        ('Metroprop', 150),
+    ]
     turnovers = [(name, int(round(turnover / 1000, 0))) for name, turnover in turnovers if turnover > 1500]
 
     tot_costs = sum([c[1] for c in costs])
@@ -196,29 +196,25 @@ if __name__ == '__main__':
     print(tot_turnover, tot_costs, profit)
 
     sankey_data = {
-"nodes":[
-{"node":0,"name":"node0"},
-{"node":1,"name":"node1"},
-{"node":2,"name":"node2"},
-{"node":3,"name":"node3"},
-{"node":4,"name":"node4"},
-{"node": 5, "name": "node5"}
-],
-"links":[
-{"source":0,"target":3,"value":2},
-{"source":1,"target":3,"value":2},
-{"source": 2, "target": 3, "value": 2},
-{"source":3,"target":4,"value":2},
-{"source":3,"target":5,"value":2}]}
-
+        "nodes": [
+            {"node": 0, "name": "node0"},
+            {"node": 1, "name": "node1"},
+            {"node": 2, "name": "node2"},
+            {"node": 3, "name": "node3"},
+            {"node": 4, "name": "node4"},
+            {"node": 5, "name": "node5"},
+        ],
+        "links": [
+            {"source": 0, "target": 3, "value": 2},
+            {"source": 1, "target": 3, "value": 2},
+            {"source": 2, "target": 3, "value": 2},
+            {"source": 3, "target": 4, "value": 2},
+            {"source": 3, "target": 5, "value": 2},
+        ],
+    }
 
     os.chdir('..')
-    chart = SankeyChart(
-        sankey_data,
-        ChartConfig(
-            width=800,
-            height=600
-        ))
+    chart = SankeyChart(sankey_data, ChartConfig(width=800, height=600))
     page = Page([chart])
 
     page.render('output/sankey.html')

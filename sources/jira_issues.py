@@ -145,7 +145,9 @@ def jira_issues_and_where_the_ball_is(jql, fields=DEFAULT_FIELDS, project_keys=N
 
 
 def jira_issues(
-    jql, fields=DEFAULT_FIELDS, project_keys=None,
+    jql,
+    fields=DEFAULT_FIELDS,
+    project_keys=None,
 ):
     if project_keys:  #!! Is dit nog nodig?
         issues = []

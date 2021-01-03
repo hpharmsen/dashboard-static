@@ -118,7 +118,7 @@ def targets_block():
     team = service_team()
     data = users_and_targets(datetime.today().year, specific_users=team)
     if not len(data):
-        return TextBlock( f'targets for {datetime.today().year} are missing')
+        return TextBlock(f'targets for {datetime.today().year} are missing')
     return VBlock([TextBlock('Targets', midsize), targets_chart(data, 800, 340)])
 
 

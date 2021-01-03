@@ -20,13 +20,13 @@ BEGROTING_WINST_VORIG_JAAR_ROW = 36
 RESULTAAT_TAB = 'Resultaat'
 RESULTAAT_KOSTEN_ROW = 23
 RESULTAAT_SUBSIDIE_ROW = 29
-#RESULTAAT_INKOMSTEN_ROW = 32
-#RESULTAAT_WINST_ROW = 35
+# RESULTAAT_INKOMSTEN_ROW = 32
+# RESULTAAT_WINST_ROW = 35
 RESULTAAT_BOEKHOUD_KOSTEN_ROW = 49
 RESULTAAT_OMZET_ROW = 52
 RESULTAAT_BIJGEWERKT_ROW = 52
 RESULTAAT_FACTUREN_VORIG_JAAR_ROW = 54
-#RESULTAAT_ONDERHANDEN_ROW = 55
+# RESULTAAT_ONDERHANDEN_ROW = 55
 RESULTAAT_BONUSSEN_ROW = 62
 
 
@@ -67,7 +67,7 @@ def onderhanden_vorig_jaar():
 def laatste_maand_resultaat(row):
     ''' Retourneert data uit de laatst ingevulde boekhouding kolom van het data sheet '''
     if virtuele_maand() == 1:
-        return 0 # Voor januari is er nog geen vorige maand
+        return 0  # Voor januari is er nog geen vorige maand
     col = virtuele_maand() + 1
     tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
     res = sheet_value(tab, row, col)
@@ -89,8 +89,8 @@ def omzet_tm_vorige_maand():
 #     return laatste_maand_resultaat(DATA_UITBESTEED_ROW)
 
 
-#@reportz
-#def onderhanden_tm_vorige_maand():
+# @reportz
+# def onderhanden_tm_vorige_maand():
 #    ''' Onderhanden werk t/m vorige maand zoals gerapporteerd in de boekhouding '''
 #    return laatste_maand_resultaat(RESULTAAT_ONDERHANDEN_ROW)
 
@@ -101,17 +101,17 @@ def subsidie_tm_vorige_maand():
     return laatste_maand_resultaat(RESULTAAT_SUBSIDIE_ROW)
 
 
-#@reportz(hours=24)
-#def opbrengsten_tm_vorige_maand():
+# @reportz(hours=24)
+# def opbrengsten_tm_vorige_maand():
 #    ''' De bruto marge tot en met de vorige maand (zoals gerapporteerd in de boekhouding), inclusief subsidie maar zonder onderhanden werk '''
 #    return laatste_maand_resultaat(RESULTAAT_INKOMSTEN_ROW) + laatste_maand_resultaat(RESULTAAT_ONDERHANDEN_ROW)
 
 
 @reportz(hours=1)
 def omzet_deze_maand():
-    ''' De omzet die volgens Oberview vanaf deze virtuele maand is gefactureerd.
-        Als de afgelopen maand nog niet is verwerkt in de boekhouding is dat dus de omzet
-        van de afgelopen maand plus die van de huidige maand.'''
+    """De omzet die volgens Oberview vanaf deze virtuele maand is gefactureerd.
+    Als de afgelopen maand nog niet is verwerkt in de boekhouding is dat dus de omzet
+    van de afgelopen maand plus die van de huidige maand."""
     m = virtuele_maand()
     y = datetime.today().year
     query = f'''select ifnull(round(sum( invoice_amount)),0) as turnover 
@@ -153,10 +153,10 @@ def onderhanden_werk():
     return res
 
 
-#@reportz(hours=1)
+# @reportz(hours=1)
 def onderhanden_werk_uurbasis_table():
-    ''' Uurbasis werk dat is gedaan maar nog niet gefactueerd, per project
-        Als tabel met velden name, title, done, invoiced, onderhanden '''
+    """Uurbasis werk dat is gedaan maar nog niet gefactueerd, per project
+    Als tabel met velden name, title, done, invoiced, onderhanden"""
     query = f'''select p.id, c.name, p.title, sum(hours*pu.hourlyRate) as done, ifnull(q2.invoiced,0) as invoiced,  
                 sum(hours*pu.hourlyRate)-ifnull(q2.invoiced,0)+budget_correction_amount as onderhanden 
                 from project p 
@@ -169,15 +169,16 @@ def onderhanden_werk_uurbasis_table():
                 group by p.id having abs(onderhanden)>=500
                 order by onderhanden desc
             '''
-    df =  db.dataframe(query)
+    df = db.dataframe(query)
 
     #!! Temporary
-    index = df[df['title']=='Backstage 2020'].index.values
+    index = df[df['title'] == 'Backstage 2020'].index.values
     if index != None:
         a = index[0]
         df.at[a, 'onderhanden'] = 0
 
     return df
+
 
 def onderhanden_werk_uurbasis():
     ''' Uurbasis erk dat is gedaan maar nog niet gefactueerd '''
@@ -187,8 +188,8 @@ def onderhanden_werk_uurbasis():
 
 @reportz(hours=1)
 def onderhanden_werk_fixed_table():
-    ''' Fixed price werk dat is gedaan maar nog niet gefactueerd, per project.
-        Als tabel met velden name, title, done, invoiced, onderhanden '''
+    """Fixed price werk dat is gedaan maar nog niet gefactueerd, per project.
+    Als tabel met velden name, title, done, invoiced, onderhanden"""
     query = f'''select p.id, c.name, p.title, p.budget*p.completedPerc/100 as done, ifnull(q2.invoiced,0) as invoiced, 
                 p.budget*p.completedPerc/100-ifnull(q2.invoiced,0) as onderhanden 
                 from project p 
@@ -254,8 +255,8 @@ def onderhanden_werk_tor():
     # Werk tellen we voor de helft mee. Werk van dit jaar zelfs vor 3/4 want het deel wat we activeren
     # telt ook mee, alleen niet van vorig jaar want dat telden we toen al met de winst mee.
     # Maar e.e.a. wel gemaximeerd tot het maximale afgesproken budget.
-    res = min(TOR_MAX_BUDGET * 3/4, gedaan_werk_tor() / 2 + gedaan_werk_tor_dit_jaar() / 4) - invoiced_tor()
-    res = TOR_MAX_BUDGET * 3/4 - invoiced_tor() - tor_onderhanden_2019
+    res = min(TOR_MAX_BUDGET * 3 / 4, gedaan_werk_tor() / 2 + gedaan_werk_tor_dit_jaar() / 4) - invoiced_tor()
+    res = TOR_MAX_BUDGET * 3 / 4 - invoiced_tor() - tor_onderhanden_2019
     return res
 
 
@@ -381,9 +382,9 @@ def volgende_maand():
 
 
 def virtuele_dag():
-    ''' Als boekhouding van de vorige maand nog niet is bijgewerkt retourneert
-        dit het dagnummer doorgenummerd vanuit de vorige maand. Dus 31, 32, 33, etc.
-        Anders gewoon het dagnummer. '''
+    """Als boekhouding van de vorige maand nog niet is bijgewerkt retourneert
+    dit het dagnummer doorgenummerd vanuit de vorige maand. Dus 31, 32, 33, etc.
+    Anders gewoon het dagnummer."""
     vd = datetime.today().day
     if not bijgewerkt():
         vd += 30  # Gewoon in de vorige maand doortellen
@@ -391,8 +392,8 @@ def virtuele_dag():
 
 
 def virtuele_maand():
-    ''' Als boekhouding van de vorige maand nog niet is bijgewerkt retourneert
-        dit het nummer van vorige maand. Anders deze maand. '''
+    """Als boekhouding van de vorige maand nog niet is bijgewerkt retourneert
+    dit het nummer van vorige maand. Anders deze maand."""
     vm = datetime.today().month
     if not bijgewerkt():
         vm -= 1  # We kijken nog naar vorige maand
@@ -401,8 +402,8 @@ def virtuele_maand():
 
 @reportz(hours=24)
 def bijgewerkt():
-    ''' Checkt in de Resultaat tab van het Keycijfers sheet of de boekhouding van afgelopen
-        maand al is ingevuld. '''
+    """Checkt in de Resultaat tab van het Keycijfers sheet of de boekhouding van afgelopen
+    maand al is ingevuld."""
     tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
     vm = vorige_maand()
     data = sheet_value(tab, RESULTAAT_BIJGEWERKT_ROW, vm + 2)
@@ -461,10 +462,11 @@ def update_omzet_per_week():
     for rec in table:
         trends.update(trend_name, rec['weekturnover'], rec['monday'])
 
+
 @reportz(hours=24)
 def toekomstige_omzet_per_week():
     last_day = trends.last_registered_day('omzet_per_week')
-    default_hourly_rate = 85 # Voor mensen waar nog geen uurloon is ingevuld bij het project
+    default_hourly_rate = 85  # Voor mensen waar nog geen uurloon is ingevuld bij het project
     query = f'''
     select min(day) as monday, ifnull(round(sum(dayturnover)),0) as weekturnover from 
         (select day, sum(turnover) as dayturnover from
@@ -480,7 +482,7 @@ def toekomstige_omzet_per_week():
     having weekday(monday)=0
     order by day'''
     table = db.table(query)
-    return table[1:] # vanaf 1 omdat de eerste waarde ook al in de omzet_per_week zit
+    return table[1:]  # vanaf 1 omdat de eerste waarde ook al in de omzet_per_week zit
 
 
 @reportz(hours=24)
@@ -511,14 +513,15 @@ def debiteuren_30_60_90():
     plus90 = dla['90plus'].sum()
     return (a30, a60, a90, plus90)
 
+
 def gemiddelde_betaaltermijn(days=90):
     query = f'''select avg(datediff(payment_date,invoice_date)) as days
                 from invoice where payment_date >= DATE(NOW()) - INTERVAL {days} DAY'''
-    return db.value( query )
+    return db.value(query)
 
 
 if __name__ == '__main__':
-    #update_omzet_per_week()
-    #print(debiteuren_leeftijd_analyse())
-    #print(debiteuren_30_60_90())
-    print( toekomstige_omzet_per_week() )
+    # update_omzet_per_week()
+    # print(debiteuren_leeftijd_analyse())
+    # print(debiteuren_30_60_90())
+    print(toekomstige_omzet_per_week())

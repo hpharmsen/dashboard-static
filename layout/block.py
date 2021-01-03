@@ -114,7 +114,7 @@ class HBlock(Block):
             id=id,
             align_children='horizontal',
             link=link,
-            tooltip=tooltip
+            tooltip=tooltip,
         )
 
 
@@ -128,7 +128,7 @@ class VBlock(Block):
             id=id,
             align_children='vertical',
             link=link,
-            tooltip=tooltip
+            tooltip=tooltip,
         )
 
 
@@ -148,9 +148,7 @@ class TextBlock(Block):
         tooltip='',
         padding=30.0,
     ):
-        super().__init__(
-            [], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding
-        )
+        super().__init__([], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding)
         self.text = doFormat(text, format)
         self.font_size = font_size
         self.font_family = font_family

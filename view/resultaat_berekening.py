@@ -34,9 +34,11 @@ from model.resultaat import (
     opbrengsten,
     kosten_begroot_deze_maand,
     onderhanden_vorig_jaar,
-    gedaan_werk_tor_dit_jaar, TOR_MAX_BUDGET,
+    gedaan_werk_tor_dit_jaar,
+    TOR_MAX_BUDGET,
 )
-#from model.resultaat_vergelijking import MAANDEN
+
+# from model.resultaat_vergelijking import MAANDEN
 MAANDEN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 
@@ -102,7 +104,12 @@ def winst_berekening_block():
 
     add_row(grid, '', f'Boekhouding (t/m {naam_vorige_maand})', 'Correctie', 'Totaal nu', 'Begroot', bold=True)
     add_row(
-        grid, f'Omzet t/m {naam_vorige_maand}', omzet_tm_vorige_maand(), '', '', '',
+        grid,
+        f'Omzet t/m {naam_vorige_maand}',
+        omzet_tm_vorige_maand(),
+        '',
+        '',
+        '',
     )
     # add_row(grid, f'Uitbesteed werk t/m {naam_vorige_maand}', uitbesteed_tm_vorige_maand(), '', '')
     add_row(grid, f'Subsidie t/m {naam_vorige_maand}', subsidie_tm_vorige_maand(), '', '', '')
@@ -112,11 +119,21 @@ def winst_berekening_block():
     add_row(grid, f'Opbrengsten', '', '', opbrengsten(), omzet_begroot(), bold=True)
     add_row(grid)
     add_row(
-        grid, f'Kosten t/m {naam_vorige_maand}', kosten_boekhoudkundig_tm_vorige_maand(), '', '', '',
+        grid,
+        f'Kosten t/m {naam_vorige_maand}',
+        kosten_boekhoudkundig_tm_vorige_maand(),
+        '',
+        '',
+        '',
     )
     add_row(grid, f'Ntb bonussen t/m {naam_vorige_maand}', '', bonussen_tm_vorige_maand(), '', '')
     add_row(
-        grid, f'(Geschatte) kosten vanaf {naam_huidige_maand}', '', kosten_begroot_deze_maand(), '', '',
+        grid,
+        f'(Geschatte) kosten vanaf {naam_huidige_maand}',
+        '',
+        kosten_begroot_deze_maand(),
+        '',
+        '',
     )
     add_row(
         grid,
@@ -129,7 +146,13 @@ def winst_berekening_block():
     )
     add_row(grid)
     add_row(
-        grid, 'Winst', '', '', opbrengsten() - kosten_werkelijk(), winst_begroot(), bold=True,
+        grid,
+        'Winst',
+        '',
+        '',
+        opbrengsten() - kosten_werkelijk(),
+        winst_begroot(),
+        bold=True,
     )
     return VBlock([TextBlock('Winstberekening', midsize), grid], id="Winstberekening")
 
@@ -178,7 +201,7 @@ def tor_done_block():
 
 
 def tor_block():
-    te_factureren = min(TOR_MAX_BUDGET,gedaan_werk_tor()) / 2
+    te_factureren = min(TOR_MAX_BUDGET, gedaan_werk_tor()) / 2
     tor_grid = Grid(cols=2, aligns=['left', 'right'], has_header=True)
     add_row(tor_grid, 'TOR Facturatie')
     add_row(tor_grid, 'Werk gedaan', gedaan_werk_tor())
@@ -186,8 +209,8 @@ def tor_block():
     add_row(tor_grid, 'Gefactureerd', invoiced_tor())
     add_row(tor_grid, 'Nog te factureren', te_factureren - invoiced_tor(), bold=True)
     add_row(tor_grid)
-    #add_row(tor_grid, 'Werk gedaan dit jaar', gedaan_werk_tor_dit_jaar())
-    add_row(tor_grid, 'Activeren (50% van te factureren)', te_factureren/2)
+    # add_row(tor_grid, 'Werk gedaan dit jaar', gedaan_werk_tor_dit_jaar())
+    add_row(tor_grid, 'Activeren (50% van te factureren)', te_factureren / 2)
     add_row(tor_grid, 'Nog te factureren', te_factureren - invoiced_tor())
     add_row(tor_grid, 'Tor onderhanden vorig jaar', -tor_onderhanden_2019)
     add_row(tor_grid, 'Onderhandenwerk TOR dit jaar', onderhanden_werk_tor(), bold=True)

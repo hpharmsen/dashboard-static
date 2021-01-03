@@ -23,12 +23,12 @@ def parse_date(date_str):
 
 # @reportz(hours=60)
 def loonkosten_per_persoon():
-    ''' Dict met gegevens uit het contracten sheet met user als key
-        en velden:
-        - bruto: Bruto maandsalaris
-        - kosten_ft: Maandelijkse kosten voor Oberon op basis van fulltime
-        - uren: Aantal uur per week
-        - kosten_jaar: Werkelijke kosten dit jaar rekening houdend met startdatum en part time '''
+    """Dict met gegevens uit het contracten sheet met user als key
+    en velden:
+    - bruto: Bruto maandsalaris
+    - kosten_ft: Maandelijkse kosten voor Oberon op basis van fulltime
+    - uren: Aantal uur per week
+    - kosten_jaar: Werkelijke kosten dit jaar rekening houdend met startdatum en part time"""
     contracten = sheet_tab('Contracten werknemers', 'Fixed')
     ex_werknemers = sheet_tab('Contracten werknemers', 'ex werknemers')
     id_col = contracten[0].index('Id')
@@ -58,7 +58,7 @@ def loonkosten_per_persoon():
                 try:
                     d, m, y = parse_date(line[end_date_col])
                 except:
-                    print( 'End date is not filled in for ' + line[2])
+                    print('End date is not filled in for ' + line[2])
                     sys.exit()
                 if y < datetime.today().year:
                     continue

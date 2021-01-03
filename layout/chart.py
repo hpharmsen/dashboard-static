@@ -39,9 +39,7 @@ class ChartConfig(NamedTuple):
 class Chart(Block):
     def __init__(self, values, config):
         id = id_pattern.sub('', config.title) + '_' + randomString()
-        super().__init__(
-            id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link
-        )
+        super().__init__(id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link)
 
         self.datasets = f'''[{{
                     data: {str(values)},
@@ -52,8 +50,20 @@ class Chart(Block):
         self.config = config
         self.labels = config.labels  # Can be overwritten
         self.canvas_height_difference = 150  # Difference between div height and canvas height, can be overwritten
-        self.xmin = 'min: 0,' if config.min_x_axis == None else f'min: "{config.min_x_axis}",' if isinstance(config.min_x_axis, str) else f'suggestedMin: {config.min_x_axis},'
-        self.xmax = '' if config.max_x_axis == None else f'max: "{config.max_x_axis}",' if isinstance(config.max_x_axis, str) else f'max: {config.max_x_axis},'
+        self.xmin = (
+            'min: 0,'
+            if config.min_x_axis == None
+            else f'min: "{config.min_x_axis}",'
+            if isinstance(config.min_x_axis, str)
+            else f'suggestedMin: {config.min_x_axis},'
+        )
+        self.xmax = (
+            ''
+            if config.max_x_axis == None
+            else f'max: "{config.max_x_axis}",'
+            if isinstance(config.max_x_axis, str)
+            else f'max: {config.max_x_axis},'
+        )
         self.x_axis_max_ticks = f'maxTicksLimit: {config.x_axis_max_ticks},' if config.x_axis_max_ticks else ''
         self.x_axis_font_size = f'fontSize: {config.x_axis_font_size if config.x_axis_font_size else 9},'
         self.ymin = 'min: 0,' if config.min_y_axis == None else f'suggestedMin: {config.min_y_axis},'
