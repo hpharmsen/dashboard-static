@@ -106,7 +106,9 @@ class Block:
 
 
 class HBlock(Block):
-    def __init__(self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None):
+    def __init__(
+        self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None
+    ):
         super().__init__(
             children=children,
             width=width,
@@ -121,7 +123,9 @@ class HBlock(Block):
 
 
 class VBlock(Block):
-    def __init__(self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None):
+    def __init__(
+        self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None
+    ):
         super().__init__(
             children=children,
             width=width,

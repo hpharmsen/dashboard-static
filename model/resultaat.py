@@ -442,19 +442,21 @@ def update_omzet_per_dag():
     for rec in table:
         trends.update(trend_name, rec['turnover'], rec['day'])
 
+
 def update_omzet_per_week():
     ''' Tabel van dag, omzet waarbij dag steeds de maandag is van de week waar het om gaat '''
     trend_name = 'omzet_per_week'
     last_day = trends.second_last_registered_day(trend_name)  # Always recalculate the last since hours may have changed
-    y,m,d = last_day.split('-')
-    last_day = BeautifulDate( int(y), int(m), int(d) ) - MO # Last Monday on or before the last calculated day
+    y, m, d = last_day.split('-')
+    last_day = BeautifulDate(int(y), int(m), int(d)) - MO  # Last Monday on or before the last calculated day
     last_sunday = D.today() - SU
-    for monday in drange( last_day, last_sunday, 7*days):
+    for monday in drange(last_day, last_sunday, 7 * days):
         sunday = monday + 6 * days
         week_turnover = get_turnover_from_simplicate(monday, sunday)
-        if monday < BeautifulDate(2021,1,1):
-            week_turnover += get_turnover_from_extranet( monday, sunday )
+        if monday < BeautifulDate(2021, 1, 1):
+            week_turnover += get_turnover_from_extranet(monday, sunday)
         trends.update(trend_name, week_turnover, monday)
+
 
 @reportz(hours=1)
 def get_turnover_from_extranet(fromday, untilday):
@@ -472,11 +474,15 @@ def get_turnover_from_extranet(fromday, untilday):
     result = db.value(query)
     return result
 
+
 @reportz(hours=1)
 def get_turnover_from_simplicate(fromday, untilday):
     # Including untilday
-    turnover = simplicate().turnover({'start_date':fromday.strftime('%Y-%m-%d'), 'start_date':untilday.strftime('%Y-%m-%d')})
+    turnover = simplicate().turnover(
+        {'start_date': fromday.strftime('%Y-%m-%d'), 'start_date': untilday.strftime('%Y-%m-%d')}
+    )
     return turnover
+
 
 @reportz(hours=24)
 def toekomstige_omzet_per_week():
@@ -505,13 +511,19 @@ def top_x_klanten_laatste_zes_maanden(number=3):
     # df = omzet_per_klant().copy(deep=True)
     return omzet_per_klant_laatste_zes_maanden().head(number)
 
+
 def debiteuren_leeftijd_analyse():
     df = debiteuren_leeftijd_analyse_extranet()
     yuki_result = debiteuren_leeftijd_analyse_yuki()
-    df = df.append( yuki_result, ignore_index=True )
-    df = df.groupby(["factuuradres"]).agg({'open': 'sum', 'a30': 'sum', "a60":'sum', 'a90':'sum', "90plus":'sum'}).reset_index()
-    df = df.sort_values("open", ascending = False)
+    df = df.append(yuki_result, ignore_index=True)
+    df = (
+        df.groupby(["factuuradres"])
+        .agg({'open': 'sum', 'a30': 'sum', "a60": 'sum', 'a90': 'sum', "90plus": 'sum'})
+        .reset_index()
+    )
+    df = df.sort_values("open", ascending=False)
     return df
+
 
 @reportz(hours=24)
 def debiteuren_leeftijd_analyse_extranet():
@@ -520,18 +532,24 @@ def debiteuren_leeftijd_analyse_extranet():
     result = db.dataframe(query)
     return result
 
+
 @reportz(hours=24)
 def debiteuren_leeftijd_analyse_yuki():
     debiteuren = yuki().debtors()
     df = pd.DataFrame(debiteuren)
-    df['a30'] = df.apply(lambda row: row.open if row.days<30 else 0, axis=1)
-    df['a60'] = df.apply(lambda row: row.open if 30<=row.days<60 else 0, axis=1)
-    df['a90'] = df.apply(lambda row: row.open if 60<=row.days<90 else 0, axis=1)
-    df['90plus'] = df.apply(lambda row: row.open if row.days>=90 else 0, axis=1)
+    df['a30'] = df.apply(lambda row: row.open if row.days < 30 else 0, axis=1)
+    df['a60'] = df.apply(lambda row: row.open if 30 <= row.days < 60 else 0, axis=1)
+    df['a90'] = df.apply(lambda row: row.open if 60 <= row.days < 90 else 0, axis=1)
+    df['90plus'] = df.apply(lambda row: row.open if row.days >= 90 else 0, axis=1)
     df.rename(columns={'customer': 'factuuradres'}, inplace=True)
-    df = df.groupby(["factuuradres"]).agg({'open': 'sum', 'a30': 'sum', "a60":'sum', 'a90':'sum', "90plus":'sum'}).reset_index()
-    df = df.sort_values("open", ascending = False)
+    df = (
+        df.groupby(["factuuradres"])
+        .agg({'open': 'sum', 'a30': 'sum', "a60": 'sum', 'a90': 'sum', "90plus": 'sum'})
+        .reset_index()
+    )
+    df = df.sort_values("open", ascending=False)
     return df
+
 
 @reportz(hours=24)
 def debiteuren_openstaand():
@@ -548,6 +566,7 @@ def debiteuren_30_60_90():
     plus90 = dla['90plus'].sum()
     return (a30, a60, a90, plus90)
 
+
 def debiteuren_30_60_90_extranet():
     dla = debiteuren_leeftijd_analyse_extranet()
     a30 = dla['a30'].sum()
@@ -555,6 +574,7 @@ def debiteuren_30_60_90_extranet():
     a90 = dla['a90'].sum()
     plus90 = dla['90plus'].sum()
     return (a30, a60, a90, plus90)
+
 
 def debiteuren_30_60_90_yuki():
     dla = debiteuren_leeftijd_analyse_yuki()
@@ -564,6 +584,7 @@ def debiteuren_30_60_90_yuki():
     plus90 = dla['90plus'].sum()
     return (a30, a60, a90, plus90)
 
+
 def gemiddelde_betaaltermijn(days=90):
     query = f'''select avg(datediff(payment_date,invoice_date)) as days
                 from invoice where payment_date >= DATE(NOW()) - INTERVAL {days} DAY'''
@@ -571,7 +592,7 @@ def gemiddelde_betaaltermijn(days=90):
 
 
 if __name__ == '__main__':
-    #update_omzet_per_week()
+    # update_omzet_per_week()
     print(debiteuren_leeftijd_analyse())
     # print(debiteuren_30_60_90())
-    #print(toekomstige_omzet_per_week())
+    # print(toekomstige_omzet_per_week())

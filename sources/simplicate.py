@@ -2,7 +2,9 @@ from pathlib import Path
 from configparser import ConfigParser
 from pysimplicate import Simplicate
 
-_simplicate = None # Singleton
+_simplicate = None  # Singleton
+
+
 def simplicate():
     global _simplicate
     if not _simplicate:
@@ -15,4 +17,3 @@ def simplicate():
 
         _simplicate = Simplicate(subdomain, api_key, api_secret)
     return _simplicate
-

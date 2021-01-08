@@ -22,7 +22,6 @@ def convert_value(value):
 SHEETS = {}
 
 
-
 def get_spreadsheet(sheet_name):
     if not SHEETS.get(sheet_name):
         # oAuth authentication. Json file created using explanation at: http://gspread.readthedocs.org/en/latest/oauth2.html
@@ -43,7 +42,6 @@ def get_spreadsheet(sheet_name):
             panic('Could not find or open ' + sheet_name)
         SHEETS[sheet_name] = sheet
     return SHEETS[sheet_name]
-
 
 
 def get_spreadsheet1(sheet_name):
@@ -89,6 +87,6 @@ def to_int(s):
     return int(round(to_float(s)))
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     os.chdir('..')
     get_spreadsheet('Begroting 2020')

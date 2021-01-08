@@ -34,14 +34,21 @@ class ChartConfig(NamedTuple):
     x_axis_font_size: int = 0
     y_axis_max_ticks: int = 0
     y_axis_font_size: int = 0
-    padding: int = 40 # distance to next object
+    padding: int = 40  # distance to next object
 
 
 class Chart(Block):
     def __init__(self, values, config):
         id = id_pattern.sub('', config.title) + '_' + randomString()
-        #padding = config.padding if hasattr(config,'padding') else None
-        super().__init__(id=id, width=config.width, height=config.height, bg_color=config.bg_color, link=config.link, padding=config.padding)
+        # padding = config.padding if hasattr(config,'padding') else None
+        super().__init__(
+            id=id,
+            width=config.width,
+            height=config.height,
+            bg_color=config.bg_color,
+            link=config.link,
+            padding=config.padding,
+        )
 
         self.datasets = f'''[{{
                     data: {str(values)},

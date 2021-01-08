@@ -26,7 +26,9 @@ from model.resultaat import (
     winst_verschil,
     top_x_klanten_laatste_zes_maanden,
     update_omzet_per_week,
-    debiteuren_30_60_90, debiteuren_30_60_90_extranet, debiteuren_30_60_90_yuki,
+    debiteuren_30_60_90,
+    debiteuren_30_60_90_extranet,
+    debiteuren_30_60_90_yuki,
     toekomstige_omzet_per_week,
     opbrengsten,
     gemiddelde_betaaltermijn,
@@ -55,10 +57,10 @@ def render_dashboard():
         [
             HBlock(
                 [
-                    #VBlock([sales_block(), klanten_block()]),
+                    # VBlock([sales_block(), klanten_block()]),
                     VBlock([sales_block()]),
                     VBlock([resultaat_block(), pijplijn_block(), organisatie_block()]),
-                    #VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
+                    # VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
                     VBlock([TextBlock('Omzet', headersize), omzet_chart()]),
                     VBlock([debiteuren_block()]),  # rocks_block(),
                 ]
@@ -80,8 +82,11 @@ def sales_block():
             TextBlock('Sales', headersize),
             TextBlock('saleswaarde', defsize, color='gray', padding=10),
             TextBlock(
-                sales_waarde_val, headersize, format='K', color=sales_waarde_color,
-                tooltip='Som van openstaande trajecten<br/>maal hun kans.'
+                sales_waarde_val,
+                headersize,
+                format='K',
+                color=sales_waarde_color,
+                tooltip='Som van openstaande trajecten<br/>maal hun kans.',
             ),
             trends.chart('sales_waarde', 250, 150, min_y_axis=0, x_start=six_months_ago()),
             TextBlock('Top 5 sales kansen', midsize),
@@ -198,8 +203,8 @@ def pijplijn_block():
 def organisatie_block():
     fte = aantal_fte()
     fte_begroot = aantal_fte_begroot()
-    #verzuim = verzuimpercentage()
-    #verzuim_color = dependent_color(verzuim, 3, 1)
+    # verzuim = verzuimpercentage()
+    # verzuim_color = dependent_color(verzuim, 3, 1)
 
     organisatie = VBlock(
         [
@@ -421,7 +426,7 @@ def debiteuren_block():
                     height=470,
                     labels=['<30 dg', '30-60 dg', '60-90 dg', '> 90 dg'],
                     colors=[GREEN, YELLOW, ORANGE, RED],
-                    max_y_axis=450000
+                    max_y_axis=450000,
                 ),
             ),
             TextBlock('Debiteuren uit Yuki', midsize),
@@ -434,7 +439,7 @@ def debiteuren_block():
                     colors=[GREEN, YELLOW, ORANGE, RED],
                     max_y_axis=450000,
                 ),
-            )
+            ),
         ],
         link='debiteuren.html',
     )
