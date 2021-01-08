@@ -6,6 +6,7 @@ from model.caching import reportz
 # @reportz(hours=24)
 def project_budget_status():
     y = datetime.today().year
+    y = 2020 ## Laatste jaar van Oberview
     sql = f'''select p.id as id, name, title, pm, project_type, sum(hours) as hours, budget, budget_correction_amount, 
                     budget_correction_description, COALESCE(invoiced,0) as invoiced, ifnull(DATE_FORMAT(p.last_invoice_date, '%Y/%m/%d'),'') as last_invoice
             from project p 

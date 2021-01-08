@@ -56,10 +56,11 @@ class Block:
                 res += '\n' + c
         else:
             for child, link in self.children:
-                c = child.render(self.align_children)
-                if link:
-                    c = f'<a href="{link}" class="link">{c}</a>'
-                res += '\n' + c
+                if child:
+                    c = child.render(self.align_children)
+                    if link:
+                        c = f'<a href="{link}" class="link">{c}</a>'
+                    res += '\n' + c
         return res
 
     def render_absolute(self, left=None, top=None):
@@ -105,11 +106,12 @@ class Block:
 
 
 class HBlock(Block):
-    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', link=None, tooltip=None):
+    def __init__(self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None):
         super().__init__(
             children=children,
             width=width,
             height=height,
+            padding=padding,
             bg_color=bg_color,
             id=id,
             align_children='horizontal',
@@ -119,11 +121,12 @@ class HBlock(Block):
 
 
 class VBlock(Block):
-    def __init__(self, children=[], width=None, height=None, bg_color='white', id='', link=None, tooltip=None):
+    def __init__(self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None):
         super().__init__(
             children=children,
             width=width,
             height=height,
+            padding=40,
             bg_color=bg_color,
             id=id,
             align_children='vertical',

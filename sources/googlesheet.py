@@ -1,6 +1,8 @@
 import sys
+import os
+from google.oauth2.service_account import Credentials
+from google.auth.transport.requests import AuthorizedSession
 import gspread  # https://github.com/burnash/gspread
-from oauth2client.service_account import ServiceAccountCredentials
 from model.caching import reportz
 
 
@@ -19,7 +21,6 @@ def convert_value(value):
 
 SHEETS = {}
 
-import os
 
 
 def get_spreadsheet(sheet_name):
@@ -27,9 +28,31 @@ def get_spreadsheet(sheet_name):
         # oAuth authentication. Json file created using explanation at: http://gspread.readthedocs.org/en/latest/oauth2.html
         # Updated call since v2.0: See https://github.com/google/oauth2client/releases/tag/v2.0.0
 
-        # Sheetn should be shared with: 859748496829-pm6qtlliimaqt35o8nqcti0h77doigla@developer.gserviceaccount.com
+        # Sheet should be shared with: 859748496829-pm6qtlliimaqt35o8nqcti0h77doigla@developer.gserviceaccount.com
         scopes = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-        print(os.getcwd())
+
+        # Latest version from: https://stackoverflow.com/questions/51618127/credentials-object-has-no-attribute-access-token-when-using-google-auth-wi
+        credentials = Credentials.from_service_account_file('sources/oauth_key.json')
+        scoped_credentials = credentials.with_scopes(scopes)
+        gc = gspread.Client(auth=scoped_credentials)
+        gc.session = AuthorizedSession(scoped_credentials)
+
+        try:
+            sheet = gc.open(sheet_name)
+        except gspread.exceptions.SpreadsheetNotFound:
+            panic('Could not find or open ' + sheet_name)
+        SHEETS[sheet_name] = sheet
+    return SHEETS[sheet_name]
+
+
+
+def get_spreadsheet1(sheet_name):
+    if not SHEETS.get(sheet_name):
+        # oAuth authentication. Json file created using explanation at: http://gspread.readthedocs.org/en/latest/oauth2.html
+        # Updated call since v2.0: See https://github.com/google/oauth2client/releases/tag/v2.0.0
+
+        # Sheet should be shared with: 859748496829-pm6qtlliimaqt35o8nqcti0h77doigla@developer.gserviceaccount.com
+        scopes = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
         credentials = ServiceAccountCredentials.from_json_keyfile_name('sources/oauth_key.json', scopes=scopes)
         gc = gspread.authorize(credentials)
         try:
@@ -64,3 +87,8 @@ def to_float(s):
 
 def to_int(s):
     return int(round(to_float(s)))
+
+
+if __name__=='__main__':
+    os.chdir('..')
+    get_spreadsheet('Begroting 2020')

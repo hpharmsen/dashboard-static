@@ -7,3 +7,4 @@ jira
 pytest
 googleanalytics
 -e git+https://github.com/hpharmsen/hplib#egg=hplib
+-e git+https://github.com/hpharmsen/pysimplicate#egg=pysimplicate

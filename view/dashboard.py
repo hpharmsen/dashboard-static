@@ -26,7 +26,7 @@ from model.resultaat import (
     winst_verschil,
     top_x_klanten_laatste_zes_maanden,
     update_omzet_per_week,
-    debiteuren_30_60_90,
+    debiteuren_30_60_90, debiteuren_30_60_90_extranet, debiteuren_30_60_90_yuki,
     toekomstige_omzet_per_week,
     opbrengsten,
     gemiddelde_betaaltermijn,
@@ -55,11 +55,12 @@ def render_dashboard():
         [
             HBlock(
                 [
-                    VBlock([sales_block(), klanten_block()]),
+                    #VBlock([sales_block(), klanten_block()]),
+                    VBlock([sales_block()]),
                     VBlock([resultaat_block(), pijplijn_block(), organisatie_block()]),
-                    VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
+                    #VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
+                    VBlock([TextBlock('Omzet', headersize), omzet_chart()]),
                     VBlock([debiteuren_block()]),  # rocks_block(),
-                    corona_block(),
                 ]
             )
         ]
@@ -72,12 +73,15 @@ def render_dashboard():
 
 
 def sales_block():
+    sales_waarde_val = sales_waarde()
+    sales_waarde_color = dependent_color(sales_waarde_val, 200000, 300000)
     sales = VBlock(
         [
             TextBlock('Sales', headersize),
             TextBlock('saleswaarde', defsize, color='gray', padding=10),
             TextBlock(
-                sales_waarde(), headersize, format='K', tooltip='Som van openstaande trajecten<br/>maal hun kans.'
+                sales_waarde_val, headersize, format='K', color=sales_waarde_color,
+                tooltip='Som van openstaande trajecten<br/>maal hun kans.'
             ),
             trends.chart('sales_waarde', 250, 150, min_y_axis=0, x_start=six_months_ago()),
             TextBlock('Top 5 sales kansen', midsize),
@@ -108,6 +112,7 @@ def klanten_block():
 
 
 def resultaat_block():
+    return None
     winst_coloring = lambda value: dependent_color(value, -20, 10)
     winst_percentage = int(winst_werkelijk() / opbrengsten() * 100)
     winst_percentage_coloring = lambda value: dependent_color(value, 10, 15)
@@ -173,7 +178,7 @@ def resultaat_block():
 
 def pijplijn_block():
     in_pijplijn_value = werk_in_pijplijn()
-    in_pijplijn_color = dependent_color(in_pijplijn_value, 250000, 400000)
+    in_pijplijn_color = dependent_color(in_pijplijn_value, 350000, 500000)
     pijplijn = VBlock(
         [
             TextBlock('In de pijplijn', defsize, padding=10, color=GRAY),
@@ -193,8 +198,8 @@ def pijplijn_block():
 def organisatie_block():
     fte = aantal_fte()
     fte_begroot = aantal_fte_begroot()
-    verzuim = verzuimpercentage()
-    verzuim_color = dependent_color(verzuim, 3, 1)
+    #verzuim = verzuimpercentage()
+    #verzuim_color = dependent_color(verzuim, 3, 1)
 
     organisatie = VBlock(
         [
@@ -217,28 +222,29 @@ def organisatie_block():
                     ),
                 ]
             ),
-            HBlock(
-                [
-                    VBlock(
-                        [
-                            TextBlock('Verzuimpercentage', defsize, padding=5, color=GRAY),
-                            TextBlock(verzuim, midsize, format='%1', color=verzuim_color),
-                        ],
-                        tooltip='Gemiddeld bij DDA in 2019: 3.0%',
-                    ),
-                    VBlock(
-                        [
-                            TextBlock('Vrije dagen pool', defsize, padding=5, color=GRAY),
-                            HBlock(
-                                [
-                                    TextBlock(vrije_dagen_pool(), midsize, format='.1', color=BLACK, padding=0),
-                                    TextBlock('dagen/fte', color=GRAY, padding=0),
-                                ]
-                            ),
-                        ]
-                    ),
-                ]
-            ),
+            ### Moet uit Simplicate gaan komen
+            # HBlock(
+            #     [
+            #         VBlock(
+            #             [
+            #                 TextBlock('Verzuimpercentage', defsize, padding=5, color=GRAY),
+            #                 TextBlock(verzuim, midsize, format='%1', color=verzuim_color),
+            #             ],
+            #             tooltip='Gemiddeld bij DDA in 2019: 3.0%',
+            #         ),
+            #         VBlock(
+            #             [
+            #                 TextBlock('Vrije dagen pool', defsize, padding=5, color=GRAY),
+            #                 HBlock(
+            #                     [
+            #                         TextBlock(vrije_dagen_pool(), midsize, format='.1', color=BLACK, padding=0),
+            #                         TextBlock('dagen/fte', color=GRAY, padding=0),
+            #                     ]
+            #                 ),
+            #             ]
+            #         ),
+            #     ]
+            # ),
         ]
     )
     return organisatie
@@ -400,6 +406,7 @@ def debiteuren_block():
     return VBlock(
         [
             TextBlock('Debiteuren', headersize),
+            TextBlock('Debiteuren uit Oberview', midsize),
             TextBlock('Betaaltermijn in dagen', defsize, color=GRAY, padding=12),
             TextBlock(
                 round(betaaltermijn, 0),
@@ -408,7 +415,18 @@ def debiteuren_block():
                 tooltip='Gemiddeld bij DDA in 2019: 40 dagen',
             ),
             StackedBarChart(
-                debiteuren_30_60_90(),
+                debiteuren_30_60_90_extranet(),
+                ChartConfig(
+                    width=240,
+                    height=470,
+                    labels=['<30 dg', '30-60 dg', '60-90 dg', '> 90 dg'],
+                    colors=[GREEN, YELLOW, ORANGE, RED],
+                    max_y_axis=450000
+                ),
+            ),
+            TextBlock('Debiteuren uit Yuki', midsize),
+            StackedBarChart(
+                debiteuren_30_60_90_yuki(),
                 ChartConfig(
                     width=240,
                     height=470,
@@ -416,7 +434,7 @@ def debiteuren_block():
                     colors=[GREEN, YELLOW, ORANGE, RED],
                     max_y_axis=450000,
                 ),
-            ),
+            )
         ],
         link='debiteuren.html',
     )

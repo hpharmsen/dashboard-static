@@ -162,6 +162,9 @@ def winst_per_project():
                 order by p.id'''
     projects = db.table(query)
 
+    if not projects:
+        return []
+
     # Loop door de projecten
     res = []
     for p in projects:

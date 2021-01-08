@@ -1,4 +1,12 @@
 # TODO
+# - Uit gaan van nieuw begroting en resultaat-sheet
+# - Omzet prognose uit Simplicate
+# - Begroot aantal mensen
+# - Verzuim en vrije dagen uit Simplicate
+# - Productiviteit uit Simplicate
+# - Billable uit Simplicate
+# - Top 3 klanten uit Simplicate of evt. yuki
+
 # Algemeen
 # - Script draaiend krijgen op de synology
 # Productiviteit
@@ -18,7 +26,6 @@ import sys
 import os
 import shutil
 import subprocess
-import errno
 
 from model.caching import load_cache, clear_cache
 from view.billable import render_billable_page
