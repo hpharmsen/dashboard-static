@@ -475,13 +475,13 @@ def get_turnover_from_extranet(fromday, untilday):
     return result
 
 
-@reportz(hours=1)
+# @reportz(hours=1)
 def get_turnover_from_simplicate(fromday, untilday):
     # Including untilday
     turnover = simplicate().turnover(
-        {'start_date': fromday.strftime('%Y-%m-%d'), 'start_date': untilday.strftime('%Y-%m-%d')}
+        {'start_date': fromday.strftime('%Y-%m-%d'), 'end_date': untilday.strftime('%Y-%m-%d')}
     )
-    return turnover
+    return int(turnover)
 
 
 @reportz(hours=24)
@@ -592,7 +592,7 @@ def gemiddelde_betaaltermijn(days=90):
 
 
 if __name__ == '__main__':
-    # update_omzet_per_week()
-    print(debiteuren_leeftijd_analyse())
+    update_omzet_per_week()
+    # print(debiteuren_leeftijd_analyse())
     # print(debiteuren_30_60_90())
     # print(toekomstige_omzet_per_week())

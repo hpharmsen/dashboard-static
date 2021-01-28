@@ -1,10 +1,13 @@
-from datetime import datetime, timedelta
+import datetime
+import os
+import pandas as pd
 
 from model.utilities import fraction_of_the_year_past
 from sources import database as db
 from model.caching import reportz
 from sources.googlesheet import sheet_tab, to_int
 from model.trendline import trends
+from sources.simplicate import simplicate, hours_dataframe, DATE_FORMAT
 
 special_oberon_project_ids = (1536, 1429, 1711)  # Oberview, Serverbeheer, Oberon website
 
@@ -122,17 +125,22 @@ def productiviteit_persoon(user):
     return res
 
 
-@reportz(hours=24)
+# @reportz(hours=24)
 def tuple_of_productie_users():
-    return [
-        rec['name']
-        for rec in db.table(
-            '''select name from planning_location pl 
-               left join user u on u.username=pl.name
-                where pl.searchOrder>0 and u.status=1 
-                order by planning_locationGroupId, searchOrder'''
-        )
-    ]
+    productie_teams = set(['Development', 'PM', 'Service Team', 'Concept & Design', 'Testing'])
+    sim = simplicate()
+    users = sim.employee({'employment_status': 'active'})
+    # return [
+    #     rec['name']
+    #     for rec in db.table(
+    #         '''select name from planning_location pl
+    #            left join user u on u.username=pl.name
+    #             where pl.searchOrder>0 and u.status=1
+    #             order by planning_locationGroupId, searchOrder'''
+    #     )
+    # ]
+    users = [u['name'] for u in users if set(t['name'] for t in u.get('teams', [])).intersection(productie_teams)]
+    return users
 
 
 @reportz(hours=24)
@@ -181,67 +189,63 @@ def user_target_now(user):
 BILLABLE_TASKS = (-6, -4, -3, -2, -1, 2, 3, 4, 5, 6, 7, 21, 22)
 
 
-@reportz(hours=2)
+# @reportz(hours=2)
 def geboekte_uren(only_productie_users=0, only_clients=0, billable=0, fromdate=None, untildate=None):
-    sql = f'select user, sum(hours) as hours from timesheet ts, project p where ts.projectId=p.id'
-    if only_productie_users:
-        sql += f' and user in {tuple(tuple_of_productie_users())}'
-    if only_clients:
-        sql += ' and internal=0'
-    if billable:
-        sql += f' and taskId in {BILLABLE_TASKS}'
-    if fromdate:
-        sql += f''' and day>="{fromdate.strftime('%Y/%m/%d')}"'''
-        if untildate:
-            sql += f''' and day<="{untildate.strftime('%Y/%m/%d')}"'''
-    else:
-        sql += f' and year(day)={datetime.today().year}'
-    sql += ' group by user'
-    return db.dataframe(sql)
+    users = tuple_of_productie_users() if only_productie_users else None
+    return geboekte_uren_users(users, only_clients, billable, fromdate, untildate)
 
 
 @reportz(hours=2)
-def geboekte_uren_user(user, only_clients=0, billable=0, fromdate=None, untildate=None):
-    y = datetime.today().year
-    sql = f'select COALESCE(SUM(hours),0) as hours from timesheet where user="{user}"'
-    if only_clients:
-        sql += ' and internal=0'
-    if billable:
-        sql += f' and taskId in {BILLABLE_TASKS}'
+def geboekte_uren_users(users, only_clients=0, billable=0, fromdate=None, untildate=None):
+    df = hours_dataframe()
+    if type(users) == 'str':
+        users = (users,)  # make it a tuple
+
+    query = []
     if fromdate:
-        sql += f''' and day>="{fromdate.strftime('%Y/%m/%d')}"'''
-        if untildate:
-            sql += f''' and day<="{untildate.strftime('%Y/%m/%d')}"'''
-    else:
-        sql += f' and year(day)={datetime.today().year}'
-    return db.value(sql)
+        query += [f'day >= "{fromdate.strftime(DATE_FORMAT)}"']
+    if untildate:
+        query += [f'day < "{untildate.strftime(DATE_FORMAT)}"']
+    if only_clients:
+        query += [f'organization != "Oberon"']
+    if users:
+        query += [f'employee in {users}']
+    if billable:
+        query += [f'tariff > 0']
+
+    if query:
+        df = df.query(' & '.join(query))
+    hours = df['hours'].sum() + df['corrections'].sum()
+    return hours
 
 
-@reportz(hours=24)
+reportz(hours=24)
+
+
 def beschikbare_uren_productie(fromdate=None, untildate=None):
-    df = geboekte_uren(only_productie_users=1, fromdate=fromdate, untildate=untildate)
-    return df['hours'].sum() * 0.9
+    hours = geboekte_uren(only_productie_users=1, fromdate=fromdate, untildate=untildate)
+    return hours
 
 
 @reportz(hours=24)
 def beschikbare_uren_iedereen(fromdate=None, untildate=None):
-    df = geboekte_uren(only_productie_users=0, fromdate=fromdate, untildate=untildate)
-    return df['hours'].sum() * 0.9
+    hours = geboekte_uren(only_productie_users=0, fromdate=fromdate, untildate=untildate)
+    return hours
 
 
 ###### PRODUCTIEF ############
 
 
-@reportz(hours=2)
+# @reportz(hours=2)
 def productieve_uren_productie(fromdate=None, untildate=None):
-    df = geboekte_uren(only_productie_users=1, only_clients=1, fromdate=fromdate, untildate=untildate)
-    return df['hours'].sum()
+    hours = geboekte_uren(only_productie_users=1, only_clients=1, fromdate=fromdate, untildate=untildate)
+    return hours
 
 
 @reportz(hours=2)
 def productieve_uren_iedereen(fromdate=None, untildate=None):
-    df = geboekte_uren(only_productie_users=0, only_clients=1, fromdate=fromdate, untildate=untildate)
-    return df['hours'].sum()
+    hours = geboekte_uren(only_productie_users=0, only_clients=1, fromdate=fromdate, untildate=untildate)
+    return hours
 
 
 ########## BILLABLE ############
@@ -249,19 +253,21 @@ def productieve_uren_iedereen(fromdate=None, untildate=None):
 
 @reportz(hours=2)
 def billable_uren_productie(fromdate=None, untildate=None):
-    df = geboekte_uren(only_productie_users=1, only_clients=1, billable=1, fromdate=fromdate, untildate=untildate)
-    return df['hours'].sum()
+    hours = geboekte_uren(only_productie_users=1, only_clients=1, billable=1, fromdate=fromdate, untildate=untildate)
+    return hours
 
 
 @reportz(hours=2)
 def billable_uren_iedereen(fromdate=None, untildate=None):
-    df = geboekte_uren(only_productie_users=0, only_clients=1, billable=1, fromdate=fromdate, untildate=untildate)
-    return df['hours'].sum()
+    hours = geboekte_uren(only_productie_users=0, only_clients=1, billable=1, fromdate=fromdate, untildate=untildate)
+    return hours
 
 
 # Percentages
 def productiviteit_perc_productie(fromdate=None, untildate=None):
-    return 100 * productieve_uren_productie(fromdate, untildate) / beschikbare_uren_productie(fromdate, untildate)
+    billable = geboekte_uren(only_productie_users=1, billable=1, fromdate=fromdate, untildate=untildate)
+    total = geboekte_uren(only_productie_users=1, fromdate=fromdate, untildate=untildate)
+    return 100 * billable / total
 
 
 def billable_perc_productie(fromdate=None, untildate=None):
@@ -281,7 +287,7 @@ def billable_perc_iedereen(fromdate=None, untildate=None):
 def percentage_directe_werknemers():
     '''DDA Cijfer. Is het percentage productiemedewerkers tov het geheel'''
     untildate = datetime.today()
-    fromdate = untildate - timedelta(days=183)
+    fromdate = untildate - datetime.timedelta(days=183)
     return 100 * beschikbare_uren_productie(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
 
 
@@ -312,6 +318,13 @@ def weekno_to_date(rec):
 
 
 if __name__ == '__main__':
+    os.chdir('..')
+    today = datetime.datetime(2021, 1, 16)  # datetime.date.today()
+    yesterday = datetime.datetime(2021, 1, 11)  # today + datetime.timedelta(days=-1)
+    b = geboekte_uren(only_productie_users=1, only_clients=1, fromdate=yesterday, untildate=today)
+    print(b)
+    lastmonth = datetime.date.today() - datetime.timedelta(days=30)
+    print(productiviteit_perc_productie(lastmonth))
     print()
     print('productiviteit_perc_productie')
     print(productieve_uren_productie(), '/', beschikbare_uren_productie(), '=', productiviteit_perc_productie())

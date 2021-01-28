@@ -54,7 +54,9 @@ class Yuki:
             contact = item.contact.text
             description = item.description.text
             openamount = float(item.openamount.text)
-            result += [{'date': date, 'days': days, 'customer': contact, 'descripion': description, 'open': openamount}]
+            result += [
+                {'date': date, 'days': days, 'customer': contact, 'description': description, 'open': openamount}
+            ]
         return result
 
 

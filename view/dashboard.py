@@ -60,7 +60,7 @@ def render_dashboard():
                     # VBlock([sales_block(), klanten_block()]),
                     VBlock([sales_block()]),
                     VBlock([resultaat_block(), pijplijn_block(), organisatie_block()]),
-                    # VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
+                    VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
                     VBlock([TextBlock('Omzet', headersize), omzet_chart()]),
                     VBlock([debiteuren_block()]),  # rocks_block(),
                 ]
@@ -221,8 +221,8 @@ def organisatie_block():
                         [
                             TextBlock('Aantal FTE', defsize, padding=5, color=GRAY),
                             TextBlock(fte, midsize, color=dependent_color(fte_begroot - fte, 1, -1), format='.5'),
-                            TextBlock('Begroot', defsize, padding=5, color=GRAY),
-                            TextBlock(fte_begroot, midsize, color=GRAY, format='.5'),
+                            # TextBlock('Begroot', defsize, padding=5, color=GRAY),
+                            # TextBlock(fte_begroot, midsize, color=GRAY, format='.5'),
                         ]
                     ),
                 ]
@@ -352,7 +352,7 @@ def omzet_chart():
     return VBlock(
         [
             TextBlock('Omzet per week, laatste zes maanden...', defsize, color=GRAY),
-            trends.chart('omzet_per_week', 250, 150, x_start=six_months_ago(), min_y_axis=0, max_y_axis=60000),
+            trends.chart('omzet_per_week', 250, 150, x_start=six_months_ago(), min_y_axis=0, max_y_axis=80000),
         ],
         link='billable.html',
     )

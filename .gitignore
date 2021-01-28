@@ -15,6 +15,7 @@ sources/ga_oauth_key.json
 output eind 2020/
 venv
 venv3.8
+sources/simplicate_cache/*
 
 # C extensions
 *.so
