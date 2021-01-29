@@ -145,14 +145,14 @@ def tuple_of_productie_users():
 
 @reportz(hours=24)
 def productiviteit_overzicht():
-    y = datetime.today().year
+    y = datetime.datetime.today().year
     res = []
     for user in tuple_of_productie_users():
         tasks, budget, hours, allwarnings = calculate(user, y)
-        if geboekte_uren_user(user):
-            besch = geboekte_uren_user(user) * 0.85
-            prod = geboekte_uren_user(user)  # TODO: Deze kloppen nog niet !!
-            bill = geboekte_uren_user(user, billable=1)
+        if geboekte_uren_users(user):
+            besch = geboekte_uren_users(user)
+            prod = geboekte_uren_users(user, only_clients=1)
+            bill = geboekte_uren_users(user, billable=1)
             perc_productief = prod / besch * 100
             perc_billable = bill / besch * 100
         else:
@@ -198,7 +198,7 @@ def geboekte_uren(only_productie_users=0, only_clients=0, billable=0, fromdate=N
 @reportz(hours=2)
 def geboekte_uren_users(users, only_clients=0, billable=0, fromdate=None, untildate=None):
     df = hours_dataframe()
-    if type(users) == 'str':
+    if type(users) == str:
         users = (users,)  # make it a tuple
 
     query = []
@@ -286,7 +286,7 @@ def billable_perc_iedereen(fromdate=None, untildate=None):
 
 def percentage_directe_werknemers():
     '''DDA Cijfer. Is het percentage productiemedewerkers tov het geheel'''
-    untildate = datetime.today()
+    untildate = datetime.datetime.today()
     fromdate = untildate - datetime.timedelta(days=183)
     return 100 * beschikbare_uren_productie(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
 
@@ -302,7 +302,7 @@ def billable_trend_person_week(user):
             group by week(day,6) order by year(day), week(day)  '''
     res = db.table(sql)
     res_rec = {r['weekno']: r['hours'] for r in res}
-    curweek = int(datetime.now().strftime('%V'))
+    curweek = int(datetime.datetime.now().strftime('%V'))
     if curweek >= 26:
         weeks = range(curweek - 26, curweek)
     else:

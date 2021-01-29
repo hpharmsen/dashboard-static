@@ -1,6 +1,9 @@
+import os
+
 from sources.googlesheet import sheet_tab, sheet_value
 from model.caching import reportz
 from model.trendline import trends
+from sources.simplicate import simplicate
 
 
 def to_int(s):
@@ -17,12 +20,18 @@ def is_int(s):
         return False
 
 
-@reportz(hours=24)
+#@reportz(hours=24)
 def sales_waarde():
-    tab = sheet_tab('Sales - force', 'Kansen')
-    res = to_int(sheet_value(tab, 2, 7))
+    res = sum([s['value'] for s in open_sales()])
     trends.update('sales_waarde', res)
     return res
+
+
+def format_project_name(line, maxlen):
+    name = line['organization'].split()[0] + ' - ' + line['subject']
+    if len(name) > maxlen:
+        name = name[: maxlen - 1] + '..'
+    return name
 
 
 @reportz(hours=24)
@@ -43,17 +52,13 @@ def sales_waarde_details():
     return data_rows
 
 
-def format_project_name(line, maxlen):
-    name = line[0] + ' - ' + line[1]
-    if len(name) > maxlen:
-        name = name[: maxlen - 1] + '..'
-    return name
-
-
 def top_x_sales(number=3):
-    sales_data = sales_waarde_details()
-    top = sorted(sales_data, key=lambda a: -a[5])[:number]
-    return [[format_project_name(a, 28), a[5]] for a in top]
+    top = sorted(open_sales(), key=lambda a: -a['value'])[:number]
+    return [[format_project_name(a, 40), a['value']] for a in top]
+
+def open_sales():
+    sim = simplicate()
+    return [s for s in sim.sales_flat() if 5 <= s['progress_position'] <=7]
 
 
 @reportz(hours=24)
@@ -73,3 +78,11 @@ def werk_in_pijplijn_details():
         if is_int(row[8]) and to_int(row[8]) > 0
     ]
     return data_rows
+
+if __name__=='__main__':
+    os.chdir('..')
+    for s in top_x_sales(5):
+        print( s )
+    print( sales_waarde())
+
+
