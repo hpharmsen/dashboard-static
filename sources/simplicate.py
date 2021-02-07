@@ -46,9 +46,8 @@ def update_hours():
         df = pd.DataFrame()
 
     # Als pandas file van vandaag is, is het goed voor nu
-    if datetime.datetime.fromtimestamp(os.path.getmtime(PANDAS_FILE)).date() == datetime.date.today():
+    if not df.empty and datetime.datetime.fromtimestamp(os.path.getmtime(PANDAS_FILE)).date() == datetime.date.today():
         return df
-
     # Uitgecommentarieerd zolang ik niet weet of we met indienen van uren gaan werken
     # if df.empty:
     #     first_simplicate_nonconfirmed_day = datetime.date(2021, 1, 1)
@@ -60,15 +59,18 @@ def update_hours():
     today = datetime.date.today()
     day = today + datetime.timedelta(days=-14) # Zolang ik niet weet of we met indienen van uren gaan werken
     while day < today:
+        print( day )
         data = hours_data_from_day(day, use_cache=False)
         # Update the dataframe with he newly loaded data
         flat_data = flatten_hours_data(data)
         if df.empty:
             df = pd.DataFrame(flat_data)
+            complement(df)
         else:
             day_str = day.strftime(DATE_FORMAT)
             df.drop(df[df.day == day_str].index, inplace=True)
             new_df = pd.DataFrame(flat_data)
+            complement(new_df)
             df = df.append(new_df)
 
         day += datetime.timedelta(days=1) # Move to the next day before repeating the loop
@@ -76,6 +78,16 @@ def update_hours():
     df = df.reset_index(drop=True)
     df.to_pickle(PANDAS_FILE)
     return df
+
+def complement( df ):
+    df['tariff'] = df.apply(lambda a: a['tariff'] / 2 if a['project_number'] == 'TOR-3' else a['tariff'],
+                                    axis=1)
+    df['service_tariff'] = df.apply(
+        lambda a: a['service_tariff'] / 2 if a['project_number'] == 'TOR-3' else a['service_tariff'],
+        axis=1)
+    df['turnover'] = (df['hours'] + df['corrections']) * df['tariff']
+    df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1],
+                              axis=1)
 
 
 def flatten_hours_data(data):
@@ -87,6 +99,7 @@ def flatten_hours_data(data):
             'project_number': d['project'].get('project_number', ''),
             'service': d['projectservice']['name'],
             'type': d['type']['type'],
+            'service_tariff':float(d['type']['tariff']),
             'label': d['type']['label'],
             'billable': d['billable'],
             'tariff': d['tariff'],

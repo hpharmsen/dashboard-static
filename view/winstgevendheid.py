@@ -2,11 +2,11 @@ import os
 from layout.basic_layout import headersize, midsize
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
-from model.winstgevendheid import winst_per_persoon, winst_per_project
+#from model.winstgevendheid import winst_per_persoon, winst_per_project
 
 
 def render_winstgevendheid_page():
-
+    return None
     per_persoon = VBlock(
         [
             TextBlock('Per persoon', midsize),

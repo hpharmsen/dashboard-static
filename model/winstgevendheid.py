@@ -6,7 +6,7 @@ import pandas as pd
 from sources.googlesheet import sheet_tab, sheet_value, to_int, to_float
 from sources import database as db
 from model.caching import reportz
-from model.productiviteit import productiviteit_overzicht
+#from model.productiviteit import productiviteit_overzicht
 from model.utilities import fraction_of_the_year_past
 from model.resultaat import virtuele_maand
 
@@ -98,23 +98,23 @@ def uren_geboekt_persoon(user):
     return value
 
 
-@reportz(hours=60)
-def winst_per_persoon():
-    loonkosten_pp = loonkosten_per_persoon()
-    result = []
-    for line in productiviteit_overzicht():
-        user = line[0]
-        k = loonkosten_pp.get(user)
-        if not k:
-            continue
-        omzet = line[1]
-        loon_kosten = k['loonkosten'] * k['fraction_of_the_year_worked']
-        overige_kosten = overige_kosten_per_fte_per_maand() * k['fraction_of_the_year_worked'] * 12 * k['uren'] / 40
-        alle_kosten = loon_kosten + overige_kosten
-        kosten_per_uur = alle_kosten / uren_geboekt_persoon(user) if uren_geboekt_persoon(user) > 0 else 0
-        entry = [user, k['uren'], omzet, loon_kosten, overige_kosten, kosten_per_uur, omzet - alle_kosten]
-        result += [entry]
-    return sorted(result, key=lambda a: -a[6] / a[1])
+# @reportz(hours=60)
+# def winst_per_persoon():
+#     loonkosten_pp = loonkosten_per_persoon()
+#     result = []
+#     for line in productiviteit_overzicht():
+#         user = line[0]
+#         k = loonkosten_pp.get(user)
+#         if not k:
+#             continue
+#         omzet = line[1]
+#         loon_kosten = k['loonkosten'] * k['fraction_of_the_year_worked']
+#         overige_kosten = overige_kosten_per_fte_per_maand() * k['fraction_of_the_year_worked'] * 12 * k['uren'] / 40
+#         alle_kosten = loon_kosten + overige_kosten
+#         kosten_per_uur = alle_kosten / uren_geboekt_persoon(user) if uren_geboekt_persoon(user) > 0 else 0
+#         entry = [user, k['uren'], omzet, loon_kosten, overige_kosten, kosten_per_uur, omzet - alle_kosten]
+#         result += [entry]
+#     return sorted(result, key=lambda a: -a[6] / a[1])
 
 
 @reportz

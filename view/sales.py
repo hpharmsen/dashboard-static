@@ -25,15 +25,16 @@ def render_sales_page():
     pijplijn = VBlock(
         [
             TextBlock('Werk&nbsp;in&nbsp;de&nbsp;pijplijn', midsize),
-            Table(
-                werk_in_pijplijn_details(),
-                TableConfig(
-                    headers=['klant', 'project', '% af', 'onderhanden', 'eigenaar'],
-                    aligns=['left', 'left', 'right', 'right', 'left'],
-                    formats=['', '', '%', '€', ''],
-                    totals=[0, 0, 0, 1, 0],
-                ),
-            ),
+            TextBlock('Moet uit Simplicate komen'),
+            # Table(
+            #     werk_in_pijplijn_details(),
+            #     TableConfig(
+            #         headers=['klant', 'project', '% af', 'onderhanden', 'eigenaar'],
+            #         aligns=['left', 'left', 'right', 'right', 'left'],
+            #         formats=['', '', '%', '€', ''],
+            #         totals=[0, 0, 0, 1, 0],
+            #     ),
+            # ),
         ]
     )
 

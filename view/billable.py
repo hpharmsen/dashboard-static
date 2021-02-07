@@ -1,9 +1,8 @@
 import os
-import datetime
 from layout.block import TextBlock, Page, Grid, VBlock
 from layout.basic_layout import headersize, midsize
-from layout.chart import ScatterChart, ChartConfig, BarChart
-from model.productiviteit import tuple_of_productie_users, billable_trend_person_week
+from layout.chart import ChartConfig, BarChart
+from model.productiviteit import tuple_of_productie_users, billable_trend_person_week, billable_perc_user, roster_hours_user
 
 
 def render_billable_page():
@@ -14,19 +13,16 @@ def render_billable_page():
     row = 0
     col = 0
     for user in users:
-        trend = billable_trend_person_week(user)
-        hours = [int(round(rec['hours'])) for rec in trend]
-        labels = [str(rec['weekno']) for rec in trend]
+        labels, hours = billable_trend_person_week(user, startweek=0) # {weekno: hours} dict
+        perc = billable_perc_user(user)
+        roster_hours = roster_hours_user(user)
         chart = BarChart(
             hours,
             ChartConfig(
-                width=400, height=220, colors=['#ddeeff'], bottom_labels=labels, max_y_axis=40, y_axis_max_ticks=5
+                width=400, height=220, colors=['#ddeeff'], bottom_labels=labels, max_y_axis=roster_hours, y_axis_max_ticks=5
             ),
         )
-        y = datetime.datetime.today().year
-        m = datetime.datetime.today().month
-        link = f'https://pmt.oberon.nl/ts/overview?month={m}&year={y}&user={user}'
-        user_block = VBlock([TextBlock(user, font_size=midsize), chart], link=link)
+        user_block = VBlock([TextBlock(f'{user} {perc:.0f}%', font_size=midsize), chart])
         grid.set_cell(row, col, user_block)
         col += 1
         if col == cols:

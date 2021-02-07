@@ -6,5 +6,8 @@ PyMySQL
 jira
 pytest
 googleanalytics
+beautifulsoup4
+lxml
+jupyterlab
 -e git+https://github.com/hpharmsen/hplib#egg=hplib
 -e git+https://github.com/hpharmsen/pysimplicate#egg=pysimplicate

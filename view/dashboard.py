@@ -61,7 +61,7 @@ def render_dashboard():
                     VBlock([sales_block()]),
                     VBlock([resultaat_block(), pijplijn_block(), organisatie_block()]),
                     VBlock([productiviteit_block(), billable_chart(), omzet_chart(), omzet_prognose_chart()]),
-                    VBlock([TextBlock('Omzet', headersize), omzet_chart()]),
+                    #VBlock([TextBlock('Omzet', headersize), omzet_chart()]),
                     VBlock([debiteuren_block()]),  # rocks_block(),
                 ]
             )
@@ -182,6 +182,7 @@ def resultaat_block():
 
 
 def pijplijn_block():
+    return None #!!
     in_pijplijn_value = werk_in_pijplijn()
     in_pijplijn_color = dependent_color(in_pijplijn_value, 350000, 500000)
     pijplijn = VBlock(
