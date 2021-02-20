@@ -20,7 +20,7 @@
 # jira credentials in config.ini
 #
 # - Vergelijking met begroting
-# - Geen sys.exit bij een fout maar fouten tonen in het dashboard   
+# - Geen sys.exit bij een fout maar fouten tonen in het dashboard
 
 import sys
 import os
@@ -32,8 +32,9 @@ from view.billable import render_billable_page
 from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
 from view.sales import render_sales_page
-from view.service import render_service_page
-from view.service_issues import render_service_issues_page
+
+# from view.service import render_service_page
+# from view.service_issues import render_service_issues_page
 from view.winstgevendheid import render_winstgevendheid_page
 from view.klanten import render_klant_page
 from view.tor import render_tor_page
@@ -68,18 +69,18 @@ def initialize_cache():
 def render_all_pages():
     # render the html pages
     render_sales_page()
-    render_service_page()
-    render_klant_page()
-    #render_resultaat_vergelijking_page()
+    # render_service_page()
+    # render_klant_page()
+    # render_resultaat_vergelijking_page()
     render_debiteuren_page()
     # render_productiviteit_page()
     render_billable_page()
     render_winstgevendheid_page()
-    render_tor_page()
-    render_resultaat_berekening()
-    render_service_issues_page()
-    render_budget_status_page()
-    render_target_page()
+    # render_tor_page()
+    # render_resultaat_berekening()
+    # render_service_issues_page()
+    # render_budget_status_page()
+    # render_target_page()
     render_dashboard()
 
 

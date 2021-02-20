@@ -537,6 +537,8 @@ def debiteuren_leeftijd_analyse_extranet():
 def debiteuren_leeftijd_analyse_yuki():
     debiteuren = yuki().debtors()
     df = pd.DataFrame(debiteuren)
+    df = df.drop(df[df.open <= 0].index)
+    # df = df.drop( 'open <= 0', axis=1)
     df['a30'] = df.apply(lambda row: row.open if row.days < 30 else 0, axis=1)
     df['a60'] = df.apply(lambda row: row.open if 30 <= row.days < 60 else 0, axis=1)
     df['a90'] = df.apply(lambda row: row.open if 60 <= row.days < 90 else 0, axis=1)
@@ -578,10 +580,10 @@ def debiteuren_30_60_90_extranet():
 
 def debiteuren_30_60_90_yuki():
     dla = debiteuren_leeftijd_analyse_yuki()
-    a30 = dla['a30'].sum()
-    a60 = dla['a60'].sum()
-    a90 = dla['a90'].sum()
-    plus90 = dla['90plus'].sum()
+    a30 = int(dla['a30'].sum())
+    a60 = int(dla['a60'].sum())
+    a90 = int(dla['a90'].sum())
+    plus90 = int(dla['90plus'].sum())
     return (a30, a60, a90, plus90)
 
 
@@ -592,7 +594,7 @@ def gemiddelde_betaaltermijn(days=90):
 
 
 if __name__ == '__main__':
-    update_omzet_per_week()
+    # update_omzet_per_week()
     # print(debiteuren_leeftijd_analyse())
-    # print(debiteuren_30_60_90())
+    print(debiteuren_30_60_90_yuki())
     # print(toekomstige_omzet_per_week())

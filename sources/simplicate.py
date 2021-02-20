@@ -1,8 +1,6 @@
 import datetime
 import json
 import os
-import sys
-
 import pandas as pd
 from pathlib import Path
 from configparser import ConfigParser
@@ -55,11 +53,15 @@ def update_hours():
     #     non_approved = df.query( 'hours > 0 & tariff > 0 and (status=="to_forward" | status=="forwarded") ')
     #     first_simplicate_nonconfirmed_day = datetime.datetime.strptime( non_approved['day'].min(), DATE_FORMAT).date()
 
-    #day = first_simplicate_nonconfirmed_day
+    # day = first_simplicate_nonconfirmed_day
     today = datetime.date.today()
-    day = today + datetime.timedelta(days=-14) # Zolang ik niet weet of we met indienen van uren gaan werken
+    if df.empty:  # Begin bij het begin
+        day = datetime.date(2021, 1, 1)
+    else:
+        day = today + datetime.timedelta(days=-14)  # Zolang ik niet weet of we met indienen van uren gaan werken
     while day < today:
-        print( day )
+
+        print(day)
         data = hours_data_from_day(day, use_cache=False)
         # Update the dataframe with he newly loaded data
         flat_data = flatten_hours_data(data)
@@ -71,23 +73,22 @@ def update_hours():
             df.drop(df[df.day == day_str].index, inplace=True)
             new_df = pd.DataFrame(flat_data)
             complement(new_df)
-            df = df.append(new_df)
+            df = df.append(new_df, ignore_index=True)
 
-        day += datetime.timedelta(days=1) # Move to the next day before repeating the loop
+        day += datetime.timedelta(days=1)  # Move to the next day before repeating the loop
 
     df = df.reset_index(drop=True)
     df.to_pickle(PANDAS_FILE)
     return df
 
-def complement( df ):
-    df['tariff'] = df.apply(lambda a: a['tariff'] / 2 if a['project_number'] == 'TOR-3' else a['tariff'],
-                                    axis=1)
+
+def complement(df):
+    df['tariff'] = df.apply(lambda a: a['tariff'] / 2 if a['project_number'] == 'TOR-3' else a['tariff'], axis=1)
     df['service_tariff'] = df.apply(
-        lambda a: a['service_tariff'] / 2 if a['project_number'] == 'TOR-3' else a['service_tariff'],
-        axis=1)
+        lambda a: a['service_tariff'] / 2 if a['project_number'] == 'TOR-3' else a['service_tariff'], axis=1
+    )
     df['turnover'] = (df['hours'] + df['corrections']) * df['tariff']
-    df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1],
-                              axis=1)
+    df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1], axis=1)
 
 
 def flatten_hours_data(data):
@@ -99,13 +100,15 @@ def flatten_hours_data(data):
             'project_number': d['project'].get('project_number', ''),
             'service': d['projectservice']['name'],
             'type': d['type']['type'],
-            'service_tariff':float(d['type']['tariff']),
+            'service_tariff': float(d['type']['tariff']),
             'label': d['type']['label'],
             'billable': d['billable'],
             'tariff': d['tariff'],
             'hours': d['hours'],
             'day': d['start_date'].split()[0],
-            'status': d['status'],
+            'status': d.get(
+                'status', 'projectmanager_approved'
+            ),  # Dat status niet ingevuld is, kan waarschijnlijk alleen bij mijn eigen uren
             'corrections': d['corrections']['amount'],
         }
         for d in data

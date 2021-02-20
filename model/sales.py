@@ -34,13 +34,23 @@ def format_project_name(line, maxlen):
     return name
 
 
-#@reportz(hours=24)
+@reportz(hours=24)
 def sales_waarde_details():
     # klant, project, grootte, kans, fase, waarde, bron
 
     sales = sorted(open_sales(), key=lambda a: -a['progress_position'])
-    return [[s['organization'], s['subject'], s['expected_revenue'], s['chance_to_score'], s['progress_label'], s['value'], s['source']]
-             for s in sales]
+    return [
+        [
+            s['organization'],
+            s['subject'],
+            s['expected_revenue'],
+            s['chance_to_score'],
+            s['progress_label'],
+            s['value'],
+            s['source'],
+        ]
+        for s in sales
+    ]
 
 
 @reportz(hours=24)
@@ -48,10 +58,15 @@ def top_x_sales(number=3):
     top = sorted(open_sales(), key=lambda a: -a['value'])[:number]
     return [[format_project_name(a, 45), a['value']] for a in top]
 
+
 @reportz(hours=24)
 def open_sales():
     sim = simplicate()
-    return [s for s in sim.sales_flat() if 5 <= s['progress_position'] <=7]
+    fl = sim.sales_flat()
+    import pandas as pd
+
+    df = pd.DataFrame(fl)
+    return [s for s in sim.sales_flat() if 3 <= s['progress_position'] <= 7]
 
 
 @reportz(hours=24)
@@ -72,10 +87,9 @@ def werk_in_pijplijn_details():
     ]
     return data_rows
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     os.chdir('..')
     for s in sales_waarde_details():
-        print( s )
-    print( sales_waarde())
-
-
+        print(s)
+    print(sales_waarde())
