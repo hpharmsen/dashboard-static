@@ -192,7 +192,7 @@ def flatten_hours_data(data):
 
 
 def hours_data_from_day(day: datetime.date, use_cache=True):
-    if not os.isdir( CACHE_FOLDER ):
+    if not os.path.isdir( CACHE_FOLDER ):
         os.mkdir( CACHE_FOLDER )
     cache_file = os.path.join(CACHE_FOLDER, day.strftime(DATE_FORMAT)) + '.json'
     if use_cache and os.path.isfile(cache_file):
