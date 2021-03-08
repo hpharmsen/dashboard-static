@@ -6,13 +6,14 @@ import datetime
 
 # from model.productiviteit import billable_perc_iedereen
 from layout.chart import ScatterChart, ChartConfig
+from sources.database import get_db
 
-TREND_FILE = os.path.dirname(__file__) + '/trends.json'
+#TREND_FILE = os.path.dirname(__file__) + '/trends.json'
 
 
 class TrendLines:
     def __init__(self):
-        self.trendfile = TREND_FILE
+        #self.trendfile = TREND_FILE
         self.trends = defaultdict(list)
         self.load()
 
@@ -46,15 +47,33 @@ class TrendLines:
             return trend[-1][0]
 
     def load(self):
-        with open(self.trendfile) as f:
-            trenddata = json.loads(f.read())
-        for key, value in trenddata.items():
-            self.trends[key] = value
-        pass
+        # try:
+        #     with open(self.trendfile) as f:
+        #         trenddata = json.loads(f.read())
+        # except:
+        #     trenddata = {}
+        # for key, value in trenddata.items():
+        #     self.trends[key] = value
+        # pass
+        db = get_db()
+        trenddata = db.select('trends', {})
+        for d in trenddata:
+            trendname = d['trendline']
+            if not self.trends.get(trendname):
+                self.trends[trendname] = []
+            self.trends[trendname] += [[d['date'].strftime('%Y-%m-%d'),d['value']]]
+            pass
 
     def save(self):
-        with open(self.trendfile, 'w') as f:
-            f.write(json.dumps(self.trends, indent=4))
+        #with open(self.trendfile, 'w') as f:
+        #    f.write(json.dumps(self.trends,
+        #                       indent=4))
+        db = get_db()
+        for trendname, values in self.trends.items():
+            for date, value in values:
+                db.updateinsert( 'trends',
+                           {'trendline':trendname, 'date':date},
+                           {'trendline':trendname, 'date':date, 'value':value})
 
     def chart(self, trendname, width, height, x_start='', min_y_axis=None, max_y_axis=None):
         xy = [{'x': a[0], 'y': a[1]} for a in self.trends[trendname] if a[0] >= x_start]

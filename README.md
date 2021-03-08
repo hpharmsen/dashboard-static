@@ -22,7 +22,6 @@ ln /usr/local/bin/python3 /usr/local/bin/python
 ```bash
 git clone https://github.com/hpharmsen/dashboard.git
 cd dashboard
-direnv allow
 ```
 
 ### Create a Python virtual environment
@@ -32,6 +31,7 @@ python -m venv venv
 source venv/bin/activate
 echo 'source venv/bin/activate' > .envrc
 echo 'unset PS1' >> .envrc
+direnv allow
 python -m pip install --upgrade pip
 python -m pip install -r requirements.in
 ```
