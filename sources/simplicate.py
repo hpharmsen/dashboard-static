@@ -1,10 +1,14 @@
 import datetime
 import json
 import os
+from decimal import Decimal
+
 import pandas as pd
 from pathlib import Path
 from configparser import ConfigParser
 from pysimplicate import Simplicate
+
+from model.caching import reportz
 
 _simplicate = None  # Singleton
 _simplicate_hours_dataframe = pd.DataFrame()
@@ -26,6 +30,42 @@ def simplicate():
 
         _simplicate = Simplicate(subdomain, api_key, api_secret)
     return _simplicate
+
+
+@reportz(hours=24)
+def active_projects():
+    projects = [
+        {
+            'project': project.get('project_number', ''),
+            'spent': project['budget']['hours'].get('value_spent', 0),
+            'invoiced': project['budget']['total']['value_invoiced'],
+        }
+        for project in simplicate().project({'active': True})
+    ]
+    return projects
+
+
+def onderhanden_werk_list():
+    df = pd.read_pickle(PANDAS_FILE)
+
+    def corrections(project):
+        return df.query(f'project_number=="{project}"')['corrections'].sum()
+
+    oh = pd.DataFrame(
+        [
+            {
+                'project': project['project'],
+                'spent': project['spent'],
+                'corr': corrections(project),
+                'inv': project['invoiced'],
+                'OH': project['spent'] + corrections(project) - project['invoiced'],
+            }
+            for project in active_projects()
+        ]
+    ).sort_values(by=['OH'])
+
+    oh.drop(oh[(oh.project == 'TOR-3')].index, inplace=True)
+    return oh
 
 
 def hours_dataframe():

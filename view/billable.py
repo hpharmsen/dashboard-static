@@ -8,9 +8,9 @@ from model.productiviteit import (
     billable_perc_user,
     roster_hours_user,
 )
+from pathlib import Path
 
-
-def render_billable_page():
+def render_billable_page(output_folder: Path):
     users = sorted(tuple_of_productie_users())
     cols = 3
     rows = len(users) // cols + 1
@@ -46,9 +46,10 @@ def render_billable_page():
             grid,
         ]
     )
-    page.render('output/billable.html')
+    page.render(output_folder / 'billable.html')
 
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_billable_page()
+    from main import output_folder
+    render_billable_page(output_folder)

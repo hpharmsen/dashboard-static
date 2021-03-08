@@ -3,7 +3,8 @@ from datetime import datetime
 from sources import database as db
 from model.caching import reportz
 
-# @reportz(hours=24)
+
+@reportz(hours=24)
 def project_budget_status():
     y = datetime.today().year
     y = 2020  ## Laatste jaar van Oberview

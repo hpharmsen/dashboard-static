@@ -31,6 +31,8 @@ class Block:
         self.height = height
         self.bg_color = bg_color
         self.align_children = align_children
+        for child in children:
+            assert child == None or isinstance(child, Block), f'Block {child} should be an instance of Block'
         self.children = [(child, '') for child in children]
         self.tooltip = tooltip  # If set, shows this text as an html over tooltip
         self.padding = padding  # Distance to next object
@@ -231,12 +233,12 @@ class Page(Block):
         ''' Add extra js code to be run in window.onload'''
         self.onloadcode += code
 
-    def render(self, filename):
+    def render(self, filename: Path):
         with open(filename, 'w') as f:
 
             timestamp = cache_time_stamp().strftime('%d-%m %H:%M')
             base = (
-                '..' if filename.count('klanten/') else '.'
+                '..' if str(filename).count('klanten/') else '.'
             )  # Als file in subdir: base=..  Kan netter voor subsubs etc.
 
             template = 'template.html'

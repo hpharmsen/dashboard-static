@@ -5,8 +5,10 @@ from model.caching import reportz
 from sources.googlesheet import sheet_tab, to_int
 from model.trendline import trends
 from sources.simplicate import simplicate, hours_dataframe, DATE_FORMAT
+import pandas as pd
 
 
+@reportz(hours=24)
 def roster_hours():
     roster = {}
     sim = simplicate()
@@ -16,6 +18,7 @@ def roster_hours():
     return roster
 
 
+@reportz(hours=24)
 def roster_hours_user(user):
     # return roster_hours().get(user,0)
     sim = simplicate()
@@ -60,9 +63,7 @@ def geboekte_uren(only_productie_users=0, only_clients=0, billable=0, fromdate=N
     return geboekte_uren_users(users, only_clients, billable, fromdate, untildate)
 
 
-reportz(hours=2)
-
-
+@reportz(hours=2)
 def geboekte_uren_users(users, only_clients=0, billable=0, fromdate=None, untildate=None):
     df = hours_dataframe()  # Do not count leaves
 
@@ -191,10 +192,50 @@ def weekno_to_date(rec):
     return rec
 
 
+########### CORRECTIONS ###########################
+
+
+def format_project_name(row):
+    maxlen = 40
+    name = str(row['organization']).split()[0] + ' - ' + str(row['project_name'])
+    if len(name) > maxlen:
+        name = name[: maxlen - 1] + '..'
+    return name
+
+
+def corrections_last_month():
+    df = hours_dataframe()
+    lastmonth = (datetime.datetime.today() + datetime.timedelta(days=-30)).strftime(DATE_FORMAT)
+    x = (
+        df.query(f'corrections < 0 and day>="{lastmonth}"')
+        .groupby(['organization', 'project_name'])
+        .agg({'hours': 'sum', 'corrections': 'sum'})
+        .sort_values('corrections')
+        .query('corrections < -10')
+        .reset_index()
+        .copy()
+    )
+    result = pd.DataFrame()
+    result['project'] = x.apply(format_project_name, axis=1)
+    result['hours'] = x.apply(lambda a: f"{-int(a['corrections'])}/{int(a['hours'])}", axis=1)
+    return result
+
+
+def corrections_all():
+    df = hours_dataframe()
+    result = (
+        df.query(f'corrections < 0')
+        .groupby(['organization', 'project_name'])
+        .agg({'hours': 'sum', 'corrections': 'sum'})
+        .sort_values('corrections')
+        .reset_index()
+    )
+    return result
+
+
 if __name__ == '__main__':
     os.chdir('..')
-    for key, value in roster_hours().items():
-        print(value, key)
+    corrections_last_month()
     sys.exit()
     today = datetime.datetime(2021, 1, 16)  # datetime.date.today()
     yesterday = datetime.datetime(2021, 1, 11)  # today + datetime.timedelta(days=-1)

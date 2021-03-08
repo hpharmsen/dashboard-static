@@ -81,12 +81,7 @@ class Table(Block):
                 if link:
                     linking = f''' class=linkable_row onclick="document.location = '{link}';"'''
 
-            # Row color
-            coloring = ''
-            if self.config.row_coloring:
-                coloring = self.config.row_coloring(row_index, line)
-                coloring = f' style="color:{coloring}"' if coloring else ''
-            res += f'<tr{linking}{coloring}>'
+            res += f'<tr{linking}>'
 
             col_index = 0
             for field, align, format, add_total in zip_longest(
@@ -94,6 +89,11 @@ class Table(Block):
             ):
                 formatted_field = doFormat(field, format)
                 coloring = ''
+                # Row color
+                if self.config.row_coloring:
+                    coloring = self.config.row_coloring(row_index, line)
+                    coloring = f'color:{coloring}' if coloring else ''
+
                 if self.config.cell_coloring:
                     color = self.config.cell_coloring(row_index, col_index, field)
                     coloring += f' background-color:{color};' if color else ''
@@ -105,7 +105,7 @@ class Table(Block):
                     tooltip = self.config.cell_hovering(row_index, col_index, fullline)
                     tooltip_class = 'class="tooltip" style="position:relative;"' if tooltip else ''
                     tooltip_text = f'<span class="tooltiptext">{wrap(tooltip,42)}</span>' if tooltip else ''
-                res += f'<td style="text-align:{align};{coloring}"><div {tooltip_class} style="text-align:{align}">{tooltip_text}<span>{formatted_field}</span></div></td>'
+                res += f'<td style="text-align:{align}"><div {tooltip_class} style="text-align:{align}">{tooltip_text}<span style="{coloring}">{formatted_field}</span></div></td>'
                 if self.config.totals and add_total:
                     totals[col_index] += field
                 col_index += 1

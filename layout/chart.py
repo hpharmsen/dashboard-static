@@ -327,8 +327,8 @@ class ScatterChart(Chart):
             }},
             scales: {{
                 xAxes: [{{
-                    type: 'time',
                     position: 'bottom',
+                    type: 'time',
                     time: {{
 						parser: 'YYYY-MM-DD',
 						unit: 'month',

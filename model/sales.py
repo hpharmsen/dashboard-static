@@ -56,7 +56,7 @@ def sales_waarde_details():
 @reportz(hours=24)
 def top_x_sales(number=3):
     top = sorted(open_sales(), key=lambda a: -a['value'])[:number]
-    return [[format_project_name(a, 45), a['value']] for a in top]
+    return [[format_project_name(a, 35), a['value']] for a in top]
 
 
 @reportz(hours=24)

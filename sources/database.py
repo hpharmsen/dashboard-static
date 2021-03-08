@@ -4,15 +4,6 @@ import pandas as pd
 
 scriptpath = Path(__file__).resolve().parent
 
-# DB = None
-#
-#
-# def get_db():
-#     global DB
-#     return DB or dbClass.from_inifile(scriptpath / 'credentials.ini')
-#
-# scriptpath = Path(__file__).resolve().parent
-
 db = None
 
 

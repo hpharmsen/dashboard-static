@@ -22,7 +22,7 @@ def parse_date(date_str):
     return d, m, y
 
 
-# @reportz(hours=60)
+@reportz(hours=60)
 def loonkosten_per_persoon():
     """Dict met gegevens uit het contracten sheet met user als key
     en velden:

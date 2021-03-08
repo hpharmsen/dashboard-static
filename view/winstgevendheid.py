@@ -2,11 +2,11 @@ import os
 from layout.basic_layout import headersize, midsize
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
-
+from pathlib import Path
 # from model.winstgevendheid import winst_per_persoon, winst_per_project
 
 
-def render_winstgevendheid_page():
+def render_winstgevendheid_page(output_folder: Path):
     return None
     per_persoon = VBlock(
         [
@@ -47,9 +47,10 @@ def render_winstgevendheid_page():
     )
 
     page = Page([TextBlock('Winstgevendheid', headersize), HBlock([per_persoon, per_project])])
-    page.render('output/winstgevendheid.html')
+    page.render(output_folder / 'winstgevendheid.html')
 
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_winstgevendheid_page()
+    from main import output_folder
+    render_winstgevendheid_page(output_folder)

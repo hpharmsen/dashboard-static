@@ -1,40 +1,59 @@
-from datetime import datetime
+import calendar
+from datetime import datetime, timedelta
 import warnings
 from model.caching import reportz
 from beautiful_date import *
 import pandas as pd
+from decimal import Decimal
 
-from sources.googlesheet import sheet_tab, sheet_value
+from model.productiviteit import tuple_of_productie_users
 from sources import database as db
 from model.trendline import trends
-from sources.simplicate import simplicate
+from sources.simplicate import simplicate, onderhanden_werk_list, DATE_FORMAT
 from sources.yuki import yuki
+from sources.googlesheet import sheet_tab, sheet_value
 
-tor_onderhanden_2019 = 80741.0
-TOR_MAX_BUDGET = 672424
-
-BEGROTING_SHEET = 'Begroting 2020'
+BEGROTING_SHEET = 'Begroting 2021'
 BEGROTING_TAB = 'Begroting'
 BEGROTING_KOSTEN_ROW = 23
 BEGROTING_INKOMSTEN_ROW = 32
-BEGROTING_INKOMSTEN_VORIG_JAAR_ROW = 33
+BEGROTING_INKOMSTEN_VORIG_JAAR_ROW = BEGROTING_INKOMSTEN_ROW + 1
 BEGROTING_WINST_ROW = 35
-BEGROTING_WINST_VORIG_JAAR_ROW = 36
+BEGROTING_WINST_VORIG_JAAR_ROW = BEGROTING_WINST_ROW + 1
 
 RESULTAAT_TAB = 'Resultaat'
-RESULTAAT_KOSTEN_ROW = 23
-RESULTAAT_SUBSIDIE_ROW = 29
-# RESULTAAT_INKOMSTEN_ROW = 32
-# RESULTAAT_WINST_ROW = 35
+RESULTAAT_KOSTEN_ROW = BEGROTING_KOSTEN_ROW
+# RESULTAAT_SUBSIDIE_ROW = 29
 RESULTAAT_BOEKHOUD_KOSTEN_ROW = 49
-RESULTAAT_OMZET_ROW = 52
-RESULTAAT_BIJGEWERKT_ROW = 52
-RESULTAAT_FACTUREN_VORIG_JAAR_ROW = 54
-# RESULTAAT_ONDERHANDEN_ROW = 55
-RESULTAAT_BONUSSEN_ROW = 62
+# RESULTAAT_OMZET_ROW = 52
+RESULTAAT_BIJGEWERKT_ROW = 39
+# RESULTAAT_FACTUREN_VORIG_JAAR_ROW = 54
+# RESULTAAT_BONUSSEN_ROW = 62
+
+##### WINST #####
 
 
-##### OMZET #####
+def winst_verschil_percentage():
+    ''' Hoeveel de winst percentueel hoger is dan begroot '''
+    return 100 * winst_verschil() / winst_begroot()
+
+
+def winst_verschil():
+    ''' Hoeveel de winst boven de begrote winst ligt. '''
+    return winst_werkelijk() - winst_begroot()
+
+
+def winst_werkelijk():
+    ''' De daadwerkelijk gerealiseerde kosten tot nu toe '''
+    return omzet_werkelijk() - kosten_werkelijk()
+
+
+def winst_begroot():
+    ''' De begrote winst tot nu toe '''
+    return omzet_begroot() - kosten_begroot()
+
+
+#################### OMZET #############################
 
 
 @reportz
@@ -46,222 +65,9 @@ def omzet_verschil_percentage():
 @reportz
 def omzet_verschil():
     ''' Hoeveel de omzet boven de begrote omzet ligt. '''
-    o = opbrengsten()
+    o = omzet_werkelijk()
     b = omzet_begroot()
     return o - b
-
-
-@reportz
-def opbrengsten():
-    res = (
-        omzet_tm_vorige_maand()
-        + subsidie_tm_vorige_maand()
-        - onderhanden_vorig_jaar()
-        + omzet_deze_maand()
-        + onderhanden_werk()
-    )
-    return res
-
-
-def onderhanden_vorig_jaar():
-    return -laatste_maand_resultaat(RESULTAAT_FACTUREN_VORIG_JAAR_ROW)
-
-
-@reportz(hours=10)
-def laatste_maand_resultaat(row):
-    ''' Retourneert data uit de laatst ingevulde boekhouding kolom van het data sheet '''
-    if virtuele_maand() == 1:
-        return 0  # Voor januari is er nog geen vorige maand
-    col = virtuele_maand() + 1
-    tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
-    res = sheet_value(tab, row, col)
-    if not res:
-        return 0
-    return res * 1000
-
-
-@reportz
-def omzet_tm_vorige_maand():
-    ''' Gefactureerde omzet t/m vorige maand zoals gerapporteerd in de boekhouding '''
-    res = laatste_maand_resultaat(RESULTAAT_OMZET_ROW)
-    return res
-
-
-# @reportz
-# def uitbesteed_tm_vorige_maand():
-#     ''' Uitbesteed werk t/m vorige maand zoals gerapporteerd in de boekhouding '''
-#     return laatste_maand_resultaat(DATA_UITBESTEED_ROW)
-
-
-# @reportz
-# def onderhanden_tm_vorige_maand():
-#    ''' Onderhanden werk t/m vorige maand zoals gerapporteerd in de boekhouding '''
-#    return laatste_maand_resultaat(RESULTAAT_ONDERHANDEN_ROW)
-
-
-@reportz
-def subsidie_tm_vorige_maand():
-    ''' Ontvangen subsidie t/m vorige maand zoals gerapporteerd in de boekhouding '''
-    return laatste_maand_resultaat(RESULTAAT_SUBSIDIE_ROW)
-
-
-# @reportz(hours=24)
-# def opbrengsten_tm_vorige_maand():
-#    ''' De bruto marge tot en met de vorige maand (zoals gerapporteerd in de boekhouding), inclusief subsidie maar zonder onderhanden werk '''
-#    return laatste_maand_resultaat(RESULTAAT_INKOMSTEN_ROW) + laatste_maand_resultaat(RESULTAAT_ONDERHANDEN_ROW)
-
-
-@reportz(hours=1)
-def omzet_deze_maand():
-    """De omzet die volgens Oberview vanaf deze virtuele maand is gefactureerd.
-    Als de afgelopen maand nog niet is verwerkt in de boekhouding is dat dus de omzet
-    van de afgelopen maand plus die van de huidige maand."""
-    m = virtuele_maand()
-    y = datetime.today().year
-    query = f'''select ifnull(round(sum( invoice_amount)),0) as turnover 
-                from invoice 
-                where year(invoice_date)={y} and month(invoice_date)>={m}'''
-    res = db.value(query)
-    return res
-
-
-# @reportz(hours=24)
-# def omzet_per_type_project():
-#     ''' Dataframe met omzet per type project (fixed, hosting, hourly_basis, other, service). '''
-#     y = datetime.today().year
-#     query = f'''select project_type, round(sum(invoice_amount)) as turnover
-#                 from invoice, project
-#                 where invoice.project_id=project.Id and year(invoice_date)={y}
-#                 group by project_type'''
-#     return db.dataframe(query)
-#
-#
-# @reportz(hours=24)
-# def omzet_per_type_product():
-#     ''' Dataframe met omzet per type product (platform, web, mobile, other). '''
-#     y = datetime.today().year
-#     query = f'''select product_type, round(sum(invoice_amount)) as turnover
-#                 from invoice, project
-#                 where status in ('open','paid','proforma') and invoice.project_id=project.Id
-#                   and year(invoice_date)={y} and product_type is not null
-#                   group by product_type
-#                   order by turnover desc
-#             '''
-#     return db.dataframe(query)
-
-
-##### Onderhanden werk #####
-def onderhanden_werk():
-    ''' Werk dat is gedaan maar nog niet gefactueerd '''
-    res = onderhanden_werk_uurbasis() + onderhanden_werk_fixed() + onderhanden_werk_tor()
-    return res
-
-
-# @reportz(hours=1)
-def onderhanden_werk_uurbasis_table():
-    """Uurbasis werk dat is gedaan maar nog niet gefactueerd, per project
-    Als tabel met velden name, title, done, invoiced, onderhanden"""
-    query = f'''select p.id, c.name, p.title, sum(hours*pu.hourlyRate) as done, ifnull(q2.invoiced,0) as invoiced,  
-                sum(hours*pu.hourlyRate)-ifnull(q2.invoiced,0)+budget_correction_amount as onderhanden 
-                from project p 
-                left join customer c on p.customerId=c.id 
-                join project_user pu on pu.projectId=p.id  
-                join timesheet ts on ts.projectid=p.id and ts.user=pu.user 
-                left join (select project_id as id, sum(invoice_amount) as invoiced from invoice group by project_id) q2 on q2.id=p.id 
-                where p.hourlybasis=1 and p.internal=0 and phase<90 and customerId not in (4,125)  
-                  and (taskId in (-2,-4,-6)) 
-                group by p.id having abs(onderhanden)>=500
-                order by onderhanden desc
-            '''
-    df = db.dataframe(query)
-
-    #!! Temporary
-    index = df[df['title'] == 'Backstage 2020'].index.values
-    if index != None:
-        a = index[0]
-        df.at[a, 'onderhanden'] = 0
-
-    return df
-
-
-def onderhanden_werk_uurbasis():
-    ''' Uurbasis erk dat is gedaan maar nog niet gefactueerd '''
-    df = onderhanden_werk_uurbasis_table()
-    return df['onderhanden'].sum()
-
-
-@reportz(hours=1)
-def onderhanden_werk_fixed_table():
-    """Fixed price werk dat is gedaan maar nog niet gefactueerd, per project.
-    Als tabel met velden name, title, done, invoiced, onderhanden"""
-    query = f'''select p.id, c.name, p.title, p.budget*p.completedPerc/100 as done, ifnull(q2.invoiced,0) as invoiced, 
-                p.budget*p.completedPerc/100-ifnull(q2.invoiced,0) as onderhanden 
-                from project p 
-                join project_user pu on pu.projectId=p.id  
-                join timesheet ts on ts.projectid=p.id and ts.user=pu.user 
-                left join (select project_id as id, sum(invoice_amount) as invoiced from invoice group by project_id) q2 on q2.id=p.id 
-                left join customer c on p.customerId=c.id 
-                where p.hourlybasis=0 and p.internal=0 and phase<90 and customerId not in (4,125) 
-                group by p.id 
-                having abs(onderhanden)>=500
-                order by onderhanden desc
-            '''
-    return db.dataframe(query)
-
-
-# @reportz(hours=1)
-def onderhanden_werk_fixed():
-    ''' Fixed price werk dat is gedaan maar nog niet gefactueerd '''
-    df = onderhanden_werk_fixed_table()
-    return df['onderhanden'].sum()
-
-
-# @reportz(hours=1)
-def gedaan_werk_tor_table():
-    sql = '''select p.id, p.title, sum(hours*pu.hourlyRate) as done 
-             from project p 
-             join project_user pu on pu.projectId=p.id 
-             join timesheet ts on ts.projectid=p.id and ts.user=pu.user 
-             where customerId=125 and taskId in (-2,-4,-6) 
-             group by p.id order by p.id'''
-    return db.dataframe(sql)
-
-
-# @reportz(hours=1)
-def gedaan_werk_tor():
-    df = gedaan_werk_tor_table()
-    return df['done'].sum()
-
-
-# @reportz(hours=1)
-def gedaan_werk_tor_dit_jaar():
-    y = datetime.today().year
-    sql = f'''select sum(done) from (
-                select p.title, sum(hours*pu.hourlyRate) as done 
-                from project p  
-                join project_user pu on pu.projectId=p.id 
-                join timesheet ts on ts.projectid=p.id and ts.user=pu.user 
-                where customerId=125 and taskId in (-2,-4,-6) and ts.day>='{y}/1/1' 
-                group by p.id
-              ) q3'''
-
-    return db.value(sql)
-
-
-# @reportz(hours=1)
-def invoiced_tor():
-    sql = 'select sum(invoice_amount) from invoice i join project p on p.id=i.project_id where customerId=125'
-    return db.value(sql)
-
-
-# @reportz(hours=1)
-def onderhanden_werk_tor():
-    # Werk tellen we voor de helft mee. Werk van dit jaar zelfs vor 3/4 want het deel wat we activeren
-    # telt ook mee, alleen niet van vorig jaar want dat telden we toen al met de winst mee.
-    # Maar e.e.a. wel gemaximeerd tot het maximale afgesproken budget.
-    res = min(TOR_MAX_BUDGET * 3 / 4, gedaan_werk_tor() / 2 + gedaan_werk_tor_dit_jaar() / 4) - invoiced_tor()
-    res = TOR_MAX_BUDGET * 3 / 4 - invoiced_tor() - tor_onderhanden_2019
-    return res
 
 
 ##### BEGROTE OMZET #####
@@ -273,7 +79,7 @@ def omzet_begroot():
     h = begroting_maandomzet(virtuele_maand())
     v = begroting_maandomzet(virtuele_maand() - 1)
     vd = virtuele_dag()  # Dag van de maand maar doorgeteld als de vorige maand nog niet is ingevuld in de boekhouding
-    return v + vd / 30 * (h - v)
+    return Decimal(v + vd / 30 * (h - v))
 
 
 @reportz(hours=24)
@@ -285,7 +91,69 @@ def begroting_maandomzet(maand):
     return sheet_value(tab, BEGROTING_INKOMSTEN_ROW, maand + 2) * 1000
 
 
-##### KOSTEN #####
+##### OMZET #####
+
+
+@reportz
+def omzet_werkelijk():
+    res = omzet_tm_nu() + onderhanden_werk()
+    return res
+
+
+# @reportz(hours=24)
+def omzet_tm_vorige_maand():
+    return yuki().income(last_day_of_last_month())
+
+
+# @reportz(hours=24)
+def projectkosten_tm_vorige_maand():
+    return yuki().direct_costs(last_day_of_last_month())
+
+
+# @reportz(hours=24)
+def omzet_tm_nu():
+    return yuki().income()
+
+
+# @reportz(hours=24)
+def projectkosten_tm_nu():
+    return yuki().direct_costs()
+
+
+def onderhanden_werk():
+    return Decimal(onderhanden_werk_list()['OH'].sum())
+
+
+###### KOSTEN ######
+
+
+@reportz(hours=24)
+def kosten_begroot_deze_maand():
+    ''' '''
+    d = virtuele_dag()
+    m = virtuele_maand()
+    res = Decimal(d / 30) * (kosten_begroot_tm_maand(m) - kosten_begroot_tm_maand(m - 1))
+    return res
+
+
+def kosten_boekhoudkundig_tm_vorige_maand():
+    return yuki().costs(last_day_of_last_month())
+
+
+@reportz(hours=24)
+def kosten_begroot_tm_maand(m):
+    ''' Begrote kosten t/m maand m  '''
+    if m == 0:
+        return 0
+    tab = sheet_tab(BEGROTING_SHEET, BEGROTING_TAB)
+    res = sheet_value(tab, BEGROTING_KOSTEN_ROW, m + 2) * 1000
+    return Decimal(res)
+
+
+def kosten_begroot():
+    ''' Het begrote aantal kosten t/m nu '''
+    res = kosten_begroot_tm_maand(virtuele_maand() - 1) + kosten_begroot_deze_maand()
+    return res
 
 
 def kosten_verschil_percentage():
@@ -300,89 +168,11 @@ def kosten_verschil():
 
 def kosten_werkelijk():
     ''' De daadwerkelijk gerealiseerde kosten tot nu toe '''
-    # a = kosten_boekhoudkundig_tm_vorige_maand()
-    # b = kosten_begroot_deze_maand()
-    # c = bonussen_tm_vorige_maand()
-    return kosten_boekhoudkundig_tm_vorige_maand() + bonussen_tm_vorige_maand() + kosten_begroot_deze_maand()
-
-
-def kosten_boekhoudkundig_tm_vorige_maand():
-    ''' kosten t/m vorige maand zoals gerapporteerd in de boekhouding '''
-    return laatste_maand_resultaat(RESULTAAT_BOEKHOUD_KOSTEN_ROW)
-
-
-def bonussen_tm_vorige_maand():
-    ''' Nog niet in de boekhouding verwerkte verwachte bonussen t/m vorige maand '''
-    return (
-        laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW)
-        # + laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW + 1)
-        # + laatste_maand_resultaat(RESULTAAT_BONUSSEN_ROW + 2)
-    )
-
-
-# @reportz(hours=24)
-def kosten_begroot_deze_maand():
-    ''' '''
-    d = virtuele_dag()
-    m = virtuele_maand()
-    res = d / 30 * (kosten_begroot_tm_maand(m) - kosten_begroot_tm_maand(m - 1))
-    return res
-
-
-@reportz(hours=24)
-def kosten_begroot_tm_maand(m):
-    ''' Begrote kosten t/m maand m  '''
-    if m == 0:
-        return 0
-    tab = sheet_tab(BEGROTING_SHEET, BEGROTING_TAB)
-    res = sheet_value(tab, BEGROTING_KOSTEN_ROW, m + 2) * 1000
-    return res
-
-
-@reportz(hours=24)
-def kosten_begroot():
-    ''' Het begrote aantal kosten t/m nu '''
-    res = kosten_begroot_tm_maand(virtuele_maand() - 1) + kosten_begroot_deze_maand()
-    return res
-
-
-##### WINST #####
-def winst_verschil_percentage():
-    ''' Hoeveel de winst percentueel hoger is dan begroot '''
-    return 100 * winst_verschil() / winst_begroot()
-
-
-def winst_verschil():
-    ''' Hoeveel de winst boven de begrote winst ligt. '''
-    return winst_werkelijk() - winst_begroot()
-
-
-def winst_werkelijk():
-    ''' De daadwerkelijk gerealiseerde kosten tot nu toe '''
-    return opbrengsten() - kosten_werkelijk()
-
-
-def winst_begroot():
-    ''' De begrote winst tot nu toe '''
-    return omzet_begroot() - kosten_begroot()
+    kosten_laatste_maand = yuki().costs(last_day_of_last_month())
+    return kosten_laatste_maand + Decimal(kosten_begroot_deze_maand())
 
 
 ##### DIVERSEN #####
-
-
-def vorige_maand():
-    ''' Nummer van de vorige maand. '''
-    return datetime.today().month - 1
-
-
-def huidige_maand():
-    ''' Nummer van de huidige maand. '''
-    return datetime.today().month
-
-
-def volgende_maand():
-    ''' Nummer van de volgende maand. '''
-    return datetime.today().month + 1
 
 
 def virtuele_dag():
@@ -414,33 +204,39 @@ def bijgewerkt():
     return data
 
 
-@reportz(hours=24)
-def omzet_per_klant_laatste_zes_maanden():
-    ''' Tabel van klantnaam, omzet '''
-    query = '''select name as klant, ifnull(sum( invoice_amount),0) as omzet from invoice i, project p, customer c 
-               where p.customerId=c.id and i.project_id=p.Id and invoice_date > date_add( curdate(), interval -6 MONTH) 
-               group by c.id order by omzet desc'''
-    df = db.dataframe(query)
-    totaal = df['omzet'].sum()
-    df['percentage'] = df['omzet'] * 100.0 / totaal
-    return df
+def vorige_maand():
+    ''' Nummer van de vorige maand. '''
+    return datetime.today().month - 1
 
 
-@reportz(hours=24)
-def update_omzet_per_dag():
-    ''' Tabel van dag, omzet '''
-    trend_name = 'omzet_per_dag'
-    last_day = trends.last_registered_day(trend_name)
-    query = f'''select day, ifnull(round(sum(turnover)),0) as turnover from (select day, pu.user, hours*hourlyRate as turnover from timesheet ts
-    join project_user pu on pu.projectId = ts.projectId and pu.user=ts.user
-    where taskId=-2 and day > "{last_day}" and weekday(day)<5 and day < date_add( curdate(), interval -1 DAY)
-    group by day, user) q1
-    group by day
-    order by day'''
-    table = db.table(query)
+def huidige_maand():
+    ''' Nummer van de huidige maand. '''
+    return datetime.today().month
 
-    for rec in table:
-        trends.update(trend_name, rec['turnover'], rec['day'])
+
+def volgende_maand():
+    ''' Nummer van de volgende maand. '''
+    return datetime.today().month + 1
+
+
+def last_day_of_last_month():
+    y = datetime.now().year
+    m = vorige_maand()
+    d = calendar.monthrange(y, m)[1]
+    return datetime(y, m, d)
+
+
+@reportz(hours=10)
+def laatste_maand_resultaat(row):
+    ''' Retourneert data uit de laatst ingevulde boekhouding kolom van het data sheet '''
+    if virtuele_maand() == 1:
+        return 0  # Voor januari is er nog geen vorige maand
+    col = virtuele_maand() + 1
+    tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
+    res = sheet_value(tab, row, col)
+    if not res:
+        return 0
+    return res * 1000
 
 
 def update_omzet_per_week():
@@ -453,29 +249,12 @@ def update_omzet_per_week():
     for monday in drange(last_day, last_sunday, 7 * days):
         sunday = monday + 6 * days
         week_turnover = get_turnover_from_simplicate(monday, sunday)
-        if monday < BeautifulDate(2021, 1, 1):
-            week_turnover += get_turnover_from_extranet(monday, sunday)
+        # if monday < BeautifulDate(2021, 1, 1):
+        #    week_turnover += get_turnover_from_extranet(monday, sunday)
         trends.update(trend_name, week_turnover, monday)
 
 
-@reportz(hours=1)
-def get_turnover_from_extranet(fromday, untilday):
-    # Both fromday and untilday are inclusive
-    fromday_str = fromday.strftime('%Y-%m-%d')
-    untilday_str = untilday.strftime('%Y-%m-%d')
-    query = f'''select sum( dayturnover) as weekturnover from (
-    select day, sum(turnover) as dayturnover from
-       (select day, pu.user, hours*hourlyRate as turnover 
-        from timesheet ts
-        join project_user pu on pu.projectId = ts.projectId and pu.user=ts.user
-        where taskId=-2 and day>="{fromday_str}" and day <= "{untilday_str}" and hours>0
-        group by day, user) q1
-    group by day) q2'''
-    result = db.value(query)
-    return result
-
-
-# @reportz(hours=1)
+@reportz(hours=24)
 def get_turnover_from_simplicate(fromday, untilday):
     # Including untilday
     turnover = simplicate().turnover(
@@ -484,34 +263,89 @@ def get_turnover_from_simplicate(fromday, untilday):
     return int(turnover)
 
 
-@reportz(hours=24)
 def toekomstige_omzet_per_week():
     last_day = trends.last_registered_day('omzet_per_week')
-    default_hourly_rate = 85  # Voor mensen waar nog geen uurloon is ingevuld bij het project
-    query = f'''
-    select min(day) as monday, ifnull(round(sum(dayturnover)),0) as weekturnover from 
-        (select day, sum(turnover) as dayturnover from
-            (select date(startDate) as day, pl.name as user, 
-                    least((enddate - startDate)/10000,8) * ifnull(pu.hourlyRate,{default_hourly_rate}) as turnover
-             from planning_reservation pr 
+    query = f'''select min(day) as monday, ifnull(round(sum(dayhours)),0) as plannedhours from
+        (select day, sum(hours) as dayhours from
+            (select date(startDate) as day,
+                    sum(least((enddate - startDate)/10000,8)) as hours
+             from planning_reservation pr
              join planning_location pl on pl.id=pr.planning_locationId
-             join project p on p.id=pr.projectId
-             left join project_user pu on pu.projectId = p.id and pu.user=pl.name
-             where startDate > "{last_day}" AND planning_typeId = '17' and p.customerId<>4) q1
+             left join project p on p.id=pr.projectId
+             where startDate > "{last_day}" AND planning_typeId = '17' and p.customerId<>4
+             group by day) q1
         group by day) q2
-    group by year(day), week(day) 
+    group by year(day), week(day)
     having weekday(monday)=0
     order by day'''
-    table = db.table(query)
-    return table[1:]  # vanaf 1 omdat de eerste waarde ook al in de omzet_per_week zit
+    table = db.dataframe(query)[1:]  # vanaf 1 omdat de eerste waarde ook al in de omzet_per_week zit
+    return [{'monday': last_day, 'weekturnover': 0}]  # TODO: DEZE MOET EEN LIJST VAN VERWACHTE OMZETTEN GAAN TERUGGEVEN
 
 
-@reportz(hours=24)
-def top_x_klanten_laatste_zes_maanden(number=3):
-    # df = omzet_per_klant().copy(deep=True)
-    return omzet_per_klant_laatste_zes_maanden().head(number)
+def vulling_van_de_planning():
+    # Planned hours
+    last_week = (datetime.today() + timedelta(weeks=-1)).strftime(DATE_FORMAT)
+    # last_day = trends.last_registered_day('omzet_per_week')
+    query = f'''select week(day,5) as weekno, ifnull(round(sum(dayhours)),0) as plannedhours from
+        (select day, sum(hours) as dayhours from
+            (select date(startDate) as day,
+                    sum(least((enddate - startDate)/10000,8)) as hours
+             from planning_reservation pr
+             join planning_location pl on pl.id=pr.planning_locationId
+             left join project p on p.id=pr.projectId
+             where startDate > "{last_week}" AND planning_typeId = '17' and (p.customerId is null or p.customerId <> 4)
+             group by day) q1
+        group by day) q2
+    group by year(day), weekno
+    order by day'''
+    table = db.dataframe(query)
+
+    # Roster
+    timetable = [
+        t
+        for t in simplicate().timetable()
+        if not t.get('end_date') and t['employee']['name'] in tuple_of_productie_users()
+    ]
+    odd = {
+        table['employee']['name']: [table['odd_week'][f'day_{i}']['hours'] for i in range(1, 6)] for table in timetable
+    }
+    even = {
+        table['employee']['name']: [table['even_week'][f'day_{i}']['hours'] for i in range(1, 6)] for table in timetable
+    }
+    odd_tot = sum([sum(week) for week in odd.values()])
+    even_tot = sum([sum(week) for week in even.values()])
+    table['roster'] = table.apply(lambda a: even_tot if a['weekno'] % 2 == 0 else odd_tot, axis=1)
+
+    # Leaves
+    leaves = pd.DataFrame(
+        [
+            {
+                'day': l['start_date'].split()[0],
+                'week': int(datetime.strptime(l['start_date'].split()[0], DATE_FORMAT).strftime('%W')),
+                'hours': -l['hours'],
+                'employee': l['employee']['name'],
+            }
+            for l in simplicate().leave({'start_date': '2021-01-01'})
+        ]
+    )
+    leave_hours_per_week = leaves.groupby(['week']).sum(['hours'])
+    table['leaves'] = table.apply(
+        lambda row: leave_hours_per_week.at[row['weekno'], 'hours']
+        if row['weekno'] in leave_hours_per_week.index
+        else 0,
+        axis=1,
+    )
+
+    # Filled
+    table['filled'] = table.apply(lambda row: int(100 * row['plannedhours'] / (row['roster'] - row['leaves'])), axis=1)
+    table['monday'] = table.apply(
+        lambda row: datetime.strptime(f'2021-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT), axis=1
+    )
+    res = table[['monday', 'filled']].to_dict('records')
+    return res
 
 
+#################### DEBITEUREN ################################################
 def debiteuren_leeftijd_analyse():
     df = debiteuren_leeftijd_analyse_extranet()
     yuki_result = debiteuren_leeftijd_analyse_yuki()
@@ -593,8 +427,29 @@ def gemiddelde_betaaltermijn(days=90):
     return db.value(query)
 
 
+################# KLANTEN #####################################
+
+
+@reportz(hours=24)
+def top_x_klanten_laatste_zes_maanden(number=3):
+    # df = omzet_per_klant().copy(deep=True)
+    return omzet_per_klant_laatste_zes_maanden().head(number)
+
+
+@reportz(hours=24)
+def omzet_per_klant_laatste_zes_maanden():
+    ''' DataFrame van klant, omzet, percentage '''
+
+    # TODO: Invullen vanuit Simplicate (of Yuki)
+    df = pd.DataFrame([{'klant': 'alle klanten', 'omzet': 1, 'percentage': 100.0}])
+    totaal = df['omzet'].sum()
+    df['percentage'] = df['omzet'] * 100.0 / totaal
+    return df
+
+
 if __name__ == '__main__':
     # update_omzet_per_week()
     # print(debiteuren_leeftijd_analyse())
-    print(debiteuren_30_60_90_yuki())
+    # print(debiteuren_30_60_90_yuki())
     # print(toekomstige_omzet_per_week())
+    print(vulling_van_de_planning())

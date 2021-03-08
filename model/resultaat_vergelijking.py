@@ -24,7 +24,7 @@ def to_int(s):
     return int(s.replace('.', ''))
 
 
-# @reportz(hours=24)
+@reportz(hours=24)
 def omzet_per_maand():
     tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
     x = tab[RESULTAAT_INKOMSTEN_ROW - 1][2:14]

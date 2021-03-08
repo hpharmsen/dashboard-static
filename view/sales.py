@@ -3,9 +3,9 @@ from layout.basic_layout import headersize, midsize
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 from model.sales import sales_waarde_details, werk_in_pijplijn_details
+from pathlib import Path
 
-
-def render_sales_page():
+def render_sales_page(output_folder: Path):
 
     sales_trajecten = VBlock(
         [
@@ -40,9 +40,10 @@ def render_sales_page():
 
     page = Page([TextBlock('Sales', headersize), HBlock([sales_trajecten, pijplijn])])
 
-    page.render('output/sales.html')
+    page.render(output_folder / 'sales.html')
 
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_sales_page()
+    from main import output_folder
+    render_sales_page(output_folder)

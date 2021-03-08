@@ -3,6 +3,9 @@ import requests
 import datetime
 from configparser import ConfigParser
 from bs4 import BeautifulSoup
+from decimal import Decimal
+
+from model.caching import reportz
 
 BASE_URL = 'https://api.yukiworks.nl/ws/Accounting.asmx'
 
@@ -59,8 +62,64 @@ class Yuki:
             ]
         return result
 
+    # @reportz(hours=24)
+    def account_balance(self, date_str=None, balance_type=None, account_codes=None):
+        # Resultatenrekening en balans
+        if not date_str:
+            date_str = datetime.datetime.today().strftime('%Y-%m-%d')
+        if type(account_codes) == 'str':
+            account_codes = [account_codes]
+
+        def valid_code(code):
+            if not account_codes:
+                return True
+            for c in account_codes:
+                if code.startswith(c):
+                    return True
+            return False
+
+        params = {'transactionDate': date_str}
+        body = self.call(f'/GLAccountBalance', params)
+        items = body.glaccountbalance.find_all('glaccount')
+        # <glaccount balancetype="B" code="02110">
+        #   <description>Verbouwingen</description>
+        #   <amount>104488.58</amount>
+        # </glaccount>
+        res = [
+            {
+                'description': item.description.text,
+                'amount': Decimal(item.amount.text),
+                'code': item.attrs['code'],
+                'balance_type': item.attrs['balancetype'],
+            }
+            for item in items
+            if (not balance_type or item.attrs['balancetype'] == balance_type) and valid_code(item.attrs['code'])
+        ]
+        return res
+
+    def profit(self, date_str=None):
+        return self.income(date_str) - self.costs(date_str)
+
+    def income(self, date_str=None):
+        res = -sum([a['amount'] for a in self.account_balance(date_str, account_codes='8')])
+        return res
+
+    def direct_costs(self, date_str=None):
+        res = sum([a['amount'] for a in self.account_balance(date_str, account_codes=['6'])])
+        return res
+
+    def costs(self, date_str=None):
+        res = sum([a['amount'] for a in self.account_balance(date_str, account_codes=['4'])])
+        return res
+
 
 if __name__ == '__main__':
     yuki = Yuki()
-    print(yuki.administrations())
-    print(yuki.debtors())
+    print(yuki.profit('2021-01-31'))
+
+    print(yuki.profit())
+    print(yuki.income())
+    print(yuki.costs())
+    print(yuki.income() - yuki.costs())
+    # print(yuki.administrations())
+    # print(yuki.debtors())

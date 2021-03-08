@@ -1,9 +1,10 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from model.utilities import fraction_of_the_year_past
 from sources.googlesheet import sheet_tab, sheet_value
 from sources import database as db
+from sources.simplicate import hours_dataframe
 from model.caching import reportz
 
 FTE_SHEET = 'Begroting 2020'
@@ -33,17 +34,17 @@ def aantal_fte_begroot():
 
 
 def verzuimpercentage(days=91):
-    workdays_query = f'select count(distinct day, user) from timesheet where day  >= DATE(NOW()) - INTERVAL {days} DAY'
-    print(workdays_query)
-    workdays = db.value(workdays_query)
-    sickdays_query = f'select count(*) from planning_reservation where planning_typeId=19 and startDate  >= DATE(NOW()) - INTERVAL {days} DAY'
-    print(sickdays_query)
-    sickdays = db.value(sickdays_query)
-    perc = 100.0 * sickdays / (workdays + sickdays)
-    return perc
+    DATE_FORMAT = '%Y-%m-%d'
+    from_day = max('2021-01-01', (datetime.today() + timedelta(days=-90)).strftime(DATE_FORMAT))
+
+    full_df = hours_dataframe()
+    verzuim = full_df.query(f'type=="absence" and day >="{from_day}"')['hours'].sum()
+    normal = full_df.query(f'type=="normal" and day >="{from_day}"')['hours'].sum()
+    percentage = 100 * verzuim / (normal + verzuim)
+    return percentage
 
 
-# @reportz(hours=24)
+@reportz(hours=24)
 def vrije_dagen_pool():
     y = datetime.today().year
     left_over_from_last_year = db.value(f'select sum(amount) from freedays where type="end" and year={y-1}')

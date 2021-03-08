@@ -3,9 +3,9 @@ from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
 from layout.basic_layout import headersize
 from model.resultaat import debiteuren_leeftijd_analyse
+from pathlib import Path
 
-
-def render_debiteuren_page():
+def render_debiteuren_page(output_folder: Path):
     page = Page(
         [
             TextBlock('Debiteuren', headersize),
@@ -22,9 +22,10 @@ def render_debiteuren_page():
         ]
     )
 
-    page.render('output/debiteuren.html')
+    page.render(output_folder / 'debiteuren.html')
 
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_debiteuren_page()
+    from main import output_folder
+    render_debiteuren_page(output_folder)
