@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <!--<script src="Chart.Core.min.js"></script>
+        <script src="Chart.Scatter.min.js"></script>-->
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+                <a href="resultaat_vergelijking.html">resultaat vergelijking</a> -
+                <a href="productiviteit.html">productiviteit</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">01-11 14:42</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Trends</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Billable</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:100px; height:60px; background-color:">
+		        <canvas id="_min_canvas" width="100px" height="60px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__min = document.getElementById('_min_canvas').getContext('2d');
+                    window._minChart = new Chart(ctx__min, {type: 'line', data: {
+                datasets: [{
+                                    label: '',
+                                    data: [{ 'x':'2019-02-03', 'y': 68.21201205260456 }, { 'x':'2019-03-05', 'y': 67.26132771885919 }, { 'x':'2019-04-04', 'y': 74.7284839465806 }, { 'x':'2019-05-04', 'y': 77.42881927581715 }, { 'x':'2019-06-03', 'y': 74.23587983006733 }, { 'x':'2019-07-03', 'y': 70.54511193345364 }, { 'x':'2019-08-02', 'y': 73.96208581561085 }, { 'x':'2019-09-01', 'y': 65.28392399167659 }, { 'x':'2019-10-01', 'y': 69.74746567012981 }, { 'x':'2019-10-31', 'y': 78.07340188471555 }],
+                                    backgroundColor: '#6666cc', 
+                                    borderColor: '#6666cc',
+                                    borderWidth: 1, 
+                                    fill: true, 
+                                  }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom'
+                }],      
+                yAxes: [{
+                    autoSkip: true,
+                    maxTicksLimit: 2
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

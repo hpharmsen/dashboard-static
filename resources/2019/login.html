@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="en">
+
+<!-- login.html
+Toont de login knop.
+Zodra ingelogd: redirect naar test.html
+-->
+
+<head>
+    <title>Oberon Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js"></script>
+    <script src="login.js"></script>
+    <link rel="stylesheet" type="text/css" href="dashboard.css">
+</head>
+
+<body>
+    <div id="menubar">
+        <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+        <div id="menu" style="float:left; margin-top:15px">
+            <a href="dashboard.html">dashboard</a>
+        </div>
+    </div>
+
+    <div id='signin-button' class="g-signin2" data-onsuccess="onSignIn" style="float:right; margin:20px"></div>
+
+	<div style="float:left; clear:left; margin: 20px">
+		<p>Log eerst in (rechtsboven)</p>
+	</div>
+
+	<script>
+		window.onload = function() {
+		  checkIfLoggedIn(true);
+		};
+	</script>
+</body>
+</html>

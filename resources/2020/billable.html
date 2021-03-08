@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href="."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">30-12 14:00</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Billable uren</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Billable uren per week het afgelopen halfjaar.</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    <table class="grid"><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=jur"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jur</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_dll_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__dll = document.getElementById('_dll_canvas').getContext('2d');
+                    window._dllChart = new Chart(ctx__dll, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [24, 33, 1, 26, 29, 32, 32, 32, 27, 31, 32, 22, 32, 24, 32, 24, 32, 23, 31, 24, 32, 24, 25, 25, 32, 20],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=chin"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">chin</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_yxd_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__yxd = document.getElementById('_yxd_canvas').getContext('2d');
+                    window._yxdChart = new Chart(ctx__yxd, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [19, 0, 33, 0, 35, 28, 38, 39, 40, 32, 39, 38, 37, 39, 37, 36, 32, 26, 30, 27, 35, 34, 32, 31, 30, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=jochem"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jochem</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_lwk_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__lwk = document.getElementById('_lwk_canvas').getContext('2d');
+                    window._lwkChart = new Chart(ctx__lwk, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [3, 0, 0, 0, 0, 12, 16, 18, 30, 32, 30, 26, 26, 8, 28, 28, 24, 29, 42, 0, 20, 32, 11, 13, 13, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+</tr><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=jordi"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jordi</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_wld_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__wld = document.getElementById('_wld_canvas').getContext('2d');
+                    window._wldChart = new Chart(ctx__wld, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [15, 24, 32, 24, 30, 25, 32, 0, 0, 24, 30, 25, 31, 21, 28, 24, 32, 25, 36, 32, 32, 24, 30, 23, 29, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=ray"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">ray</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_slt_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__slt = document.getElementById('_slt_canvas').getContext('2d');
+                    window._sltChart = new Chart(ctx__slt, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [14, 30, 32, 31, 0, 0, 0, 29, 27, 32, 28, 28, 32, 34, 42, 32, 31, 26, 30, 28, 32, 10, 31, 32, 32, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=mark"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">mark</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_ssd_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__ssd = document.getElementById('_ssd_canvas').getContext('2d');
+                    window._ssdChart = new Chart(ctx__ssd, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [24, 40, 37, 36, 35, 32, 39, 25, 0, 31, 36, 31, 37, 32, 15, 38, 39, 32, 0, 32, 39, 32, 40, 28, 39, 16],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+</tr><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=paulo"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">paulo</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_pju_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__pju = document.getElementById('_pju_canvas').getContext('2d');
+                    window._pjuChart = new Chart(ctx__pju, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [0, 0, 0, 0, 0, 0, 0, 2, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 21, 12, 14, 6, 26, 14],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=robin"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">robin</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_qng_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__qng = document.getElementById('_qng_canvas').getContext('2d');
+                    window._qngChart = new Chart(ctx__qng, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=rvw"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">rvw</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_sqw_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__sqw = document.getElementById('_sqw_canvas').getContext('2d');
+                    window._sqwChart = new Chart(ctx__sqw, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [4, 26, 24, 0, 28, 28, 31, 30, 32, 32, 32, 0, 0, 32, 30, 33, 31, 7, 22, 11, 9, 12, 26, 18, 18, 5],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+</tr><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=jari"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jari</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_qid_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__qid = document.getElementById('_qid_canvas').getContext('2d');
+                    window._qidChart = new Chart(ctx__qid, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [0, 0, 30, 0, 0, 32, 32, 32, 32, 32, 32, 24, 28, 22, 28, 32, 32, 32, 28, 40, 24, 26, 32, 32, 32, 10],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=rik"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">rik</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_vmk_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__vmk = document.getElementById('_vmk_canvas').getContext('2d');
+                    window._vmkChart = new Chart(ctx__vmk, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [17, 24, 32, 24, 31, 0, 0, 0, 0, 9, 7, 24, 32, 24, 30, 16, 31, 24, 31, 28, 28, 24, 31, 24, 30, 20],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=chrisn"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">chrisn</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_xze_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__xze = document.getElementById('_xze_canvas').getContext('2d');
+                    window._xzeChart = new Chart(ctx__xze, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [24, 0, 0, 32, 40, 28, 36, 30, 38, 5, 36, 32, 40, 28, 40, 30, 38, 26, 38, 31, 40, 0, 38, 12, 35, 20],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+</tr><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=kheira"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">kheira</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_vze_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__vze = document.getElementById('_vze_canvas').getContext('2d');
+                    window._vzeChart = new Chart(ctx__vze, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [16, 24, 32, 24, 0, 13, 19, 16, 29, 18, 32, 9, 0, 0, 0, 7, 22, 18, 24, 25, 32, 24, 32, 24, 30, 15],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=matthijs"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">matthijs</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_dws_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__dws = document.getElementById('_dws_canvas').getContext('2d');
+                    window._dwsChart = new Chart(ctx__dws, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22, 28, 24, 31, 24, 32, 24, 32, 24, 34, 24, 32, 24, 32, 20],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=rogier"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">rogier</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_ubo_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__ubo = document.getElementById('_ubo_canvas').getContext('2d');
+                    window._uboChart = new Chart(ctx__ubo, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [22, 32, 32, 32, 31, 0, 0, 22, 28, 32, 30, 32, 32, 31, 32, 20, 16, 32, 32, 32, 32, 32, 32, 32, 32, 22],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+</tr><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=kelly"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">kelly</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_ozu_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__ozu = document.getElementById('_ozu_canvas').getContext('2d');
+                    window._ozuChart = new Chart(ctx__ozu, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [0, 0, 0, 0, 0, 0, 0, 8, 20, 7, 28, 32, 31, 25, 0, 25, 34, 29, 34, 28, 32, 23, 32, 26, 36, 24],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=sho"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">sho</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_beb_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__beb = document.getElementById('_beb_canvas').getContext('2d');
+                    window._bebChart = new Chart(ctx__beb, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [7, 15, 1, 7, 14, 30, 22, 10, 26, 28, 20, 18, 27, 8, 18, 0, 30, 34, 48, 42, 35, 30, 36, 40, 40, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=bas"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">bas</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_apw_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__apw = document.getElementById('_apw_canvas').getContext('2d');
+                    window._apwChart = new Chart(ctx__apw, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [0, 8, 8, 5, 0, 0, 38, 27, 8, 16, 8, 12, 33, 38, 4, 0, 2, 11, 0, 0, 35, 22, 29, 22, 6, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+</tr><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=mandy"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">mandy</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_rhb_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__rhb = document.getElementById('_rhb_canvas').getContext('2d');
+                    window._rhbChart = new Chart(ctx__rhb, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [7, 13, 24, 22, 10, 0, 22, 27, 25, 22, 21, 15, 23, 13, 24, 0, 27, 24, 24, 23, 17, 18, 24, 22, 22, 10],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=gijs"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">gijs</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_mcb_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__mcb = document.getElementById('_mcb_canvas').getContext('2d');
+                    window._mcbChart = new Chart(ctx__mcb, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [0, 12, 16, 19, 22, 19, 18, 19, 12, 0, 23, 20, 32, 13, 28, 21, 28, 26, 20, 26, 26, 21, 22, 21, 32, 1],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=jasper"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jasper</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_zks_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__zks = document.getElementById('_zks_canvas').getContext('2d');
+                    window._zksChart = new Chart(ctx__zks, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [16, 11, 16, 23, 25, 17, 11, 3, 19, 9, 0, 11, 11, 8, 18, 12, 14, 12, 14, 11, 12, 16, 14, 13, 16, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+</tr><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=jeroens"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jeroens</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_rkf_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__rkf = document.getElementById('_rkf_canvas').getContext('2d');
+                    window._rkfChart = new Chart(ctx__rkf, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [7, 9, 15, 11, 3, 26, 16, 10, 19, 21, 26, 29, 9, 28, 42, 38, 14, 27, 30, 23, 23, 18, 15, 25, 24, 9],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=caspar"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">caspar</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_lzs_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__lzs = document.getElementById('_lzs_canvas').getContext('2d');
+                    window._lzsChart = new Chart(ctx__lzs, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [7, 11, 6, 6, 11, 14, 0, 0, 0, 10, 25, 26, 22, 22, 20, 25, 16, 29, 20, 32, 20, 29, 32, 26, 18, 22],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=miek"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">miek</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_rfk_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__rfk = document.getElementById('_rfk_canvas').getContext('2d');
+                    window._rfkChart = new Chart(ctx__rfk, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [3, 7, 0, 0, 7, 10, 8, 6, 16, 12, 10, 9, 10, 7, 12, 6, 7, 7, 17, 18, 10, 6, 5, 0, 0, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+</tr><tr><td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=eva"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">eva</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_wib_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__wib = document.getElementById('_wib_canvas').getContext('2d');
+                    window._wibChart = new Chart(ctx__wib, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [3, 13, 13, 9, 11, 12, 5, 3, 0, 0, 7, 14, 16, 8, 6, 23, 11, 16, 14, 12, 12, 18, 16, 14, 23, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td ><a href="https://pmt.oberon.nl/ts/overview?month=12&year=2020&user=omar"><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">omar</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_jim_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__jim = document.getElementById('_jim_canvas').getContext('2d');
+                    window._jimChart = new Chart(ctx__jim, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                label: "",
+                                data: [0, 0, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                                backgroundColor: ['#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff', '#ddeeff']
+                              }],
+                labels: ['27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                     ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a></td>
+<td >&nbsp</td>
+</tr></table>
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

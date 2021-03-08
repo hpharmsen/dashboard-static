@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <!--<script src="Chart.Core.min.js"></script>
+        <script src="Chart.Scatter.min.js"></script>-->
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+                <a href="resultaat_vergelijking.html">resultaat vergelijking</a> -
+                <a href="productiviteit.html">productiviteit</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">04-11 09:38</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Billable uren</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Billable uren per week het afgelopen half jaar gemeten in blokken van twee weken.</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    <table class="grid"><tr><td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jur</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_zve_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__zve = document.getElementById('_zve_canvas').getContext('2d');
+                    window._zveChart = new Chart(ctx__zve, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 35.0 }, { 'x':'2019-05-27', 'y': 31.75 }, { 'x':'2019-06-10', 'y': 32.0 }, { 'x':'2019-06-24', 'y': 26.0 }, { 'x':'2019-07-08', 'y': 32.0 }, { 'x':'2019-07-22', 'y': 32.0 }, { 'x':'2019-08-05', 'y': 15.5 }, { 'x':'2019-08-19', 'y': 0.0 }, { 'x':'2019-09-02', 'y': 28.5 }, { 'x':'2019-09-16', 'y': 22.75 }, { 'x':'2019-09-30', 'y': 23.75 }, { 'x':'2019-10-14', 'y': 31.875 }, { 'x':'2019-10-28', 'y': 33.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">chin</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_gyy_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__gyy = document.getElementById('_gyy_canvas').getContext('2d');
+                    window._gyyChart = new Chart(ctx__gyy, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 36.5 }, { 'x':'2019-05-27', 'y': 35.0 }, { 'x':'2019-06-10', 'y': 20.75 }, { 'x':'2019-06-24', 'y': 23.25 }, { 'x':'2019-07-08', 'y': 29.75 }, { 'x':'2019-07-22', 'y': 0.0 }, { 'x':'2019-08-05', 'y': 0.0 }, { 'x':'2019-08-19', 'y': 0.0 }, { 'x':'2019-09-02', 'y': 38.25 }, { 'x':'2019-09-16', 'y': 36.5 }, { 'x':'2019-09-30', 'y': 36.0 }, { 'x':'2019-10-14', 'y': 33.25 }, { 'x':'2019-10-28', 'y': 34.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jochem</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_voj_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__voj = document.getElementById('_voj_canvas').getContext('2d');
+                    window._vojChart = new Chart(ctx__voj, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 4.0 }, { 'x':'2019-05-27', 'y': 0.0 }, { 'x':'2019-06-10', 'y': 21.5 }, { 'x':'2019-06-24', 'y': 26.5 }, { 'x':'2019-07-08', 'y': 19.75 }, { 'x':'2019-07-22', 'y': 28.75 }, { 'x':'2019-08-05', 'y': 28.43333333333333 }, { 'x':'2019-08-19', 'y': 28.5 }, { 'x':'2019-09-02', 'y': 29.25 }, { 'x':'2019-09-16', 'y': 28.0 }, { 'x':'2019-09-30', 'y': 27.25 }, { 'x':'2019-10-14', 'y': 19.75 }, { 'x':'2019-10-28', 'y': 27.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+</tr><tr><td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jordi</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_cih_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__cih = document.getElementById('_cih_canvas').getContext('2d');
+                    window._cihChart = new Chart(ctx__cih, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 26.25 }, { 'x':'2019-05-27', 'y': 10.375 }, { 'x':'2019-06-10', 'y': 1.0 }, { 'x':'2019-06-24', 'y': 25.875 }, { 'x':'2019-07-08', 'y': 24.625 }, { 'x':'2019-07-22', 'y': 28.625 }, { 'x':'2019-08-05', 'y': 25.125 }, { 'x':'2019-08-19', 'y': 26.125 }, { 'x':'2019-09-02', 'y': 21.25 }, { 'x':'2019-09-16', 'y': 28.5 }, { 'x':'2019-09-30', 'y': 27.375 }, { 'x':'2019-10-14', 'y': 25.375 }, { 'x':'2019-10-28', 'y': 22.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">ray</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_gjt_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__gjt = document.getElementById('_gjt_canvas').getContext('2d');
+                    window._gjtChart = new Chart(ctx__gjt, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 33.0 }, { 'x':'2019-05-27', 'y': 32.5 }, { 'x':'2019-06-10', 'y': 26.75 }, { 'x':'2019-06-24', 'y': 31.0 }, { 'x':'2019-07-08', 'y': 31.5 }, { 'x':'2019-07-22', 'y': 27.25 }, { 'x':'2019-08-05', 'y': 31.0 }, { 'x':'2019-08-19', 'y': 15.75 }, { 'x':'2019-09-02', 'y': 0.0 }, { 'x':'2019-09-16', 'y': 24.5 }, { 'x':'2019-09-30', 'y': 0.0 }, { 'x':'2019-10-14', 'y': 0.5 }, { 'x':'2019-10-28', 'y': 0.75 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">vincent</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_iwf_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__iwf = document.getElementById('_iwf_canvas').getContext('2d');
+                    window._iwfChart = new Chart(ctx__iwf, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 13.875 }, { 'x':'2019-05-27', 'y': 21.5 }, { 'x':'2019-06-10', 'y': 2.5 }, { 'x':'2019-06-24', 'y': 20.5 }, { 'x':'2019-07-08', 'y': 22.0 }, { 'x':'2019-07-22', 'y': 18.375 }, { 'x':'2019-08-05', 'y': 22.25 }, { 'x':'2019-08-19', 'y': 22.25 }, { 'x':'2019-09-02', 'y': 25.375 }, { 'x':'2019-09-16', 'y': 24.5 }, { 'x':'2019-09-30', 'y': 24.875 }, { 'x':'2019-10-14', 'y': 24.25 }, { 'x':'2019-10-28', 'y': 21.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+</tr><tr><td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jasper</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_azc_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__azc = document.getElementById('_azc_canvas').getContext('2d');
+                    window._azcChart = new Chart(ctx__azc, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 16.0 }, { 'x':'2019-05-27', 'y': 28.0 }, { 'x':'2019-06-10', 'y': 34.25 }, { 'x':'2019-06-24', 'y': 24.5 }, { 'x':'2019-07-08', 'y': 16.0 }, { 'x':'2019-07-22', 'y': 32.0 }, { 'x':'2019-08-05', 'y': 32.0 }, { 'x':'2019-08-19', 'y': 32.0 }, { 'x':'2019-09-02', 'y': 24.0 }, { 'x':'2019-09-16', 'y': 28.0 }, { 'x':'2019-09-30', 'y': 28.0 }, { 'x':'2019-10-14', 'y': 32.0 }, { 'x':'2019-10-28', 'y': 27.375 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">daniel</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_yrc_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__yrc = document.getElementById('_yrc_canvas').getContext('2d');
+                    window._yrcChart = new Chart(ctx__yrc, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 17.5 }, { 'x':'2019-05-27', 'y': 26.25 }, { 'x':'2019-06-10', 'y': 12.0 }, { 'x':'2019-06-24', 'y': 0.0 }, { 'x':'2019-07-08', 'y': 0.0 }, { 'x':'2019-07-22', 'y': 0.0 }, { 'x':'2019-08-05', 'y': 0.0 }, { 'x':'2019-08-19', 'y': 3.75 }, { 'x':'2019-09-02', 'y': 12.25 }, { 'x':'2019-09-16', 'y': 20.0 }, { 'x':'2019-09-30', 'y': 0.5 }, { 'x':'2019-10-14', 'y': 0.0 }, { 'x':'2019-10-28', 'y': 0.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">rvw</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_ooa_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__ooa = document.getElementById('_ooa_canvas').getContext('2d');
+                    window._ooaChart = new Chart(ctx__ooa, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 26.5 }, { 'x':'2019-05-27', 'y': 26.5 }, { 'x':'2019-06-10', 'y': 3.25 }, { 'x':'2019-06-24', 'y': 12.5 }, { 'x':'2019-07-08', 'y': 26.5 }, { 'x':'2019-07-22', 'y': 19.75 }, { 'x':'2019-08-05', 'y': 6.0 }, { 'x':'2019-08-19', 'y': 8.25 }, { 'x':'2019-09-02', 'y': 11.75 }, { 'x':'2019-09-16', 'y': 0.0 }, { 'x':'2019-09-30', 'y': 5.75 }, { 'x':'2019-10-14', 'y': 0.0 }, { 'x':'2019-10-28', 'y': 10.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+</tr><tr><td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jari</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_xcx_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__xcx = document.getElementById('_xcx_canvas').getContext('2d');
+                    window._xcxChart = new Chart(ctx__xcx, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 33.0 }, { 'x':'2019-05-27', 'y': 26.0 }, { 'x':'2019-06-10', 'y': 26.0 }, { 'x':'2019-06-24', 'y': 35.0 }, { 'x':'2019-07-08', 'y': 21.0 }, { 'x':'2019-07-22', 'y': 0.0 }, { 'x':'2019-08-05', 'y': 27.0 }, { 'x':'2019-08-19', 'y': 28.0 }, { 'x':'2019-09-02', 'y': 29.5 }, { 'x':'2019-09-16', 'y': 32.25 }, { 'x':'2019-09-30', 'y': 24.25 }, { 'x':'2019-10-14', 'y': 24.75 }, { 'x':'2019-10-28', 'y': 24.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">chrisn</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_ods_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__ods = document.getElementById('_ods_canvas').getContext('2d');
+                    window._odsChart = new Chart(ctx__ods, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 30.75 }, { 'x':'2019-05-27', 'y': 25.91666666666665 }, { 'x':'2019-06-10', 'y': 25.75 }, { 'x':'2019-06-24', 'y': 32.125 }, { 'x':'2019-07-08', 'y': 26.0 }, { 'x':'2019-07-22', 'y': 27.5 }, { 'x':'2019-08-05', 'y': 31.875 }, { 'x':'2019-08-19', 'y': 16.0 }, { 'x':'2019-09-02', 'y': 33.75 }, { 'x':'2019-09-16', 'y': 31.625 }, { 'x':'2019-09-30', 'y': 16.0 }, { 'x':'2019-10-14', 'y': 20.5 }, { 'x':'2019-10-28', 'y': 35.625 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">kheira</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_nsj_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__nsj = document.getElementById('_nsj_canvas').getContext('2d');
+                    window._nsjChart = new Chart(ctx__nsj, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 12.0 }, { 'x':'2019-05-27', 'y': 20.0 }, { 'x':'2019-06-10', 'y': 18.5 }, { 'x':'2019-06-24', 'y': 22.25 }, { 'x':'2019-07-08', 'y': 24.0 }, { 'x':'2019-07-22', 'y': 14.75 }, { 'x':'2019-08-05', 'y': 17.375 }, { 'x':'2019-08-19', 'y': 11.75 }, { 'x':'2019-09-02', 'y': 2.75 }, { 'x':'2019-09-16', 'y': 19.375 }, { 'x':'2019-09-30', 'y': 21.5 }, { 'x':'2019-10-14', 'y': 20.0 }, { 'x':'2019-10-28', 'y': 11.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+</tr><tr><td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">jesse</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_fff_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__fff = document.getElementById('_fff_canvas').getContext('2d');
+                    window._fffChart = new Chart(ctx__fff, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 30.5 }, { 'x':'2019-05-27', 'y': 19.0 }, { 'x':'2019-06-10', 'y': 22.0 }, { 'x':'2019-06-24', 'y': 20.5 }, { 'x':'2019-07-08', 'y': 30.5 }, { 'x':'2019-07-22', 'y': 31.0 }, { 'x':'2019-08-05', 'y': 25.5 }, { 'x':'2019-08-19', 'y': 0.0 }, { 'x':'2019-09-02', 'y': 35.5 }, { 'x':'2019-09-16', 'y': 26.0 }, { 'x':'2019-09-30', 'y': 35.5 }, { 'x':'2019-10-14', 'y': 30.5 }, { 'x':'2019-10-28', 'y': 32.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">rik</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_iue_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__iue = document.getElementById('_iue_canvas').getContext('2d');
+                    window._iueChart = new Chart(ctx__iue, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 0.0 }, { 'x':'2019-05-27', 'y': 27.625 }, { 'x':'2019-06-10', 'y': 31.875 }, { 'x':'2019-06-24', 'y': 28.875 }, { 'x':'2019-07-08', 'y': 27.625 }, { 'x':'2019-07-22', 'y': 29.875 }, { 'x':'2019-08-05', 'y': 31.875 }, { 'x':'2019-08-19', 'y': 23.75 }, { 'x':'2019-09-02', 'y': 37.625 }, { 'x':'2019-09-16', 'y': 27.625 }, { 'x':'2019-09-30', 'y': 32.125 }, { 'x':'2019-10-14', 'y': 14.75 }, { 'x':'2019-10-28', 'y': 0.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">tim</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_ndo_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__ndo = document.getElementById('_ndo_canvas').getContext('2d');
+                    window._ndoChart = new Chart(ctx__ndo, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 1.875 }, { 'x':'2019-05-27', 'y': 6.875 }, { 'x':'2019-06-10', 'y': 4.5 }, { 'x':'2019-06-24', 'y': 3.125 }, { 'x':'2019-07-08', 'y': 1.0 }, { 'x':'2019-07-22', 'y': 29.5 }, { 'x':'2019-08-05', 'y': 16.0 }, { 'x':'2019-08-19', 'y': 25.75 }, { 'x':'2019-09-02', 'y': 3.5 }, { 'x':'2019-09-16', 'y': 16.625 }, { 'x':'2019-09-30', 'y': 16.25 }, { 'x':'2019-10-14', 'y': 15.25 }, { 'x':'2019-10-28', 'y': 19.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+</tr><tr><td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">duy</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_ysh_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__ysh = document.getElementById('_ysh_canvas').getContext('2d');
+                    window._yshChart = new Chart(ctx__ysh, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 30.0 }, { 'x':'2019-05-27', 'y': 26.75 }, { 'x':'2019-06-10', 'y': 24.375 }, { 'x':'2019-06-24', 'y': 32.0 }, { 'x':'2019-07-08', 'y': 31.75 }, { 'x':'2019-07-22', 'y': 32.0 }, { 'x':'2019-08-05', 'y': 26.625 }, { 'x':'2019-08-19', 'y': 15.0 }, { 'x':'2019-09-02', 'y': 0.0 }, { 'x':'2019-09-16', 'y': 26.25 }, { 'x':'2019-09-30', 'y': 26.75 }, { 'x':'2019-10-14', 'y': 32.75 }, { 'x':'2019-10-28', 'y': 32.625 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">kelly</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_fgw_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__fgw = document.getElementById('_fgw_canvas').getContext('2d');
+                    window._fgwChart = new Chart(ctx__fgw, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 30.5 }, { 'x':'2019-05-27', 'y': 27.375 }, { 'x':'2019-06-10', 'y': 29.5 }, { 'x':'2019-06-24', 'y': 30.25 }, { 'x':'2019-07-08', 'y': 29.125 }, { 'x':'2019-07-22', 'y': 30.0 }, { 'x':'2019-08-05', 'y': 14.375 }, { 'x':'2019-08-19', 'y': 0.0 }, { 'x':'2019-09-02', 'y': 0.25 }, { 'x':'2019-09-16', 'y': 25.0 }, { 'x':'2019-09-30', 'y': 30.0 }, { 'x':'2019-10-14', 'y': 30.875 }, { 'x':'2019-10-28', 'y': 30.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">sho</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_gjf_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__gjf = document.getElementById('_gjf_canvas').getContext('2d');
+                    window._gjfChart = new Chart(ctx__gjf, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 27.5 }, { 'x':'2019-05-27', 'y': 21.0 }, { 'x':'2019-06-10', 'y': 30.0 }, { 'x':'2019-06-24', 'y': 31.5 }, { 'x':'2019-07-08', 'y': 30.5 }, { 'x':'2019-07-22', 'y': 30.0 }, { 'x':'2019-08-05', 'y': 35.0 }, { 'x':'2019-08-19', 'y': 27.0 }, { 'x':'2019-09-02', 'y': 32.0 }, { 'x':'2019-09-16', 'y': 25.875 }, { 'x':'2019-09-30', 'y': 25.5 }, { 'x':'2019-10-14', 'y': 22.5 }, { 'x':'2019-10-28', 'y': 30.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+</tr><tr><td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">gijs</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_dlv_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__dlv = document.getElementById('_dlv_canvas').getContext('2d');
+                    window._dlvChart = new Chart(ctx__dlv, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 16.5 }, { 'x':'2019-05-27', 'y': 14.75 }, { 'x':'2019-06-10', 'y': 18.75 }, { 'x':'2019-06-24', 'y': 12.75 }, { 'x':'2019-07-08', 'y': 16.75 }, { 'x':'2019-07-22', 'y': 18.5 }, { 'x':'2019-08-05', 'y': 12.75 }, { 'x':'2019-08-19', 'y': 14.25 }, { 'x':'2019-09-02', 'y': 25.5 }, { 'x':'2019-09-16', 'y': 30.5 }, { 'x':'2019-09-30', 'y': 21.75 }, { 'x':'2019-10-14', 'y': 10.5 }, { 'x':'2019-10-28', 'y': 10.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">caspar</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_see_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__see = document.getElementById('_see_canvas').getContext('2d');
+                    window._seeChart = new Chart(ctx__see, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 8.75 }, { 'x':'2019-05-27', 'y': 6.625 }, { 'x':'2019-06-10', 'y': 0.25 }, { 'x':'2019-06-24', 'y': 7.25 }, { 'x':'2019-07-08', 'y': 17.375 }, { 'x':'2019-07-22', 'y': 12.0 }, { 'x':'2019-08-05', 'y': 9.75 }, { 'x':'2019-08-19', 'y': 3.875 }, { 'x':'2019-09-02', 'y': 14.875 }, { 'x':'2019-09-16', 'y': 14.625 }, { 'x':'2019-09-30', 'y': 20.875 }, { 'x':'2019-10-14', 'y': 16.25 }, { 'x':'2019-10-28', 'y': 25.25 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">miek</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_uxq_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__uxq = document.getElementById('_uxq_canvas').getContext('2d');
+                    window._uxqChart = new Chart(ctx__uxq, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 15.625 }, { 'x':'2019-05-27', 'y': 15.25 }, { 'x':'2019-06-10', 'y': 12.625 }, { 'x':'2019-06-24', 'y': 13.0 }, { 'x':'2019-07-08', 'y': 11.0 }, { 'x':'2019-07-22', 'y': 0.0 }, { 'x':'2019-08-05', 'y': 6.625 }, { 'x':'2019-08-19', 'y': 4.625 }, { 'x':'2019-09-02', 'y': 9.125 }, { 'x':'2019-09-16', 'y': 15.625 }, { 'x':'2019-09-30', 'y': 8.375 }, { 'x':'2019-10-14', 'y': 10.25 }, { 'x':'2019-10-28', 'y': 6.625 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+</tr><tr><td ><div   style="position:relative;      background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">joriss</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:220px; background-color:#ffffff">
+		        <canvas id="_dwy_canvas" width="400px" height="220px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__dwy = document.getElementById('_dwy_canvas').getContext('2d');
+                    window._dwyChart = new Chart(ctx__dwy, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-13', 'y': 6.25 }, { 'x':'2019-05-27', 'y': 5.25 }, { 'x':'2019-06-10', 'y': 9.625 }, { 'x':'2019-06-24', 'y': 6.75 }, { 'x':'2019-07-08', 'y': 7.75 }, { 'x':'2019-07-22', 'y': 21.875 }, { 'x':'2019-08-05', 'y': 31.0 }, { 'x':'2019-08-19', 'y': 13.5 }, { 'x':'2019-09-02', 'y': 25.875 }, { 'x':'2019-09-16', 'y': 19.625 }, { 'x':'2019-09-30', 'y': 11.0 }, { 'x':'2019-10-14', 'y': 7.0 }, { 'x':'2019-10-28', 'y': 0.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        max: 40,
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </td>
+<td >&nbsp</td>
+<td >&nbsp</td>
+</tr></table>
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

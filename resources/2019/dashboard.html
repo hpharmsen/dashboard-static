@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+                <a href="resultaat_vergelijking.html">resultaat vergelijking</a> -
+                <a href="productiviteit.html">productiviteit</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">31-12 17:16</span>
+        
+<a href="sales.html" class="link"><div   style="position:absolute; left:10px; top:120px;    background-color:white; ">
+                    
+                    
+                    
+<div   style="position:absolute; left:5px; top:5px;    background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Sales</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:75px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">saleswaarde</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:absolute; left:100px; top:65px;    background-color:; ">
+                    <span class="tooltiptext">Som van openstaande trajecten<br/>maal<br/>hun kans.</span>
+                    <span style="font-size:43px;  font-family:Arial; ">239 K</span>
+                    
+                    </div>
+                
+<div style="position:absolute; left:5px; top:135px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_eav_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__eav = document.getElementById('_eav_canvas').getContext('2d');
+                    window._eavChart = new Chart(ctx__eav, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-01-09', 'y': 262382 }, { 'x':'2019-03-01', 'y': 157651 }, { 'x':'2019-04-01', 'y': 489920 }, { 'x':'2019-05-01', 'y': 467843 }, { 'x':'2019-06-05', 'y': 134200 }, { 'x':'2019-07-02', 'y': 219930 }, { 'x':'2019-08-02', 'y': 226950 }, { 'x':'2019-09-02', 'y': 284850 }, { 'x':'2019-10-02', 'y': 282350 }, { 'x':'2019-11-01', 'y': 293230 }, { 'x':'2019-11-02', 'y': 293230 }, { 'x':'2019-11-04', 'y': 293230 }, { 'x':'2019-11-05', 'y': 293230 }, { 'x':'2019-11-19', 'y': 293230 }, { 'x':'2019-12-04', 'y': 309490 }, { 'x':'2019-12-05', 'y': 345290 }, { 'x':'2019-12-06', 'y': 345290 }, { 'x':'2019-12-13', 'y': 293520 }, { 'x':'2019-12-15', 'y': 293520 }, { 'x':'2019-12-16', 'y': 293520 }, { 'x':'2019-12-20', 'y': 239270 }, { 'x':'2019-12-24', 'y': 239270 }, { 'x':'2019-12-30', 'y': 239270 }, { 'x':'2019-12-31', 'y': 239270 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+<div   style="position:absolute; left:5px; top:290px;    background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Top 5 sales kansen</span>
+                    
+                    </div>
+                
+<a href="sales.html" class="link"><div   style="position:absolute; left:5px; top:330px;    background-color:white; ">
+                    
+                    <table class="plain">
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>TOR groep - TOR 3.0 Q1 2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 72.000</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>VVV Texel - Website</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 65.000</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile - CEO 2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 35.040</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oerol - Aanpassingen</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 27.000</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile - Medewerkers app ..</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 16.380</span></div></td></tr></table>
+                    
+                    </div>
+                </a>
+                    </div>
+                </a>
+<a href="resultaat_berekening.html" class="link"><div   style="position:absolute; left:330px; top:120px;    background-color:light gray; ">
+                    
+                    
+                    
+<div   style="position:absolute; left:5px; top:5px;    background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Resultaat</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:65px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Omzet</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:90px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Begroot</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:90px; top:90px;    background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">2.256 K</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:110px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Werkelijk</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:90px; top:110px;    background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">2.116 K</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:140px; top:90px;    background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">-6%</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:145px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Winst</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:170px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Begroot</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:90px; top:170px;    background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">256 K</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:190px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Werkelijk</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:90px; top:190px;    background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">216 K</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:140px; top:170px;    background-color:; ">
+                    
+                    <span style="font-size:28px; color:red; font-family:Arial; ">-40 K</span>
+                    
+                    </div>
+                
+                    </div>
+                </a>
+<div   style="position:absolute; left:330px; top:370px;    background-color:white; ">
+                    
+                    
+                    
+<div   style="position:absolute; left:5px; top:10px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">in de pijplijn</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:absolute; left:100px; top:0px;    background-color:; ">
+                    <span class="tooltiptext">Werk dat binnengehaald is maar nog niet<br/>uitgevoerd.</span>
+                    <span style="font-size:43px;  font-family:Arial; ">340 K</span>
+                    
+                    </div>
+                
+<div style="position:absolute; left:5px; top:75px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_gyv_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__gyv = document.getElementById('_gyv_canvas').getContext('2d');
+                    window._gyvChart = new Chart(ctx__gyv, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-01-09', 'y': 201683 }, { 'x':'2019-03-01', 'y': 283805 }, { 'x':'2019-04-01', 'y': 350193 }, { 'x':'2019-05-01', 'y': 318052 }, { 'x':'2019-06-05', 'y': 572306 }, { 'x':'2019-07-02', 'y': 355639 }, { 'x':'2019-08-02', 'y': 271239 }, { 'x':'2019-09-02', 'y': 360245 }, { 'x':'2019-10-02', 'y': 352380 }, { 'x':'2019-11-01', 'y': 337587 }, { 'x':'2019-11-02', 'y': 337587 }, { 'x':'2019-11-04', 'y': 337587 }, { 'x':'2019-11-05', 'y': 337587 }, { 'x':'2019-11-19', 'y': 266337 }, { 'x':'2019-12-04', 'y': 178648 }, { 'x':'2019-12-05', 'y': 198516 }, { 'x':'2019-12-06', 'y': 198516 }, { 'x':'2019-12-13', 'y': 279601 }, { 'x':'2019-12-15', 'y': 279601 }, { 'x':'2019-12-16', 'y': 279601 }, { 'x':'2019-12-20', 'y': 339601 }, { 'x':'2019-12-24', 'y': 339601 }, { 'x':'2019-12-30', 'y': 339601 }, { 'x':'2019-12-31', 'y': 339601 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                
+<div   style="position:absolute; left:630px; top:120px;    background-color:light gray; ">
+                    
+                    
+                    
+<div   style="position:absolute; left:5px; top:5px;    background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Organisatie</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:65px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Aantal mensen</span>
+                    
+                    </div>
+                
+<a href="productiviteit.html" class="link"><div   style="position:absolute; left:5px; top:90px;    background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">32.0</span>
+                    
+                    </div>
+                </a>
+<div   style="position:absolute; left:150px; top:65px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Aantal FTE</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:150px; top:90px;    background-color:; ">
+                    
+                    <span style="font-size:28px; color:red; font-family:Arial; ">27.5</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:150px; top:120px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Begroot</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:150px; top:145px;    background-color:; ">
+                    
+                    <span style="font-size:28px; color:gray; font-family:Arial; ">32.5</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<a href="productiviteit.html" class="link"><div   style="position:absolute; left:630px; top:350px;    background-color:white; ">
+                    
+                    
+                    
+<div   style="position:absolute; left:5px; top:5px;    background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Productiviteit</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:115px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">productief</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:165px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Billable</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:90px; top:80px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Productie</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:170px; top:80px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Hele team</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:absolute; left:90px; top:110px;    background-color:; ">
+                    <span class="tooltiptext">Percentage van geboekte uren door<br/>productiemensen (dat is ex. office,
+     <br/>recruitment, MT) op productietaken zoals<br/>FE, Non-billable, PM of Testing.  Laatste<br/>maand.</span>
+                    <span style="font-size:28px; color:green; font-family:Arial; ">86%</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:absolute; left:90px; top:160px;    background-color:; ">
+                    <span class="tooltiptext">Percentage van geboekte uren door<br/>productiemensen (ex. office,
+            <br/>recruitment, MT) op billable taken zoals<br/>FE, PM of Testing. Laatste maand.</span>
+                    <span style="font-size:28px;  font-family:Arial; ">85%</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:absolute; left:170px; top:110px;    background-color:; ">
+                    <span class="tooltiptext">Percentage van geboekte uren door het<br/>hele team op productietaken
+             <br/>zoals FE, Non-billable, PM of Testing.<br/>Laatste maand.</span>
+                    <span style="font-size:28px; color:black; font-family:Arial; ">74%</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:absolute; left:170px; top:160px;    background-color:; ">
+                    <span class="tooltiptext">Percentage van geboekte uren door het<br/>hele team op billable taken
+             <br/>zoals FE, Non-billable, PM of Testing.<br/>Laatste maand.</span>
+                    <span style="font-size:28px;  font-family:Arial; ">73%</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:5px; top:230px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Ontwikkeling van billable, hele team</span>
+                    
+                    </div>
+                
+<div style="position:absolute; left:5px; top:250px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_osx_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__osx = document.getElementById('_osx_canvas').getContext('2d');
+                    window._osxChart = new Chart(ctx__osx, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-02-03', 'y': 68.2 }, { 'x':'2019-03-05', 'y': 67.3 }, { 'x':'2019-04-04', 'y': 74.7 }, { 'x':'2019-05-04', 'y': 77.4 }, { 'x':'2019-06-03', 'y': 74.2 }, { 'x':'2019-07-03', 'y': 70.5 }, { 'x':'2019-08-02', 'y': 74.0 }, { 'x':'2019-09-01', 'y': 65.3 }, { 'x':'2019-10-01', 'y': 69.7 }, { 'x':'2019-10-31', 'y': 78.0 }, { 'x':'2019-11-01', 'y': 77.7 }, { 'x':'2019-11-02', 'y': 78.2 }, { 'x':'2019-11-04', 'y': 78.4 }, { 'x':'2019-11-05', 'y': 76.9 }, { 'x':'2019-11-11', 'y': 79.5 }, { 'x':'2019-11-13', 'y': 79.3 }, { 'x':'2019-11-14', 'y': 82.2 }, { 'x':'2019-11-18', 'y': 81.4 }, { 'x':'2019-11-19', 'y': 81.6 }, { 'x':'2019-11-20', 'y': 81.8 }, { 'x':'2019-11-26', 'y': 80.9 }, { 'x':'2019-11-27', 'y': 79.9 }, { 'x':'2019-12-03', 'y': 80.7 }, { 'x':'2019-12-04', 'y': 80.8 }, { 'x':'2019-12-05', 'y': 83.3 }, { 'x':'2019-12-06', 'y': 82.8 }, { 'x':'2019-12-08', 'y': 80.0 }, { 'x':'2019-12-09', 'y': 86.5 }, { 'x':'2019-12-10', 'y': 80.0 }, { 'x':'2019-12-11', 'y': 79.9 }, { 'x':'2019-12-12', 'y': 86.7 }, { 'x':'2019-12-13', 'y': 86.4 }, { 'x':'2019-12-15', 'y': 80.7 }, { 'x':'2019-12-16', 'y': 79.4 }, { 'x':'2019-12-20', 'y': 78.0 }, { 'x':'2019-12-24', 'y': 77.4 }, { 'x':'2019-12-27', 'y': 78.9 }, { 'x':'2019-12-28', 'y': 78.4 }, { 'x':'2019-12-29', 'y': 78.0 }, { 'x':'2019-12-30', 'y': 75.1 }, { 'x':'2019-12-31', 'y': 72.9 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        
+                        
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+<div   style="position:absolute; left:5px; top:430px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Omzet per dag, laatste zes maanden</span>
+                    
+                    </div>
+                
+<div style="position:absolute; left:5px; top:450px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_cyg_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__cyg = document.getElementById('_cyg_canvas').getContext('2d');
+                    window._cygChart = new Chart(ctx__cyg, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-07-01', 'y': 4560.0 }, { 'x':'2019-07-02', 'y': 7740.0 }, { 'x':'2019-07-03', 'y': 10072.0 }, { 'x':'2019-07-04', 'y': 8438.0 }, { 'x':'2019-07-05', 'y': 7451.0 }, { 'x':'2019-07-08', 'y': 2278.0 }, { 'x':'2019-07-09', 'y': 10432.0 }, { 'x':'2019-07-10', 'y': 9419.0 }, { 'x':'2019-07-11', 'y': 10532.0 }, { 'x':'2019-07-12', 'y': 8567.0 }, { 'x':'2019-07-15', 'y': 2727.0 }, { 'x':'2019-07-16', 'y': 10026.0 }, { 'x':'2019-07-17', 'y': 7822.0 }, { 'x':'2019-07-18', 'y': 9278.0 }, { 'x':'2019-07-19', 'y': 6485.0 }, { 'x':'2019-07-22', 'y': 1964.0 }, { 'x':'2019-07-23', 'y': 8665.0 }, { 'x':'2019-07-24', 'y': 7994.0 }, { 'x':'2019-07-25', 'y': 9655.0 }, { 'x':'2019-07-26', 'y': 9050.0 }, { 'x':'2019-07-29', 'y': 1851.0 }, { 'x':'2019-07-30', 'y': 9436.0 }, { 'x':'2019-07-31', 'y': 6125.0 }, { 'x':'2019-08-01', 'y': 9392.0 }, { 'x':'2019-08-02', 'y': 7511.0 }, { 'x':'2019-08-05', 'y': 2426.0 }, { 'x':'2019-08-06', 'y': 8384.0 }, { 'x':'2019-08-07', 'y': 7155.0 }, { 'x':'2019-08-08', 'y': 9151.0 }, { 'x':'2019-08-09', 'y': 6391.0 }, { 'x':'2019-08-12', 'y': 2696.0 }, { 'x':'2019-08-13', 'y': 8919.0 }, { 'x':'2019-08-14', 'y': 7077.0 }, { 'x':'2019-08-15', 'y': 7150.0 }, { 'x':'2019-08-16', 'y': 4297.0 }, { 'x':'2019-08-19', 'y': 1538.0 }, { 'x':'2019-08-20', 'y': 5025.0 }, { 'x':'2019-08-21', 'y': 4857.0 }, { 'x':'2019-08-22', 'y': 6202.0 }, { 'x':'2019-08-23', 'y': 3986.0 }, { 'x':'2019-08-26', 'y': 2514.0 }, { 'x':'2019-08-27', 'y': 7792.0 }, { 'x':'2019-08-28', 'y': 8786.0 }, { 'x':'2019-08-29', 'y': 9128.0 }, { 'x':'2019-08-30', 'y': 5913.0 }, { 'x':'2019-09-02', 'y': 1874.0 }, { 'x':'2019-09-03', 'y': 8312.0 }, { 'x':'2019-09-04', 'y': 7601.0 }, { 'x':'2019-09-05', 'y': 8148.0 }, { 'x':'2019-09-06', 'y': 6122.0 }, { 'x':'2019-09-09', 'y': 3011.0 }, { 'x':'2019-09-10', 'y': 12528.0 }, { 'x':'2019-09-11', 'y': 10896.0 }, { 'x':'2019-09-12', 'y': 11539.0 }, { 'x':'2019-09-13', 'y': 6566.0 }, { 'x':'2019-09-16', 'y': 981.0 }, { 'x':'2019-09-17', 'y': 9878.0 }, { 'x':'2019-09-18', 'y': 8032.0 }, { 'x':'2019-09-19', 'y': 10829.0 }, { 'x':'2019-09-20', 'y': 7361.0 }, { 'x':'2019-09-23', 'y': 1675.0 }, { 'x':'2019-09-24', 'y': 10570.0 }, { 'x':'2019-09-25', 'y': 7887.0 }, { 'x':'2019-09-26', 'y': 10407.0 }, { 'x':'2019-09-27', 'y': 5511.0 }, { 'x':'2019-09-30', 'y': 1438.0 }, { 'x':'2019-10-01', 'y': 10103.0 }, { 'x':'2019-10-02', 'y': 9855.0 }, { 'x':'2019-10-03', 'y': 8625.0 }, { 'x':'2019-10-04', 'y': 5974.0 }, { 'x':'2019-10-07', 'y': 2359.0 }, { 'x':'2019-10-08', 'y': 10447.0 }, { 'x':'2019-10-09', 'y': 8479.0 }, { 'x':'2019-10-10', 'y': 10143.0 }, { 'x':'2019-10-11', 'y': 7231.0 }, { 'x':'2019-10-14', 'y': 1986.0 }, { 'x':'2019-10-15', 'y': 4912.0 }, { 'x':'2019-10-16', 'y': 5174.0 }, { 'x':'2019-10-17', 'y': 8531.0 }, { 'x':'2019-10-18', 'y': 7390.0 }, { 'x':'2019-10-21', 'y': 1981.0 }, { 'x':'2019-10-22', 'y': 7764.0 }, { 'x':'2019-10-23', 'y': 7576.0 }, { 'x':'2019-10-24', 'y': 8496.0 }, { 'x':'2019-10-25', 'y': 5902.0 }, { 'x':'2019-10-28', 'y': 2464.0 }, { 'x':'2019-10-29', 'y': 8944.0 }, { 'x':'2019-10-30', 'y': 7734.0 }, { 'x':'2019-10-31', 'y': 9386.0 }, { 'x':'2019-11-01', 'y': 6622.0 }, { 'x':'2019-11-04', 'y': 3586.0 }, { 'x':'2019-11-05', 'y': 10601.0 }, { 'x':'2019-11-06', 'y': 8519.0 }, { 'x':'2019-11-07', 'y': 9802.0 }, { 'x':'2019-11-08', 'y': 4650.0 }, { 'x':'2019-11-11', 'y': 4590.0 }, { 'x':'2019-11-12', 'y': 10035.0 }, { 'x':'2019-11-13', 'y': 9511.0 }, { 'x':'2019-11-14', 'y': 8753.0 }, { 'x':'2019-11-15', 'y': 6946.0 }, { 'x':'2019-11-18', 'y': 3906.0 }, { 'x':'2019-11-19', 'y': 8433.0 }, { 'x':'2019-11-20', 'y': 9514.0 }, { 'x':'2019-11-21', 'y': 9586.0 }, { 'x':'2019-11-22', 'y': 4455.0 }, { 'x':'2019-11-25', 'y': 2071.0 }, { 'x':'2019-11-26', 'y': 10594.0 }, { 'x':'2019-11-27', 'y': 8803.0 }, { 'x':'2019-11-28', 'y': 10598.0 }, { 'x':'2019-11-29', 'y': 8988.0 }, { 'x':'2019-12-02', 'y': 2924.0 }, { 'x':'2019-12-03', 'y': 12569.0 }, { 'x':'2019-12-04', 'y': 10788.0 }, { 'x':'2019-12-05', 'y': 12768.0 }, { 'x':'2019-12-06', 'y': 8764.0 }, { 'x':'2019-12-09', 'y': 2831.0 }, { 'x':'2019-12-10', 'y': 12981.0 }, { 'x':'2019-12-11', 'y': 11171.0 }, { 'x':'2019-12-12', 'y': 12013.0 }, { 'x':'2019-12-13', 'y': 8832.0 }, { 'x':'2019-12-16', 'y': 2445.0 }, { 'x':'2019-12-17', 'y': 10480.0 }, { 'x':'2019-12-18', 'y': 9439.0 }, { 'x':'2019-12-19', 'y': 11861.0 }, { 'x':'2019-12-20', 'y': 9024.0 }, { 'x':'2019-12-23', 'y': 1678.0 }, { 'x':'2019-12-24', 'y': 5468.0 }, { 'x':'2019-12-27', 'y': 3823.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                </a>
+<div   style="position:absolute; left:970px; top:120px;    background-color:white; ">
+                    
+                    
+                    
+<div   style="position:absolute; left:0px; top:5px;    background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Klanten</span>
+                    
+                    </div>
+                
+<div   style="position:absolute; left:0px; top:65px;    background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Top 3 klanten laatste 6 maanden</span>
+                    
+                    </div>
+                
+<a href="clients.html" class="link"><div   style="position:absolute; left:0px; top:90px;    background-color:white; ">
+                    
+                    <table class="plain">
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 206.499</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>22%</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>BAM</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 194.513</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>20%</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>TOR groep</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 109.854</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>11%</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:right"><b></b></td><td style="text-align:right"><b>53%</b></td></tr></table>
+                    
+                    </div>
+                </a>
+                    </div>
+                
+<div   style="position:absolute; left:970px; top:400px;    background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Debiteuren</span>
+                    
+                    </div>
+                
+<a href="debiteuren.html" class="link"><div style="position:absolute; left:960px; top:450px; width:240px; height:470px; background-color:">
+		        <canvas id="_ftz_canvas" width="240px" height="320px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__ftz = document.getElementById('_ftz_canvas').getContext('2d');
+                    window._ftzChart = new Chart(ctx__ftz, {type: 'bar', data: {
+                datasets: [{
+                                    label: '<30 dg',
+                                    data: [76675.0],
+                                    backgroundColor: '#5C5' 
+                                  },{
+                                    label: '30-60 dg',
+                                    data: [64743.0],
+                                    backgroundColor: '#ff0' 
+                                  },{
+                                    label: '60-90 dg',
+                                    data: [53117.0],
+                                    backgroundColor: '#FFA500' 
+                                  },{
+                                    label: '> 90 dg',
+                                    data: [8940.0],
+                                    backgroundColor: '#F00' 
+                                  }],
+                labels: ['']
+            }, options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{stacked: true}],
+                yAxes: [{stacked: true ,ticks: {max: 350000}}]
+            }
+        }});
+                })
+        
+            </script></a>
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

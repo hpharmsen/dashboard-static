@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href="."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">15-06 23:25</span>
+        
+
+            <!-- Add style to links or they won't appear properly-->
+            <style>
+                .link {
+                  fill: none;
+                  stroke: #000;
+                  stroke-opacity: .2;
+                }
+                .link:hover {
+                  stroke-opacity: .5;
+                }
+            </style>
+            
+            <div id="_ghw" style="position:relative; left:0px; top:0px; width:800px; height:600px; background-color:#ffffff">
+		        <canvas width="800px" height="450px"></canvas>
+            </div>
+
+            <script>
+
+                // set the dimensions and margins of the graph
+                var margin = {top: 10, right: 10, bottom: 10, left: 10},
+                    width = 450 - margin.left - margin.right,
+                    height = 480 - margin.top - margin.bottom;
+                
+                // append the svg object to the body of the page
+                var svg = d3.select("#_ghw").append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                
+                // Color scale used
+                var color = d3.scaleOrdinal(d3.schemeCategory20);
+                
+                // Set the sankey diagram properties
+                var sankey = d3.sankey()
+                    .nodeWidth(36)
+                    .nodePadding(290)
+                    .size([width, height]);
+                    
+                var graph = {"nodes": [{"node": 0, "name": "node0"}, {"node": 1, "name": "node1"}, {"node": 2, "name": "node2"}, {"node": 3, "name": "node3"}, {"node": 4, "name": "node4"}, {"node": 5, "name": "node5"}], "links": [{"source": 0, "target": 3, "value": 2}, {"source": 1, "target": 3, "value": 2}, {"source": 2, "target": 3, "value": 2}, {"source": 3, "target": 4, "value": 2}, {"source": 3, "target": 5, "value": 2}]};
+                
+                
+                  // Constructs a new Sankey generator with the default settings.
+                  sankey
+                      .nodes(graph.nodes)
+                      .links(graph.links)
+                      .layout(1);
+                
+                  // add in the links
+                  var link = svg.append("g")
+                    .selectAll(".link")
+                    .data(graph.links)
+                    .enter()
+                    .append("path")
+                      .attr("class", "link")
+                      .attr("d", sankey.link() )
+                      .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+                      //.sort(function(a, b) { return b.dy - a.dy; });
+                
+                  // add in the nodes
+                  var node = svg.append("g")
+                    .selectAll(".node")
+                    .data(graph.nodes)
+                    .enter().append("g")
+                      .attr("class", "node")
+                      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+                      .call(d3.drag()
+                        .subject(function(d) { return d; })
+                        .on("start", function() { this.parentNode.appendChild(this); })
+                        .on("drag", dragmove));
+                
+                  // add the rectangles for the nodes
+                  node
+                    .append("rect")
+                      .attr("height", function(d) { return d.dy; })
+                      .attr("width", sankey.nodeWidth())
+                      .style("fill", function(d) { return d.color = color(d.name.replace(/ .*/, "")); })
+                      .style("stroke", function(d) { return d3.rgb(d.color).darker(2); })
+                    // Add hover text
+                    .append("title")
+                    .text(function(d) { return d.name + " " + "There is " + d.value + " stuff in this node"; });
+                
+                  // add in the title for the nodes
+                    node
+                        .append("text")
+                        .attr("x", -6)
+                        .attr("y", function(d) { return d.dy / 2; })
+                        .attr("dy", ".35em")
+                        .attr("text-anchor", "end")
+                        .attr("transform", null)
+                        .text(function(d) { return d.name; })
+                        .filter(function(d) { return d.x < width / 2; })
+                        .attr("x", 6 + sankey.nodeWidth())
+                        .attr("text-anchor", "start");
+                
+                  // the function for moving the nodes
+                  function dragmove(d) {
+                    d3.select(this)
+                      .attr("transform",
+                            "translate("
+                               + d.x + ","
+                               + (d.y = Math.max(
+                                  0, Math.min(height - d.dy, d3.event.y))
+                                 ) + ")");
+                    sankey.relayout();
+                    link.attr("d", sankey.link() );
+                  }
+            </script>
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

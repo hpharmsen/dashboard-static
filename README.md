@@ -50,3 +50,4 @@ python main.py
 python main.py --nocache
 # to clear the cache
 ```
+_This might take a long time at the first run._

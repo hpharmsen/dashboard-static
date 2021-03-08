@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href="."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">30-12 14:00</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<a href="sales.html"><div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Sales</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">saleswaarde</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    <span class="tooltiptext">Som van openstaande trajecten<br/>maal<br/>hun kans.</span>
+                    <span style="font-size:43px;  font-family:Arial; ">135 K</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_azk_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__azk = document.getElementById('_azk_canvas').getContext('2d');
+                    window._azkChart = new Chart(ctx__azk, {
+                        type: 'line', 
+                        data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2020-06-30', 'y': 191690 }, { 'x':'2020-07-01', 'y': 191690 }, { 'x':'2020-07-02', 'y': 201690 }, { 'x':'2020-07-04', 'y': 201690 }, { 'x':'2020-07-07', 'y': 201690 }, { 'x':'2020-07-13', 'y': 219690 }, { 'x':'2020-07-14', 'y': 219690 }, { 'x':'2020-07-15', 'y': 234690 }, { 'x':'2020-07-17', 'y': 234690 }, { 'x':'2020-07-19', 'y': 234998 }, { 'x':'2020-07-21', 'y': 248298 }, { 'x':'2020-07-28', 'y': 233178 }, { 'x':'2020-08-04', 'y': 263870 }, { 'x':'2020-08-05', 'y': 263870 }, { 'x':'2020-08-07', 'y': 260810 }, { 'x':'2020-08-10', 'y': 260810 }, { 'x':'2020-08-14', 'y': 295060 }, { 'x':'2020-08-17', 'y': 295060 }, { 'x':'2020-08-24', 'y': 390110 }, { 'x':'2020-08-28', 'y': 401360 }, { 'x':'2020-08-31', 'y': 401360 }, { 'x':'2020-09-03', 'y': 342410 }, { 'x':'2020-09-07', 'y': 335660 }, { 'x':'2020-09-10', 'y': 340660 }, { 'x':'2020-09-14', 'y': 283660 }, { 'x':'2020-09-15', 'y': 205260 }, { 'x':'2020-09-17', 'y': 205260 }, { 'x':'2020-09-21', 'y': 205260 }, { 'x':'2020-10-01', 'y': 194440 }, { 'x':'2020-10-06', 'y': 239690 }, { 'x':'2020-10-13', 'y': 241190 }, { 'x':'2020-10-14', 'y': 271940 }, { 'x':'2020-10-15', 'y': 271940 }, { 'x':'2020-10-16', 'y': 271940 }, { 'x':'2020-10-17', 'y': 271940 }, { 'x':'2020-10-18', 'y': 271940 }, { 'x':'2020-10-19', 'y': 271940 }, { 'x':'2020-10-20', 'y': 280090 }, { 'x':'2020-10-21', 'y': 272090 }, { 'x':'2020-10-22', 'y': 263640 }, { 'x':'2020-10-23', 'y': 263640 }, { 'x':'2020-10-28', 'y': 276690 }, { 'x':'2020-11-08', 'y': 276690 }, { 'x':'2020-11-09', 'y': 276690 }, { 'x':'2020-11-16', 'y': 281590 }, { 'x':'2020-11-17', 'y': 346270 }, { 'x':'2020-11-29', 'y': 336670 }, { 'x':'2020-12-07', 'y': 117080 }, { 'x':'2020-12-14', 'y': 140990 }, { 'x':'2020-12-17', 'y': 135430 }, { 'x':'2020-12-29', 'y': 135430 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD',
+						unit: 'month',
+						displayFormats: {
+                            month: '     MMM'
+                        },
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                        unitStepSize: 1
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					},
+                    gridLines: {
+                        offsetGridLines: false
+                    }
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        suggestedMin: 0,
+                        
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Top 5 sales kansen</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Defensie - Defensie app</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 31.680</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Rivello - Miltrade</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 24.000</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oerol - Inlog - Fiona koppe..</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 22.500</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Momkai - De Brauw (part of ..</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 21.000</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>E-bike to go - Platform</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 15.000</span></div></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                </a>
+<a href="clients.html"><div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Klanten</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Top 3 klanten laatste 6 maanden</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Accell IT</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 317.201</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>26%</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 161.544</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>13%</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>BAM</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 155.433</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>13%</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:right"><b></b></td><td style="text-align:right"><b>52%</b></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                </a>
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<a href="resultaat_berekening.html"><div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Resultaat</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Omzet</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Begroot</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Werkelijk</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">2.244 K</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">2.642 K</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">+18%</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Winst</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Begroot</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Werkelijk</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">7 K</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">430 K</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px; color:green; font-family:Arial; ">+423 K</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Winstpercentage</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    <span class="tooltiptext">Gemiddeld bij DDA in 2019: 7%, high<br/>performers: 16%</span>
+                    <span style="font-size:12px; color:green; font-family:Arial; ">16%</span>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                </a>
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">In de pijplijn</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    <span class="tooltiptext">Werk dat binnengehaald is maar nog niet<br/>uitgevoerd.</span>
+                    <span style="font-size:43px; color:green; font-family:Arial; ">521 K</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_trx_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__trx = document.getElementById('_trx_canvas').getContext('2d');
+                    window._trxChart = new Chart(ctx__trx, {
+                        type: 'line', 
+                        data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2020-06-30', 'y': 138296 }, { 'x':'2020-07-01', 'y': 138296 }, { 'x':'2020-07-02', 'y': 167046 }, { 'x':'2020-07-04', 'y': 167046 }, { 'x':'2020-07-07', 'y': 166746 }, { 'x':'2020-07-13', 'y': 316746 }, { 'x':'2020-07-14', 'y': 316746 }, { 'x':'2020-07-15', 'y': 316746 }, { 'x':'2020-07-17', 'y': 316746 }, { 'x':'2020-07-19', 'y': 316746 }, { 'x':'2020-07-21', 'y': 343746 }, { 'x':'2020-07-28', 'y': 357568 }, { 'x':'2020-08-04', 'y': 353818 }, { 'x':'2020-08-05', 'y': 353818 }, { 'x':'2020-08-07', 'y': 353818 }, { 'x':'2020-08-10', 'y': 353818 }, { 'x':'2020-08-14', 'y': 276194 }, { 'x':'2020-08-17', 'y': 276194 }, { 'x':'2020-08-24', 'y': 219750 }, { 'x':'2020-08-28', 'y': 219750 }, { 'x':'2020-08-31', 'y': 180950 }, { 'x':'2020-09-03', 'y': 247950 }, { 'x':'2020-09-07', 'y': 247950 }, { 'x':'2020-09-10', 'y': 194800 }, { 'x':'2020-09-14', 'y': 254800 }, { 'x':'2020-09-15', 'y': 313800 }, { 'x':'2020-09-17', 'y': 313800 }, { 'x':'2020-09-21', 'y': 313800 }, { 'x':'2020-10-01', 'y': 441800 }, { 'x':'2020-10-06', 'y': 420292 }, { 'x':'2020-10-13', 'y': 420292 }, { 'x':'2020-10-14', 'y': 420292 }, { 'x':'2020-10-15', 'y': 420292 }, { 'x':'2020-10-16', 'y': 426292 }, { 'x':'2020-10-17', 'y': 426292 }, { 'x':'2020-10-18', 'y': 426292 }, { 'x':'2020-10-19', 'y': 426292 }, { 'x':'2020-10-20', 'y': 363360 }, { 'x':'2020-10-21', 'y': 363360 }, { 'x':'2020-10-22', 'y': 363360 }, { 'x':'2020-10-23', 'y': 363360 }, { 'x':'2020-10-28', 'y': 327550 }, { 'x':'2020-11-08', 'y': 327550 }, { 'x':'2020-11-09', 'y': 327550 }, { 'x':'2020-11-16', 'y': 365850 }, { 'x':'2020-11-17', 'y': 305200 }, { 'x':'2020-11-29', 'y': 332200 }, { 'x':'2020-12-07', 'y': 553400 }, { 'x':'2020-12-14', 'y': 541800 }, { 'x':'2020-12-17', 'y': 520860 }, { 'x':'2020-12-29', 'y': 520860 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD',
+						unit: 'month',
+						displayFormats: {
+                            month: '     MMM'
+                        },
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                        unitStepSize: 1
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					},
+                    gridLines: {
+                        offsetGridLines: false
+                    }
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        suggestedMin: 0,
+                        
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Organisatie</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Aantal mensen</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">46.0</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Aantal FTE</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px; color:green; font-family:Arial; ">40.0</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Begroot</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px; color:gray; font-family:Arial; ">33.0</span>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div  class="tooltip" style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    <span class="tooltiptext">Gemiddeld bij DDA in 2019: 3.0%</span>
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Verzuimpercentage</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px; color:green; font-family:Arial; ">0.6%</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Vrije dagen pool</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:0px; background-color:; ">
+                    
+                    <span style="font-size:28px; color:#000; font-family:Arial; ">6.3</span>
+                    
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">dagen/fte</span>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Productiviteit</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:90px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">&nbsp</span>
+                    
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">productief</span>
+                    
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Billable</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div  class="tooltip" style="position:relative; float:left;    padding-right:0px; background-color:; ">
+                    <span class="tooltiptext">DDA noemt dit directe werknemers. Daar is<br/>het gemiddeld 86% van het<br/>werknemersbestand.</span>
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Productie (75%)</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    <span class="tooltiptext">Percentage van geboekte uren door<br/>productiemensen (dat is ex. office,
+     <br/>recruitment, MT) op productietaken zoals<br/>FE, Non-billable, PM of Testing.  Laatste<br/>maand.</span>
+                    <span style="font-size:28px; color:green; font-family:Arial; ">91%</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    <span class="tooltiptext">Percentage van geboekte uren door<br/>productiemensen (ex. office,
+            <br/>recruitment, MT) op billable taken zoals<br/>FE, PM of Testing. Laatste maand.</span>
+                    <span style="font-size:28px;  font-family:Arial; ">90%</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:38px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Hele team</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    <span class="tooltiptext">Percentage van geboekte uren door het<br/>hele team op productietaken
+             <br/>zoals FE, Non-billable, PM of Testing.<br/>Laatste maand.</span>
+                    <span style="font-size:28px; color:#000; font-family:Arial; ">75%</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    <span class="tooltiptext">Percentage van geboekte uren door het<br/>hele team op billable taken
+             <br/>zoals FE, Non-billable, PM of Testing.<br/>Laatste maand.</span>
+                    <span style="font-size:28px;  font-family:Arial; ">74%</span>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Billable, hele team, laatste 6 maanden</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_skr_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__skr = document.getElementById('_skr_canvas').getContext('2d');
+                    window._skrChart = new Chart(ctx__skr, {
+                        type: 'line', 
+                        data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2020-06-30', 'y': 72.91111111111111 }, { 'x':'2020-07-01', 'y': 74.4222222222222 }, { 'x':'2020-07-02', 'y': 75.08333333333333 }, { 'x':'2020-07-03', 'y': 76.40555555555555 }, { 'x':'2020-07-04', 'y': 72.53333333333333 }, { 'x':'2020-07-05', 'y': 72.24999999999999 }, { 'x':'2020-07-06', 'y': 72.4388888888889 }, { 'x':'2020-07-07', 'y': 71.11666666666666 }, { 'x':'2020-07-13', 'y': 73.66666666666666 }, { 'x':'2020-07-14', 'y': 74.13888888888889 }, { 'x':'2020-07-15', 'y': 73.10000000000001 }, { 'x':'2020-07-16', 'y': 73.66666666666666 }, { 'x':'2020-07-17', 'y': 76.59444444444443 }, { 'x':'2020-07-18', 'y': 70.45555555555555 }, { 'x':'2020-07-19', 'y': 70.17222222222222 }, { 'x':'2020-07-21', 'y': 71.96666666666665 }, { 'x':'2020-07-22', 'y': 71.68333333333334 }, { 'x':'2020-07-23', 'y': 76.97222222222221 }, { 'x':'2020-07-24', 'y': 73.94999999999999 }, { 'x':'2020-07-26', 'y': 72.62777777777778 }, { 'x':'2020-07-29', 'y': 70.92777777777776 }, { 'x':'2020-07-30', 'y': 72.81666666666666 }, { 'x':'2020-07-31', 'y': 71.21111111111111 }, { 'x':'2020-08-02', 'y': 70.3611111111111 }, { 'x':'2020-08-03', 'y': 71.96666666666665 }, { 'x':'2020-08-04', 'y': 70.83333333333333 }, { 'x':'2020-08-05', 'y': 69.32222222222222 }, { 'x':'2020-08-07', 'y': 71.49444444444444 }, { 'x':'2020-08-08', 'y': 71.39999999999999 }, { 'x':'2020-08-09', 'y': 71.02222222222223 }, { 'x':'2020-08-10', 'y': 74.23333333333332 }, { 'x':'2020-08-11', 'y': 72.24999999999999 }, { 'x':'2020-08-12', 'y': 72.72222222222223 }, { 'x':'2020-08-13', 'y': 72.0611111111111 }, { 'x':'2020-08-14', 'y': 75.55555555555556 }, { 'x':'2020-08-15', 'y': 71.96666666666665 }, { 'x':'2020-08-16', 'y': 71.49444444444444 }, { 'x':'2020-08-17', 'y': 74.23333333333332 }, { 'x':'2020-08-18', 'y': 75.08333333333333 }, { 'x':'2020-08-19', 'y': 74.32777777777777 }, { 'x':'2020-08-20', 'y': 82.16666666666667 }, { 'x':'2020-08-21', 'y': 76.68888888888888 }, { 'x':'2020-08-22', 'y': 76.59444444444443 }, { 'x':'2020-08-23', 'y': 76.59444444444443 }, { 'x':'2020-08-24', 'y': 77.72777777777777 }, { 'x':'2020-08-25', 'y': 80.18333333333334 }, { 'x':'2020-08-26', 'y': 78.38888888888889 }, { 'x':'2020-08-27', 'y': 80.46666666666667 }, { 'x':'2020-08-28', 'y': 81.12777777777778 }, { 'x':'2020-08-29', 'y': 78.95555555555553 }, { 'x':'2020-08-30', 'y': 78.67222222222222 }, { 'x':'2020-08-31', 'y': 78.0111111111111 }, { 'x':'2020-09-01', 'y': 80.18333333333334 }, { 'x':'2020-09-02', 'y': 78.19999999999999 }, { 'x':'2020-09-03', 'y': 79.33333333333333 }, { 'x':'2020-09-04', 'y': 79.23888888888888 }, { 'x':'2020-09-06', 'y': 79.71111111111112 }, { 'x':'2020-09-07', 'y': 78.5 }, { 'x':'2020-09-08', 'y': 80.1 }, { 'x':'2020-09-09', 'y': 79.7 }, { 'x':'2020-09-10', 'y': 83.2 }, { 'x':'2020-09-11', 'y': 79.4 }, { 'x':'2020-09-14', 'y': 76.7 }, { 'x':'2020-09-15', 'y': 77.7 }, { 'x':'2020-09-16', 'y': 77.0 }, { 'x':'2020-09-17', 'y': 82.1 }, { 'x':'2020-09-18', 'y': 79.0 }, { 'x':'2020-09-20', 'y': 75.6 }, { 'x':'2020-09-21', 'y': 75.5 }, { 'x':'2020-09-22', 'y': 76.5 }, { 'x':'2020-09-23', 'y': 77.1 }, { 'x':'2020-09-24', 'y': 75.9 }, { 'x':'2020-09-26', 'y': 75.9 }, { 'x':'2020-09-27', 'y': 75.7 }, { 'x':'2020-09-28', 'y': 79.4 }, { 'x':'2020-09-29', 'y': 76.5 }, { 'x':'2020-09-30', 'y': 82.9 }, { 'x':'2020-10-01', 'y': 78.1 }, { 'x':'2020-10-02', 'y': 79.8 }, { 'x':'2020-10-03', 'y': 78.0 }, { 'x':'2020-10-04', 'y': 77.9 }, { 'x':'2020-10-05', 'y': 81.3 }, { 'x':'2020-10-06', 'y': 80.8 }, { 'x':'2020-10-07', 'y': 79.7 }, { 'x':'2020-10-08', 'y': 80.8 }, { 'x':'2020-10-09', 'y': 81.4 }, { 'x':'2020-10-10', 'y': 78.2 }, { 'x':'2020-10-11', 'y': 77.9 }, { 'x':'2020-10-12', 'y': 78.6 }, { 'x':'2020-10-13', 'y': 77.6 }, { 'x':'2020-10-14', 'y': 77.1 }, { 'x':'2020-10-15', 'y': 83.0 }, { 'x':'2020-10-16', 'y': 80.6 }, { 'x':'2020-10-17', 'y': 80.5 }, { 'x':'2020-10-18', 'y': 80.2 }, { 'x':'2020-10-19', 'y': 79.5 }, { 'x':'2020-10-20', 'y': 79.0 }, { 'x':'2020-10-21', 'y': 79.3 }, { 'x':'2020-10-22', 'y': 78.9 }, { 'x':'2020-10-23', 'y': 79.0 }, { 'x':'2020-10-24', 'y': 78.5 }, { 'x':'2020-10-25', 'y': 79.0 }, { 'x':'2020-10-26', 'y': 88.5 }, { 'x':'2020-10-27', 'y': 81.9 }, { 'x':'2020-10-28', 'y': 79.2 }, { 'x':'2020-10-29', 'y': 87.4 }, { 'x':'2020-10-30', 'y': 83.7 }, { 'x':'2020-10-31', 'y': 79.6 }, { 'x':'2020-11-01', 'y': 79.1 }, { 'x':'2020-11-08', 'y': 77.5 }, { 'x':'2020-11-09', 'y': 78.0 }, { 'x':'2020-11-10', 'y': 77.6 }, { 'x':'2020-11-11', 'y': 77.4 }, { 'x':'2020-11-12', 'y': 80.4 }, { 'x':'2020-11-13', 'y': 80.8 }, { 'x':'2020-11-14', 'y': 74.4 }, { 'x':'2020-11-15', 'y': 73.9 }, { 'x':'2020-11-16', 'y': 75.1 }, { 'x':'2020-11-17', 'y': 74.0 }, { 'x':'2020-11-18', 'y': 75.2 }, { 'x':'2020-11-19', 'y': 74.9 }, { 'x':'2020-11-20', 'y': 74.2 }, { 'x':'2020-11-21', 'y': 72.2 }, { 'x':'2020-11-22', 'y': 71.9 }, { 'x':'2020-11-23', 'y': 79.3 }, { 'x':'2020-11-24', 'y': 73.5 }, { 'x':'2020-11-25', 'y': 72.5 }, { 'x':'2020-11-26', 'y': 75.7 }, { 'x':'2020-11-27', 'y': 75.0 }, { 'x':'2020-11-28', 'y': 71.3 }, { 'x':'2020-11-29', 'y': 70.6 }, { 'x':'2020-12-07', 'y': 70.3 }, { 'x':'2020-12-14', 'y': 73.4 }, { 'x':'2020-12-17', 'y': 73.0 }, { 'x':'2020-12-29', 'y': 74.4 }, { 'x':'2020-12-30', 'y': 74.3 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD',
+						unit: 'month',
+						displayFormats: {
+                            month: '     MMM'
+                        },
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                        unitStepSize: 1
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					},
+                    gridLines: {
+                        offsetGridLines: false
+                    }
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        min: 0,
+                        
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                
+<a href="billable.html"><div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Omzet per week, laatste zes maanden...</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_gbr_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__gbr = document.getElementById('_gbr_canvas').getContext('2d');
+                    window._gbrChart = new Chart(ctx__gbr, {
+                        type: 'line', 
+                        data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2020-07-06', 'y': 33755.0 }, { 'x':'2020-07-13', 'y': 32553.0 }, { 'x':'2020-07-20', 'y': 25902.0 }, { 'x':'2020-07-27', 'y': 35681.0 }, { 'x':'2020-08-03', 'y': 29440.0 }, { 'x':'2020-08-10', 'y': 38481.0 }, { 'x':'2020-08-17', 'y': 30892.0 }, { 'x':'2020-08-24', 'y': 33470.0 }, { 'x':'2020-08-31', 'y': 43715.0 }, { 'x':'2020-09-07', 'y': 45012.0 }, { 'x':'2020-09-21', 'y': 46085.0 }, { 'x':'2020-10-12', 'y': 37068.0 }, { 'x':'2020-10-19', 'y': 46067.0 }, { 'x':'2020-10-26', 'y': 39792.0 }, { 'x':'2020-11-02', 'y': 46983.0 }, { 'x':'2020-11-16', 'y': 45613.0 }, { 'x':'2020-11-30', 'y': 45284.0 }, { 'x':'2020-12-14', 'y': 50222.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD',
+						unit: 'month',
+						displayFormats: {
+                            month: '     MMM'
+                        },
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                        unitStepSize: 1
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					},
+                    gridLines: {
+                        offsetGridLines: false
+                    }
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 5,
+                        fontSize: 9,
+                        suggestedMin: 0,
+                        max: 60000,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a>
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">...en de komende zes</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:250px; height:150px; background-color:#ffffff">
+		        <canvas id="_aum_canvas" width="250px" height="150px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__aum = document.getElementById('_aum_canvas').getContext('2d');
+                    window._aumChart = new Chart(ctx__aum, {
+                        type: 'line', 
+                        data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2020-12-21', 'y': 30138.0 }, { 'x':'2020-12-28', 'y': 12660.0 }, { 'x':'2021-01-04', 'y': 45310.0 }, { 'x':'2021-01-11', 'y': 43359.0 }, { 'x':'2021-01-25', 'y': 29759.0 }, { 'x':'2021-02-08', 'y': 12232.0 }, { 'x':'2021-02-22', 'y': 12232.0 }, { 'x':'2021-03-08', 'y': 5520.0 }, { 'x':'2021-03-22', 'y': 5520.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD',
+						unit: 'month',
+						displayFormats: {
+                            month: '     MMM'
+                        },
+                        
+                        fontSize: 9,
+                        min: "2020-12-30",
+                        max: "2021-06-30",
+                        unitStepSize: 1
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					},
+                    gridLines: {
+                        offsetGridLines: false
+                    }
+                }],      
+                yAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        suggestedMin: 0,
+                        max: 60000,
+                    }
+                }]      
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<a href="debiteuren.html"><div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Debiteuren</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:12px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Betaaltermijn in dagen</span>
+                    
+                    </div>
+                
+<div  class="tooltip" style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    <span class="tooltiptext">Gemiddeld bij DDA in 2019: 40 dagen</span>
+                    <span style="font-size:28px; color:#000; font-family:Arial; ">31</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:240px; height:470px; background-color:#ffffff">
+		        <canvas id="_fcc_canvas" width="240px" height="320px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__fcc = document.getElementById('_fcc_canvas').getContext('2d');
+                    window._fccChart = new Chart(ctx__fcc, {
+                        type: 'bar', 
+                        data: {
+                datasets: [{
+                                    label: '<30 dg',
+                                    data: [272310.0],
+                                    backgroundColor: 'green',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: '30-60 dg',
+                                    data: [46288.0],
+                                    backgroundColor: '#FD0',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: '60-90 dg',
+                                    data: [0.0],
+                                    backgroundColor: '#FFA500',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: '> 90 dg',
+                                    data: [0.0],
+                                    backgroundColor: '#c00',
+                                    datalabels: {display: false } 
+                                  }],
+                labels: ['']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    stacked: true
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        max: 450000,
+                    }
+                }]
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                </a>
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Corona</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Geschat aantal met Corona besmette mensen in Nederland</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px; color:#c00; font-family:Arial; ">195.016</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:5px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Reproductie index</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px; color:#c00; font-family:Arial; ">1.15</span>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

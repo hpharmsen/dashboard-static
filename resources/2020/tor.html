@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href="."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">30-12 14:00</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">TOR 3</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Projectoverzicht</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">id</th><th style="text-align:left">title</th><th style="text-align:right">Budget</th><th style="text-align:right">Uren</th><th style="text-align:right">Besteed</th><th style="text-align:right">Percentage besteed</th></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1726';"><td style="text-align:left;"><div  style="text-align:left"><span>1726</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Partner Applicatie</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 104.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>1.044</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 133.443</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>128%</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1727';"><td style="text-align:left;"><div  style="text-align:left"><span>1727</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Voorkant</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 122.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>142</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 283.438</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>232%</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1728';"><td style="text-align:left;"><div  style="text-align:left"><span>1728</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Kern applicatie</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 296.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>913</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 328.758</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>111%</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1729';"><td style="text-align:left;"><div  style="text-align:left"><span>1729</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Ready team</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 87.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>564</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 145.524</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>167%</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b>€ 609.000</b></td><td style="text-align:right"><b>2.664</b></td><td style="text-align:right"><b>€ 891.163</b></td><td style="text-align:right"><b></b></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Grafiek</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:500px; height:440px; background-color:#ffffff">
+		        <canvas id="_fvb_canvas" width="500px" height="290px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__fvb = document.getElementById('_fvb_canvas').getContext('2d');
+                    window._fvbChart = new Chart(ctx__fvb, {
+                        type: 'horizontalBar', 
+                        data: {
+                datasets: [{
+                                    label: 'besteed',
+                                    data: [104000, 122000, 296000, 87000],
+                                    backgroundColor: '#55c',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: 'beschikbaar',
+                                    data: [0, 0, 0, 0],
+                                    backgroundColor: '#5c5',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: 'over budget',
+                                    data: [29443.125, 161437.5, 32758.125, 58524.375],
+                                    backgroundColor: '#C55',
+                                    datalabels: {display: false } 
+                                  }],
+                labels: ['TOR3 - Partner Applicatie', 'TOR3 - Voorkant', 'TOR3 - Kern applicatie', 'TOR3 - Ready team']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    stacked: true
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    }
+                }]
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Per maand</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">maand</th><th style="text-align:right">uren</th><th style="text-align:right">besteed</th><th style="text-align:right">per partner</th></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>6/2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>38</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.772</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 943</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>7/2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>362</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 27.368</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 6.842</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>8/2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>722</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 53.680</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 13.420</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>9/2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>637</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 46.358</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.590</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>10/2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>754</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 57.672</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 14.418</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>11/2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>675</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 49.350</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 12.338</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>12/2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>621</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 46.807</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.702</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>1/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>885</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 67.235</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 16.809</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>2/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>723</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 51.445</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 12.861</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>3/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>997</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 63.644</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 15.911</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>4/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>1.003</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 65.718</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 16.429</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>5/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>688</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 45.790</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.448</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>6/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>667</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 48.012</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 12.003</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>7/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>816</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 64.715</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 16.179</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>8/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>620</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 47.936</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.984</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>9/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>593</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 48.552</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 12.138</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>10/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>484</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 37.748</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 9.437</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>11/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>483</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 38.403</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 9.601</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>12/2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>327</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 26.958</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 6.739</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:right"><b>12096.0</b></td><td style="text-align:right"><b>€ 891.163</b></td><td style="text-align:right"><b>€ 222.791</b></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Gefactureerd</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">factuur</th><th style="text-align:left">datum</th><th style="text-align:right">bedrag</th><th style="text-align:left">status</th></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>19-AME-192</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>12-06-19</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 10.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>19-TEX-193</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>12-06-19</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 10.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>19-TEX-294</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>11-09-19</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 12.969</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>19-AME-295</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>11-09-19</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 12.969</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>19-TEX-365</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>11-11-19</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 24.931</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>19-AME-364</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>11-11-19</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 24.931</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>19-AME-394</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>20-12-19</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 17.027</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>19-TEX-395</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>20-12-19</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 17.027</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-AME-057</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>11-02-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 18.792</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-058</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>11-02-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 18.792</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-095</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>18-03-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.162</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-AME-136</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>30-04-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 32.762</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-137</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>30-04-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 32.762</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-AME-197</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>31-05-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 10.538</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-198</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>31-05-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 10.538</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-AME-263</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>27-07-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 9.836</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-264</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>27-07-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 9.836</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-AME-290</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>06-08-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.933</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-291</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>06-08-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.933</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-AME-318</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>10-09-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 7.600</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-317</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>10-09-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 7.600</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-378</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>23-11-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.531</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>paid</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-AME-379</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>23-11-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.531</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>open</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-AME-407</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>17-12-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 6.458</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>open</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>20-TEX-408</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>17-12-20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 8.658</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>open</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b>€ 340.115</b></td><td style="text-align:left"><b></b></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

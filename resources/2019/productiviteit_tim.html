@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+                <a href="resultaat_vergelijking.html">resultaat vergelijking</a> -
+                <a href="productiviteit.html">productiviteit</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">31-12 17:16</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Productiviteit tim</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:400px; background-color:#ffffff">
+		        <canvas id="_cfg_canvas" width="400px" height="400px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__cfg = document.getElementById('_cfg_canvas').getContext('2d');
+                    window._cfgChart = new Chart(ctx__cfg, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-07-09', 'y': 4.0 }, { 'x':'2019-07-23', 'y': 30.5 }, { 'x':'2019-08-06', 'y': 14.0 }, { 'x':'2019-08-20', 'y': 26.25 }, { 'x':'2019-09-03', 'y': 5.0 }, { 'x':'2019-09-17', 'y': 15.375 }, { 'x':'2019-10-01', 'y': 16.0 }, { 'x':'2019-10-15', 'y': 14.75 }, { 'x':'2019-10-29', 'y': 3.125 }, { 'x':'2019-11-12', 'y': 0.75 }, { 'x':'2019-11-26', 'y': 0.0 }, { 'x':'2019-12-10', 'y': 0.0 }, { 'x':'2019-12-24', 'y': 0.5 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0,
+                        
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">tim</th><th style="text-align:left"></th><th style="text-align:left"></th><th style="text-align:right">omzet</th><th style="text-align:right">uren</th><th style="text-align:right">per uur</th></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Ajax</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>8</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Ajax</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 255</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 64</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>AMS-IX</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.418</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>16</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 90</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>AssistiveWare</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 382</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 90</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Centraal Beheer</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Risicoscan update 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Front-end engineering</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 300</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 75</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Kpito</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Kpito service 2019 [oud]</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>5</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>NuTestament</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>NuTestament</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 392</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>5</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 82</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oerol</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Oerol Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>6</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oncode</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>6</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oncode</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 450</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>5</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 90</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Thales</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>5</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>TMC</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 825</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>10</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 82</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Tommy</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Partner Access</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 540</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>6</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 90</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Tommy</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>6</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>TOR groep</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Partner Applicatie</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>246</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Trustmarketing</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>12</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Trustmarketing</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.790</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>31</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 90</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Van Esch</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>68</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Van Esch</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 562</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>6</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 90</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Van Esch</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Staart 2018</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Volksbank</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Volksbank Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.238</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>12</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 99</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oberon</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Oberview en Timesheet</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Non-billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 742</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>54</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 17</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oberon</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Oberview en Timesheet</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.943</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>213</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 17</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b>€ 12.841</b></td><td style="text-align:right"><b>757</b></td><td style="text-align:right"><b></b></td></tr></table>
+                    
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

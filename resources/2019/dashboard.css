@@ -1,0 +1,58 @@
+p, a, span, td, th {font-family:arial; font-size:12px; white-space: nowrap;}
+a {text-decoration:none; color:#333}
+#menubar a { color: #66C }
+a:hover {text-decoration:underline}
+a td, a th { min-width:5em; color:#333}
+
+table { border-collapse: collapse;}
+table td, th {margin:0; padding:16px 10px}
+table td {border-bottom: 1px solid #f2f2f2;}
+
+table.plain th {background-color:#55C; color:white}
+table.grid th {background-color:#393; color:white}
+
+.linkable_row {cursor: pointer}
+.linkable_row:hover {background-color:#ddd}
+
+
+# Tooltips
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 240px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -120px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  word-wrap: normal;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}

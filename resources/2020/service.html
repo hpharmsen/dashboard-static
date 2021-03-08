@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href="."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">30-12 14:00</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Service</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Issues</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Critical issues</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px; color:green; font-family:Arial; ">2</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">30 dagen of meer open</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px; color:red; font-family:Arial; ">18</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Oldest open issue</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">VS-123</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">85 days inactive</span>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Targets</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:800px; height:340px; background-color:#ffffff">
+		        <canvas id="_pio_canvas" width="800px" height="190px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__pio = document.getElementById('_pio_canvas').getContext('2d');
+                    window._pioChart = new Chart(ctx__pio, {
+                        type: 'horizontalBar', 
+                        data: {
+                datasets: [{
+                                    label: 'bereikt',
+                                    data: [662, 970, 660, 636],
+                                    backgroundColor: '#55c',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: 'boven target',
+                                    data: [0, 0, 0, 0],
+                                    backgroundColor: '#5c5',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: 'onder target',
+                                    data: [84, 25, 125, 133],
+                                    backgroundColor: '#c55',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: 'nog te doen',
+                                    data: [4, 5, 15, 81],
+                                    backgroundColor: '#ccc',
+                                    datalabels: {
+        color: '#FFFFFF',
+        anchor : 'start',
+        align: 'right',
+        formatter: function(value, context) {
+            bereikt = context.chart.data.datasets[0].data[context.dataIndex];
+            boven_target = context.chart.data.datasets[1].data[context.dataIndex];
+            onder_target = context.chart.data.datasets[2].data[context.dataIndex];
+            label = (bereikt+boven_target) + '/' + (bereikt+onder_target) + ' (';
+            if (boven_target > 0) { label += '+' + Math.round(100*boven_target/bereikt) + '%' };
+            if (onder_target > 0) { label += '-' + Math.round(100*onder_target/(onder_target+bereikt)) + '%' };
+            label += ')';
+            return label;
+        }
+    } 
+                                  }],
+                labels: ['caspar', 'gijs', 'jasper', 'jeroens']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    stacked: true
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    }
+                }]
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Klanten</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">Klant</th><th style="text-align:left">project</th><th style="text-align:right">billable uren</th><th style="text-align:right">totaal uren</th><th style="text-align:right">omzet</th><th style="text-align:right">per uur</th></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/TMC.html';"><td style="text-align:left;"><div  style="text-align:left"><span>TMC</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>352</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>440</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 38.692</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 88</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/EUR.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Volksbank</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Eurowijs Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>303</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>474</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 30.022</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 63</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/IDFS.html';"><td style="text-align:left;"><div  style="text-align:left"><span>IDFA</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>202</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>306</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 18.180</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 59</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/NU.html';"><td style="text-align:left;"><div  style="text-align:left"><span>NuTestament</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>157</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>177</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 14.130</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 80</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/AIS.html';"><td style="text-align:left;"><div  style="text-align:left"><span>AMS-IX</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>128</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>243</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 14.080</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 58</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/ONC.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Oncode</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>112</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>160</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 12.375</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 78</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/VS.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Volksbank</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Volksbank Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>116</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>183</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.509</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 63</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/VES.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Van Esch</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>100</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>246</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.028</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 45</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/IMC.html';"><td style="text-align:left;"><div  style="text-align:left"><span>IMC</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>77</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>91</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 7.725</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 85</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/THAA.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Tommy</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>84</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>90</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 7.582</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 84</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/TC.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Thales</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>61</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>79</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 6.710</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 85</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/ABT.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Avero</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>54</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>233</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.885</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 25</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/IVA.html';"><td style="text-align:left;"><div  style="text-align:left"><span>IVA driebergen</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>51</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>77</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.610</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 73</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/DBS.html';"><td style="text-align:left;"><div  style="text-align:left"><span>De Boer</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>58</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>98</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.242</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 53</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/OS.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Oerol</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>32</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>62</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.575</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 58</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>VVV Texel</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>37</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>37</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.352</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 90</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/SVHK.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Stichting van het Kind</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Stichting van het Kind Service</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>30</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>48</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.272</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 68</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/AS.html';"><td style="text-align:left;"><div  style="text-align:left"><span>AssistiveWare</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>25</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>36</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.272</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 64</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/TORTER.html';"><td style="text-align:left;"><div  style="text-align:left"><span>VVV Terschelling</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>18</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>18</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.980</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 110</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/CEO.html';"><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>15</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>28</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.372</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 49</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Tennet</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Projectviewer Service</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>12</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>12</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.265</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 101</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/TOPA.html';"><td style="text-align:left;"><div  style="text-align:left"><span>TOPA</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>11</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>17</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.210</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 72</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/FNC.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Functionals</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>10</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>26</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.155</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 45</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/HDR.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Houthoff</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>10</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>10</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.100</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 110</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/TORAME.html';"><td style="text-align:left;"><div  style="text-align:left"><span>VVV Ameland</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>12</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>13</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.035</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 80</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/KS.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Kpito</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>9</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>29</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.018</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 35</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/DBR.html';"><td style="text-align:left;"><div  style="text-align:left"><span>De Breij</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>9</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>10</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 990</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 99</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/AAR.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Ajax</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>10</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>14</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 965</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 69</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/BR.html';"><td style="text-align:left;"><div  style="text-align:left"><span>BeleefRoutes</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>5</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>8</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 578</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 77</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/NUTS.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Nutricia</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>5</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 468</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 89</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'klanten/SATON.html';"><td style="text-align:left;"><div  style="text-align:left"><span>Saton</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>1</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>1</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 82</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 110</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oberon</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service Team</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>496</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>586</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

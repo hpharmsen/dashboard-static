@@ -61,6 +61,7 @@ output_folder = Path(ini['output']['folder'])
 def main():
     cd_to_script_path()
     initialize_cache()
+    copy_resources()
     render_all_pages()
 
 
@@ -75,6 +76,13 @@ def initialize_cache():
         if param == '--nocache':
             clear_cache()
     load_cache()
+
+
+def copy_resources():
+    resource_path = Path(__file__).resolve().parent / 'resources'
+    for p in resource_path.iterdir():
+        if p.is_file() and p.name[0] != '.':
+            shutil.copyfile( p, output_folder / p.name )
 
 
 def render_all_pages():
@@ -102,7 +110,6 @@ def render_all_pages():
     # render_service_page(output_folder)
     print( '..dashboard')
     render_dashboard(output_folder)
-
 
 if __name__ == '__main__':
     main()

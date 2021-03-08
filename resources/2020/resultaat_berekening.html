@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href="."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">30-12 14:00</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div id="Winstberekening"  style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Winstberekening</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    <table class="grid"><tr><th align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold"></span>
+                    
+                    </div>
+                </th>
+<th align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Boekhouding (t/m Nov)</span>
+                    
+                    </div>
+                </th>
+<th align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Correctie</span>
+                    
+                    </div>
+                </th>
+<th align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Totaal nu</span>
+                    
+                    </div>
+                </th>
+<th align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Begroot</span>
+                    
+                    </div>
+                </th>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Omzet t/m Nov</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">2.288.000</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Subsidie t/m Nov</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">96.000</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Omzet aan vorig jaar toe te schrijven</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">-105.000</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Omzet vanaf Dec</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">224.162</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Onderhanden werk nu</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">138.651</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Opbrengsten</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold"></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold"></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">2.641.813</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">2.243.633</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left">&nbsp</td>
+<td align="right">&nbsp</td>
+<td align="right">&nbsp</td>
+<td align="right">&nbsp</td>
+<td align="right">&nbsp</td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Kosten t/m Nov</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">1.995.000</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Ntb bonussen t/m Nov</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">20.000</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">(Geschatte) kosten vanaf Dec</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">197.000</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; "></span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Kosten</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold"></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold"></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">2.212.000</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">2.243.000</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left">&nbsp</td>
+<td align="right">&nbsp</td>
+<td align="right">&nbsp</td>
+<td align="right">&nbsp</td>
+<td align="right">&nbsp</td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Winst</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold"></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold"></span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">429.813</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">7.200</span>
+                    
+                    </div>
+                </td>
+</tr></table>
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Onderhanden werk</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">Id</th><th style="text-align:left">Klant</th><th style="text-align:right">Project</th><th style="text-align:right">Gedaan</th><th style="text-align:right">Gefactureerd</th><th style="text-align:None">Onderhanden</th></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1825';"><td style="text-align:left;"><div  style="text-align:left"><span>VVV Texel</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Website VVV Texel</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 65.150</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 40.582</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 24.568</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1841';"><td style="text-align:left;"><div  style="text-align:left"><span>IDFA</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Festival 2020 support & Service</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 22.956</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 22.956</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1768';"><td style="text-align:left;"><div  style="text-align:left"><span>BAM</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Homestudios 2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 283.381</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 262.929</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 20.451</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1844';"><td style="text-align:left;"><div  style="text-align:left"><span>Miltrade</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Design Sprint</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.782</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.782</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1780';"><td style="text-align:left;"><div  style="text-align:left"><span>Avero</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.665</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 605</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.060</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1835';"><td style="text-align:left;"><div  style="text-align:left"><span>Oncode</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Website 2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 4.462</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 4.462</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1800';"><td style="text-align:left;"><div  style="text-align:left"><span>Volksbank</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Eurowijs Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 32.274</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 28.364</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.910</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1795';"><td style="text-align:left;"><div  style="text-align:left"><span>TMC</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 38.775</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 35.112</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.662</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1794';"><td style="text-align:left;"><div  style="text-align:left"><span>Thales</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 6.710</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.162</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.548</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1837';"><td style="text-align:left;"><div  style="text-align:left"><span>Sprout Money</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Crypto Exchange Research</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.640</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.640</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1799';"><td style="text-align:left;"><div  style="text-align:left"><span>Van Esch</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.138</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 9.105</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.592</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1738';"><td style="text-align:left;"><div  style="text-align:left"><span>KCP</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>KCP Service</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.498</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.220</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.426</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1777';"><td style="text-align:left;"><div  style="text-align:left"><span>AMS-IX</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 14.162</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 13.572</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 620</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1801';"><td style="text-align:left;"><div  style="text-align:left"><span>Volksbank</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Volksbank Service 2020 Basic</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 15.815</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 15.246</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 569</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1833';"><td style="text-align:left;"><div  style="text-align:left"><span>Oncode</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Resource tree</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.725</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.200</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 525</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1842';"><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.372</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 852</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 520</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1836';"><td style="text-align:left;"><div  style="text-align:left"><span>Sprout Money</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Slim Beleggen</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 520</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 520</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1848';"><td style="text-align:left;"><div  style="text-align:left"><span>Havas Lemz</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>FME</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 510</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 510</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1797';"><td style="text-align:left;"><div  style="text-align:left"><span>Tommy</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 8.055</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 10.322</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ -1.068</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1782';"><td style="text-align:left;"><div  style="text-align:left"><span>De Boer</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 6.390</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 8.772</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ -1.182</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1804';"><td style="text-align:left;"><div  style="text-align:left"><span>VVV Texel</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.352</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.793</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ -1.240</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1822';"><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Ben 2020 Q3Q4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 102.500</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 104.354</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ -1.854</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1789';"><td style="text-align:left;"><div  style="text-align:left"><span>NuTestament</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2020 Plus</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 14.602</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 17.175</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ -2.160</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1843';"><td style="text-align:left;"><div  style="text-align:left"><span>Conservatorium vA</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Open Dag platform</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 22.508</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 30.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ -7.492</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1771';"><td style="text-align:left;"><div  style="text-align:left"><span>Accell IT</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Headless 2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 574.105</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 638.002</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ -27.138</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1840';"><td style="text-align:left;"><div  style="text-align:left"><span>Eikk</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>MyCademy (Project Learn) DD</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 6.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ -6.000</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/';"><td style="text-align:left;"><div  style="text-align:left"><span>TOR 3</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>alles</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 791.261</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 340.115</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 83.462</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b></b></td><td style="text-align:right"><b></b></td><td style="text-align:right"><b>€ 138.651</b></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">TOR 3</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">Onderdeel</th><th style="text-align:right">Gedaan</th></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1726';"><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Partner Applicatie</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 105.499</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1727';"><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Voorkant</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 235.363</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1728';"><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Kern applicatie</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 320.757</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1729';"><td style="text-align:left;"><div  style="text-align:left"><span>TOR3 - Ready team</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 124.545</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1826';"><td style="text-align:left;"><div  style="text-align:left"><span>Automated Testing Project</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 0</span></div></td></tr>
+<tr class=linkable_row onclick="document.location = 'https://oberview.oberon.nl/project/1845';"><td style="text-align:left;"><div  style="text-align:left"><span>TOR fase 2</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.097</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:right"><b>€ 791.261</b></td></tr></table>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    <table class="grid"><tr><th align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">TOR Facturatie</span>
+                    
+                    </div>
+                </th>
+<th align="right">&nbsp</th>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Werk gedaan</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">791.261</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Te factureren (50% van max 672424)</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">336.212</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Gefactureerd</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">340.115</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Nog te factureren</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">-3.903</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left">&nbsp</td>
+<td align="right">&nbsp</td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Activeren (50% van te factureren)</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">168.106</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Nog te factureren</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">-3.903</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Tor onderhanden vorig jaar</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">-80.741</span>
+                    
+                    </div>
+                </td>
+</tr><tr><td align="left"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">Onderhandenwerk TOR dit jaar</span>
+                    
+                    </div>
+                </td>
+<td align="right"><div   style="position:relative;      background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; font-weight:bold">83.462</span>
+                    
+                    </div>
+                </td>
+</tr></table>
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

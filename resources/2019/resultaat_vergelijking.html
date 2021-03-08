@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+                <a href="resultaat_vergelijking.html">resultaat vergelijking</a> -
+                <a href="productiviteit.html">productiviteit</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">31-12 17:16</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Resultaat</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Omzet vergelijking</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:900px; height:600px; background-color:">
+		        <canvas id="_dmm_canvas" width="900px" height="450px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__dmm = document.getElementById('_dmm_canvas').getContext('2d');
+                    window._dmmChart = new Chart(ctx__dmm, {type: 'line', data: {
+                datasets: [{
+                                    label: 'Omzet',
+                                    data: [247340, 408537, 528047, 753847, 929102, 1088633, 1287571, 1432132, 1573307, 1775092, 1956945],
+                                    backgroundColor: '#4285f4', 
+                                    borderColor: '#4285f4',
+                                    fill: false, 
+                                  },{
+                                    label: 'Omzet begroot',
+                                    data: [155000, 313000, 495000, 676000, 858000, 1063000, 1271000, 1476000, 1676000, 1872000, 2055000, 2250000],
+                                    backgroundColor: '#f4b400', 
+                                    borderColor: '#f4b400',
+                                    fill: false, 
+                                  },{
+                                    label: 'Omzet vorig jaar',
+                                    data: [140191, 303201, 473803, 693783, 840390, 1101386, 1215866, 1367335, 1469792, 1639281, 1845110, 2127561],
+                                    backgroundColor: '#db4437', 
+                                    borderColor: '#db4437',
+                                    fill: false, 
+                                  }],
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            }, options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        min:0,
+                    }
+                }]
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Winst vergelijking</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:900px; height:600px; background-color:">
+		        <canvas id="_vpa_canvas" width="900px" height="450px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__vpa = document.getElementById('_vpa_canvas').getContext('2d');
+                    window._vpaChart = new Chart(ctx__vpa, {type: 'line', data: {
+                datasets: [{
+                                    label: 'Winst',
+                                    data: [99943, 113244, 80020, 130374, 147143, 147481, 191301, 175796, 164291, 205751, 238822],
+                                    backgroundColor: '#4285f4', 
+                                    borderColor: '#4285f4',
+                                    fill: false, 
+                                  },{
+                                    label: 'Winst begroot',
+                                    data: [13000, 29000, 62000, 86000, 109000, 142000, 180000, 203000, 225000, 244000, 236000, 255000],
+                                    backgroundColor: '#f4b400', 
+                                    borderColor: '#f4b400',
+                                    fill: false, 
+                                  },{
+                                    label: 'Winst vorig jaar',
+                                    data: [-5862, 13890, 11122, 48813, -1939, 81836, 37785, 21970, -31183, -17922, 27066, 150523],
+                                    backgroundColor: '#db4437', 
+                                    borderColor: '#db4437',
+                                    fill: false, 
+                                  }],
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            }, options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        min:0,
+                    }
+                }]
+            }
+        }});
+                })
+        
+            </script>
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

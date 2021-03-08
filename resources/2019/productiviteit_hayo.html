@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <!--<script src="Chart.Core.min.js"></script>
+        <script src="Chart.Scatter.min.js"></script>-->
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+                <a href="resultaat_vergelijking.html">resultaat vergelijking</a> -
+                <a href="productiviteit.html">productiviteit</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">02-11 23:45</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Productiviteit hayo</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:400px; height:400px; background-color:#ffffff">
+		        <canvas id="_dkr_canvas" width="400px" height="250px"></canvas>
+            </div>
+        
+            <script>
+                window.addEventListener('load',  function() {
+                    var ctx__dkr = document.getElementById('_dkr_canvas').getContext('2d');
+                    window._dkrChart = new Chart(ctx__dkr, {type: 'line', data: {
+                datasets: [{
+                                label: '',
+                                data: [{ 'x':'2019-05-11', 'y': 0.0 }, { 'x':'2019-05-25', 'y': 42.75 }, { 'x':'2019-06-08', 'y': 32.0 }, { 'x':'2019-06-22', 'y': 74.5 }, { 'x':'2019-07-06', 'y': 67.0 }, { 'x':'2019-07-20', 'y': 62.0 }, { 'x':'2019-08-03', 'y': 75.25 }, { 'x':'2019-08-17', 'y': 47.5 }, { 'x':'2019-08-31', 'y': 45.5 }, { 'x':'2019-09-14', 'y': 53.5 }, { 'x':'2019-09-28', 'y': 46.5 }, { 'x':'2019-10-12', 'y': 27.0 }, { 'x':'2019-10-26', 'y': 0.0 }],
+                                borderColor: '#6666cc',
+                                backgroundColor: '#ddeeff',
+                                borderWidth: 1, 
+                                fill: true, 
+                              }],
+                labels: []
+            }, options: {
+            title: {
+                display: false
+            },
+            legend: {
+                display: false
+            },
+            elements: {
+                point:{
+                    radius: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    position: 'bottom',
+                    time: {
+						parser: 'YYYY-MM-DD'
+					},
+                    ticks: {
+                        fontSize:9
+                    },
+					scaleLabel: {
+						display: true
+					}
+                }],      
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 3,
+                        fontSize:9,
+                        suggestedMin: 0
+                    }
+                }]      
+            }
+        }});
+                })
+        
+            </script>
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">hayo</th><th style="text-align:left"></th><th style="text-align:left"></th><th style="text-align:right">omzet</th><th style="text-align:right">uren</th><th style="text-align:right">per uur</th></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Ajax</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Quiz  (FotM)</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.104</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>33</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 64</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Houthoff</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service overeenkomst</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 200</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>20</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 10</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oerol</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Oerol app</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Front-end engineering</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 3.700</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>98</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 38</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oerol</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Website</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Front-end engineering</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 300</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>8</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 40</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oncode</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.430</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>27</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 90</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Ben 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 26.125</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>418</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 62</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oberon</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Oberon site 2019</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Billable</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 24.309</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>526</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 58</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b>€ 59.168</b></td><td style="text-align:right"><b>1.130</b></td><td style="text-align:right"><b></b></td></tr></table>
+                    
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href="."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">29-06 20:00</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Resultaat</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Omzet vergelijking</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:900px; height:600px; background-color:#ffffff">
+		        <canvas id="_fxb_canvas" width="900px" height="450px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__fxb = document.getElementById('_fxb_canvas').getContext('2d');
+                    window._fxbChart = new Chart(ctx__fxb, {
+                        type: 'line', 
+                        data: {
+                datasets: [{
+                                    label: 'Omzet',
+                                    data: [246, 461, 744, 1001, 1239, 55],
+                                    backgroundColor: '#4285f4', 
+                                    borderColor: '#4285f4',
+                                    fill: false, 
+                                  },{
+                                    label: 'Omzet begroot',
+                                    data: [212000, 383000, 572000, 761000, 945000, 1139000, 1378000, 1584000, 1786000, 1987000, 2200000, 2413000],
+                                    backgroundColor: '#f4b400', 
+                                    borderColor: '#f4b400',
+                                    fill: false, 
+                                  },{
+                                    label: 'Omzet vorig jaar',
+                                    data: [56, 255, 379, 697, 894, 1082, 1296, 1380, 1525, 1701, 1864, 2116],
+                                    backgroundColor: '#db4437', 
+                                    borderColor: '#db4437',
+                                    fill: false, 
+                                  }],
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    }
+                }]
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Winst vergelijking</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:900px; height:600px; background-color:#ffffff">
+		        <canvas id="_ruh_canvas" width="900px" height="450px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__ruh = document.getElementById('_ruh_canvas').getContext('2d');
+                    window._ruhChart = new Chart(ctx__ruh, {
+                        type: 'line', 
+                        data: {
+                datasets: [{
+                                    label: 'Winst',
+                                    data: [76, 103, 207, 264, 334, 55],
+                                    backgroundColor: '#4285f4', 
+                                    borderColor: '#4285f4',
+                                    fill: false, 
+                                  },{
+                                    label: 'Winst begroot',
+                                    data: [55000, 65000, 80000, 95000, 93000, 90000, 105000, 110000, 115000, 119000, 131000, 143000],
+                                    backgroundColor: '#f4b400', 
+                                    borderColor: '#f4b400',
+                                    fill: false, 
+                                  },{
+                                    label: 'Winst vorig jaar',
+                                    data: [-88, -32, -55, 109, 149, 180, 247, 176, 173, 203, 222, 260],
+                                    backgroundColor: '#db4437', 
+                                    borderColor: '#db4437',
+                                    fill: false, 
+                                  }],
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    categoryPercentage: 0.9,
+                    barPercentage: 0.9
+                }],
+                yAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    }
+                }]
+            }
+        }
+                    });
+                })
+        
+            </script>
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

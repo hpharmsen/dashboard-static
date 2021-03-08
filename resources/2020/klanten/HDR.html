@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href=".."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">24-02 14:01</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Houthoff</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Issues</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">aantal issues</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">1</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">aantal opgelost</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">0</span>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">gemiddelde oplostijd</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:10px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; "></span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">dagen</span>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Open issues</span>
+                    
+                    </div>
+                
+<div id="<built-in function id>"  style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">status</th><th style="text-align:right">aantal</th></tr>
+<tr class=linkable_row onclick="document.location = 'https://teamoberon.atlassian.net/issues/?filter=-4&jql=resolution = Unresolved AND project in (%22TORTER%22, %22TORAME%22, %22VZV%22, %22HDR%22, %22ABT%22, %22BR%22, %22NUTS%22, %22DH%22, %22IMC%22, %22TOPA%22, %22SATON%22, %22IVA%22, %22FNC%22, %22DBS%22, %22TRUST%22, %22TMC%22, %22TC%22, %22VISCRM%22, %22IDFS%22, %22KS%22, %22VES%22, %22AS%22, %22DBR%22, %22THAA%22, %22KUEH%22, %22AIS%22, %22EUR%22, %22VS%22, %22ONCPS%22, %22ONC%22, %22OS%22, %22SVHK%22) AND status not in (suspended) AND project = %22HDR%22 AND status = %22New%22';"><td style="text-align:left;"><div  style="text-align:left"><span>New</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>1</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:right"><b>1</b></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

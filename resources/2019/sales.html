@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+                <a href="resultaat_vergelijking.html">resultaat vergelijking</a> -
+                <a href="productiviteit.html">productiviteit</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">31-12 17:15</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Sales</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Actieve&nbsp;salestrajecten</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">klant</th><th style="text-align:left">project</th><th style="text-align:right">grootte</th><th style="text-align:right">kans</th><th style="text-align:left">fase</th><th style="text-align:right">waarde</th><th style="text-align:left">bron</th></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Mrs. Highbrow</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Service</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 10.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>20%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Nieuw</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 2.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Google Search</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>TOR groep</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>TOR 3.0 Q1 2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 80.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>90%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Nieuw</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 72.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Bestaande klant</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>CubicEyes</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Frontend development</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 100.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>5%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Prijsindicatie afgegeven</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Google Search</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>VVV Texel</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Website</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 100.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>65%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Offerte aanvraag</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 65.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Bestaande klant</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>De Vries Scheepsbouw</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Medewerkers app</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 45.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>18%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Prijsindicatie afgegeven</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 8.100</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Google Search</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Ik Ben web</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 35.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>25%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Offerte verstuurd</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 8.750</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Bestaande klant</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>CEO 2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 70.080</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>50%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Offerte verstuurd</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 35.040</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Bestaande klant</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oerol</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Aanpassingen</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 30.000</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>90%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Onderhandeling / beoordeling</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 27.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Bestaande klant</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Medewerkers app extra budgetaanvraag</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 18.200</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>90%</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Onderhandeling / beoordeling</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 16.380</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Bestaande klant</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b>€ 488.280</b></td><td style="text-align:right"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b>€ 239.270</b></td><td style="text-align:left"><b></b></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">Werk&nbsp;in&nbsp;de&nbsp;pijplijn</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    <table class="plain">
+<tr><th style="text-align:left">klant</th><th style="text-align:left">project</th><th style="text-align:right">% af</th><th style="text-align:right">onderhanden</th><th style="text-align:left">eigenaar</th></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>TrustMarketing</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>5 weken development</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>0%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 26.560</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>HP</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Accell IT</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Development team Q1</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>0%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 60.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Richard</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Ben Q1 2020</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>0%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 50.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Richard</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Atos</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Tele2 app Q1</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>0%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 45.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Richard</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>BAM</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Beheer+ Team Q1</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>0%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 80.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Gert</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>NuNotariaat</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>TestamentCheck</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>60%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 1.600</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Gert</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>TOR groep</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>TOR 3.0 Q4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>85%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 18.750</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Gert</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Accell IT</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Development team 2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>85%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 11.250</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Richard</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Atos</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Tele2 app</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>85%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 9.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Richard</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>BAM</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Beheer+ Team Q4</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>85%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 9.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Gert</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Ben Q4 2019</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>85%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 7.500</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Richard</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>T-Mobile</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Medewerkers app</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>80%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 5.000</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>HP</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>Oncode</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Valorization</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>96%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 928</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>HP</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>TrustMarketing</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Backstage overhaul</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>25%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 14.138</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>HP</span></div></td></tr>
+<tr><td style="text-align:left;"><div  style="text-align:left"><span>BAM</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Product Database Fase 1 Jur</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>95%</span></div></td><td style="text-align:right;"><div  style="text-align:right"><span>€ 875</span></div></td><td style="text-align:left;"><div  style="text-align:left"><span>Gert</span></div></td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b></b></td><td style="text-align:right"><b>€ 339.601</b></td><td style="text-align:left"><b></b></td></tr></table>
+                    
+                    </div>
+                
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

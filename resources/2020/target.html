@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <base href="."/>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
+        <!-- Load d3.js -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <!-- Load the sankey.js function -->
+        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="budget.html">project budget status</a> -
+               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
+                <a href="target.html">targets</a> -
+                <a href="billable.html">billable</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service team</a> -
+                <a href="service_issues.html">service issues</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="tor.html">TOR</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">30-12 14:00</span>
+        
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:43px;  font-family:Arial; ">Targets</span>
+                    
+                    </div>
+                
+<div   style="position:relative;  clear:both;   padding-bottom:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px;  font-family:Arial; ">Per persoon met target en tot nu toe</span>
+                    
+                    </div>
+                
+<div style="position:relative; left:0px; top:0px; width:800px; height:840px; background-color:#ffffff">
+		        <canvas id="_xkf_canvas" width="800px" height="690px"></canvas>
+            </div>
+        
+            <script>
+                Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
+                window.addEventListener('load',  function() {
+                    var ctx__xkf = document.getElementById('_xkf_canvas').getContext('2d');
+                    window._xkfChart = new Chart(ctx__xkf, {
+                        type: 'horizontalBar', 
+                        data: {
+                datasets: [{
+                                    label: 'bereikt',
+                                    data: [662, 662, 1275, 1094, 382, 970, 1164, 660, 636, 1076, 1034, 1226, 1293, 1020, 910, 1264, 516, 1362, 1034, 931, 638, 1193],
+                                    backgroundColor: '#55c',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: 'boven target',
+                                    data: [0, 0, 194, 483, 0, 0, 209, 0, 0, 0, 11, 303, 30, 67, 113, 250, 0, 0, 181, 323, 461, 82],
+                                    backgroundColor: '#5c5',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: 'onder target',
+                                    data: [319, 84, 0, 0, 506, 25, 0, 125, 133, 88, 0, 0, 0, 0, 0, 0, 124, 50, 0, 0, 0, 0],
+                                    backgroundColor: '#c55',
+                                    datalabels: {display: false } 
+                                  },{
+                                    label: 'nog te doen',
+                                    data: [19, 4, -169, -477, 162, 5, -203, 15, 81, 6, -5, -279, -23, -47, 77, -214, 10, 28, -175, -154, -449, -75],
+                                    backgroundColor: '#ccc',
+                                    datalabels: {
+        color: '#FFFFFF',
+        anchor : 'start',
+        align: 'right',
+        formatter: function(value, context) {
+            bereikt = context.chart.data.datasets[0].data[context.dataIndex];
+            boven_target = context.chart.data.datasets[1].data[context.dataIndex];
+            onder_target = context.chart.data.datasets[2].data[context.dataIndex];
+            label = (bereikt+boven_target) + '/' + (bereikt+onder_target) + ' (';
+            if (boven_target > 0) { label += '+' + Math.round(100*boven_target/bereikt) + '%' };
+            if (onder_target > 0) { label += '-' + Math.round(100*onder_target/(onder_target+bereikt)) + '%' };
+            label += ')';
+            return label;
+        }
+    } 
+                                  }],
+                labels: ['bas', 'caspar', 'chin', 'chrisn', 'eva', 'gijs', 'jari', 'jasper', 'jeroens', 'jochem', 'jordi', 'jur', 'kelly', 'kheira', 'mandy', 'mark', 'miek', 'ray', 'rik', 'rogier', 'rvw', 'sho']
+            }, 
+                        //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
+                        options: {
+                title: {
+                    display: false
+                },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    },
+                    stacked: true
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        
+                        fontSize: 9,
+                        min: 0,
+                        
+                    }
+                }]
+            }
+        }
+                    });
+                })
+        
+            </script>
+<div   style="position:relative;  clear:both;   padding-bottom:40px; background-color:white; ">
+                    
+                    
+                    
+<div   style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">Totaal t.o.v. target</span>
+                    
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">474</span>
+                    
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    
+                    <span style="font-size:12px; color:gray; font-family:Arial; ">uur</span>
+                    
+                    </div>
+                
+<div   style="position:relative; float:left;    padding-right:30.0px; background-color:; ">
+                    
+                    <span style="font-size:28px;  font-family:Arial; ">+2%</span>
+                    
+                    </div>
+                
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>

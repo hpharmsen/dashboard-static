@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Oberon Dashboard</title>
+        <meta charset="UTF-8">
+        <meta name="google-signin-client_id" content="800068964392-38ago8a29di3ol5ch67cbg7v5pf89qri.apps.googleusercontent.com">
+        <link rel="stylesheet" type="text/css" href="dashboard.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+        <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
+        <script src="login.js"></script>
+        <script src="productiviteit.js"></script>
+    </head>
+    <body>
+        <div id="menubar">
+            <img src="logo.png" title="Oberon logo" style="float:left; vertical-align:middle"/>
+            <div id="menu" style="float:left; margin-top:15px">
+                <a href="dashboard.html">dashboard</a> -
+                <a href="sales.html">sales</a> -
+                <a href="clients.html">klanten</a> -
+                <a href="productiviteit.html">productiviteit</a> -
+                <a href="winstgevendheid.html">winstgevendheid</a> -
+                <a href="service.html">service</a> -
+                <a href="debiteuren.html">debiteuren</a> -
+                <a href="details.html">alle kengetallen</a>
+            </div>
+        </div>
+        <span style="float:right; margin:20px; border:1px solid #CCC">
+            <span id="user"></span>
+            <a href="#" onclick="signOut();">Sign out</a>
+        </span>
+        <span style="float:right; color:#666; margin:20px; ">16-08 14:00</span>
+        
+<div  style="position:relative; float:left; clear:both;   padding-bottom:40px; background-color:white; ">
+                    <table class="plain">
+<tr><th style="text-align:left">robin</th><th style="text-align:left"></th><th style="text-align:left"></th><th style="text-align:right">omzet</th><th style="text-align:right">uren</th><th style="text-align:right">per uur</th></tr>
+<tr><td style="text-align:left">AMS-IX</td><td style="text-align:left">Application Form</td><td style="text-align:left">Non-billable</td><td style="text-align:right">€ 0</td><td style="text-align:right">6</td><td style="text-align:right">€ 0</td></tr>
+<tr><td style="text-align:left">AMS-IX</td><td style="text-align:left">Application Form</td><td style="text-align:left">Billable</td><td style="text-align:right">€ 1.180</td><td style="text-align:right">15</td><td style="text-align:right">€ 80</td></tr>
+<tr><td style="text-align:left">AMS-IX</td><td style="text-align:left">OSS</td><td style="text-align:left">Billable</td><td style="text-align:right">€ 1.360</td><td style="text-align:right">17</td><td style="text-align:right">€ 80</td></tr>
+<tr><td style="text-align:left">Avero</td><td style="text-align:left">BCM tool update</td><td style="text-align:left">PM (fixed price project)</td><td style="text-align:right">€ 2.234</td><td style="text-align:right">111</td><td style="text-align:right">€ 20</td></tr>
+<tr><td style="text-align:left">Oncode</td><td style="text-align:left">Publieke website</td><td style="text-align:left">Non-billable</td><td style="text-align:right">€ 0</td><td style="text-align:right">7</td><td style="text-align:right">€ 0</td></tr>
+<tr><td style="text-align:left">Oncode</td><td style="text-align:left">Publieke website</td><td style="text-align:left">Billable</td><td style="text-align:right">€ 3.115</td><td style="text-align:right">44</td><td style="text-align:right">€ 70</td></tr>
+<tr><td style="text-align:left">T-Mobile</td><td style="text-align:left">CNE DT 2.0</td><td style="text-align:left">Non-billable</td><td style="text-align:right">€ 0</td><td style="text-align:right">11</td><td style="text-align:right">€ 0</td></tr>
+<tr><td style="text-align:left">T-Mobile</td><td style="text-align:left">CNE DT 2.0</td><td style="text-align:left">Billable</td><td style="text-align:right">€ 1.710</td><td style="text-align:right">19</td><td style="text-align:right">€ 90</td></tr>
+<tr><td style="text-align:left">T-Mobile</td><td style="text-align:left">Foxtrot en Spice Girls</td><td style="text-align:left">Non-billable</td><td style="text-align:right">€ 0</td><td style="text-align:right">18</td><td style="text-align:right">€ 0</td></tr>
+<tr><td style="text-align:left">Oberon</td><td style="text-align:left">Oberon site 2019</td><td style="text-align:left">Billable</td><td style="text-align:right">€ 2.752</td><td style="text-align:right">93</td><td style="text-align:right">€ 37</td></tr><tr><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:left"><b></b></td><td style="text-align:right"><b>€ 12.351</b></td><td style="text-align:right"><b>341</b></td><td style="text-align:right"><b></b></td></tr></table>
+                    
+                    </div>
+                
+        <script>
+        window.onload = function() {
+          checkIfLoggedIn();
+          
+        }
+        </script>
+    </body>
+</html>
