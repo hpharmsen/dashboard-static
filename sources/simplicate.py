@@ -46,7 +46,7 @@ def active_projects():
 
 
 def onderhanden_werk_list():
-    df = pd.read_pickle(PANDAS_FILE)
+    df = update_hours()
 
     def corrections(project):
         return df.query(f'project_number=="{project}"')['corrections'].sum()
