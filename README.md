@@ -37,9 +37,19 @@ python -m pip install -r requirements.in
 ```
 
 ### Fill in the credentials 
+Now you need two files with all the credentials to login into Google, Simplicate, extranet, Yuki etc.
+
+These are
 ```bash
-cp sources/credentials.ini.example sources/credentials.ini
-vi sources/credentials.ini
+credentials.ini
+oauth_key.json
+```
+Both go in the sources folder. 
+
+In credentials.ini set the output folder to your liking:
+```ini
+[output]
+folder = /Users/hp/Google Drive/MT/Dashboard
 ```
 
 ### Run dashboard ###
