@@ -18,6 +18,7 @@ from model.productiviteit import (
     billable_perc_iedereen,
     percentage_directe_werknemers,
     corrections_last_month,
+    corrections_percentage,
 )
 from model.resultaat import (
     omzet_begroot,
@@ -68,7 +69,7 @@ def commerce_block():
     sales = VBlock(
         [
             TextBlock('Commerce', headersize),
-            TextBlock('saleswaarde', midsize, color='gray', padding=10),
+            TextBlock('saleswaarde', midsize, padding=10),
             TextBlock(
                 sales_waarde_val,
                 headersize,
@@ -263,15 +264,26 @@ def corrections_block():
     def corrections_coloring(rowindex, line):
         return dependent_color(int(line[1].split('/')[0]), red_treshold=20, green_treshold=0)
 
+    def corrections_percentage_coloring(value):
+        return dependent_color(value, red_treshold=4.9, green_treshold=2)
+
     corrections_table = Table(
         corrections_last_month(), TableConfig(aligns=['left', 'right'], row_coloring=corrections_coloring)
     )
     result = VBlock(
         [
             TextBlock('Correcties', midsize),
+            HBlock(
+                [
+                    TextBlock(corrections_percentage(), midsize, format='%', color=corrections_percentage_coloring),
+                    TextBlock('correcties op uren<br/>tussen 1 week geleden<br/>en 5 weken geleden.', color=GRAY),
+                ],
+                padding=70,
+            ),
             TextBlock(
                 'Projecten met minimaal 10 gecorrigeerde uren de laatste 30 dagen.<br/>Tabel toont uren en gecorrigeerde uren.',
                 color=GRAY,
+                padding=-20,
             ),
             corrections_table,
         ],

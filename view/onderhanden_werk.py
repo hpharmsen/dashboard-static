@@ -5,6 +5,7 @@ from layout.block import VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 from pathlib import Path
 
+
 def render_onderhanden_werk_page(output_folder: Path):
 
     onderhanden = VBlock(
@@ -29,4 +30,5 @@ def render_onderhanden_werk_page(output_folder: Path):
 if __name__ == '__main__':
     os.chdir('..')
     from main import output_folder
+
     render_onderhanden_werk_page(output_folder)

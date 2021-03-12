@@ -5,6 +5,7 @@ from layout.basic_layout import headersize
 from model.resultaat import debiteuren_leeftijd_analyse
 from pathlib import Path
 
+
 def render_debiteuren_page(output_folder: Path):
     page = Page(
         [
@@ -28,4 +29,5 @@ def render_debiteuren_page(output_folder: Path):
 if __name__ == '__main__':
     os.chdir('..')
     from main import output_folder
+
     render_debiteuren_page(output_folder)

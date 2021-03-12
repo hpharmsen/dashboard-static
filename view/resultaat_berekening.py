@@ -190,5 +190,6 @@ def render_resultaat_berekening(output_folder: Path):
 if __name__ == '__main__':
     os.chdir('..')
     from main import output_folder
+
     load_cache()
     render_resultaat_berekening(output_folder)

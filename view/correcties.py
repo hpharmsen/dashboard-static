@@ -6,14 +6,21 @@ from model.productiviteit import corrections_all
 from view.dashboard import GRAY, dependent_color
 from pathlib import Path
 
-def render_correcties_page(output_folder: Path):
 
+def render_correcties_page(output_folder: Path):
+    def row_linking(rowindex, full_line):
+        project_id = full_line[2]
+        return f'https://oberon.simplicate.com/projects/{project_id}/hours'
+
+    corrections = corrections_all()
     corrections_table = Table(
-        corrections_all(),
+        corrections,
         TableConfig(
             headers=['Klant', 'Project', 'Uren', 'Correcties'],
             aligns=['left', 'left', 'right', 'right'],
             totals=[0, 0, 1, 1],
+            row_linking=row_linking,
+            hide_columns=[2],  # project_id
         ),
     )
 
@@ -31,4 +38,5 @@ def render_correcties_page(output_folder: Path):
 if __name__ == '__main__':
     os.chdir('..')
     from main import output_folder
+
     render_correcties_page(output_folder)

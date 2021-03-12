@@ -5,6 +5,7 @@ from layout.table import Table, TableConfig
 from model.sales import sales_waarde_details, werk_in_pijplijn_details
 from pathlib import Path
 
+
 def render_sales_page(output_folder: Path):
 
     sales_trajecten = VBlock(
@@ -46,4 +47,5 @@ def render_sales_page(output_folder: Path):
 if __name__ == '__main__':
     os.chdir('..')
     from main import output_folder
+
     render_sales_page(output_folder)

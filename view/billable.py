@@ -10,6 +10,7 @@ from model.productiviteit import (
 )
 from pathlib import Path
 
+
 def render_billable_page(output_folder: Path):
     users = sorted(tuple_of_productie_users())
     cols = 3
@@ -52,4 +53,5 @@ def render_billable_page(output_folder: Path):
 if __name__ == '__main__':
     os.chdir('..')
     from main import output_folder
+
     render_billable_page(output_folder)

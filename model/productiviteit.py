@@ -203,11 +203,12 @@ def format_project_name(row):
     return name
 
 
+@reportz(hours=24)
 def corrections_last_month():
     df = hours_dataframe()
     lastmonth = (datetime.datetime.today() + datetime.timedelta(days=-30)).strftime(DATE_FORMAT)
     x = (
-        df.query(f'corrections < 0 and day>="{lastmonth}"')
+        df.query(f'day>="{lastmonth}"')
         .groupby(['organization', 'project_name'])
         .agg({'hours': 'sum', 'corrections': 'sum'})
         .sort_values('corrections')
@@ -221,21 +222,32 @@ def corrections_last_month():
     return result
 
 
+@reportz(hours=24)
 def corrections_all():
     df = hours_dataframe()
     result = (
-        df.query(f'corrections < 0')
-        .groupby(['organization', 'project_name'])
+        df.groupby(['organization', 'project_name', 'project_id'])
         .agg({'hours': 'sum', 'corrections': 'sum'})
+        .query('corrections < 0')
         .sort_values('corrections')
         .reset_index()
     )
     return result
 
 
+@reportz(hours=24)
+def corrections_percentage():
+    df = hours_dataframe()
+    one_week_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-1)).strftime(DATE_FORMAT)
+    five_weeks_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-5)).strftime(DATE_FORMAT)
+    data = df.query(f'(tariff>0 or service_tariff>0) and day>="{five_weeks_ago}" and day<"{one_week_ago}"')
+    percentage_corrected = 100 * -data['corrections'].sum() / data['hours'].sum()
+    return percentage_corrected
+
+
 if __name__ == '__main__':
     os.chdir('..')
-    corrections_last_month()
+    print(corrections_percentage())
     sys.exit()
     today = datetime.datetime(2021, 1, 16)  # datetime.date.today()
     yesterday = datetime.datetime(2021, 1, 11)  # today + datetime.timedelta(days=-1)

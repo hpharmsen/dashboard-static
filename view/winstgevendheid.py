@@ -3,6 +3,7 @@ from layout.basic_layout import headersize, midsize
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 from pathlib import Path
+
 # from model.winstgevendheid import winst_per_persoon, winst_per_project
 
 
@@ -53,4 +54,5 @@ def render_winstgevendheid_page(output_folder: Path):
 if __name__ == '__main__':
     os.chdir('..')
     from main import output_folder
+
     render_winstgevendheid_page(output_folder)
