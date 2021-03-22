@@ -9,7 +9,7 @@ from layout.block import VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 
 
-def render_klant_page(output_folder : Path):
+def render_klant_page(output_folder: Path):
 
     omzet = VBlock(
         [

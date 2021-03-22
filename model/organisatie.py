@@ -46,7 +46,6 @@ def verzuimpercentage(days=91):
     return percentage
 
 
-
 @reportz(hours=24)
 def vrije_dagen_overzicht():
     sim = simplicate()
@@ -54,18 +53,20 @@ def vrije_dagen_overzicht():
     year = datetime.today().year
     frac = fraction_of_the_year_past()
 
-    employees = sim.to_pandas(sim.timetable()).query(
-        f"(end_date != end_date) or (end_date>'{today}')").employee_name.unique()  # (end_date != end_date) is to check for NaN
+    employees = (
+        sim.to_pandas(sim.timetable()).query(f"(end_date != end_date) or (end_date>'{today}')").employee_name.unique()
+    )  # (end_date != end_date) is to check for NaN
     full_balance_list = sim.to_pandas(sim.leavebalance())
     current_balance_list = full_balance_list[full_balance_list.employee_name.isin(employees)].query(
-        'leavetype_affects_balance==True')
+        'leavetype_affects_balance==True'
+    )
     current_balance_list = current_balance_list[
-        current_balance_list['employee_name'] != 'Filipe José Mariano dos Santos']
+        current_balance_list['employee_name'] != 'Filipe José Mariano dos Santos'
+    ]
 
     year_start = current_balance_list.query(f'year<{year}').groupby(['employee_name']).sum('balance')['balance'] / 8
-    this_year = current_balance_list.query(f'year=={year}').groupby(['employee_name']).sum('balance')[
-                    'balance'] / 8
-    #used = current_balance_list.query(f'(year=={year}) and (balance<0)').groupby(['employee_name']).sum('balance')[
+    this_year = current_balance_list.query(f'year=={year}').groupby(['employee_name']).sum('balance')['balance'] / 8
+    # used = current_balance_list.query(f'(year=={year}) and (balance<0)').groupby(['employee_name']).sum('balance')[
     #           'balance'] / -8
     overview = pd.concat([year_start, this_year], axis=1).fillna(0)
     overview.columns = ['year_start', 'this_year']
@@ -79,7 +80,8 @@ def vrije_dagen_overzicht():
 def vrije_dagen_pool():
     vrije_dagen_overschot = vrije_dagen_overzicht()['pool'].sum()
     FTEs = aantal_fte()
-    return vrije_dagen_overschot/FTEs
+    return vrije_dagen_overschot / FTEs
+
 
 if __name__ == '__main__':
     os.chdir('..')

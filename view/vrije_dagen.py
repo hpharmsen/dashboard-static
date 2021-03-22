@@ -13,15 +13,16 @@ def render_vrije_dagen_page(output_folder: Path):
         [
             Table(
                 vrije_dagen_overzicht(),
-                TableConfig(headers = ['Naam', 'Vorig jaar', 'Dit jaar', 'Beschikbaar', 'Pool'],
-                            hide_columns = [4],
-                            aligns=['left', 'right', 'right', 'right', 'right'],
-                            formats=['', '.5', '.5', '.5', '.5'],
-                            totals=[0,0,0,0,1]),
+                TableConfig(
+                    headers=['Naam', 'Vorig jaar', 'Dit jaar', 'Beschikbaar', 'Pool'],
+                    hide_columns=[4],
+                    aligns=['left', 'right', 'right', 'right', 'right'],
+                    formats=['', '.5', '.5', '.5', '.5'],
+                    totals=[0, 0, 0, 0, 1],
+                ),
             ),
         ]
     )
-
 
     page = Page([TextBlock('Vrije dagen', headersize), omzet])
     page.render(output_folder / 'freedays.html')

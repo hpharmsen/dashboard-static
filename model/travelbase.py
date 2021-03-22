@@ -31,6 +31,7 @@ from model.trendline import trends
 
 BRANDS = ['waterland', 'ameland']
 
+
 def get_bookings():
     db = get_travelbase_db()
     dfs = []
@@ -40,20 +41,22 @@ def get_bookings():
                   where brand="{brand}" and status in ('accepted', 'cancelled-guest', 'cancelled-partner', 'no-show')
                   group by year, week 
                   order by year, week'''
-        df = dataframe( sql, db ).set_index(['year', 'week'])
+        df = dataframe(sql, db).set_index(['year', 'week'])
         dfs += [df]
     all = pd.concat(dfs, axis=1).fillna(0)
     all.columns = BRANDS
     all = all.reset_index()
-    all['day'] = all.apply(lambda a: datetime.datetime.strptime(f"{int(a['year'])}-W{int(a['week'])}-1", "%Y-W%W-%w").date(),
-                           axis=1)
+    all['day'] = all.apply(
+        lambda a: datetime.datetime.strptime(f"{int(a['year'])}-W{int(a['week'])}-1", "%Y-W%W-%w").date(), axis=1
+    )
 
     # Save to trends
     for index, row in all.iterrows():
         for brand in BRANDS:
-            trends.update( 'travelbase_'+brand, int(row[brand]), row['day'] )
+            trends.update('travelbase_' + brand, int(row[brand]), row['day'])
 
     return all
+
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.dirname(__file__)))

@@ -81,7 +81,7 @@ def commerce_block():
             TextBlock('Top 5 sales kansen', midsize),
             Table(top_x_sales(5), TableConfig(headers=[], aligns=['left', 'right'], formats=['', '€'])),
             # klanten_block()
-            travelbase_block()
+            travelbase_block(),
         ],
         link='sales.html',
     )
@@ -103,17 +103,19 @@ def klanten_block():
     )
     return klanten
 
+
 def travelbase_block():
     bookings = get_bookings()
     legend = ', '.join([f'{brand}: {int(bookings[brand].sum())}' for brand in BRANDS])
     return VBlock(
         [
             TextBlock('Travelbase', midsize),
-            TextBlock( 'Aantal boekingen per week', color=GRAY ),
+            TextBlock('Aantal boekingen per week', color=GRAY),
             travelbase.chart(bookings, 250, 180),
-            TextBlock( legend )
+            TextBlock(legend),
         ]
     )
+
 
 ######### Kolom 2: Operations ###########
 
@@ -484,13 +486,15 @@ def vakantiedagen_block():
     return VBlock(
         [
             TextBlock('Vrije dagen pool', midsize, padding=5),
-            TextBlock('Aantal dagen dat eigenlijk al opgemaakt<br/>had moeten worden maar dat niet is.', defsize,
-                      color=GRAY),
+            TextBlock(
+                'Aantal dagen dat eigenlijk al opgemaakt<br/>had moeten worden maar dat niet is.', defsize, color=GRAY
+            ),
             HBlock(
                 [
                     TextBlock(pool, midsize, format='.1', color=pool_color),
                     TextBlock('dagen/fte', color=GRAY, padding=0),
-                ], link='freedays.html'
+                ],
+                link='freedays.html',
             ),
         ]
     )

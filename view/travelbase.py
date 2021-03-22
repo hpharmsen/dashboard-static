@@ -11,20 +11,12 @@ from sources.database import get_db
 
 CHART_COLORS = [['#6666cc', '#ddeeff'], ['#66cc66', '#eeffdd'], ['cc#6666', '#ffddee']]
 
+
 def render_travelbase_page(output_folder):
     bookings = get_bookings()
     totals = [(brand, bookings[brand].sum()) for brand in BRANDS]
-    totals_table = Table(totals, TableConfig(
-                            aligns=['left', 'right'],
-                            formats = ['','0'],
-                            totals=[0,1]))
-    page = Page(
-        [
-            TextBlock('Travelbase', headersize),
-            chart( bookings, 600, 400 ),
-            totals_table
-        ]
-    )
+    totals_table = Table(totals, TableConfig(aligns=['left', 'right'], formats=['', '0'], totals=[0, 1]))
+    page = Page([TextBlock('Travelbase', headersize), chart(bookings, 600, 400), totals_table])
 
     page.render(output_folder / 'travelbase.html')
 
@@ -38,20 +30,19 @@ def chart(data, width, height):
     # query += 'from trends where trendline like "travelbase%" group by `date`'
     # data = db.execute(query)
 
-
     chartdata = []
     for brand_index in range(len(BRANDS)):
         xy = []
         for _, row in data.iterrows():
             x = row['day']
             y = 0
-            for j in range(brand_index+1):
+            for j in range(brand_index + 1):
                 brand = BRANDS[j]
                 y += row[brand]
-            xy += [{'x':x, 'y':y}]
+            xy += [{'x': x, 'y': y}]
         chartdata += [xy]
     max_value = max([xy['y'] for xy in chartdata[-1]])
-    max_value = 100 * math.ceil( max_value/100 )
+    max_value = 100 * math.ceil(max_value / 100)
     chart_config = ChartConfig(
         width=width,
         height=height,
