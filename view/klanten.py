@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 from model.resultaat import omzet_per_klant_laatste_zes_maanden
 
 # from model.winstgevendheid import winst_per_klant
@@ -7,7 +9,7 @@ from layout.block import VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 
 
-def render_klant_page():
+def render_klant_page(output_folder : Path):
 
     omzet = VBlock(
         [
@@ -33,7 +35,7 @@ def render_klant_page():
     # )
 
     page = Page([TextBlock('Klanten', headersize), omzet])
-    page.render('output/clients.html')
+    page.render(output_folder / 'clients.html')
 
 
 if __name__ == '__main__':

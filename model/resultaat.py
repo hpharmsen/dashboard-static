@@ -1,4 +1,5 @@
 import calendar
+import os
 from datetime import datetime, timedelta
 import warnings
 from model.caching import reportz
@@ -9,7 +10,7 @@ from decimal import Decimal
 from model.productiviteit import tuple_of_productie_users
 from sources import database as db
 from model.trendline import trends
-from sources.simplicate import simplicate, onderhanden_werk_list, DATE_FORMAT
+from sources.simplicate import simplicate, onderhanden_werk_list, DATE_FORMAT, hours_dataframe
 from sources.yuki import yuki
 from sources.googlesheet import sheet_tab, sheet_value
 
@@ -254,32 +255,15 @@ def update_omzet_per_week():
         trends.update(trend_name, week_turnover, monday)
 
 
-@reportz(hours=24)
+# @reportz(hours=24)
 def get_turnover_from_simplicate(fromday, untilday):
     # Including untilday
-    turnover = simplicate().turnover(
-        {'start_date': fromday.strftime('%Y-%m-%d'), 'end_date': untilday.strftime('%Y-%m-%d')}
-    )
+    # turnover = simplicate().turnover(
+    #     {'start_date': fromday.strftime('%Y-%m-%d'), 'end_date': untilday.strftime('%Y-%m-%d')}
+    # )
+    df = hours_dataframe().query(f'day >= "{fromday}" and day<="{untilday}" and project_number !="TOR-3"')
+    turnover = df['turnover'].sum()
     return int(turnover)
-
-
-def toekomstige_omzet_per_week():
-    last_day = trends.last_registered_day('omzet_per_week')
-    query = f'''select min(day) as monday, ifnull(round(sum(dayhours)),0) as plannedhours from
-        (select day, sum(hours) as dayhours from
-            (select date(startDate) as day,
-                    sum(least((enddate - startDate)/10000,8)) as hours
-             from planning_reservation pr
-             join planning_location pl on pl.id=pr.planning_locationId
-             left join project p on p.id=pr.projectId
-             where startDate > "{last_day}" AND planning_typeId = '17' and p.customerId<>4
-             group by day) q1
-        group by day) q2
-    group by year(day), week(day)
-    having weekday(monday)=0
-    order by day'''
-    table = db.dataframe(query)[1:]  # vanaf 1 omdat de eerste waarde ook al in de omzet_per_week zit
-    return [{'monday': last_day, 'weekturnover': 0}]  # TODO: DEZE MOET EEN LIJST VAN VERWACHTE OMZETTEN GAAN TERUGGEVEN
 
 
 def vulling_van_de_planning():
@@ -448,8 +432,23 @@ def omzet_per_klant_laatste_zes_maanden():
 
 
 if __name__ == '__main__':
+    os.chdir('..')
     # update_omzet_per_week()
     # print(debiteuren_leeftijd_analyse())
     # print(debiteuren_30_60_90_yuki())
     # print(toekomstige_omzet_per_week())
-    print(vulling_van_de_planning())
+    # print(vulling_van_de_planning())
+    turnover = get_turnover_from_simplicate('2021-03-01', '2021-03-07')
+    hours = simplicate().hours_simple({'start_date': '2021-03-01', 'end_date': '2021-03-07'})
+    df = pd.DataFrame(hours)
+    df['turnover'] = df.apply(
+        lambda a: (a['hours'] + a['corrections']['amount'])
+        * (a['tariff'] if a['tariff'] > 0 else float(a['service_tariff'])),
+        axis=1,
+    )
+    w9_proj = df.query('turnover>0').groupby(['project_number']).sum('turnover')
+    sm = w9_proj['turnover'].sum()
+    df['turnover'] = df.apply(lambda a: a['turnover'] / 2 if a['project_number'] == 'TOR-3' else a['turnover'], axis=1)
+    w9_proj = df.query('turnover>0').groupby(['project_number']).sum('turnover')
+    sm = w9_proj['turnover'].sum()
+    pass

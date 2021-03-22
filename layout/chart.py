@@ -363,6 +363,81 @@ class ScatterChart(Chart):
         }}'''
 
 
+class MultiScatterChart(Chart):
+    def __init__(self, value_lists, config):
+        super().__init__(value_lists, config)
+
+        self.type = 'line'
+        self.datasets = '['
+        for i, values in enumerate(value_lists):
+            if config.x_type == 'date':
+                valuestr = '['
+                for v in values:
+                    valuestr += f"{{ 'x':'{v['x']}', 'y': {v['y']} }}, "
+                valuestr = valuestr[:-2] + ']'
+            else:
+                valuestr = values
+            self.datasets += f'''{{
+                                    label: '{config.title}',
+                                    data: {valuestr},
+                                    borderColor: '{config.colors[i][BORDER_COLOR]}',
+                                    backgroundColor: '{config.colors[i][FILL_COLOR]}',
+                                    borderWidth: 1, 
+                                    fill: true, 
+                                  }},'''
+        self.datasets = self.datasets[:-1] + ']'
+        # self.labels = []
+        self.canvas_height_difference = 0  # Is for scatter chart other than for other chart types
+
+        self.options = f'''{{
+            title: {{
+                display: false
+            }},
+            legend: {{
+                display: false
+            }},
+            elements: {{
+                point:{{
+                    radius: 0
+                }}
+            }},
+            scales: {{
+                xAxes: [{{
+                    position: 'bottom',
+                    type: 'time',
+                    time: {{
+						parser: 'YYYY-MM-DD',
+						unit: 'month',
+						displayFormats: {{
+                            month: '     MMM'
+                        }},
+                        {self.x_axis_max_ticks}
+                        {self.x_axis_font_size}
+                        {self.xmin}
+                        {self.xmax}
+                        unitStepSize: 1
+					}},
+                    ticks: {{
+                        fontSize:9
+                    }},
+					scaleLabel: {{
+						display: true
+					}},
+                    gridLines: {{
+                        offsetGridLines: false
+                    }}
+                }}],      
+                yAxes: [{{
+                    ticks: {{
+                        {self.y_axis_max_ticks}
+                        {self.y_axis_font_size}
+                        {self.ymin}
+                        {self.ymax}
+                    }}
+                }}]      
+            }}
+        }}'''
+
 # class Option():
 #     def __init__(self, name, contents=None):
 #         self.name = name

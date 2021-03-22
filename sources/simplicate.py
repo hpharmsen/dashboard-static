@@ -122,12 +122,17 @@ def update_hours():
     return df
 
 
-def complement(df):
-    df['tariff'] = df.apply(lambda a: a['tariff'] / 2 if a['project_number'] == 'TOR-3' else a['tariff'], axis=1)
-    df['service_tariff'] = df.apply(
-        lambda a: a['service_tariff'] / 2 if a['project_number'] == 'TOR-3' else a['service_tariff'], axis=1
-    )
+def complement(df):  #!!
+    # df['tariff'] = df.apply(lambda a: a['tariff'] / 2 if a['project_number'] == 'TOR-3' else a['tariff'], axis=1)
+    # df['service_tariff'] = df.apply(
+    #    lambda a: a['service_tariff'] / 2 if a['project_number'] == 'TOR-3' else a['service_tariff'], axis=1
+    # )
     df['turnover'] = (df['hours'] + df['corrections']) * df['tariff']
+    df['turnover'] = df.apply(
+        lambda a: 0 if a['project_number'] == 'TOR-3' and a['service'] == 'Development Sprints Q1' else a['turnover'],
+        axis=1,
+    )
+
     df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1], axis=1)
 
 

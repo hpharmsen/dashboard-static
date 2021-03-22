@@ -18,7 +18,7 @@ def render_correcties_page(output_folder: Path):
         TableConfig(
             headers=['Klant', 'Project', 'Uren', 'Correcties'],
             aligns=['left', 'left', 'right', 'right'],
-            totals=[0, 0, 1, 1],
+            totals=[0, 0, 0, 1],
             row_linking=row_linking,
             hide_columns=[2],  # project_id
         ),

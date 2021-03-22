@@ -43,9 +43,9 @@ from view.sales import render_sales_page
 
 # from view.service import render_service_page
 # from view.service_issues import render_service_issues_page
+from view.vrije_dagen import render_vrije_dagen_page
 from view.winstgevendheid import render_winstgevendheid_page
 from view.onderhanden_werk import render_onderhanden_werk_page
-from view.tor import render_tor_page
 from view.resultaat_berekening import render_resultaat_berekening
 from view.budget import render_budget_status_page
 from view.target import render_target_page
@@ -87,6 +87,8 @@ def copy_resources():
 
 def render_all_pages():
     # render the html pages
+    print( '..vrije dagen')
+    render_vrije_dagen_page(output_folder)
     print( '..sales')
     render_sales_page(output_folder)
     print( '..onderhanden')

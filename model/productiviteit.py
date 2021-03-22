@@ -222,7 +222,7 @@ def corrections_last_month():
     return result
 
 
-@reportz(hours=24)
+# @reportz(hours=24)
 def corrections_all():
     df = hours_dataframe()
     result = (
@@ -232,6 +232,7 @@ def corrections_all():
         .sort_values('corrections')
         .reset_index()
     )
+    result['corrections'] = result.apply(lambda a: int(a['corrections']), axis=1)
     return result
 
 

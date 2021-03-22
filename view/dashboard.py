@@ -29,14 +29,14 @@ from model.resultaat import (
     winst_verschil,
     top_x_klanten_laatste_zes_maanden,
     update_omzet_per_week,
-    toekomstige_omzet_per_week,
-    debiteuren_30_60_90_extranet,
     debiteuren_30_60_90_yuki,
     gemiddelde_betaaltermijn,
     vulling_van_de_planning,
 )
 from model.sales import sales_waarde, werk_in_pijplijn, top_x_sales
+from model.travelbase import get_bookings, BRANDS
 from model.trendline import trends
+from view import travelbase
 
 GREEN = 'green'  #'#7C7'
 YELLOW = '#FD0'
@@ -81,6 +81,7 @@ def commerce_block():
             TextBlock('Top 5 sales kansen', midsize),
             Table(top_x_sales(5), TableConfig(headers=[], aligns=['left', 'right'], formats=['', '€'])),
             # klanten_block()
+            travelbase_block()
         ],
         link='sales.html',
     )
@@ -102,6 +103,17 @@ def klanten_block():
     )
     return klanten
 
+def travelbase_block():
+    bookings = get_bookings()
+    legend = ', '.join([f'{brand}: {int(bookings[brand].sum())}' for brand in BRANDS])
+    return VBlock(
+        [
+            TextBlock('Travelbase', midsize),
+            TextBlock( 'Aantal boekingen per week', color=GRAY ),
+            travelbase.chart(bookings, 250, 180),
+            TextBlock( legend )
+        ]
+    )
 
 ######### Kolom 2: Operations ###########
 
@@ -280,12 +292,12 @@ def corrections_block():
                 ],
                 padding=70,
             ),
-            TextBlock(
-                'Projecten met minimaal 10 gecorrigeerde uren de laatste 30 dagen.<br/>Tabel toont uren en gecorrigeerde uren.',
-                color=GRAY,
-                padding=-20,
-            ),
-            corrections_table,
+            # TextBlock(
+            #     'Projecten met minimaal 10 gecorrigeerde uren de laatste 30 dagen.<br/>Tabel toont uren en gecorrigeerde uren.',
+            #     color=GRAY,
+            #     padding=-20,
+            # ),
+            # corrections_table,
         ],
         link='corrections.html',
     )
@@ -467,16 +479,19 @@ def verzuim_block():
 
 
 def vakantiedagen_block():
+    pool = vrije_dagen_pool()
+    pool_color = dependent_color(pool, 10, 2)
     return VBlock(
         [
             TextBlock('Vrije dagen pool', midsize, padding=5),
-            TextBlock('Moet uit Simplicate gaan komen', color=GRAY),
-            # HBlock(
-            #     [
-            #         TextBlock(vrije_dagen_pool(), midsize, format='.1', color=BLACK, padding=0),
-            #         TextBlock('dagen/fte', color=GRAY, padding=0),
-            #     ]
-            # ),
+            TextBlock('Aantal dagen dat eigenlijk al opgemaakt<br/>had moeten worden maar dat niet is.', defsize,
+                      color=GRAY),
+            HBlock(
+                [
+                    TextBlock(pool, midsize, format='.1', color=pool_color),
+                    TextBlock('dagen/fte', color=GRAY, padding=0),
+                ], link='freedays.html'
+            ),
         ]
     )
 

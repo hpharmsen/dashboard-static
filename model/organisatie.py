@@ -1,10 +1,12 @@
+import datetime
 import os
 from datetime import datetime, timedelta
 
+import pandas as pd
+
 from model.utilities import fraction_of_the_year_past
 from sources.googlesheet import sheet_tab, sheet_value
-from sources import database as db
-from sources.simplicate import hours_dataframe
+from sources.simplicate import hours_dataframe, simplicate, DATE_FORMAT
 from model.caching import reportz
 
 FTE_SHEET = 'Begroting 2020'
@@ -44,80 +46,40 @@ def verzuimpercentage(days=91):
     return percentage
 
 
+
 @reportz(hours=24)
+def vrije_dagen_overzicht():
+    sim = simplicate()
+    today = datetime.today().strftime(DATE_FORMAT)
+    year = datetime.today().year
+    frac = fraction_of_the_year_past()
+
+    employees = sim.to_pandas(sim.timetable()).query(
+        f"(end_date != end_date) or (end_date>'{today}')").employee_name.unique()  # (end_date != end_date) is to check for NaN
+    full_balance_list = sim.to_pandas(sim.leavebalance())
+    current_balance_list = full_balance_list[full_balance_list.employee_name.isin(employees)].query(
+        'leavetype_affects_balance==True')
+    current_balance_list = current_balance_list[
+        current_balance_list['employee_name'] != 'Filipe José Mariano dos Santos']
+
+    year_start = current_balance_list.query(f'year<{year}').groupby(['employee_name']).sum('balance')['balance'] / 8
+    this_year = current_balance_list.query(f'year=={year}').groupby(['employee_name']).sum('balance')[
+                    'balance'] / 8
+    #used = current_balance_list.query(f'(year=={year}) and (balance<0)').groupby(['employee_name']).sum('balance')[
+    #           'balance'] / -8
+    overview = pd.concat([year_start, this_year], axis=1).fillna(0)
+    overview.columns = ['year_start', 'this_year']
+    overview['available'] = overview.apply(lambda x: x['year_start'] + x['this_year'], axis=1)
+    overview['should_be_used'] = overview.apply(lambda x: x['this_year'] * frac, axis=1)
+    overview['pool'] = overview.apply(lambda x: x['year_start'] + x['should_be_used'], axis=1)
+    overview.reset_index(level=0, inplace=True)
+    return overview
+
+
 def vrije_dagen_pool():
-    y = datetime.today().year
-    left_over_from_last_year = db.value(f'select sum(amount) from freedays where type="end" and year={y-1}')
-    free_days_for_this_year = db.value(f'select sum(amount) from freedays where type="start" and year={y}')
-    beschikbaar_hele_jaar = int(free_days_for_this_year + left_over_from_last_year)
-    daadwerkelijk_opgemaakt = db.value(
-        f'''SELECT sum(if( name like "%(Dag vrij)", 1, if(name like "%(Halve dag vrij)", .5, 0))) as opgemaakt
-                             FROM planning_reservation
-                             WHERE planning_typeId = '18' and year(startDate)={y}  and startdate<NOW() and planning_locationId is not null'''
-    )
-    normaal_gesproken_opgemaakt = int(beschikbaar_hele_jaar * fraction_of_the_year_past())
-    pool = (normaal_gesproken_opgemaakt - daadwerkelijk_opgemaakt) / aantal_fte()
-    # print( 'beschikbaar',beschikbaar )
-    # print( 'normaal', normaal)
-    # print( 'pool', pool)
-    return pool
-
-
-#
-# @reportz
-# def geboekte_uren_productie():
-#     y = datetime.today().year
-#     query = f'''select sum(hours) as hours
-#                 from timesheet ts, planning_location pl
-#                 where year(day) = {y} and pl.name = ts.user and planning_locationGroupId in (2, 3, 4, 6, 8, 9, 13)'''
-#     return db.value(query)
-#
-#
-# @reportz
-# def geboekte_uren_totaal():
-#     y = datetime.today().year
-#     query = f'''select sum(hours) as hours from timesheet where year(day)={y}'''
-#     return db.value(query)
-#
-#
-# @reportz
-# def billable_uren_productie():
-#     y = datetime.today().year
-#     query = f'''select sum(hours) from timesheet ts, project p, planning_location pl
-#                 where ts.projectId=p.id and pl.name=ts.user and internal=0 and year(day)={y}
-#                   and ts.taskId in (-6,-4,-2,2,3,4,5,7,8,21,22) and planning_locationGroupId in (2,3,4,6,8,9,13)'''
-#     return db.value(query)
-#
-#
-# @reportz
-# def billable_uren_totaal():
-#     y = datetime.today().year
-#     query = f'''select sum(hours) from timesheet ts, project p
-#                 where ts.projectId=p.id and internal=0 and year(day)={y} and ts.taskId in (-6,-4,-2,3,4,5,6,7,8,21,22)'''
-#     return db.value(query)
-#
-#
-# @reportz
-# def bezettingsgraad_productie():
-#     return 100.0 * billable_uren_productie() / geboekte_uren_productie()
-#
-#
-# @reportz
-# def bezettingsgraad_totaal():
-#     return 100.0 * billable_uren_totaal() / geboekte_uren_totaal()
-#
-#
-# @reportz
-# def mensen_in_productie():
-#     query = 'select count(*) from planning_location pl join planning_locationgroup plg on plg.id=pl.planning_locationGroupId'
-#     return db.value(query)
-#
-#
-# @reportz
-# def productiedagen_per_maand():
-#     dagen_per_maand = 45 * 5 / 12
-#     productie_percentage = aantal_fte() / aantal_mensen() * 0.85  # ObSessions
-#     return mensen_in_productie() * dagen_per_maand * productie_percentage
+    vrije_dagen_overschot = vrije_dagen_overzicht()['pool'].sum()
+    FTEs = aantal_fte()
+    return vrije_dagen_overschot/FTEs
 
 if __name__ == '__main__':
     os.chdir('..')

@@ -18,14 +18,26 @@ class TrendLines:
         self.load()
 
     def update(self, trendname, value, date=None):
-        if not date:
-            date = datetime.date.today()
-        datestr = date.strftime('%Y-%m-%d')
+        db = get_db()
+        if type(date) == str:
+            datestr = date
+        else:
+            if not date:
+                date = datetime.date.today()
+            datestr = date.strftime('%Y-%m-%d')
+        db.updateinsert(
+            'trends',
+            {'trendline': trendname, 'date': datestr},
+            {'trendline': trendname, 'date': datestr, 'value': value},
+        )
+
+        # Try to update the trend
         trend = self.trends[trendname]
         for i in reversed(range(len(trend))):
             if trend and trend[i][0] == datestr:
                 trend[i][1] = value
                 return
+        # If date not found in trend: add this value.
         trend += [[datestr, value]]
 
     def last_registered_day(self, trendname):
@@ -68,6 +80,7 @@ class TrendLines:
         # with open(self.trendfile, 'w') as f:
         #    f.write(json.dumps(self.trends,
         #                       indent=4))
+        exit()
         db = get_db()
         for trendname, values in self.trends.items():
             for date, value in values:
@@ -94,12 +107,12 @@ class TrendLines:
 trends = TrendLines()
 
 
-def save_trends():
-    global trends
-    trends.save()
-
-
-atexit.register(save_trends)
+# def save_trends():
+#     global trends
+#     trends.save()
+#
+#
+# atexit.register(save_trends)
 
 if __name__ == '__main__':
     # trends.update( 'newline', 10, datetime.datetime(2019,10,1))
