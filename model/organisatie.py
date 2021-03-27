@@ -46,10 +46,10 @@ def verzuimpercentage(days=91):
     return percentage
 
 
-@reportz(hours=24)
+# @reportz(hours=24)
 def vrije_dagen_overzicht():
     sim = simplicate()
-    today = datetime.today().strftime(DATE_FORMAT)
+    today = datetime.today().strftime('%Y-%m-%d')
     year = datetime.today().year
     frac = fraction_of_the_year_past()
 
@@ -63,17 +63,51 @@ def vrije_dagen_overzicht():
     current_balance_list = current_balance_list[
         current_balance_list['employee_name'] != 'Filipe José Mariano dos Santos'
     ]
+    last_year = current_balance_list.query(f'year<{year}').groupby(['employee_name']).sum('balance')['balance'] / 8
 
-    year_start = current_balance_list.query(f'year<{year}').groupby(['employee_name']).sum('balance')['balance'] / 8
-    this_year = current_balance_list.query(f'year=={year}').groupby(['employee_name']).sum('balance')['balance'] / 8
-    # used = current_balance_list.query(f'(year=={year}) and (balance<0)').groupby(['employee_name']).sum('balance')[
-    #           'balance'] / -8
-    overview = pd.concat([year_start, this_year], axis=1).fillna(0)
-    overview.columns = ['year_start', 'this_year']
-    overview['available'] = overview.apply(lambda x: x['year_start'] + x['this_year'], axis=1)
-    overview['should_be_used'] = overview.apply(lambda x: x['this_year'] * frac, axis=1)
-    overview['pool'] = overview.apply(lambda x: x['year_start'] + x['should_be_used'], axis=1)
+    # This year
+    fulll_thisyear_list = sim.to_pandas(sim.leave({'year': year}))
+    current_thisyear_list = fulll_thisyear_list[fulll_thisyear_list.employee_name.isin(employees)].query(
+        'leavetype_affects_balance==True'
+    )
+    this_year_balance = current_thisyear_list.groupby(['employee_name']).sum('hours')['hours'] / 8
+    this_year_new = current_thisyear_list.groupby(['employee_name']).max('hours')['hours'] / 8
+    overview = pd.concat([last_year, this_year_new, this_year_balance], axis=1).fillna(0)
+    overview.columns = ['last_year', 'this_year_new', 'this_year_balance']
+    overview['available'] = overview.apply(lambda x: x['last_year'] + x['this_year_balance'], axis=1)
+    overview['pool'] = overview.apply(lambda x: x['last_year'] + x['this_year_new'] * frac, axis=1)
     overview.reset_index(level=0, inplace=True)
+    # today = datetime.today().strftime(DATE_FORMAT)
+    # year = datetime.today().year
+    # frac = fraction_of_the_year_past()
+    #
+    # employees = (
+    #     sim.to_pandas(sim.timetable()).query(f"(end_date != end_date) or (end_date>'{today}')").employee_name.unique()
+    # )  # (end_date != end_date) is to check for NaN
+    # full_balance_list = sim.to_pandas(sim.leavebalance())
+    # current_balance_list = full_balance_list[full_balance_list.employee_name.isin(employees)].query(
+    #     'leavetype_affects_balance==True'
+    # )
+    # current_balance_list = current_balance_list[
+    #     current_balance_list['employee_name'] != 'Filipe José Mariano dos Santos'
+    # ]
+    #
+    # last_year = current_balance_list.query(f'year<{year}').groupby(['employee_name']).sum('balance')['balance'] / 8
+    #
+    # # This year
+    # fulll_thisyear_list = sim.to_pandas(sim.leave({'year':year}))
+    # current_thisyear_list = fulll_thisyear_list[fulll_thisyear_list.employee_name.isin(employees)].query(
+    #     'leavetype_affects_balance==True'
+    # )
+    # this_year_balance = current_thisyear_list.groupby(['employee_name']).sum('hours')['hours'] / 8
+    # this_year_new = current_thisyear_list.groupby(['employee_name']).max('hours')['hours'] / 8
+    # # used = current_balance_list.query(f'(year=={year}) and (balance<0)').groupby(['employee_name']).sum('balance')[
+    # #           'balance'] / -8
+    # overview = pd.concat([last_year, this_year_new, this_year_balance], axis=1).fillna(0)
+    # overview.columns = ['year_start', 'this_year']
+    # overview['available'] = overview.apply(lambda x: x['last_year'] + x['this_year_balance'], axis=1)
+    # overview['pool'] = overview.apply(lambda x: x['last_year'] + x['this_year_start'] * frac, axis=1)
+    # overview.reset_index(level=0, inplace=True)
     return overview
 
 

@@ -1,7 +1,6 @@
 import calendar
 import os
 from datetime import datetime, timedelta
-import warnings
 from model.caching import reportz
 from beautiful_date import *
 import pandas as pd
@@ -327,88 +326,6 @@ def vulling_van_de_planning():
     )
     res = table[['monday', 'filled']].to_dict('records')
     return res
-
-
-#################### DEBITEUREN ################################################
-def debiteuren_leeftijd_analyse():
-    df = debiteuren_leeftijd_analyse_extranet()
-    yuki_result = debiteuren_leeftijd_analyse_yuki()
-    df = df.append(yuki_result, ignore_index=True)
-    df = (
-        df.groupby(["factuuradres"])
-        .agg({'open': 'sum', 'a30': 'sum', "a60": 'sum', 'a90': 'sum', "90plus": 'sum'})
-        .reset_index()
-    )
-    df = df.sort_values("open", ascending=False)
-    return df
-
-
-@reportz(hours=24)
-def debiteuren_leeftijd_analyse_extranet():
-    query = 'select * from age_analysis_view order by 90plus desc, a90 desc, a60 desc'
-    warnings.filterwarnings("ignore")
-    result = db.dataframe(query)
-    return result
-
-
-@reportz(hours=24)
-def debiteuren_leeftijd_analyse_yuki():
-    debiteuren = yuki().debtors()
-    df = pd.DataFrame(debiteuren)
-    df = df.drop(df[df.open <= 0].index)
-    # df = df.drop( 'open <= 0', axis=1)
-    df['a30'] = df.apply(lambda row: row.open if row.days < 30 else 0, axis=1)
-    df['a60'] = df.apply(lambda row: row.open if 30 <= row.days < 60 else 0, axis=1)
-    df['a90'] = df.apply(lambda row: row.open if 60 <= row.days < 90 else 0, axis=1)
-    df['90plus'] = df.apply(lambda row: row.open if row.days >= 90 else 0, axis=1)
-    df.rename(columns={'customer': 'factuuradres'}, inplace=True)
-    df = (
-        df.groupby(["factuuradres"])
-        .agg({'open': 'sum', 'a30': 'sum', "a60": 'sum', 'a90': 'sum', "90plus": 'sum'})
-        .reset_index()
-    )
-    df = df.sort_values("open", ascending=False)
-    return df
-
-
-@reportz(hours=24)
-def debiteuren_openstaand():
-    dla = debiteuren_leeftijd_analyse()
-    return dla['open'].sum()
-
-
-@reportz(hours=24)
-def debiteuren_30_60_90():
-    dla = debiteuren_leeftijd_analyse()
-    a30 = dla['a30'].sum()
-    a60 = dla['a60'].sum()
-    a90 = dla['a90'].sum()
-    plus90 = dla['90plus'].sum()
-    return (a30, a60, a90, plus90)
-
-
-def debiteuren_30_60_90_extranet():
-    dla = debiteuren_leeftijd_analyse_extranet()
-    a30 = dla['a30'].sum()
-    a60 = dla['a60'].sum()
-    a90 = dla['a90'].sum()
-    plus90 = dla['90plus'].sum()
-    return (a30, a60, a90, plus90)
-
-
-def debiteuren_30_60_90_yuki():
-    dla = debiteuren_leeftijd_analyse_yuki()
-    a30 = int(dla['a30'].sum())
-    a60 = int(dla['a60'].sum())
-    a90 = int(dla['a90'].sum())
-    plus90 = int(dla['90plus'].sum())
-    return (a30, a60, a90, plus90)
-
-
-def gemiddelde_betaaltermijn(days=90):
-    query = f'''select avg(datediff(payment_date,invoice_date)) as days
-                from invoice where payment_date >= DATE(NOW()) - INTERVAL {days} DAY'''
-    return db.value(query)
 
 
 ################# KLANTEN #####################################

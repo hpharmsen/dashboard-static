@@ -205,6 +205,7 @@ def format_project_name(row):
 
 @reportz(hours=24)
 def corrections_last_month():
+    # Returns a dataframe with project, hours
     df = hours_dataframe()
     lastmonth = (datetime.datetime.today() + datetime.timedelta(days=-30)).strftime(DATE_FORMAT)
     x = (
@@ -224,6 +225,7 @@ def corrections_last_month():
 
 # @reportz(hours=24)
 def corrections_all():
+    # returns a dataframe of organization, project_name, project_id, corrections
     df = hours_dataframe()
     result = (
         df.groupby(['organization', 'project_name', 'project_id'])

@@ -201,6 +201,7 @@ class StackedBarChart(Chart):
         self.datasets = '['
         for label, value, color, dls in zip(config.labels, self.values, config.colors, dl):
             if type(value) != type([]):
+                # Single bar
                 value = [value]
             self.datasets += f'''{{
                                     label: '{label}',
@@ -210,7 +211,7 @@ class StackedBarChart(Chart):
                                   }},'''
         self.datasets = self.datasets[:-1] + ']'
         bottom_labels = config.bottom_labels if config.bottom_labels else [config.title]
-        bottom_label_string = "', '".join(bottom_labels)
+        bottom_label_string = "', '".join([str(bl) for bl in bottom_labels])
         self.labels = f"['{bottom_label_string}']"
         ticks = f',ticks: {{max: {config.max_y_axis}}}' if config.max_y_axis else ''
         self.options = f'''{{
@@ -365,6 +366,7 @@ class ScatterChart(Chart):
 
 class MultiScatterChart(Chart):
     def __init__(self, value_lists, config):
+        # value_lists is the list of data lines. Each line is a list of values.
         super().__init__(value_lists, config)
 
         self.type = 'line'

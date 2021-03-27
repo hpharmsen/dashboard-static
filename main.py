@@ -1,13 +1,11 @@
 # TODO
+# Werkkapitaal en cashflow in dashboard
 # omzet_per_klant_laatste_zes_maanden()
 # Gemiddeld uurtarief op billable uren en totaal (omzet/uren)
-
 # - Omzet prognose uit Simplicate
 # - Begroot aantal mensen
-# - Verzuim en vrije dagen uit Simplicate
-
 # - Billable uren vs geplande uren?
-
+# Percentage Herhaalopdrachten (churn)
 # Elke medewerker heeft een rooster, zodat hij weet hoeveel uren je werkt p/w.
 # Daar zouden vaste vrije dagen uit kunnen komen (bv elke oneven woensdag).
 # Dat zit wrs. op een heel andere plek in de API inderdaad (employee>roster?)
@@ -49,20 +47,24 @@ from view.onderhanden_werk import render_onderhanden_werk_page
 from view.resultaat_berekening import render_resultaat_berekening
 from view.budget import render_budget_status_page
 from view.target import render_target_page
+from view.travelbase import render_travelbase_page
 
 from configparser import ConfigParser
 from pathlib import Path
 
-ini = ConfigParser()
-ini.read(Path(__file__).resolve().parent / 'sources' / 'credentials.ini')
-output_folder = Path(ini['output']['folder'])
 
 
 def main():
     cd_to_script_path()
     initialize_cache()
-    copy_resources()
-    render_all_pages()
+    output_folder = get_output_folder()
+    copy_resources(output_folder)
+    render_all_pages(output_folder)
+
+def get_output_folder():
+    ini = ConfigParser()
+    ini.read(Path(__file__).resolve().parent / 'sources' / 'credentials.ini')
+    return Path(ini['output']['folder'])
 
 
 def cd_to_script_path():
@@ -78,14 +80,15 @@ def initialize_cache():
     load_cache()
 
 
-def copy_resources():
+def copy_resources(output_folder):
+    # Copy things like js and css files
     resource_path = Path(__file__).resolve().parent / 'resources'
     for p in resource_path.iterdir():
         if p.is_file() and p.name[0] != '.':
             shutil.copyfile( p, output_folder / p.name )
 
 
-def render_all_pages():
+def render_all_pages(output_folder):
     # render the html pages
     print( '..vrije dagen')
     render_vrije_dagen_page(output_folder)
@@ -103,6 +106,10 @@ def render_all_pages():
     render_resultaat_berekening(output_folder)
     print( '..correcties')
     render_correcties_page(output_folder)
+    print( '..travelbase')
+    render_travelbase_page(output_folder)
+
+    # Pages missing since the move to Simplicate. They might or might not return.
     # render_resultaat_vergelijking_page(output_folder)
     # render_productiviteit_page(output_folder)
     # render_tor_page(output_folder)

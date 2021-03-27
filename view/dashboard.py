@@ -2,7 +2,6 @@ import json
 import os
 import datetime
 import urllib
-
 from dateutil.relativedelta import relativedelta
 
 from model.caching import load_cache
@@ -29,14 +28,13 @@ from model.resultaat import (
     winst_verschil,
     top_x_klanten_laatste_zes_maanden,
     update_omzet_per_week,
-    debiteuren_30_60_90_yuki,
-    gemiddelde_betaaltermijn,
     vulling_van_de_planning,
 )
+from model.finance import debiteuren_30_60_90_yuki, gemiddelde_betaaltermijn
 from model.sales import sales_waarde, werk_in_pijplijn, top_x_sales
 from model.travelbase import get_bookings, BRANDS
 from model.trendline import trends
-from view import travelbase
+from view.travelbase import scatterchart as travelbase_scatterchart
 
 GREEN = 'green'  #'#7C7'
 YELLOW = '#FD0'
@@ -47,6 +45,7 @@ GRAY = 'gray'
 
 
 def dependent_color(value, red_treshold, green_treshold):
+    # Returns color GREEN, BLACK, RED depending on value
     if red_treshold < green_treshold:
         return RED if value < red_treshold else GREEN if value > green_treshold else BLACK
     else:
@@ -54,9 +53,7 @@ def dependent_color(value, red_treshold, green_treshold):
 
 
 def render_dashboard(output_folder):
-
     page = Page([HBlock([commerce_block(), operations_block(), finance_block(), hr_block()])])
-
     page.render(output_folder / 'dashboard.html')
 
 
@@ -64,32 +61,35 @@ def render_dashboard(output_folder):
 
 
 def commerce_block():
-    sales_waarde_val = sales_waarde()
-    sales_waarde_color = dependent_color(sales_waarde_val, 200000, 300000)
-    sales = VBlock(
+    sales_waarde_value = sales_waarde()
+    sales_waarde_color = dependent_color(sales_waarde_value, 200000, 300000)
+    commerce = VBlock(
         [
             TextBlock('Commerce', headersize),
             TextBlock('saleswaarde', midsize, padding=10),
             TextBlock(
-                sales_waarde_val,
+                sales_waarde_value,
                 headersize,
                 format='K',
                 color=sales_waarde_color,
                 tooltip='Som van openstaande trajecten<br/>maal hun kans.',
             ),
             trends.chart('sales_waarde', 250, 150, min_y_axis=0, x_start=six_months_ago()),
-            TextBlock('Top 5 sales kansen', midsize),
-            Table(top_x_sales(5), TableConfig(headers=[], aligns=['left', 'right'], formats=['', '€'])),
+            VBlock(
+                [
+                    TextBlock('Top 5 sales kansen', midsize),
+                    Table(top_x_sales(5), TableConfig(headers=[], aligns=['left', 'right'], formats=['', '€'])),
+                ],
+                link='sales.html',
+            ),
             # klanten_block()
             travelbase_block(),
-        ],
-        link='sales.html',
+        ]
     )
-    return sales
+    return commerce
 
 
 def klanten_block():
-    # Risico
     klanten = VBlock(
         [
             TextBlock('Klanten', midsize),
@@ -111,9 +111,10 @@ def travelbase_block():
         [
             TextBlock('Travelbase', midsize),
             TextBlock('Aantal boekingen per week', color=GRAY),
-            travelbase.chart(bookings, 250, 180),
+            travelbase_scatterchart(bookings, 250, 180),
             TextBlock(legend),
-        ]
+        ],
+        link='travelbase.html',
     )
 
 
@@ -136,7 +137,7 @@ def productiviteit_block():
 
     # Productiviteit is: max aantal werkuren (contract minus verlof en feestdagen) * 85%
     productivity_coloring = lambda value: dependent_color(value, 68, 75)
-    # Volgens Simplicate > 75% is goed (rood), >70% is redelijk, >65 is break even, <65% is verlies
+    # Volgens Simplicate > 75% is goed (groen), >70% is redelijk, >65 is break even, <65% is verlies
 
     lastmonth = datetime.date.today() - datetime.timedelta(days=30)
 
@@ -220,19 +221,12 @@ def billable_chart():
     )
 
 
-#
-
-
 def planning_chart():
-    # En in de toekomst
+    # Vulling van de planning uit de planning database
     six_months_from_now = datetime.date.today() + relativedelta(months=6)
     six_months_from_now_str = six_months_from_now.strftime('%Y-%m-%d')
     today_str = datetime.date.today().strftime('%Y-%m-%d')
-    xy = [
-        {'x': a['monday'], 'y': a['filled']}
-        for a in vulling_van_de_planning()
-        # if a['monday'] <= six_months_from_now_str
-    ]
+    xy = [{'x': a['monday'], 'y': a['filled']} for a in vulling_van_de_planning()]
     return VBlock(
         [
             TextBlock('Planning', midsize),
@@ -255,7 +249,7 @@ def planning_chart():
 
 
 def pijplijn_block():
-    return None  #!!
+    return None  # Moet nog uit Simplicate komen
     in_pijplijn_value = werk_in_pijplijn()
     in_pijplijn_color = dependent_color(in_pijplijn_value, 350000, 500000)
     pijplijn = VBlock(
@@ -275,15 +269,9 @@ def pijplijn_block():
 
 
 def corrections_block():
-    def corrections_coloring(rowindex, line):
-        return dependent_color(int(line[1].split('/')[0]), red_treshold=20, green_treshold=0)
-
     def corrections_percentage_coloring(value):
         return dependent_color(value, red_treshold=4.9, green_treshold=2)
 
-    corrections_table = Table(
-        corrections_last_month(), TableConfig(aligns=['left', 'right'], row_coloring=corrections_coloring)
-    )
     result = VBlock(
         [
             TextBlock('Correcties', midsize),
@@ -294,12 +282,6 @@ def corrections_block():
                 ],
                 padding=70,
             ),
-            # TextBlock(
-            #     'Projecten met minimaal 10 gecorrigeerde uren de laatste 30 dagen.<br/>Tabel toont uren en gecorrigeerde uren.',
-            #     color=GRAY,
-            #     padding=-20,
-            # ),
-            # corrections_table,
         ],
         link='corrections.html',
     )
@@ -501,7 +483,7 @@ def vakantiedagen_block():
 
 
 def tevredenheid_block():
-    return VBlock([TextBlock('Happiness', midsize), TextBlock('Data nodig...', color=GRAY)])
+    return None  # VBlock([TextBlock('Happiness', midsize), TextBlock('Data nodig...', color=GRAY)])
 
 
 ######### Kolom 4: Rocks + Debiteuren ###########

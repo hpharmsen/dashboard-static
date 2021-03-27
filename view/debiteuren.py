@@ -2,7 +2,7 @@ import os
 from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
 from layout.basic_layout import headersize
-from model.resultaat import debiteuren_leeftijd_analyse
+from model.finance import debiteuren_leeftijd_analyse
 from pathlib import Path
 
 

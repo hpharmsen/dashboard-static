@@ -10,6 +10,7 @@ from model.travelbase import BRANDS, get_bookings
 from sources.database import get_db
 
 CHART_COLORS = [['#6666cc', '#ddeeff'], ['#66cc66', '#eeffdd'], ['cc#6666', '#ffddee']]
+BAR_COLORS = ['#6666cc', '#66cc66']  # ['cc#6666'
 
 
 def render_travelbase_page(output_folder):
@@ -21,7 +22,7 @@ def render_travelbase_page(output_folder):
     page.render(output_folder / 'travelbase.html')
 
 
-def chart(data, width, height):
+def scatterchart(data, width, height):
     # Get data from DB
     # db = get_db()
     # query = 'select `date`'
@@ -53,6 +54,34 @@ def chart(data, width, height):
         y_axis_max_ticks=5,
     )
     return MultiScatterChart(chartdata, chart_config)
+
+
+def chart(data, width, height):
+    # Get data from DB
+    # db = get_db()
+    # query = 'select `date`'
+    # for brand in BRANDS:
+    #     query += f", sum(if(trendline='travelbase_{brand}', value, 0)) as {brand} "
+    # query += 'from trends where trendline like "travelbase%" group by `date`'
+    # data = db.execute(query)
+
+    chartdata = []
+    for brand in BRANDS:
+        values = [int(row[brand]) for _, row in data.iterrows()]
+        chartdata += [values]
+    max_value = max([max(series) for series in chartdata])
+    max_value = 100 * math.ceil(max_value / 100)
+    chart_config = ChartConfig(
+        width=width,
+        height=height,
+        colors=BAR_COLORS,
+        min_y_axis=0,
+        max_y_axis=max_value,
+        y_axis_max_ticks=5,
+        labels=BRANDS,
+        bottom_labels=data['week'].tolist(),  # [d.strftime('%Y-%m-%d') for d in data['day'].tolist()]
+    )
+    return StackedBarChart(chartdata, chart_config)
 
 
 if __name__ == '__main__':
