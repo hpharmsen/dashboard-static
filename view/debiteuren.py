@@ -22,7 +22,6 @@ def render_debiteuren_page(output_folder: Path):
             ),
         ]
     )
-
     page.render(output_folder / 'debiteuren.html')
 
 

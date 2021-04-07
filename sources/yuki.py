@@ -52,6 +52,9 @@ class Yuki:
         items = body.outstandingdebtoritems.find_all('item')
         result = []
         for item in items:
+            balance_type = item.type
+            if item.type.text == 'Beginbalans':
+                continue
             date = datetime.datetime.strptime(item.date.text, '%Y-%m-%d')
             days = (datetime.datetime.today() - date).days
             contact = item.contact.text

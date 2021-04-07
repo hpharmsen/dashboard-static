@@ -31,6 +31,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/model/travelbase.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/sources/yuki.py">
           <value>
             <Attribute>
@@ -39,6 +46,13 @@
           </value>
         </entry>
         <entry key="/view/dashboard.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/view/travelbase.py">
           <value>
             <Attribute>
               <option name="separator" value="," />

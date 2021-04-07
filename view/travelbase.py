@@ -6,18 +6,19 @@ from layout.basic_layout import headersize, midsize, defsize
 from layout.block import Block, VBlock, HBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 from layout.chart import StackedBarChart, ChartConfig, MultiScatterChart
-from model.travelbase import BRANDS, get_bookings
+from model.travelbase import BRANDS, get_bookings_per_week, update_bookings_per_day
 from sources.database import get_db
 
-CHART_COLORS = [['#6666cc', '#ddeeff'], ['#66cc66', '#eeffdd'], ['cc#6666', '#ffddee']]
-BAR_COLORS = ['#6666cc', '#66cc66']  # ['cc#6666'
+CHART_COLORS = [['#6666cc', '#ddeeff'], ['#66cc66', '#eeffdd'], ['#cc6666', '#ffddee'], ['#ccc66', '#ffffdd']]
+BAR_COLORS = ['#6666cc', '#66cc66', '#cc6666', '#cccc66']
 
 
 def render_travelbase_page(output_folder):
-    bookings = get_bookings()
+    update_bookings_per_day()
+    bookings = get_bookings_per_week()
     totals = [(brand, bookings[brand].sum()) for brand in BRANDS]
     totals_table = Table(totals, TableConfig(aligns=['left', 'right'], formats=['', '0'], totals=[0, 1]))
-    page = Page([TextBlock('Travelbase', headersize), chart(bookings, 600, 400), totals_table])
+    page = Page([TextBlock('Travelbase', headersize), bar_chart(bookings, 600, 400), totals_table])
 
     page.render(output_folder / 'travelbase.html')
 
@@ -56,7 +57,7 @@ def scatterchart(data, width, height):
     return MultiScatterChart(chartdata, chart_config)
 
 
-def chart(data, width, height):
+def bar_chart(data, width, height):
     # Get data from DB
     # db = get_db()
     # query = 'select `date`'

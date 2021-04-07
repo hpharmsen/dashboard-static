@@ -187,6 +187,7 @@ def vlottende_passiva():
 
 if __name__ == '__main__':
     os.chdir('..')
+    d = debiteuren_leeftijd_analyse_yuki()
     print('cash', cash())
     print('debiteuren', debiteuren())
     print('crediteuren ', crediteuren())

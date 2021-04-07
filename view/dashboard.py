@@ -32,7 +32,7 @@ from model.resultaat import (
 )
 from model.finance import debiteuren_30_60_90_yuki, gemiddelde_betaaltermijn
 from model.sales import sales_waarde, werk_in_pijplijn, top_x_sales
-from model.travelbase import get_bookings, BRANDS
+from model.travelbase import get_bookings_per_week, BRANDS
 from model.trendline import trends
 from view.travelbase import scatterchart as travelbase_scatterchart
 
@@ -105,7 +105,7 @@ def klanten_block():
 
 
 def travelbase_block():
-    bookings = get_bookings()
+    bookings = get_bookings_per_week(only_complete_weeks=True)
     legend = ', '.join([f'{brand}: {int(bookings[brand].sum())}' for brand in BRANDS])
     return VBlock(
         [
@@ -262,7 +262,7 @@ def pijplijn_block():
                 format='K',
                 tooltip='Werk dat binnengehaald is maar nog niet uitgevoerd.',
             ),
-            trends.chart('werk_in_pijplijn', 250, 150, min_y_axis=0, x_start=six_months_ago()),
+            trends.bar('werk_in_pijplijn', 250, 150, min_y_axis=0, x_start=six_months_ago()),
         ]
     )
     return pijplijn
@@ -452,13 +452,20 @@ def team_block():
 def verzuim_block():
 
     verzuim = verzuimpercentage()
-    verzuim_color = dependent_color(verzuim, 3, 1)
+    verzuim_color = dependent_color(verzuim, 3, 1.5)
     return VBlock(
         [
             TextBlock('Verzuim', midsize),
             TextBlock('Verzuimpercentage de laatste 3 maanden', defsize, color=GRAY),
-            TextBlock(verzuim, midsize, format='%1', color=verzuim_color, tooltip='Gemiddeld bij DDA in 2019: 3.0%'),
-        ]
+            TextBlock(
+                verzuim,
+                midsize,
+                format='%1',
+                color=verzuim_color,
+                tooltip='Gemiddeld bij DDA in 2019: 3.0%. Groen bij 1,5%, rood bij 3%',
+            ),
+        ],
+        link="absence.html",
     )
 
 

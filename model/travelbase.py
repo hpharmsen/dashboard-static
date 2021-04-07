@@ -1,5 +1,6 @@
 import os
 import datetime
+import requests
 import pandas as pd
 from sources.database import get_travelbase_db, dataframe
 from model.caching import reportz
@@ -19,7 +20,7 @@ from model.trendline import trends
 #   'id': 18093,
 #   'status': 'accepted'}]
 #
-# STATTUS:
+# STATUS:
 # 'pending' -> In aanvraag, maar die zouden nooit in deze view moeten staan
 # 'accepted' -> De "goed" status
 # 'declined' -> Afgewezen aanvraag, zou ook niet in deze view moeten voorkomen
@@ -29,10 +30,13 @@ from model.trendline import trends
 # 'waived' -> Vervallen
 # 'no-show' -> Boeking was in orde, maar gast is nooit komen opdagen (heeft op dit moment geen technische gevolgen, puur administratief)
 
-BRANDS = ['waterland', 'ameland']
+BRANDS = ['waterland', 'ameland', 'schier', 'texel']
+GOOGLE_SHEETS_APP = (
+    'https://script.google.com/macros/s/AKfycbyFjOJY2OaCHouEuPRtOYMzwv1vnoIaP1iEKWY27PNDuakt5IIrKoyCGlvbMUn16N0MmQ/exec'
+)
 
 
-def get_bookings():
+def get_bookings_per_week(only_complete_weeks=False):
     db = get_travelbase_db()
     dfs = []
     for brand in BRANDS:
@@ -42,6 +46,8 @@ def get_bookings():
                   group by year, week 
                   order by year, week'''
         df = dataframe(sql, db).set_index(['year', 'week'])
+        if only_complete_weeks:
+            df = df[:-1]
         dfs += [df]
     all = pd.concat(dfs, axis=1).fillna(0)
     all.columns = BRANDS
@@ -58,6 +64,37 @@ def get_bookings():
     return all
 
 
+@reportz(hours=6)
+def update_bookings_per_day():
+    db = get_travelbase_db()
+    for brand in BRANDS:
+        day, value = get_latest(brand)
+        day_constraint = f'and created_at>="{day}"' if day else ''
+        sql = f'''select DATE(created_at) as day, count(*) as aantal 
+                  from bookings 
+                  where brand="{brand}" {day_constraint} and status in ('accepted', 'cancelled-guest', 'cancelled-partner')
+                  group by day 
+                  order by day'''
+        df = dataframe(sql, db)
+        for index, row in df.iterrows():
+            if row['day'] != day or row['value'] != value:
+                save_value(brand, row['day'], row['aantal'])
+    return True
+
+
+def get_latest(brand):
+    url = GOOGLE_SHEETS_APP + '?name=' + brand
+    result = requests.get(url).text
+    day, value = result.split(',')
+    return (day, value)
+
+
+def save_value(brand, day, value):
+    url = GOOGLE_SHEETS_APP + f'?name={brand}&date={day}&value={value}'
+    result = requests.get(url).text
+    print(result)
+
+
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.dirname(__file__)))
-    get_bookings()
+    get_bookings_per_week()

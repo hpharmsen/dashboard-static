@@ -1,29 +1,33 @@
 # TODO
-# Werkkapitaal en cashflow in dashboard
-# omzet_per_klant_laatste_zes_maanden()
-# Gemiddeld uurtarief op billable uren en totaal (omzet/uren)
-# - Omzet prognose uit Simplicate
-# - Begroot aantal mensen
-# - Billable uren vs geplande uren?
-# Percentage Herhaalopdrachten (churn)
-# Elke medewerker heeft een rooster, zodat hij weet hoeveel uren je werkt p/w.
-# Daar zouden vaste vrije dagen uit kunnen komen (bv elke oneven woensdag).
-# Dat zit wrs. op een heel andere plek in de API inderdaad (employee>roster?)
-# Die feestdagen zijn een speciale categorie van verlof waarbij het niet van de verlofuren af gaat.
-# Die zitten, lijk mij, API-technisch wel op dezelfde plek.
-# Alleen zag gisteren toevallig dat 2de paasdag niet op planning stond, dus wellicht toch niet helemaal.
 
-# Productiviteit
-#  - Effective rate= Bruto marge / alle declarabele uren (DDA: 96 bij een listprice van 103)
-# Organisatie
+# FINANCE
+# - Vergelijking met begroting
+# - Werkkapitaal en cashflow in dashboard
+# - Omzet prognose uit Simplicate
+
+# COMMERCE
+# - omzet_per_klant_laatste_zes_maanden()
+# - Percentage Herhaalopdrachten (churn)
+
+# OPERATIONS
+# - Effective rate = Bruto marge / alle declarabele uren (DDA: 96 bij een listprice van 103)
+# - Gemiddeld uurtarief op billable uren en totaal (omzet/uren)
+# - Billable uren vs geplande uren?
+# Uit de teamleader whitepaper
+# - 1. Gemiddelde opbrengst per uur (%) = Factureerbare waarde per uur / kosten per uur
+# - Factureerbare waarde per uur (€) bereken je door het beschikbare budget te delen door het aantal gepresteerde uren op projecten.
+# - Kosten per uur (€) = Loon + onkosten + (algemene kosten / #werkn).
+#   en dat deel je door de netto capaciteit (billable en intern maar zonder ziek en vakantiedagen)
+# - 2. Performance  (%)  = Efficiëntie x Billability
+# - Efficiëntie (%) = gefactureerde waarde delen door intrinsieke waarde (budget) van diezelfde periode.
+# - Billability  (%) = factureerbare uren / nettocapaciteit (= het aantal uren dat iemand effectief werkt)
+
+# HR
+# - Begroot aantal mensen
 # - FTE grafiek, ook begroot en vorig jaar
 # - Vergelijking met de begroting per maand (Ik vind het een beetje jammer dat ik nu niet meer per maand met het opgestelde budget kan vergelijken, of kijk ik niet goed?)
-# Serviceklant pagina
-# - Wat een klant heeft uitgegeven
-# - Chart per prio
-# jira credentials in config.ini
-#
-# - Vergelijking met begroting
+
+# GENERAL
 # - Geen sys.exit bij een fout maar fouten tonen in het dashboard
 
 
@@ -41,6 +45,7 @@ from view.sales import render_sales_page
 
 # from view.service import render_service_page
 # from view.service_issues import render_service_issues_page
+from view.verzuim import render_verzuim_page
 from view.vrije_dagen import render_vrije_dagen_page
 from view.winstgevendheid import render_winstgevendheid_page
 from view.onderhanden_werk import render_onderhanden_werk_page
@@ -108,6 +113,8 @@ def render_all_pages(output_folder):
     render_correcties_page(output_folder)
     print( '..travelbase')
     render_travelbase_page(output_folder)
+    print( '..verzuim')
+    render_verzuim_page(output_folder)
 
     # Pages missing since the move to Simplicate. They might or might not return.
     # render_resultaat_vergelijking_page(output_folder)

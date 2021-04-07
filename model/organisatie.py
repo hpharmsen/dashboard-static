@@ -36,14 +36,44 @@ def aantal_fte_begroot():
 
 
 def verzuimpercentage(days=91):
-    DATE_FORMAT = '%Y-%m-%d'
-    from_day = max('2021-01-01', (datetime.today() + timedelta(days=-90)).strftime(DATE_FORMAT))
-
-    full_df = hours_dataframe()
-    verzuim = full_df.query(f'type=="absence" and day >="{from_day}"')['hours'].sum()
-    normal = full_df.query(f'type=="normal" and day >="{from_day}"')['hours'].sum()
+    from_day = verzuim_from_day(days)
+    verzuim = verzuim_absence_hours(from_day)
+    normal = verzuim_normal_hours(from_day)
     percentage = 100 * verzuim / (normal + verzuim)
     return percentage
+
+
+def verzuim_from_day(days=91):
+    DATE_FORMAT = '%Y-%m-%d'
+    from_day = max('2021-01-01', (datetime.today() + timedelta(days=-days)).strftime(DATE_FORMAT))
+    return from_day
+
+
+def verzuim_normal_hours(from_day):
+    result = hours_dataframe().query(f'type=="normal" and day >="{from_day}"')['hours'].sum()
+    return result
+
+
+def verzuim_absence_hours(from_day):
+    result = (
+        hours_dataframe()
+        .query(f'type=="absence" and day >="{from_day}" and label != "Feestdagenverlof / National holidays leave"')[
+            'hours'
+        ]
+        .sum()
+    )
+    return result
+
+
+def verzuim_list(from_day):
+    result = (
+        hours_dataframe()
+        .query(
+            f'type=="absence" and day >="{from_day}" and label !="Feestdagenverlof / National holidays leave" and hours>0'
+        )
+        .sort_values(['employee', 'day'])[['employee', 'day', 'label', 'hours']]
+    )
+    return result
 
 
 # @reportz(hours=24)
@@ -56,6 +86,10 @@ def vrije_dagen_overzicht():
     employees = (
         sim.to_pandas(sim.timetable()).query(f"(end_date != end_date) or (end_date>'{today}')").employee_name.unique()
     )  # (end_date != end_date) is to check for NaN
+
+    employees = sim.employee({'employment_status': 'active'})
+    employees = [u['name'] for u in employees]
+
     full_balance_list = sim.to_pandas(sim.leavebalance())
     current_balance_list = full_balance_list[full_balance_list.employee_name.isin(employees)].query(
         'leavetype_affects_balance==True'
@@ -119,4 +153,4 @@ def vrije_dagen_pool():
 
 if __name__ == '__main__':
     os.chdir('..')
-    print(vrije_dagen_pool())
+    print(verzuim_list(verzuim_from_day(91)))
