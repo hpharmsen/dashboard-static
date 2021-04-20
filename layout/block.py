@@ -1,6 +1,6 @@
 from functools import partial
 from pathlib import Path
-from model.caching import cache_time_stamp
+from model.caching import cache_modified_time_stamp
 
 from layout.basic_layout import doFormat
 
@@ -236,7 +236,7 @@ class Page(Block):
     def render(self, filename: Path):
         with open(filename, 'w') as f:
 
-            timestamp = cache_time_stamp().strftime('%d-%m %H:%M')
+            timestamp = cache_modified_time_stamp().strftime('%d-%m %H:%M')
             base = (
                 '..' if str(filename).count('klanten/') else '.'
             )  # Als file in subdir: base=..  Kan netter voor subsubs etc.

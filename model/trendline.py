@@ -68,7 +68,7 @@ class TrendLines:
         #     self.trends[key] = value
         # pass
         db = get_db()
-        trenddata = db.select('trends', {})
+        trenddata = db.execute('select * from trends order by date')
         for d in trenddata:
             trendname = d['trendline']
             if not self.trends.get(trendname):

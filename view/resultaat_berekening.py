@@ -12,7 +12,7 @@ from model.resultaat import (
     omzet_begroot,
     omzet_tm_vorige_maand,
     omzet_tm_nu,
-    omzet_werkelijk,
+    bruto_marge_werkelijk,
     omzet_verschil,
     omzet_verschil_percentage,
     kosten_werkelijk,
@@ -55,7 +55,7 @@ def omzet_block():
             line(f'Omzet begroot t/m {vorigemaand}', v),
             line(f'begroot deze maand tot nu', begroot_deze_maand_tot_nu),
             line('omzet begrooot nu', omzet_begroot()),
-            line('omzet werkelijk', omzet_werkelijk()),
+            line('omzet werkelijk', bruto_marge_werkelijk()),
             line('omzet verschil', omzet_verschil(), format='+K'),
             line('percentueel', omzet_verschil_percentage(), format='+%'),
         ]
@@ -106,16 +106,23 @@ def winst_berekening_block():
     add_row(grid, f'Omzet t/m {naam_vorige_maand}', (omzet_tm_vorige_maand(), yuki_omzet_url))
     add_row(grid, f'Projectkosten t/m {naam_vorige_maand}', (-projectkosten_tm_vorige_maand(), yuki_omzet_url))
     add_row(
-        grid, f'Omzet vanaf {naam_huidige_maand}', (omzet_tm_nu() - omzet_tm_vorige_maand(), yuki_omzet_url), '', '', ''
+        grid, f'Omzet vanaf {naam_huidige_maand}', '', (omzet_tm_nu() - omzet_tm_vorige_maand(), yuki_omzet_url), '', ''
     )
     add_row(
         grid,
         f'Projectkosten vanaf {naam_huidige_maand}',
+        '',
         (-projectkosten_tm_nu() + projectkosten_tm_vorige_maand(), yuki_omzet_url),
     )
     add_row(grid, f'Onderhanden werk nu (Simplicate)', '', (onderhanden_werk(), 'onderhanden.html'), '', '')
     add_row(
-        grid, f'Opbrengsten', omzet_tm_nu() - projectkosten_tm_nu(), '', omzet_werkelijk(), omzet_begroot(), bold=True
+        grid,
+        f'Opbrengsten',
+        omzet_tm_vorige_maand() - projectkosten_tm_vorige_maand(),
+        '',
+        bruto_marge_werkelijk(),
+        omzet_begroot(),
+        bold=True,
     )
     add_row(grid)
 
@@ -153,9 +160,9 @@ def winst_berekening_block():
     add_row(
         grid,
         'Winst',
-        kosten_boekhoudkundig_tm_vorige_maand(),
+        omzet_tm_vorige_maand() - projectkosten_tm_vorige_maand() - kosten_boekhoudkundig_tm_vorige_maand(),
         '',
-        omzet_werkelijk() - kosten_werkelijk(),
+        winst_werkelijk(),
         winst_begroot(),
         bold=True,
     )
@@ -189,7 +196,6 @@ def render_resultaat_berekening(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
-    from main import output_folder
 
-    load_cache()
-    render_resultaat_berekening(output_folder)
+    # load_cache()
+    render_resultaat_berekening(Path('/Users/hp/MT/Dashboard'))

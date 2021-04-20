@@ -1,6 +1,8 @@
 import calendar
 import os
 from datetime import datetime, timedelta
+
+from model import errors
 from model.caching import reportz
 from beautiful_date import *
 import pandas as pd
@@ -24,9 +26,9 @@ BEGROTING_WINST_VORIG_JAAR_ROW = BEGROTING_WINST_ROW + 1
 RESULTAAT_TAB = 'Resultaat'
 RESULTAAT_KOSTEN_ROW = BEGROTING_KOSTEN_ROW
 # RESULTAAT_SUBSIDIE_ROW = 29
-RESULTAAT_BOEKHOUD_KOSTEN_ROW = 49
+# RESULTAAT_BOEKHOUD_KOSTEN_ROW = 49
 # RESULTAAT_OMZET_ROW = 52
-RESULTAAT_BIJGEWERKT_ROW = 39
+RESULTAAT_BIJGEWERKT_ROW = 46
 # RESULTAAT_FACTUREN_VORIG_JAAR_ROW = 54
 # RESULTAAT_BONUSSEN_ROW = 62
 
@@ -45,7 +47,7 @@ def winst_verschil():
 
 def winst_werkelijk():
     ''' De daadwerkelijk gerealiseerde kosten tot nu toe '''
-    return omzet_werkelijk() - kosten_werkelijk()
+    return bruto_marge_werkelijk() - kosten_werkelijk()
 
 
 def winst_begroot():
@@ -65,7 +67,7 @@ def omzet_verschil_percentage():
 @reportz
 def omzet_verschil():
     ''' Hoeveel de omzet boven de begrote omzet ligt. '''
-    o = omzet_werkelijk()
+    o = bruto_marge_werkelijk()
     b = omzet_begroot()
     return o - b
 
@@ -95,8 +97,8 @@ def begroting_maandomzet(maand):
 
 
 @reportz
-def omzet_werkelijk():
-    res = omzet_tm_nu() + onderhanden_werk()
+def bruto_marge_werkelijk():
+    res = omzet_tm_nu() - projectkosten_tm_nu() + onderhanden_werk()
     return res
 
 
@@ -235,6 +237,7 @@ def laatste_maand_resultaat(row):
     tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
     res = sheet_value(tab, row, col)
     if not res:
+        errors.log_error('resultaat.py', 'laatste_maand_resultaat()', f'no value in {tab} row {row} column {col}.')
         return 0
     return res * 1000
 

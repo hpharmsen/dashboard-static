@@ -39,8 +39,9 @@ GOOGLE_SHEETS_APP = (
 def get_bookings_per_week(only_complete_weeks=False):
     db = get_travelbase_db()
     dfs = []
+    mysql_week_mode = 5  # Week 1 is the first week with a Monday in this year
     for brand in BRANDS:
-        sql = f'''select YEAR(created_at) as year, WEEK(created_at) as week, count(*) as aantal 
+        sql = f'''select YEAR(created_at) as year, WEEK(created_at, {mysql_week_mode}) as week, count(*) as aantal 
                   from bookings 
                   where brand="{brand}" and status in ('accepted', 'cancelled-guest', 'cancelled-partner', 'no-show')
                   group by year, week 
@@ -85,7 +86,10 @@ def update_bookings_per_day():
 def get_latest(brand):
     url = GOOGLE_SHEETS_APP + '?name=' + brand
     result = requests.get(url).text
-    day, value = result.split(',')
+    try:
+        day, value = result.split(',')
+    except:
+        return (None, None)
     return (day, value)
 
 

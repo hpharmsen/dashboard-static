@@ -32,27 +32,20 @@ def clear_cache():
         os.remove(CACHE_FILE)
 
 
-def cache_time_stamp():
+def cache_created_time_stamp():
+    if os.path.isfile(CACHE_FILE):
+        return datetime.datetime.fromtimestamp(os.stat(CACHE_FILE).st_birthtime)
+    else:
+        return None
+
+
+def cache_modified_time_stamp():
     if os.path.isfile(CACHE_FILE):
         # t = os.stat(CACHE_FILE).st_birthtime
         return datetime.datetime.fromtimestamp(os.path.getmtime(CACHE_FILE))  # datetime.datetime.fromtimestamp(t)
     else:
         return datetime.datetime.now()
     # return os.stat(CACHE_FILE).st_mtime
-
-
-# def cached(func):
-#     @wraps(func)
-#     def wrapper(*args):
-#         global cache
-#         cache_key = func.__name__ + str(args)
-#         try:
-#             return cache[cache_key]
-#         except KeyError:
-#             cache[cache_key] = result = func(*args)
-#             return result
-#
-#     return wrapper
 
 
 def reportz(func=None, *, hours=0.1):
@@ -91,49 +84,6 @@ def reportz(func=None, *, hours=0.1):
 
     return wrapper
 
-
-def reportz1(hours=None):
-    def wrap(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            # getting the parameters sorted out in a string
-            args_str = ', '.join([str(arg) for arg in args])
-            kwargs_str = ', '.join([':'.join([str(j) for j in i]) for i in kwargs.items()])
-            all_args = args_str + (', ' if args_str and kwargs_str else '') + kwargs_str
-            func_str = f'({all_args})' if all_args else func.__name__
-
-            # Executing the function unless it's in the cache
-            try:
-                value = cache[func_str]
-            except KeyError:
-                cache[func_str] = value = func(*args, **kwargs)
-                print(f'{func_str} = {doFormat(value)}')
-            return value
-
-        return wrapper
-
-    return wrap
-
-
-# def reportz(func):
-#     # @lru_cache(maxsize=None)
-#     # @cached
-#     def wrapper(*args, **kwargs):
-#         # getting the parameters sorted out in a string
-#         args_str = ', '.join([str(arg) for arg in args])
-#         kwargs_str = ', '.join([':'.join([str(j) for j in i]) for i in kwargs.items()])
-#         all_args = args_str + (', ' if args_str and kwargs_str else '') + kwargs_str
-#         func_str = f'({all_args})' if all_args else func.__name__
-#
-#         # Executing the function unless it's in the cache
-#         try:
-#             value = cache[func_str]
-#         except KeyError:
-#             cache[func_str] = value = func(*args, **kwargs)
-#             print(f'{func_str} = {doFormat(value)}')
-#         return value
-#
-#     return wrapper
 
 CACHE_FILE = os.path.dirname(__file__) + '/cache.tmp'
 print(CACHE_FILE)

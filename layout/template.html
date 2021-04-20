@@ -10,10 +10,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script> <!-- !! data labels on charts -->
-        <!-- Load d3.js -->
         <script src="https://d3js.org/d3.v4.min.js"></script>
-        <!-- Load the sankey.js function -->
-        <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/sankey.js"></script>
         <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
         <script src="login.js"></script>
         <script src="productiviteit.js"></script>
@@ -25,15 +22,8 @@
                 <a href="dashboard.html">dashboard</a> -
                 <a href="sales.html">sales</a> -
                 <a href="clients.html">klanten</a> -
-                <!--<a href="budget.html">project budget status</a> - -->
-               <!-- <a href="resultaat_vergelijking.html">resultaat vergelijking</a> - -->
-                <!-- <a href="target.html">targets</a> - -->
                 <a href="billable.html">billable</a> -
-                <!--<a href="winstgevendheid.html">winstgevendheid</a> -
-                <a href="service.html">service team</a> -
-                <a href="service_issues.html">service issues</a> - -->
                 <a href="debiteuren.html">debiteuren</a> -
-                <!-- <a href="tor.html">TOR</a> -->
             </div>
         </div>
         <span style="float:right; margin:20px; border:1px solid #CCC">
@@ -44,7 +34,6 @@
         [children]
         <script>
         window.onload = function() {
-          checkIfLoggedIn();
           [onloadcode]
         }
         </script>

@@ -239,6 +239,9 @@ class StackedBarChart(Chart):
                 }}]
             }}
         }}'''
+        self.canvas_height_difference = (
+            0  # Default is 150 but for bar charts the div doesn't need to be larger than the div
+        )
 
 
 class LineChart(Chart):

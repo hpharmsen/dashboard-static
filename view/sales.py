@@ -2,7 +2,7 @@ import os
 from layout.basic_layout import headersize, midsize
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
-from model.sales import sales_waarde_details, werk_in_pijplijn_details
+from model.sales import sales_waarde_details
 from pathlib import Path
 
 

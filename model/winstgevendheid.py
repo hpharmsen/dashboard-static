@@ -3,6 +3,7 @@ import sys
 from datetime import datetime
 import pandas as pd
 
+from model import errors
 from sources.googlesheet import sheet_tab, sheet_value, to_int, to_float
 from sources import database as db
 from model.caching import reportz
@@ -31,7 +32,11 @@ def loonkosten_per_persoon():
     - uren: Aantal uur per week
     - kosten_jaar: Werkelijke kosten dit jaar rekening houdend met startdatum en part time"""
     contracten = sheet_tab('Contracten werknemers', 'Fixed')
+    if not contracten:
+        return []  # Error in the spreadsheet
     ex_werknemers = sheet_tab('Contracten werknemers', 'ex werknemers')
+    if not ex_werknemers:
+        return []  # Error in the spreadsheet
     id_col = contracten[0].index('Id')
     bruto_col = contracten[0].index('Bruto')
     kosten_col = contracten[0].index('Kosten voor Oberon obv full')
@@ -40,10 +45,16 @@ def loonkosten_per_persoon():
     end_date_col = ex_werknemers[0].index('Einddatum')
     rdb = {'bruto': MT_SALARIS / 12, 'kosten_ft': MT_SALARIS / 12, 'uren': 40, 'kosten_jaar': MT_SALARIS}
     gert = {
-        'bruto': MT_SALARIS / 12 * 4 / 5,
+        'bruto': MT_SALARIS / 12 * 32 / 40,
         'kosten_ft': MT_SALARIS / 12,
         'uren': 32,
-        'kosten_jaar': MT_SALARIS * 4 / 5,
+        'kosten_jaar': MT_SALARIS * 32 / 40,
+    }
+    joost = {
+        'bruto': MT_SALARIS * 104 / 110 / 12 * 36 / 40,
+        'kosten_ft': MT_SALARIS * 104 / 110 / 12,
+        'uren': 36,
+        'kosten_jaar': MT_SALARIS * 36 / 40,
     }
     hph = rdb
     users = {'rdb': rdb, 'gert': gert, 'hph': hph}
@@ -59,8 +70,9 @@ def loonkosten_per_persoon():
                 try:
                     d, m, y = parse_date(line[end_date_col])
                 except:
-                    print('End date is not filled in for ' + line[2])
-                    sys.exit()
+                    errors.log_error(
+                        'winstgevendheid.py', 'loonkosten_per_persoon()', 'End date is not filled in for ' + line[2]
+                    )
                 if y < datetime.today().year:
                     continue
                 if y == datetime.today().year:

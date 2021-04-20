@@ -2,8 +2,7 @@
 
 # FINANCE
 # - Vergelijking met begroting
-# - Werkkapitaal en cashflow in dashboard
-# - Omzet prognose uit Simplicate
+# - Omzet prognose uit Simplicate??
 
 # COMMERCE
 # - omzet_per_klant_laatste_zes_maanden()
@@ -24,19 +23,15 @@
 
 # HR
 # - Begroot aantal mensen
-# - FTE grafiek, ook begroot en vorig jaar
-# - Vergelijking met de begroting per maand (Ik vind het een beetje jammer dat ik nu niet meer per maand met het opgestelde budget kan vergelijken, of kijk ik niet goed?)
-
-# GENERAL
-# - Geen sys.exit bij een fout maar fouten tonen in het dashboard
-
+# - Vergelijking met de begroting per maand (Jelle)
 
 import sys
 import os
+import datetime
 import shutil
-import subprocess
 
-from model.caching import load_cache, clear_cache
+from model.caching import load_cache, clear_cache, cache_created_time_stamp, cache_modified_time_stamp
+from model.finance import cash
 from view.billable import render_billable_page
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
@@ -61,10 +56,19 @@ from pathlib import Path
 
 def main():
     cd_to_script_path()
-    initialize_cache()
     output_folder = get_output_folder()
+    clear_the_cache = process_command_line_params(output_folder)
+    if clear_the_cache:
+        clear_cache()
+    load_cache()
+    module_initialisations()
     copy_resources(output_folder)
     render_all_pages(output_folder)
+
+def module_initialisations():
+    # Update cash trend on loading of this module
+    cash()
+
 
 def get_output_folder():
     ini = ConfigParser()
@@ -77,12 +81,19 @@ def cd_to_script_path():
     if path_to_go:
         os.chdir(path_to_go)
 
-
-def initialize_cache():
+def process_command_line_params(output_folder):
+    clear_cache = False
     for param in sys.argv[1:]:
         if param == '--nocache':
-            clear_cache()
-    load_cache()
+            clear_cache = True
+        if param == '--onceaday':
+            cache_created = cache_created_time_stamp()
+            yesterday = datetime.datetime.today().date() + datetime.timedelta( days=-1 )
+            if cache_created and cache_created.date() > yesterday :
+                print( 'Script has already run today: exiting')
+                sys.exit()
+            clear_cache = True
+    return clear_cache
 
 
 def copy_resources(output_folder):

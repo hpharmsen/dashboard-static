@@ -6,6 +6,7 @@ PyMySQL
 jira
 pytest
 googleanalytics
+python-dateutil
 beautifulsoup4
 lxml
 jupyterlab
