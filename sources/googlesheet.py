@@ -53,7 +53,7 @@ def get_spreadsheet(sheet_name):
 TABS = {}
 
 
-@reportz(hours=1)
+@reportz(hours=2)
 def sheet_tab(sheetname, tabname):
     key = (sheetname, tabname)
     if not TABS.get(key):

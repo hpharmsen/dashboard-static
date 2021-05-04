@@ -302,7 +302,7 @@ def finance_block():
 
 
 def resultaat_block():
-    winst_coloring = lambda value: dependent_color(value, -20, 10)
+    winst_coloring = lambda value: dependent_color(value, -20000, 20000)
     winst_percentage = int(winst_werkelijk() / bruto_marge_werkelijk() * 100)
     winst_percentage_coloring = lambda value: dependent_color(value, 6, 15)
     resultaat = VBlock(

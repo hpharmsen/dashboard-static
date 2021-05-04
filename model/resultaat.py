@@ -25,12 +25,7 @@ BEGROTING_WINST_VORIG_JAAR_ROW = BEGROTING_WINST_ROW + 1
 
 RESULTAAT_TAB = 'Resultaat'
 RESULTAAT_KOSTEN_ROW = BEGROTING_KOSTEN_ROW
-# RESULTAAT_SUBSIDIE_ROW = 29
-# RESULTAAT_BOEKHOUD_KOSTEN_ROW = 49
-# RESULTAAT_OMZET_ROW = 52
-RESULTAAT_BIJGEWERKT_ROW = 46
-# RESULTAAT_FACTUREN_VORIG_JAAR_ROW = 54
-# RESULTAAT_BONUSSEN_ROW = 62
+RESULTAAT_BIJGEWERKT_ROW = 51
 
 ##### WINST #####
 
@@ -77,20 +72,30 @@ def omzet_verschil():
 
 @reportz(hours=24)
 def omzet_begroot():
-    ''' Begrote omzet tot en met vandaag. '''
-    h = begroting_maandomzet(virtuele_maand())
-    v = begroting_maandomzet(virtuele_maand() - 1)
-    vd = virtuele_dag()  # Dag van de maand maar doorgeteld als de vorige maand nog niet is ingevuld in de boekhouding
-    return Decimal(v + vd / 30 * (h - v))
+    res = omzet_begroot_na_maand(0)
+    return res
 
 
 @reportz(hours=24)
-def begroting_maandomzet(maand):
-    ''' Begrote omzet van de meegegeven maand. Komt uit het begroting sheet. '''
-    if maand == 0:
+def omzet_begroot_na_maand(m):
+    ''' Begrote kosten na maand m gerekend tot vandaag '''
+
+    h = huidige_maand()
+    begroot_tm_m = omzet_begroot_tm_maand(m)
+    begroot_tm_h = omzet_begroot_tm_maand(h)
+    aantal_maanden_na_laatste_maand = Decimal(h - m - 1 + datetime.today().day / 30)
+    res = (begroot_tm_h - begroot_tm_m) / (h - m) * aantal_maanden_na_laatste_maand
+    return Decimal(res)
+
+
+@reportz(hours=24)
+def omzet_begroot_tm_maand(m):
+    ''' Begrote kosten t/m maand m  '''
+    if m == 0:
         return 0
     tab = sheet_tab(BEGROTING_SHEET, BEGROTING_TAB)
-    return sheet_value(tab, BEGROTING_INKOMSTEN_ROW, maand + 2) * 1000
+    res = sheet_value(tab, BEGROTING_INKOMSTEN_ROW, m + 2) * 1000
+    return Decimal(res)
 
 
 ##### OMZET #####
@@ -102,22 +107,22 @@ def bruto_marge_werkelijk():
     return res
 
 
-# @reportz(hours=24)
-def omzet_tm_vorige_maand():
-    return yuki().income(last_day_of_last_month())
+@reportz(hours=24)
+def omzet_tm_maand(m):
+    return yuki().income(last_day_of_month(m))
 
 
-# @reportz(hours=24)
-def projectkosten_tm_vorige_maand():
-    return yuki().direct_costs(last_day_of_last_month())
+@reportz(hours=24)
+def projectkosten_tm_maand(m):
+    return yuki().direct_costs(last_day_of_month(m))
 
 
-# @reportz(hours=24)
+@reportz(hours=24)
 def omzet_tm_nu():
     return yuki().income()
 
 
-# @reportz(hours=24)
+@reportz(hours=24)
 def projectkosten_tm_nu():
     return yuki().direct_costs()
 
@@ -129,17 +134,8 @@ def onderhanden_werk():
 ###### KOSTEN ######
 
 
-@reportz(hours=24)
-def kosten_begroot_deze_maand():
-    ''' '''
-    d = virtuele_dag()
-    m = virtuele_maand()
-    res = Decimal(d / 30) * (kosten_begroot_tm_maand(m) - kosten_begroot_tm_maand(m - 1))
-    return res
-
-
-def kosten_boekhoudkundig_tm_vorige_maand():
-    return yuki().costs(last_day_of_last_month())
+def kosten_boekhoudkundig_tm_maand(m):
+    return yuki().costs(last_day_of_month(m))
 
 
 @reportz(hours=24)
@@ -152,9 +148,20 @@ def kosten_begroot_tm_maand(m):
     return Decimal(res)
 
 
+@reportz(hours=24)
+def kosten_begroot_na_maand(m):
+    ''' Begrote kosten na maand m gerekend tot vandaag '''
+    h = huidige_maand()
+    begroot_tm_m = kosten_begroot_tm_maand(m)
+    begroot_tm_h = kosten_begroot_tm_maand(h)
+    aantal_maanden_na_laatste_maand = Decimal(h - m - 1 + datetime.today().day / 30)
+    res = (begroot_tm_h - begroot_tm_m) / (h - m) * aantal_maanden_na_laatste_maand
+    return Decimal(res)
+
+
 def kosten_begroot():
     ''' Het begrote aantal kosten t/m nu '''
-    res = kosten_begroot_tm_maand(virtuele_maand() - 1) + kosten_begroot_deze_maand()
+    res = kosten_begroot_na_maand(0)
     return res
 
 
@@ -170,33 +177,34 @@ def kosten_verschil():
 
 def kosten_werkelijk():
     ''' De daadwerkelijk gerealiseerde kosten tot nu toe '''
-    kosten_laatste_maand = yuki().costs(last_day_of_last_month())
-    return kosten_laatste_maand + Decimal(kosten_begroot_deze_maand())
+    laatste_maand = laatste_geboekte_maand()
+    return kosten_boekhoudkundig_tm_maand(laatste_maand) + kosten_begroot_na_maand(laatste_maand)
 
 
 ##### DIVERSEN #####
 
 
 def virtuele_dag():
-    """Als boekhouding van de vorige maand nog niet is bijgewerkt retourneert
-    dit het dagnummer doorgenummerd vanuit de vorige maand. Dus 31, 32, 33, etc.
+    """Als boekhouding van de nog niet is bijgewerkt retourneert
+    dit het dagnummer doorgenummerd vanuit de laatste complete maand. Dus 31, 32, 33, etc.
     Anders gewoon het dagnummer."""
-    vd = datetime.today().day
-    if not bijgewerkt():
-        vd += 30  # Gewoon in de vorige maand doortellen
-    return vd
+    d = datetime.today().day
+    m = datetime.today.month
+    d += 30 * (laatste_geboekte_maand() - m)  # Gewoon in de nieuwe maanden doortellen
+    return d
 
 
-def virtuele_maand():
-    """Als boekhouding van de vorige maand nog niet is bijgewerkt retourneert
-    dit het nummer van vorige maand. Anders deze maand."""
-    vm = datetime.today().month
-    if not bijgewerkt():
-        vm -= 1  # We kijken nog naar vorige maand
-    return vm
+def laatste_geboekte_maand():
+    # Nummer van de laatste maand die in de boekhouding is bijgewerkt
+    tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
+    for m in range(12):
+        data = sheet_value(tab, RESULTAAT_BIJGEWERKT_ROW, m + 3)
+        if not data:
+            return m
+    return 12
 
 
-@reportz(hours=24)
+# @reportz(hours=24)
 def bijgewerkt():
     """Checkt in de Resultaat tab van het Keycijfers sheet of de boekhouding van afgelopen
     maand al is ingevuld."""
@@ -228,18 +236,10 @@ def last_day_of_last_month():
     return datetime(y, m, d)
 
 
-@reportz(hours=10)
-def laatste_maand_resultaat(row):
-    ''' Retourneert data uit de laatst ingevulde boekhouding kolom van het data sheet '''
-    if virtuele_maand() == 1:
-        return 0  # Voor januari is er nog geen vorige maand
-    col = virtuele_maand() + 1
-    tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
-    res = sheet_value(tab, row, col)
-    if not res:
-        errors.log_error('resultaat.py', 'laatste_maand_resultaat()', f'no value in {tab} row {row} column {col}.')
-        return 0
-    return res * 1000
+def last_day_of_month(m):
+    y = datetime.now().year  # !! Gaat mis na einde jaar
+    d = calendar.monthrange(y, m)[1]
+    return datetime(y, m, d)
 
 
 def update_omzet_per_week():
@@ -257,7 +257,7 @@ def update_omzet_per_week():
         trends.update(trend_name, week_turnover, monday)
 
 
-# @reportz(hours=24)
+@reportz(hours=24)
 def get_turnover_from_simplicate(fromday, untilday):
     # Including untilday
     # turnover = simplicate().turnover(
@@ -268,6 +268,7 @@ def get_turnover_from_simplicate(fromday, untilday):
     return int(turnover)
 
 
+@reportz(hours=24)
 def vulling_van_de_planning():
     # Planned hours
     last_week = (datetime.today() + timedelta(weeks=-1)).strftime(DATE_FORMAT)
@@ -358,17 +359,3 @@ if __name__ == '__main__':
     # print(debiteuren_30_60_90_yuki())
     # print(toekomstige_omzet_per_week())
     # print(vulling_van_de_planning())
-    turnover = get_turnover_from_simplicate('2021-03-01', '2021-03-07')
-    hours = simplicate().hours_simple({'start_date': '2021-03-01', 'end_date': '2021-03-07'})
-    df = pd.DataFrame(hours)
-    df['turnover'] = df.apply(
-        lambda a: (a['hours'] + a['corrections']['amount'])
-        * (a['tariff'] if a['tariff'] > 0 else float(a['service_tariff'])),
-        axis=1,
-    )
-    w9_proj = df.query('turnover>0').groupby(['project_number']).sum('turnover')
-    sm = w9_proj['turnover'].sum()
-    df['turnover'] = df.apply(lambda a: a['turnover'] / 2 if a['project_number'] == 'TOR-3' else a['turnover'], axis=1)
-    w9_proj = df.query('turnover>0').groupby(['project_number']).sum('turnover')
-    sm = w9_proj['turnover'].sum()
-    pass

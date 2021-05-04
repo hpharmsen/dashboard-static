@@ -2,15 +2,15 @@ import os
 from decimal import Decimal
 import datetime
 
-from model.caching import load_cache
+from model.caching import load_cache, clear_cache
 from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
 from layout.basic_layout import defsize, midsize, headersize
 from model.resultaat import (
     onderhanden_werk,
-    kosten_boekhoudkundig_tm_vorige_maand,
+    # kosten_boekhoudkundig_tm_vorige_maand,
     kosten_begroot_tm_maand,
     omzet_begroot,
-    omzet_tm_vorige_maand,
+    omzet_tm_maand,
     omzet_tm_nu,
     bruto_marge_werkelijk,
     omzet_verschil,
@@ -20,12 +20,16 @@ from model.resultaat import (
     winst_werkelijk,
     winst_verschil,
     winst_verschil_percentage,
-    virtuele_maand,
+    # virtuele_maand,
     virtuele_dag,
-    begroting_maandomzet,
-    kosten_begroot_deze_maand,
-    projectkosten_tm_vorige_maand,
+    # begroting_maandomzet,
+    # kosten_begroot_deze_maand,
+    # projectkosten_tm_vorige_maand,
     projectkosten_tm_nu,
+    laatste_geboekte_maand,
+    projectkosten_tm_maand,
+    kosten_boekhoudkundig_tm_maand,
+    kosten_begroot_na_maand,
 )
 from pathlib import Path
 
@@ -94,31 +98,37 @@ def add_row(grid, *args, header=False, bold=False):
 def winst_berekening_block():
     grid = Grid(cols=5, aligns=['left', 'right', 'right', 'right', 'right'], has_header=True)
 
-    huidige_maand = datetime.datetime.today().month
-    naam_vorige_maand = MAANDEN[huidige_maand - 2]
-    naam_huidige_maand = MAANDEN[huidige_maand - 1]
+    # huidige_maand = datetime.datetime.today().month
+    laatste_maand = laatste_geboekte_maand()
+    naam_laatste_maand = MAANDEN[laatste_maand - 1]
+    naam_huidige_maand = MAANDEN[laatste_maand]
     yuki_omzet_url = 'https://oberon.yukiworks.nl/domain/aspx/Finances.aspx?app=FinReports.aspx'
     begroting_url = (
         'https://docs.google.com/spreadsheets/d/1KsVEIBcnlntGR9dHYn_gSREmpoidWUUZoGlCN7ck7Zo/edit#gid=2127576386'
     )
 
     add_row(grid, '', 'Boekhouding (Yuki)', 'Correctie', 'Totaal nu', 'Begroot', bold=True)
-    add_row(grid, f'Omzet t/m {naam_vorige_maand}', (omzet_tm_vorige_maand(), yuki_omzet_url))
-    add_row(grid, f'Projectkosten t/m {naam_vorige_maand}', (-projectkosten_tm_vorige_maand(), yuki_omzet_url))
+    add_row(grid, f'Omzet t/m {naam_laatste_maand}', (omzet_tm_maand(laatste_maand), yuki_omzet_url))
+    add_row(grid, f'Projectkosten t/m {naam_laatste_maand}', (-projectkosten_tm_maand(laatste_maand), yuki_omzet_url))
     add_row(
-        grid, f'Omzet vanaf {naam_huidige_maand}', '', (omzet_tm_nu() - omzet_tm_vorige_maand(), yuki_omzet_url), '', ''
+        grid,
+        f'Omzet vanaf {naam_huidige_maand}',
+        '',
+        (omzet_tm_nu() - omzet_tm_maand(laatste_maand), yuki_omzet_url),
+        '',
+        '',
     )
     add_row(
         grid,
         f'Projectkosten vanaf {naam_huidige_maand}',
         '',
-        (-projectkosten_tm_nu() + projectkosten_tm_vorige_maand(), yuki_omzet_url),
+        (-projectkosten_tm_nu() + projectkosten_tm_maand(laatste_maand), yuki_omzet_url),
     )
     add_row(grid, f'Onderhanden werk nu (Simplicate)', '', (onderhanden_werk(), 'onderhanden.html'), '', '')
     add_row(
         grid,
         f'Opbrengsten',
-        omzet_tm_vorige_maand() - projectkosten_tm_vorige_maand(),
+        omzet_tm_maand(laatste_maand) - projectkosten_tm_maand(laatste_maand),
         '',
         bruto_marge_werkelijk(),
         omzet_begroot(),
@@ -126,14 +136,14 @@ def winst_berekening_block():
     )
     add_row(grid)
 
-    huidige_maand = virtuele_maand()  # 1 based
-    naam_vorige_maand = MAANDEN[huidige_maand - 2]
-    naam_huidige_maand = MAANDEN[huidige_maand - 1]
+    # huidige_maand = virtuele_maand()  # 1 based
+    # naam_vorige_maand = MAANDEN[huidige_maand - 2]
+    # naam_huidige_maand = MAANDEN[huidige_maand - 1]
 
     add_row(
         grid,
-        f'Kosten t/m {naam_vorige_maand}',
-        (kosten_boekhoudkundig_tm_vorige_maand(), yuki_omzet_url),
+        f'Kosten t/m {naam_laatste_maand}',
+        (kosten_boekhoudkundig_tm_maand(laatste_maand), yuki_omzet_url),
         '',
         '',
         '',
@@ -143,24 +153,26 @@ def winst_berekening_block():
         grid,
         f'Begrote kosten vanaf {naam_huidige_maand}',
         '',
-        (kosten_begroot_deze_maand(), begroting_url),
+        (kosten_begroot_na_maand(laatste_maand), begroting_url),
         '',
         '',
     )
     add_row(
         grid,
         f'Kosten',
-        kosten_boekhoudkundig_tm_vorige_maand(),
+        kosten_boekhoudkundig_tm_maand(laatste_maand),
         '',
         kosten_werkelijk(),
-        kosten_begroot_tm_maand(huidige_maand - 1) + kosten_begroot_deze_maand(),
+        kosten_boekhoudkundig_tm_maand(laatste_maand) + kosten_begroot_na_maand(laatste_maand),
         bold=True,
     )
     add_row(grid)
     add_row(
         grid,
         'Winst',
-        omzet_tm_vorige_maand() - projectkosten_tm_vorige_maand() - kosten_boekhoudkundig_tm_vorige_maand(),
+        omzet_tm_maand(laatste_maand)
+        - projectkosten_tm_maand(laatste_maand)
+        - kosten_boekhoudkundig_tm_maand(laatste_maand),
         '',
         winst_werkelijk(),
         winst_begroot(),
@@ -196,6 +208,7 @@ def render_resultaat_berekening(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
+    clear_cache()
 
     # load_cache()
     render_resultaat_berekening(Path('/Users/hp/MT/Dashboard'))

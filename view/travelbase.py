@@ -60,7 +60,8 @@ def bar_chart(data, width, height):
     for brand in BRANDS:
         values = [int(row[brand]) for _, row in data.iterrows()]
         chartdata += [values]
-    max_value = max([max(series) for series in chartdata])
+    z = list(zip(*chartdata))
+    max_value = max([sum(series) for series in zip(*chartdata)])
     max_value = 100 * math.ceil(max_value / 100)
     chart_config = ChartConfig(
         width=width,
