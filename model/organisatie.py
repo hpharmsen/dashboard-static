@@ -83,65 +83,43 @@ def vrije_dagen_overzicht():
     year = datetime.today().year
     frac = fraction_of_the_year_past()
 
-    employees = (
-        sim.to_pandas(sim.timetable()).query(f"(end_date != end_date) or (end_date>'{today}')").employee_name.unique()
-    )  # (end_date != end_date) is to check for NaN
-
+    # Get the list of current employees
     employees = sim.employee({'employment_status': 'active'})
-    employees = [u['name'] for u in employees]
+    employees = [u['name'] for u in employees if u['name'] != 'Filipe José Mariano dos Santos']
 
-    full_balance_list = sim.to_pandas(sim.leavebalance())
-    current_balance_list = full_balance_list[full_balance_list.employee_name.isin(employees)].query(
-        'leavetype_affects_balance==True'
-    )
-    current_balance_list = current_balance_list[
-        current_balance_list['employee_name'] != 'Filipe José Mariano dos Santos'
-    ]
-    last_year = current_balance_list.query(f'year<{year}').groupby(['employee_name']).sum('balance')['balance'] / 8
+    # 1. Get the balance of all active employees per start of the year
+    balance_list = sim.to_pandas(sim.leavebalance())
 
-    # This year
-    fulll_thisyear_list = sim.to_pandas(sim.leave({'year': year}))
-    current_thisyear_list = fulll_thisyear_list[fulll_thisyear_list.employee_name.isin(employees)].query(
-        'leavetype_affects_balance==True'
-    )
-    this_year_balance = current_thisyear_list.groupby(['employee_name']).sum('hours')['hours'] / 8
-    this_year_new = current_thisyear_list.groupby(['employee_name']).max('hours')['hours'] / 8
-    overview = pd.concat([last_year, this_year_new, this_year_balance], axis=1).fillna(0)
-    overview.columns = ['last_year', 'this_year_new', 'this_year_balance']
-    overview['available'] = overview.apply(lambda x: x['last_year'] + x['this_year_balance'], axis=1)
-    overview['pool'] = overview.apply(lambda x: x['last_year'] + x['this_year_new'] * frac, axis=1)
+    # Filter the list to only active employees and balance changing leaves
+    balance_list = balance_list[balance_list.employee_name.isin(employees)].query('leavetype_affects_balance==True')
+
+    year_start = balance_list.query(f'year<{year}').groupby(['employee_name']).sum('balance')['balance'] / 8
+
+    # 2. Get the newly available free days this year
+    this_year_all = sim.to_pandas(sim.leave({'year': year}))
+    this_year = this_year_all[this_year_all.employee_name.isin(employees)].query('leavetype_affects_balance==True')
+    this_year_new = this_year.groupby(['employee_name']).max('hours')['hours'] / 8  # ouch!
+
+    # 2b. Calculate the days already past
+    # now = datetime.datetime.now()
+    # this_year_done = this_year.apply(lambda a: max(0,(now - a['start_date'].strptime('%Y-%m-%d %H:%M;%S')).days*8), axis=1)
+
+    # 3. Get the balance for this year
+    this_year_balance = this_year.groupby(['employee_name']).sum('hours')['hours'] / 8
+
+    # 4. Get the days
+
+    # 4. Put them all in one overview
+    overview = pd.concat([year_start, this_year_new, this_year_balance], axis=1).fillna(0)
+    overview.columns = ['year_start', 'this_year_new', 'this_year_balance']
+
+    # 5. Plus extra calculated columns
+    overview['available'] = overview.apply(lambda x: x['year_start'] + x['this_year_balance'], axis=1)
+
+    # Pool = Last + Year * Frac - Done
+    overview['pool'] = overview.apply(lambda x: x['year_start'] + x['this_year_new'] * frac, axis=1)
     overview.reset_index(level=0, inplace=True)
-    # today = datetime.today().strftime(DATE_FORMAT)
-    # year = datetime.today().year
-    # frac = fraction_of_the_year_past()
-    #
-    # employees = (
-    #     sim.to_pandas(sim.timetable()).query(f"(end_date != end_date) or (end_date>'{today}')").employee_name.unique()
-    # )  # (end_date != end_date) is to check for NaN
-    # full_balance_list = sim.to_pandas(sim.leavebalance())
-    # current_balance_list = full_balance_list[full_balance_list.employee_name.isin(employees)].query(
-    #     'leavetype_affects_balance==True'
-    # )
-    # current_balance_list = current_balance_list[
-    #     current_balance_list['employee_name'] != 'Filipe José Mariano dos Santos'
-    # ]
-    #
-    # last_year = current_balance_list.query(f'year<{year}').groupby(['employee_name']).sum('balance')['balance'] / 8
-    #
-    # # This year
-    # fulll_thisyear_list = sim.to_pandas(sim.leave({'year':year}))
-    # current_thisyear_list = fulll_thisyear_list[fulll_thisyear_list.employee_name.isin(employees)].query(
-    #     'leavetype_affects_balance==True'
-    # )
-    # this_year_balance = current_thisyear_list.groupby(['employee_name']).sum('hours')['hours'] / 8
-    # this_year_new = current_thisyear_list.groupby(['employee_name']).max('hours')['hours'] / 8
-    # # used = current_balance_list.query(f'(year=={year}) and (balance<0)').groupby(['employee_name']).sum('balance')[
-    # #           'balance'] / -8
-    # overview = pd.concat([last_year, this_year_new, this_year_balance], axis=1).fillna(0)
-    # overview.columns = ['year_start', 'this_year']
-    # overview['available'] = overview.apply(lambda x: x['last_year'] + x['this_year_balance'], axis=1)
-    # overview['pool'] = overview.apply(lambda x: x['last_year'] + x['this_year_start'] * frac, axis=1)
-    # overview.reset_index(level=0, inplace=True)
+
     return overview
 
 

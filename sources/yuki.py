@@ -58,7 +58,8 @@ class Yuki:
             date = datetime.datetime.strptime(item.date.text, '%Y-%m-%d')
             days = (datetime.datetime.today() - date).days
             contact = item.contact.text
-            description = item.description.text
+            self.text = item.description.text
+            description = self.text
             openamount = float(item.openamount.text)
             result += [
                 {'date': date, 'days': days, 'customer': contact, 'description': description, 'open': openamount}

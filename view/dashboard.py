@@ -478,7 +478,7 @@ def verzuim_block():
 
 def vakantiedagen_block():
     pool = vrije_dagen_pool()
-    pool_color = dependent_color(pool, 10, 2)
+    pool_color = BLACK  # dependent_color(pool, 10, 2)
     return VBlock(
         [
             TextBlock('Vrije dagen pool', midsize, padding=5),

@@ -95,7 +95,7 @@ def gemiddelde_betaaltermijn(days=90):
 
 
 #################### CASH EN WERKKAPITAAL ################################################
-CASH_ACCOUNTS = ('11000', '12000', '12001', '23101')
+CASH_ACCOUNTS = ('11000', '12000', '12001', '12002', '23101')
 DEBITEUREN = ('13000',)
 CREDITEUREN = ('16000',)
 OVERIGE_VLOTTENDE_ACTIVA = ('13300', '13350', '13460', '18900', '23020', '23310')

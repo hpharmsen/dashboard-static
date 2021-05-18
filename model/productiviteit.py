@@ -63,7 +63,7 @@ def geboekte_uren(only_productie_users=0, only_clients=0, billable=0, fromdate=N
     return geboekte_uren_users(users, only_clients, billable, fromdate, untildate)
 
 
-@reportz(hours=2)
+# @reportz(hours=2)
 def geboekte_uren_users(users, only_clients=0, billable=0, fromdate=None, untildate=None):
     df = hours_dataframe()  # Do not count leaves
 
@@ -151,8 +151,10 @@ def billable_perc_iedereen(fromdate=None, untildate=None):
 
 
 def billable_perc_user(user):
-    if geboekte_uren_users(user):
-        res = 100 * geboekte_uren_users(user, billable=1) / geboekte_uren_users(user)
+    billable = geboekte_uren_users(user, billable=1)
+    total = geboekte_uren_users(user)
+    if total:
+        res = 100 * billable / total
     else:
         res = 0
     return res

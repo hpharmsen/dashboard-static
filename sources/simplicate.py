@@ -1,7 +1,6 @@
 import datetime
 import json
 import os
-from decimal import Decimal
 
 import pandas as pd
 from pathlib import Path
@@ -49,7 +48,7 @@ def onderhanden_werk_list():
     df = update_hours()
 
     def corrections(project):
-        return df.query(f'project_number=="{project}"')['corrections'].sum()
+        return df.query(f'project_number=="{project}"')['corrections_value'].sum()
 
     oh = pd.DataFrame(
         [
@@ -58,7 +57,7 @@ def onderhanden_werk_list():
                 'spent': project['spent'],
                 'corr': corrections(project),
                 'inv': project['invoiced'],
-                'OH': project['spent'] + corrections(project) - project['invoiced'],
+                'OH': project['spent'] + corrections(project['project']) - project['invoiced'],
             }
             for project in active_projects()
         ]
@@ -122,11 +121,7 @@ def update_hours():
     return df
 
 
-def complement(df):  #!!
-    # df['tariff'] = df.apply(lambda a: a['tariff'] / 2 if a['project_number'] == 'TOR-3' else a['tariff'], axis=1)
-    # df['service_tariff'] = df.apply(
-    #    lambda a: a['service_tariff'] / 2 if a['project_number'] == 'TOR-3' else a['service_tariff'], axis=1
-    # )
+def complement(df):
     df['turnover'] = (df['hours'] + df['corrections']) * df['tariff']
     df['turnover'] = df.apply(
         lambda a: 0 if a['project_number'] == 'TOR-3' and a['service'] == 'Development Sprints Q1' else a['turnover'],
@@ -134,6 +129,9 @@ def complement(df):  #!!
     )
 
     df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1], axis=1)
+    df['corrections_value'] = df.apply(
+        lambda a: (a['corrections']) * (a['tariff'] if a['tariff'] > 0 else a['service_tariff']), axis=1
+    )
 
 
 def flatten_hours_data(data):

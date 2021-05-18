@@ -43,7 +43,12 @@ def render_billable_page(output_folder: Path):
     page = Page(
         [
             TextBlock('Billable uren', headersize),
-            TextBlock('Billable uren per week het afgelopen halfjaar.', color="gray"),
+            TextBlock(
+                'Billable uren per week het afgelopen halfjaar.<br/><br/>'
+                + 'Grafiek toont uren gewerkt op billablke projecten zonder rekening te houden met correcties.<br/>'
+                + 'Percentage is na correcties.',
+                color="gray",
+            ),
             grid,
         ]
     )

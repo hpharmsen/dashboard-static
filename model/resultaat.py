@@ -128,6 +128,7 @@ def projectkosten_tm_nu():
 
 
 def onderhanden_werk():
+    return 103758  # !! https://oberon.simplicate.com/v1/reporting/process/reloadData?q={%22date%22:%222021-05-18%22,%22page%22:%22process%22}
     return Decimal(onderhanden_werk_list()['OH'].sum())
 
 
