@@ -133,7 +133,7 @@ def billable_uren_iedereen(fromdate=None, untildate=None):
 
 # Percentages
 def productiviteit_perc_productie(fromdate=None, untildate=None):
-    return 100 * productieve_uren_productie() / beschikbare_uren_productie()
+    return 100 * productieve_uren_productie(fromdate, untildate) / beschikbare_uren_productie(fromdate, untildate)
 
 
 def billable_perc_productie(fromdate=None, untildate=None):

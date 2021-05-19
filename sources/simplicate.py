@@ -5,6 +5,8 @@ import os
 import pandas as pd
 from pathlib import Path
 from configparser import ConfigParser
+
+import requests
 from pysimplicate import Simplicate
 
 from model.caching import reportz
@@ -28,6 +30,7 @@ def simplicate():
         api_secret = ini['simplicate']['api_secret']
 
         _simplicate = Simplicate(subdomain, api_key, api_secret)
+        _simplicate.ini = ini
     return _simplicate
 
 
@@ -209,7 +212,26 @@ def hours_data_from_day(day: datetime.date, use_cache=True):
             json.dump(data, f)
     return data
 
+def onderhanden_werk():
+    sim = simplicate()
+    session = requests.Session()
+    login_url = 'https://oberon.simplicate.com/site/login'
+    pw = sim.ini['simplicate']['password']
+    login_data = {
+        'LoginForm[username]': sim.ini['simplicate']['username'],
+        'LoginForm[password]': sim.ini['simplicate']['password']
+    }
+    report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData?q={%22date%22:%222021-05-18%22}'
+    session.post(login_url, login_data)
+
+    json_data = session.get( report_url ).json()
+    value = json_data['table']['rows'][0]['columns'][-1][0]['value']
+    return value
+
+
 
 if __name__ == '__main__':
+    onderhanden_werk()
+    sys.exit()
     os.chdir('..')
     update_hours()

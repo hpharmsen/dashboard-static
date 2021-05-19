@@ -11,7 +11,7 @@ from decimal import Decimal
 from model.productiviteit import tuple_of_productie_users
 from sources import database as db
 from model.trendline import trends
-from sources.simplicate import simplicate, onderhanden_werk_list, DATE_FORMAT, hours_dataframe
+from sources.simplicate import simplicate, onderhanden_werk, DATE_FORMAT, hours_dataframe
 from sources.yuki import yuki
 from sources.googlesheet import sheet_tab, sheet_value
 
@@ -125,11 +125,6 @@ def omzet_tm_nu():
 @reportz(hours=24)
 def projectkosten_tm_nu():
     return yuki().direct_costs()
-
-
-def onderhanden_werk():
-    return 103758  # !! https://oberon.simplicate.com/v1/reporting/process/reloadData?q={%22date%22:%222021-05-18%22,%22page%22:%22process%22}
-    return Decimal(onderhanden_werk_list()['OH'].sum())
 
 
 ###### KOSTEN ######

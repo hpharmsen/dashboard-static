@@ -1,5 +1,5 @@
 import os
-from model.resultaat import onderhanden_werk_list
+from sources.simplicate import onderhanden_werk_list
 from layout.basic_layout import headersize, midsize
 from layout.block import VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
