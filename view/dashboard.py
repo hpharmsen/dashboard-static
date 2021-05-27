@@ -45,7 +45,7 @@ ORANGE = '#FFA500'
 RED = '#c00'
 BLACK = '#000'
 GRAY = 'gray'
-
+DATE_FORMAT = '%Y-%m-%d'
 
 def dependent_color(value, red_treshold, green_treshold):
     # Returns color GREEN, BLACK, RED depending on value
@@ -146,39 +146,41 @@ def productiviteit_block():
     productivity_coloring = lambda value: dependent_color(value, 68, 75)
     # Volgens Simplicate > 75% is goed (groen), >70% is redelijk, >65 is break even, <65% is verlies
 
-    lastmonth = datetime.date.today() - datetime.timedelta(days=30)
+    #lastmonth = datetime.date.today() - datetime.timedelta(days=30)
+    untilDate = (datetime.date.today() + datetime.timedelta(weeks=-1))
+    fromDate = (datetime.date.today() + datetime.timedelta(weeks=-2))
 
     productiviteit_perc_productie_block = TextBlock(
-        productiviteit_perc_productie(lastmonth),
+        productiviteit_perc_productie(fromDate, untilDate),
         midsize,
         format='%',
         tooltip='''Percentage van geboekte uren door productiemensen (dat is ex. office,
-                       recruitment, MT) op productietaken zoals FE, Non-billable, PM of Testing.  Laatste maand.''',
+                       recruitment, MT) op productietaken zoals FE, Non-billable, PM of Testing. Tussen 1 en 2 weken geleden.''',
         color=productivity_coloring,
     )
 
     billable_perc_productie_block = TextBlock(
-        billable_perc_productie(lastmonth),
+        billable_perc_productie(fromDate, untilDate),
         midsize,
         format='%',
         tooltip='''Percentage van geboekte uren door productiemensen (ex. office,
-                       recruitment, MT) op billable taken zoals FE, PM of Testing. Laatste maand.''',
+                       recruitment, MT) op billable taken zoals FE, PM of Testing. Tussen 1 en 2 weken geleden.''',
     )
     productiviteit_perc_iedereen_block = TextBlock(
-        productiviteit_perc_iedereen(lastmonth),
+        productiviteit_perc_iedereen(fromDate, untilDate),
         midsize,
         format='%',
         tooltip='''Percentage van geboekte uren door het hele team op productietaken
-                       zoals FE, Non-billable, PM of Testing. Laatste maand.''',
+                       zoals FE, Non-billable, PM of Testing. Tussen 1 en 2 weken geleden.''',
         color=productivity_coloring,
     )
 
     billable_perc_iedereen_block = TextBlock(
-        billable_perc_iedereen(lastmonth),
+        billable_perc_iedereen(fromDate, untilDate),
         midsize,
         format='%',
         tooltip='''Percentage van geboekte uren door het hele team op billable taken
-                       zoals FE, Non-billable, PM of Testing. Laatste maand.''',
+                       zoals FE, BE, PM of Testing. Tussen 1 en 2 weken geleden.''',
     )
 
     return VBlock(
@@ -188,7 +190,7 @@ def productiviteit_block():
                 [
                     TextBlock('&nbsp', defsize, padding=90, color=GRAY),
                     TextBlock('productief', defsize, color=GRAY),
-                    TextBlock('Billable', defsize, color=GRAY),
+                    TextBlock('billable', defsize, color=GRAY),
                 ]
             ),
             HBlock(

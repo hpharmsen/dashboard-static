@@ -280,7 +280,8 @@ def vulling_van_de_planning():
              group by day) q1
         group by day) q2
     group by year(day), weekno
-    order by day'''
+    order by day
+    limit 16'''
     table = db.dataframe(query)
 
     # Roster

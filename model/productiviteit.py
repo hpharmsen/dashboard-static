@@ -145,7 +145,8 @@ def productiviteit_perc_iedereen(fromdate=None, untildate=None):
 
 
 def billable_perc_iedereen(fromdate=None, untildate=None):
-    res = 100 * billable_uren_iedereen(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
+    avail = beschikbare_uren_iedereen(fromdate, untildate)
+    res = 100 * billable_uren_iedereen(fromdate, untildate) / avail
     trends.update('billable_hele_team', round(res, 1))
     return res
 
@@ -155,6 +156,16 @@ def billable_perc_user(user):
     total = geboekte_uren_users(user)
     if total:
         res = 100 * billable / total
+    else:
+        res = 0
+    return res
+
+
+def productiviteit_perc_user(user):
+    productive = geboekte_uren_users(user, only_clients=1)
+    total = geboekte_uren_users(user)
+    if total:
+        res = 100 * productive / total
     else:
         res = 0
     return res
@@ -176,10 +187,10 @@ def billable_trend_person_week(user, startweek=1):
 
     dictdict = (
         hours_dataframe()
-        .query(f'type=="normal" and employee=="{user}" and (tariff>0 or service_tariff>0)')
-        .groupby(['week'])[['hours']]
-        .sum()
-        .to_dict('index')
+            .query(f'type=="normal" and employee=="{user}" and (tariff>0 or service_tariff>0)')
+            .groupby(['week'])[['hours']]
+            .sum()
+            .to_dict('index')
     )
     for key, val in dictdict.items():
         pos = key - startweek
@@ -212,12 +223,12 @@ def corrections_last_month():
     lastmonth = (datetime.datetime.today() + datetime.timedelta(days=-30)).strftime(DATE_FORMAT)
     x = (
         df.query(f'day>="{lastmonth}"')
-        .groupby(['organization', 'project_name'])
-        .agg({'hours': 'sum', 'corrections': 'sum'})
-        .sort_values('corrections')
-        .query('corrections < -10')
-        .reset_index()
-        .copy()
+            .groupby(['organization', 'project_name'])
+            .agg({'hours': 'sum', 'corrections': 'sum'})
+            .sort_values('corrections')
+            .query('corrections < -10')
+            .reset_index()
+            .copy()
     )
     result = pd.DataFrame()
     result['project'] = x.apply(format_project_name, axis=1)
@@ -231,10 +242,10 @@ def corrections_all():
     df = hours_dataframe()
     result = (
         df.groupby(['organization', 'project_name', 'project_id'])
-        .agg({'hours': 'sum', 'corrections': 'sum'})
-        .query('corrections < 0')
-        .sort_values('corrections')
-        .reset_index()
+            .agg({'hours': 'sum', 'corrections': 'sum'})
+            .query('corrections < 0')
+            .sort_values('corrections')
+            .reset_index()
     )
     result['corrections'] = result.apply(lambda a: int(a['corrections']), axis=1)
     return result
