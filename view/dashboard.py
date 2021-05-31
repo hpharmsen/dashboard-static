@@ -80,7 +80,7 @@ def commerce_block():
                 color=sales_waarde_color,
                 tooltip='Som van openstaande trajecten<br/>maal hun kans.',
             ),
-            trends.chart('sales_waarde', 250, 150, min_y_axis=0, x_start=six_months_ago()),
+            trends.chart('sales_waarde', 250, 150, min_y_axis=0, x_start=months_ago(6)),
             VBlock(
                 [
                     TextBlock(f'Top {len(top_sales)} sales kansen', midsize),
@@ -217,15 +217,16 @@ def productiviteit_block():
     )
 
 
-def six_months_ago():
-    return (datetime.date.today() - relativedelta(months=6)).strftime('%Y-%m-%d')
+def months_ago(number):
+    return (datetime.date.today() - relativedelta(months=number)).strftime('%Y-%m-%d')
 
 
 def billable_chart():
+    months_back = 3
     return VBlock(
         [
-            TextBlock('Billable, hele team, laatste 6 maanden', defsize, color=GRAY),
-            trends.chart('billable_hele_team', 250, 150, x_start=six_months_ago()),
+            TextBlock(f'Billable, hele team, laatste {months_back} maanden', defsize, color=GRAY),
+            trends.chart('billable_hele_team', 250, 150, x_start=months_ago(months_back)),
         ]
     )
 
@@ -268,7 +269,7 @@ def planning_chart():
 #                 format='K',
 #                 tooltip='Werk dat binnengehaald is maar nog niet uitgevoerd.',
 #             ),
-#             trends.bar('werk_in_pijplijn', 250, 150, min_y_axis=0, x_start=six_months_ago()),
+#             trends.bar('werk_in_pijplijn', 250, 150, min_y_axis=0, x_start=months_ago(6)),
 #         ]
 #     )
 #     return pijplijn
@@ -374,7 +375,7 @@ def omzet_chart():
     return VBlock(
         [
             TextBlock('Omzet per week, laatste 6 maanden...', defsize, color=GRAY),
-            trends.chart('omzet_per_week', 250, 150, x_start=six_months_ago(), min_y_axis=0, max_y_axis=80000),
+            trends.chart('omzet_per_week', 250, 150, x_start=months_ago(6), min_y_axis=0, max_y_axis=80000),
         ],
         link='billable.html',
     )

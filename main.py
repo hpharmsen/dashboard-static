@@ -20,6 +20,7 @@
 # - 2. Performance  (%)  = Efficiëntie x Billability
 # - Efficiëntie (%) = gefactureerde waarde delen door intrinsieke waarde (budget) van diezelfde periode.
 # - Billability  (%) = factureerbare uren / nettocapaciteit (= het aantal uren dat iemand effectief werkt)
+# - Wensen van Gert: https://www.notion.so/teamoberon/Dashboard-wensen-5305f0b45827460ba6b0d1c5a408dffd
 
 # HR
 # - Begroot aantal mensen
