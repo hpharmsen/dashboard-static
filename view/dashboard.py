@@ -147,11 +147,11 @@ def productiviteit_block():
     # Volgens Simplicate > 75% is goed (groen), >70% is redelijk, >65 is break even, <65% is verlies
 
     #lastmonth = datetime.date.today() - datetime.timedelta(days=30)
-    untilDate = (datetime.date.today() + datetime.timedelta(weeks=-1))
-    fromDate = (datetime.date.today() + datetime.timedelta(weeks=-2))
+    until_date = (datetime.date.today() + datetime.timedelta(weeks=-1))
+    from_date = (datetime.date.today() + datetime.timedelta(weeks=-2))
 
     productiviteit_perc_productie_block = TextBlock(
-        productiviteit_perc_productie(fromDate, untilDate),
+        productiviteit_perc_productie(from_date, until_date),
         midsize,
         format='%',
         tooltip='''Percentage van geboekte uren door productiemensen (dat is ex. office,
@@ -160,14 +160,14 @@ def productiviteit_block():
     )
 
     billable_perc_productie_block = TextBlock(
-        billable_perc_productie(fromDate, untilDate),
+        billable_perc_productie(from_date, until_date),
         midsize,
         format='%',
         tooltip='''Percentage van geboekte uren door productiemensen (ex. office,
                        recruitment, MT) op billable taken zoals FE, PM of Testing. Tussen 1 en 2 weken geleden.''',
     )
     productiviteit_perc_iedereen_block = TextBlock(
-        productiviteit_perc_iedereen(fromDate, untilDate),
+        productiviteit_perc_iedereen(from_date, until_date),
         midsize,
         format='%',
         tooltip='''Percentage van geboekte uren door het hele team op productietaken
@@ -176,7 +176,7 @@ def productiviteit_block():
     )
 
     billable_perc_iedereen_block = TextBlock(
-        billable_perc_iedereen(fromDate, untilDate),
+        billable_perc_iedereen(from_date, until_date),
         midsize,
         format='%',
         tooltip='''Percentage van geboekte uren door het hele team op billable taken
@@ -423,7 +423,7 @@ def hr_block():
             team_block(),
             tevredenheid_block(),
             verzuim_block(),
-            vakantiedagen_block(),
+            #vakantiedagen_block(),
             error_block(),
         ]
     )

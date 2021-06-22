@@ -109,12 +109,12 @@ def update_hours():
         flat_data = flatten_hours_data(data)
         if df.empty:
             df = pd.DataFrame(flat_data)
-            complement(df)
+            complement_hours_dataframe(df)
         else:
             day_str = day.strftime(DATE_FORMAT)
             df.drop(df[df.day == day_str].index, inplace=True)
             new_df = pd.DataFrame(flat_data)
-            complement(new_df)
+            complement_hours_dataframe(new_df)
             df = df.append(new_df, ignore_index=True)
 
         day += datetime.timedelta(days=1)  # Move to the next day before repeating the loop
@@ -124,17 +124,22 @@ def update_hours():
     return df
 
 
-def complement(df):
-    df['turnover'] = (df['hours'] + df['corrections']) * df['tariff']
-    df['turnover'] = df.apply(
-        lambda a: 0 if a['project_number'] == 'TOR-3' and a['service'] == 'Development Sprints Q1' else a['turnover'],
-        axis=1,
-    )
+def complement_hours_dataframe(df):
+    if df.empty:
+        df['turnover'] = ""
+        df['week'] = ""
+        df['corrections_value'] = ""
+    else:
+        df['turnover'] = (df['hours'] + df['corrections']) * df['tariff']
+        df['turnover'] = df.apply(
+            lambda a: 0 if a['project_number'] == 'TOR-3' and a['service'] == 'Development Sprints Q1' else a['turnover'],
+            axis=1,
+        )
 
-    df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1], axis=1)
-    df['corrections_value'] = df.apply(
-        lambda a: (a['corrections']) * (a['tariff'] if a['tariff'] > 0 else a['service_tariff']), axis=1
-    )
+        df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1], axis=1)
+        df['corrections_value'] = df.apply(
+            lambda a: (a['corrections']) * (a['tariff'] if a['tariff'] > 0 else a['service_tariff']), axis=1
+        )
 
 
 def flatten_hours_data(data):
