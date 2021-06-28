@@ -95,13 +95,28 @@ def gemiddelde_betaaltermijn(days=90):
 
 
 #################### CASH EN WERKKAPITAAL ################################################
-CASH_ACCOUNTS = ('11000', '12000', '12001', '12002', '23101')
+CASH_ACCOUNTS = (
+    '11000', # RC
+    '12000', # Spaaar
+    '12001', # Salarisrekeninb
+    '12002', # G-Rekening
+    '23101'  # Kruisposten
+)
 DEBITEUREN = ('13000',)
 CREDITEUREN = ('16000',)
-OVERIGE_VLOTTENDE_ACTIVA = ('13300', '13350', '13460', '18900', '23020', '23310')
+OVERIGE_VLOTTENDE_ACTIVA = (
+    '13300', # Nog te ontvangen
+    '13350', # Vooruitbetalingen
+    '13460', # Waarborgsommen
+    '13999', # Overige kortlopende vorderingen (bedrag op de Qikker rekening)
+    '18900', # Lokale BTW in andere EU landen
+    '23020', # Vraagposten
+    '23310'  # Tussenrekening creditcardbetalingen
+    )
 OVERIGE_VLOTTENDE_PASSIVA = (
     '15000',  # VISA card 15000
     '16100',  # Nog te ontvangen facturen 16100
+    '16999',  # Overige kortlopende schulden (Nog af te betalen aan Michiel)
     '17000',  # Te betalen lonen 17000
     '17100',  # Loonheffing 17100
     '17105',  # Ingehouden loonheffing 17105
@@ -110,7 +125,7 @@ OVERIGE_VLOTTENDE_PASSIVA = (
     '17900',  # Tussenrekening VPB 17900
     '18000',  # Btw over leveringen/diensten belast met hoog tarief 18000
     '18600',  # Leveringen buiten de EU 18600
-    '18611',  # Levereingen binnen de EU 18611
+    '18611',  # Leveringen binnen de EU 18611
     '18700',  # Leveringen uit landen buiten de EU (invoer) 18700
     '18750',  # Verwervingen uit landen binnen de EU 18750
     '18800',  # Btw voorbelasting 18800
@@ -170,13 +185,7 @@ def netto_werkkapitaal(date_str=''):
 
 
 def vlottende_activa(date_str=''):
-    # Nog te ontvangen goederen en diensten 13300
-    # Vooruitbetalingen 13350
-    # Waarborgsommenn 13460
-    # Lokale BTW in andere EU landen 18900
-    # Vraagposten 23020
-    # Tussenrekening creditcardbetalngen 23310
-    return cash(date_str) + debiteuren(date_str) + balans_bedrag(OVERIGE_VLOTTENDE_ACTIVA, date_str=date_str)
+     return cash(date_str) + debiteuren(date_str) + balans_bedrag(OVERIGE_VLOTTENDE_ACTIVA, date_str=date_str)
 
 
 def vlottende_passiva(date_str=''):
