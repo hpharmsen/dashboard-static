@@ -47,6 +47,7 @@ BLACK = '#000'
 GRAY = 'gray'
 DATE_FORMAT = '%Y-%m-%d'
 
+
 def dependent_color(value, red_treshold, green_treshold):
     # Returns color GREEN, BLACK, RED depending on value
     if red_treshold < green_treshold:
@@ -146,9 +147,9 @@ def productiviteit_block():
     productivity_coloring = lambda value: dependent_color(value, 68, 75)
     # Volgens Simplicate > 75% is goed (groen), >70% is redelijk, >65 is break even, <65% is verlies
 
-    #lastmonth = datetime.date.today() - datetime.timedelta(days=30)
-    until_date = (datetime.date.today() + datetime.timedelta(weeks=-1))
-    from_date = (datetime.date.today() + datetime.timedelta(weeks=-2))
+    # lastmonth = datetime.date.today() - datetime.timedelta(days=30)
+    until_date = datetime.date.today() + datetime.timedelta(weeks=-1)
+    from_date = datetime.date.today() + datetime.timedelta(weeks=-2)
 
     productiviteit_perc_productie_block = TextBlock(
         productiviteit_perc_productie(from_date, until_date),
@@ -423,7 +424,7 @@ def hr_block():
             team_block(),
             tevredenheid_block(),
             verzuim_block(),
-            #vakantiedagen_block(),
+            # vakantiedagen_block(),
             error_block(),
         ]
     )

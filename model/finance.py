@@ -96,23 +96,23 @@ def gemiddelde_betaaltermijn(days=90):
 
 #################### CASH EN WERKKAPITAAL ################################################
 CASH_ACCOUNTS = (
-    '11000', # RC
-    '12000', # Spaaar
-    '12001', # Salarisrekeninb
-    '12002', # G-Rekening
-    '23101'  # Kruisposten
+    '11000',  # RC
+    '12000',  # Spaaar
+    '12001',  # Salarisrekeninb
+    '12002',  # G-Rekening
+    '23101',  # Kruisposten
 )
 DEBITEUREN = ('13000',)
 CREDITEUREN = ('16000',)
 OVERIGE_VLOTTENDE_ACTIVA = (
-    '13300', # Nog te ontvangen
-    '13350', # Vooruitbetalingen
-    '13460', # Waarborgsommen
-    '13999', # Overige kortlopende vorderingen (bedrag op de Qikker rekening)
-    '18900', # Lokale BTW in andere EU landen
-    '23020', # Vraagposten
-    '23310'  # Tussenrekening creditcardbetalingen
-    )
+    '13300',  # Nog te ontvangen
+    '13350',  # Vooruitbetalingen
+    '13460',  # Waarborgsommen
+    '13999',  # Overige kortlopende vorderingen (bedrag op de Qikker rekening)
+    '18900',  # Lokale BTW in andere EU landen
+    '23020',  # Vraagposten
+    '23310',  # Tussenrekening creditcardbetalingen
+)
 OVERIGE_VLOTTENDE_PASSIVA = (
     '15000',  # VISA card 15000
     '16100',  # Nog te ontvangen facturen 16100
@@ -185,7 +185,7 @@ def netto_werkkapitaal(date_str=''):
 
 
 def vlottende_activa(date_str=''):
-     return cash(date_str) + debiteuren(date_str) + balans_bedrag(OVERIGE_VLOTTENDE_ACTIVA, date_str=date_str)
+    return cash(date_str) + debiteuren(date_str) + balans_bedrag(OVERIGE_VLOTTENDE_ACTIVA, date_str=date_str)
 
 
 def vlottende_passiva(date_str=''):

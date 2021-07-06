@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import sys
 
 import pandas as pd
 from pathlib import Path
@@ -132,7 +133,9 @@ def complement_hours_dataframe(df):
     else:
         df['turnover'] = (df['hours'] + df['corrections']) * df['tariff']
         df['turnover'] = df.apply(
-            lambda a: 0 if a['project_number'] == 'TOR-3' and a['service'] == 'Development Sprints Q1' else a['turnover'],
+            lambda a: 0
+            if a['project_number'] == 'TOR-3' and a['service'] == 'Development Sprints Q1'
+            else a['turnover'],
             axis=1,
         )
 
@@ -217,22 +220,21 @@ def hours_data_from_day(day: datetime.date, use_cache=True):
             json.dump(data, f)
     return data
 
+
 def onderhanden_werk():
     sim = simplicate()
     session = requests.Session()
     login_url = 'https://oberon.simplicate.com/site/login'
-    pw = sim.ini['simplicate']['password']
     login_data = {
         'LoginForm[username]': sim.ini['simplicate']['username'],
-        'LoginForm[password]': sim.ini['simplicate']['password']
+        'LoginForm[password]': sim.ini['simplicate']['password'],
     }
-    report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData?q={%22date%22:%222021-05-18%22}'
+    report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData'
     session.post(login_url, login_data)
 
-    json_data = session.get( report_url ).json()
+    json_data = session.get(report_url).json()
     value = json_data['table']['rows'][0]['columns'][-1][0]['value']
     return value
-
 
 
 if __name__ == '__main__':
