@@ -1,6 +1,7 @@
 import os
 from decimal import Decimal
 
+from settings import get_output_folder
 from model.caching import clear_cache
 from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
 from layout.basic_layout import defsize, midsize
@@ -169,6 +170,4 @@ def render_resultaat_berekening(output_folder: Path):
 if __name__ == '__main__':
     os.chdir('..')
     clear_cache()
-
-    # load_cache()
-    render_resultaat_berekening(Path('/Users/hp/MT/Dashboard'))
+    render_resultaat_berekening(get_output_folder())

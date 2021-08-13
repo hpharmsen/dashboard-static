@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from settings import get_output_folder
 
 from layout.basic_layout import headersize, midsize
 from layout.block import VBlock, TextBlock, Page
@@ -38,4 +39,4 @@ def render_vrije_dagen_page(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_vrije_dagen_page(Path('/Users/hp/MT/Dashboard'))
+    render_vrije_dagen_page(get_output_folder())

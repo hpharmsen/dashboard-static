@@ -13,6 +13,7 @@ from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.table import Table, TableConfig
 from layout.chart import StackedBarChart, ScatterChart, ChartConfig
 from layout.basic_layout import defsize, midsize, headersize
+from settings import get_output_folder
 from model.organisatie import aantal_mensen, aantal_fte, aantal_fte_begroot, verzuimpercentage, vrije_dagen_pool
 from model.productiviteit import (
     productiviteit_perc_productie,
@@ -590,4 +591,4 @@ if __name__ == '__main__':
     os.chdir('..')
     debiteuren_block()
     load_cache()
-    render_dashboard(Path('/Users/hp/MT/Dashboard'))
+    render_dashboard(get_output_folder())

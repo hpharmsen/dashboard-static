@@ -4,6 +4,7 @@ from layout.table import Table, TableConfig
 from layout.basic_layout import headersize
 from model.finance import debiteuren_leeftijd_analyse
 from pathlib import Path
+from settings import get_output_folder
 
 
 def render_debiteuren_page(output_folder: Path):
@@ -29,4 +30,4 @@ if __name__ == '__main__':
     os.chdir('..')
     from main import output_folder
 
-    render_debiteuren_page(output_folder)
+    render_debiteuren_page(get_output_folder())

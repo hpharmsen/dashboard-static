@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from decimal import Decimal
 
 from model.caching import reportz
+from settings import ini
 
 BASE_URL = 'https://api.yukiworks.nl/ws/Accounting.asmx'
 
@@ -21,8 +22,6 @@ def yuki():
 
 class Yuki:
     def __init__(self):
-        ini = ConfigParser()
-        ini.read(Path(__file__).resolve().parent / 'credentials.ini')
         api_key = ini['yuki']['api_key']
         self.administration_id = ini['yuki']['administration_id']
         body = self.call('/Authenticate', {'accessKey': api_key})

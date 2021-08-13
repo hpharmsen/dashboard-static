@@ -4,6 +4,7 @@ from layout.basic_layout import headersize, midsize
 from layout.block import VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 from pathlib import Path
+from settings import get_output_folder
 
 
 def render_onderhanden_werk_page(output_folder: Path):
@@ -29,6 +30,4 @@ def render_onderhanden_werk_page(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
-    from main import output_folder
-
-    render_onderhanden_werk_page(output_folder)
+    render_onderhanden_werk_page(get_output_folder())

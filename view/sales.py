@@ -1,4 +1,5 @@
 import os
+from settings import get_output_folder
 from layout.basic_layout import headersize, midsize
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
@@ -46,6 +47,4 @@ def render_sales_page(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
-    from main import output_folder
-
-    render_sales_page(output_folder)
+    render_sales_page(get_output_folder())

@@ -2,6 +2,7 @@ import datetime
 import os
 from pathlib import Path
 
+from settings import get_output_folder
 from layout.basic_layout import headersize, midsize, defsize
 from layout.block import VBlock, TextBlock, Page, HBlock
 from layout.table import Table, TableConfig
@@ -69,4 +70,4 @@ def render_verzuim_page(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_verzuim_page(Path('/Users/hp/MT/Dashboard'))
+    render_verzuim_page(get_output_folder())

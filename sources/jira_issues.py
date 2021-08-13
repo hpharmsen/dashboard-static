@@ -3,15 +3,13 @@ from datetime import datetime
 from dateutil import parser as dateparser
 from jira import JIRA, JIRAError  # pip install jira
 from sources import database as db
-import configparser
 from pathlib import Path
 from model.caching import reportz
+from settings import ini
 
 DEFAULT_FIELDS = ['created', 'assignee', 'project', 'priority', 'updated', 'summary', 'status', 'labels', 'resolution']
 SORT_ON_COUNT = 1
 
-ini = configparser.ConfigParser()
-ini.read(Path(__file__).resolve().parent / 'credentials.ini')
 jira_user = ini['jira']['user']
 jira_key = ini['jira']['key']
 jira_server = ini['jira']['server']

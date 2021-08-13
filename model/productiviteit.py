@@ -2,7 +2,6 @@ import datetime
 import os
 import sys
 from model.caching import reportz
-from sources.googlesheet import sheet_tab, to_int
 from model.trendline import trends
 from sources.simplicate import simplicate, hours_dataframe, DATE_FORMAT
 import pandas as pd

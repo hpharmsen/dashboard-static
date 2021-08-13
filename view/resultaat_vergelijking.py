@@ -1,4 +1,5 @@
 import os
+from settings import get_output_folder
 from layout.basic_layout import midsize, headersize
 from layout.block import VBlock, TextBlock, Page
 from model.resultaat_vergelijking import (
@@ -54,4 +55,4 @@ def render_resultaat_vergelijking_page():
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_resultaat_vergelijking_page()
+    render_resultaat_vergelijking_page(get_output_folder())

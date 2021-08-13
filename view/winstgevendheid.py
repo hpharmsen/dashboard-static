@@ -5,6 +5,7 @@ from layout.table import Table, TableConfig
 from pathlib import Path
 
 from model.winstgevendheid import winst_per_project, winst_per_klant #, winst_per_persoon
+from settings import get_output_folder
 
 
 def render_winstgevendheid_page(output_folder: Path):
@@ -48,6 +49,7 @@ def render_winstgevendheid_page(output_folder: Path):
     page.render(output_folder / 'winstgevendheid.html')
 
 
+
 if __name__ == '__main__':
     os.chdir('..')
-    render_winstgevendheid_page(Path('/Users/hp/My Drive/MT/Dashboard'))
+    render_winstgevendheid_page(get_output_folder())

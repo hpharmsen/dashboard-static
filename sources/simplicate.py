@@ -5,13 +5,13 @@ import sys
 
 import pandas as pd
 from pathlib import Path
-from configparser import ConfigParser
 
 import requests
 from pysimplicate import Simplicate
 
 from model.caching import reportz
 from model.log import log
+from settings import ini
 
 _simplicate = None  # Singleton
 _simplicate_hours_dataframe = pd.DataFrame()
@@ -24,9 +24,6 @@ DATE_FORMAT = '%Y-%m-%d'
 def simplicate():
     global _simplicate
     if not _simplicate:
-        ini = ConfigParser()
-        ini.read(Path(__file__).resolve().parent / 'credentials.ini')
-
         subdomain = ini['simplicate']['subdomain']
         api_key = ini['simplicate']['api_key']
         api_secret = ini['simplicate']['api_secret']

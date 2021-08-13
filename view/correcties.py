@@ -5,7 +5,7 @@ from layout.basic_layout import headersize
 from model.productiviteit import corrections_all, corrections_last_month
 from view.dashboard import GRAY, dependent_color
 from pathlib import Path
-
+from settings import get_output_folder
 
 def render_correcties_page(output_folder: Path):
 
@@ -52,6 +52,5 @@ def corrections_all_table():
 
 if __name__ == '__main__':
     os.chdir('..')
-    from main import output_folder
 
-    render_correcties_page(output_folder)
+    render_correcties_page(get_output_folder())

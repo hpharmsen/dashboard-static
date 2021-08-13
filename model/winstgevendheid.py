@@ -175,7 +175,7 @@ def calculate_turnover_fixed( projects, row ):
         return projects[row.name]['budget']
     return 0
 
-#@reportz(hours=48)
+@reportz(hours=60)
 def winst_per_project():
     result = (project_results()
               .drop( 'customer', axis=1 )
@@ -188,7 +188,7 @@ def winst_per_project():
     return result
 
 
-#@reportz(hours=60)
+@reportz(hours=60)
 def winst_per_klant(from_date:datetime=None):
     result = (project_results(from_date)
         .replace(['QS Ventures', 'KV New B.V.'], 'Capital A')
@@ -205,7 +205,7 @@ def winst_per_klant(from_date:datetime=None):
     return result
 
 
-#@reportz(hours=60)
+@reportz(hours=60)
 def project_results(from_date:datetime=None):
 
     uurkosten = uurkosten_per_persoon()
@@ -236,8 +236,6 @@ def project_results(from_date:datetime=None):
     result.loc[result.number=='CAP-8', ['hours','costs of hours','turnover fixed']] = 20, 20*75, 6000 # Fix for CAP-8 since it cannot be edited in Simplicate
     result['margin'] = result['turnover hours'] + result['turnover fixed'] - result['costs of hours']
     return result
-
-
 
 
 if __name__ == '__main__':

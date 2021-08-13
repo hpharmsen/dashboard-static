@@ -30,9 +30,10 @@ import os
 import datetime
 import shutil
 
-from model.caching import load_cache, clear_cache, cache_created_time_stamp, cache_modified_time_stamp
+from model.caching import load_cache, clear_cache, cache_created_time_stamp
 from model.finance import cash
 from model.log import init_log
+from settings import get_output_folder
 from view.billable import render_billable_page
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
@@ -44,9 +45,7 @@ from view.verzuim import render_verzuim_page
 from view.vrije_dagen import render_vrije_dagen_page
 from view.onderhanden_werk import render_onderhanden_werk_page
 from view.resultaat_berekening import render_resultaat_berekening
-from view.travelbase import render_travelbase_page
 
-from configparser import ConfigParser
 from pathlib import Path
 
 from view.winstgevendheid import render_winstgevendheid_page
@@ -67,11 +66,6 @@ def module_initialisations():
     # Update cash trend on loading of this module
     cash()
     init_log()
-
-def get_output_folder():
-    ini = ConfigParser()
-    ini.read(Path(__file__).resolve().parent / 'sources' / 'credentials.ini')
-    return Path(ini['output']['folder'])
 
 
 def cd_to_script_path():
@@ -122,8 +116,6 @@ def render_all_pages(output_folder):
     render_resultaat_berekening(output_folder)
     print( '..correcties')
     render_correcties_page(output_folder)
-    print( '..travelbase')
-    render_travelbase_page(output_folder)
     print( '..verzuim')
     render_verzuim_page(output_folder)
 
