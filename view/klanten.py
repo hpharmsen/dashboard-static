@@ -40,4 +40,4 @@ def render_klant_page(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_klant_page()
+    render_klant_page(Path('/Users/hp/My Drive/MT/Dashboard'))

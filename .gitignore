@@ -16,6 +16,7 @@ output eind 2020/
 venv
 venv3.8
 sources/simplicate_cache/*
+model/log.txt
 
 # C extensions
 *.so
@@ -118,3 +119,4 @@ venv.bak/
 .mypy_cache/
 
 experiments
+/sources/simplicate notebooks/Sanity.ipynb

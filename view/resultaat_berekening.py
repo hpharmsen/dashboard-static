@@ -1,30 +1,19 @@
 import os
 from decimal import Decimal
-import datetime
 
-from model.caching import load_cache, clear_cache
+from model.caching import clear_cache
 from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
-from layout.basic_layout import defsize, midsize, headersize
+from layout.basic_layout import defsize, midsize
+from model.log import log
 from model.resultaat import (
     onderhanden_werk,
-    # kosten_boekhoudkundig_tm_vorige_maand,
-    kosten_begroot_tm_maand,
     omzet_begroot,
     omzet_tm_maand,
     omzet_tm_nu,
     bruto_marge_werkelijk,
-    omzet_verschil,
-    omzet_verschil_percentage,
     kosten_werkelijk,
     winst_begroot,
     winst_werkelijk,
-    winst_verschil,
-    winst_verschil_percentage,
-    # virtuele_maand,
-    virtuele_dag,
-    # begroting_maandomzet,
-    # kosten_begroot_deze_maand,
-    # projectkosten_tm_vorige_maand,
     projectkosten_tm_nu,
     laatste_geboekte_maand,
     projectkosten_tm_maand,
@@ -42,42 +31,6 @@ def line(key, value, format='K', url='', tooltip=''):
     block.add_absolute_block(0, 0, TextBlock(key, defsize, color='gray', url=url, tooltip=tooltip))
     block.add_absolute_block(150, 0, TextBlock(value, defsize, format=format, url=url, tooltip=tooltip))
     return block
-
-
-def omzet_block():
-    vm = virtuele_maand()
-    vorigemaand = MAANDEN[vm - 2]
-    # huidigemaand = MAANDEN[vm - 1]
-    h = begroting_maandomzet(vm)
-    v = begroting_maandomzet(vm - 1)
-    vd = virtuele_dag()  # Dag van de maand maar doorgeteld als de vorige maand nog niet is ingevuld in de boekhouding
-    begroot_deze_maand_tot_nu = vd / 30 * (h - v)
-
-    omzet = VBlock(
-        [
-            TextBlock('Omzet', headersize),
-            line(f'Omzet begroot t/m {vorigemaand}', v),
-            line(f'begroot deze maand tot nu', begroot_deze_maand_tot_nu),
-            line('omzet begrooot nu', omzet_begroot()),
-            line('omzet werkelijk', bruto_marge_werkelijk()),
-            line('omzet verschil', omzet_verschil(), format='+K'),
-            line('percentueel', omzet_verschil_percentage(), format='+%'),
-        ]
-    )
-    return omzet
-
-
-def winst_block():
-    winst = VBlock(
-        [
-            TextBlock('Winst', headersize),
-            line('winst begrooot', winst_begroot()),
-            line('winst werkelijk', winst_werkelijk()),
-            line('winst verschil', winst_verschil(), format='+K'),
-            line('percentueel', winst_verschil_percentage(), format='+%'),
-        ]
-    )
-    return winst
 
 
 def add_row(grid, *args, header=False, bold=False):
@@ -98,8 +51,10 @@ def add_row(grid, *args, header=False, bold=False):
 def winst_berekening_block():
     grid = Grid(cols=5, aligns=['left', 'right', 'right', 'right', 'right'], has_header=True)
 
-    # huidige_maand = datetime.datetime.today().month
+    log( 'RESULTAAT BEREKENING')
     laatste_maand = laatste_geboekte_maand()
+    log( 'laatste_maand', laatste_maand)
+
     naam_laatste_maand = MAANDEN[laatste_maand - 1]
     naam_huidige_maand = MAANDEN[laatste_maand]
     yuki_omzet_url = 'https://oberon.yukiworks.nl/domain/aspx/Finances.aspx?app=FinReports.aspx'
@@ -108,96 +63,101 @@ def winst_berekening_block():
     )
 
     add_row(grid, '', 'Boekhouding (Yuki)', 'Correctie', 'Totaal nu', 'Begroot', bold=True)
-    add_row(grid, f'Omzet t/m {naam_laatste_maand}', (omzet_tm_maand(laatste_maand), yuki_omzet_url))
+
+    omzet_tm_laatste_maand = omzet_tm_maand(laatste_maand)
+    log( f'Yuki omzet tm {naam_laatste_maand}', omzet_tm_laatste_maand)
+    add_row(grid, f'Omzet t/m {naam_laatste_maand}', (omzet_tm_laatste_maand, yuki_omzet_url))
+
+    projectkosten_tm_laatste_maand = projectkosten_tm_maand(laatste_maand)
+    log( f'Yuki projectkosten tm {naam_laatste_maand}', projectkosten_tm_laatste_maand)
     add_row(grid, f'Projectkosten t/m {naam_laatste_maand}', (-projectkosten_tm_maand(laatste_maand), yuki_omzet_url))
+
+    omzet_nu = omzet_tm_nu()
+    log( 'Yuki omzet tm nu', omzet_nu)
     add_row(
         grid,
         f'Omzet vanaf {naam_huidige_maand}',
         '',
-        (omzet_tm_nu() - omzet_tm_maand(laatste_maand), yuki_omzet_url),
+        (omzet_nu - omzet_tm_laatste_maand, yuki_omzet_url),
         '',
         '',
     )
+
     add_row(
         grid,
         f'Projectkosten vanaf {naam_huidige_maand}',
         '',
         (-projectkosten_tm_nu() + projectkosten_tm_maand(laatste_maand), yuki_omzet_url),
     )
-    add_row(grid, f'Onderhanden werk nu (Simplicate)', '', (onderhanden_werk(), 'onderhanden.html'), '', '')
+
+    onderhanden = onderhanden_werk()
+    log( 'Simplicate onderhanden werk', onderhanden)
+    add_row(grid, f'Onderhanden werk nu (Simplicate)', '', (onderhanden, 'onderhanden.html'), '', '')
+
+    begroot = omzet_begroot()
+    log( 'Begroot', begroot)
+    werkelijk = bruto_marge_werkelijk()
+    log( 'Bruto marge (omz-proj+onderh)', werkelijk)
     add_row(
         grid,
         f'Opbrengsten',
-        omzet_tm_maand(laatste_maand) - projectkosten_tm_maand(laatste_maand),
+        omzet_tm_laatste_maand - projectkosten_tm_laatste_maand,
         '',
-        bruto_marge_werkelijk(),
-        omzet_begroot(),
+        werkelijk,
+        begroot,
         bold=True,
     )
     add_row(grid)
 
-    # huidige_maand = virtuele_maand()  # 1 based
-    # naam_vorige_maand = MAANDEN[huidige_maand - 2]
-    # naam_huidige_maand = MAANDEN[huidige_maand - 1]
-
+    kosten_tm_laatste_maand = kosten_boekhoudkundig_tm_maand(laatste_maand)
+    log( f'Kosten tm {naam_laatste_maand}', kosten_tm_laatste_maand)
     add_row(
         grid,
         f'Kosten t/m {naam_laatste_maand}',
-        (kosten_boekhoudkundig_tm_maand(laatste_maand), yuki_omzet_url),
+        (kosten_tm_laatste_maand, yuki_omzet_url),
         '',
         '',
         '',
     )
-    # add_row(grid, f'Ntb bonussen t/m {naam_vorige_maand}', '', bonussen_tm_vorige_maand(), '', '')
+
+    begroot = kosten_begroot_na_maand(laatste_maand)
+    log( f'Kosten begroot vanaf {naam_huidige_maand}', begroot)
     add_row(
         grid,
         f'Begrote kosten vanaf {naam_huidige_maand}',
         '',
-        (kosten_begroot_na_maand(laatste_maand), begroting_url),
+        (begroot, begroting_url),
         '',
         '',
     )
+
     add_row(
         grid,
         f'Kosten',
-        kosten_boekhoudkundig_tm_maand(laatste_maand),
+        kosten_tm_laatste_maand,
         '',
         kosten_werkelijk(),
-        kosten_boekhoudkundig_tm_maand(laatste_maand) + kosten_begroot_na_maand(laatste_maand),
+        kosten_tm_laatste_maand + begroot,
         bold=True,
     )
     add_row(grid)
+
+    yuki_winst = omzet_tm_laatste_maand - projectkosten_tm_laatste_maand - kosten_tm_laatste_maand
+    werkelijk = winst_werkelijk()
+    begroot = winst_begroot()
+    log('Yuki winst', yuki_winst)
+    log('Winst werkelijk', werkelijk)
+    log('Winst begroot', begroot)
     add_row(
         grid,
         'Winst',
-        omzet_tm_maand(laatste_maand)
-        - projectkosten_tm_maand(laatste_maand)
-        - kosten_boekhoudkundig_tm_maand(laatste_maand),
+        yuki_winst,
         '',
-        winst_werkelijk(),
-        winst_begroot(),
+        werkelijk,
+        begroot,
         bold=True,
     )
     return VBlock([TextBlock('Winstberekening', midsize), grid], id="Winstberekening")
-
-
-def tor_block():
-    return None
-    # te_factureren = min(TOR_MAX_BUDGET, gedaan_werk_tor()) / 2
-    # tor_grid = Grid(cols=2, aligns=['left', 'right'], has_header=True)
-    # add_row(tor_grid, 'TOR Facturatie')
-    # add_row(tor_grid, 'Werk gedaan', gedaan_werk_tor())
-    # add_row(tor_grid, f'Te factureren (50% van max {TOR_MAX_BUDGET})', te_factureren)
-    # add_row(tor_grid, 'Gefactureerd', invoiced_tor())
-    # add_row(tor_grid, 'Nog te factureren', te_factureren - invoiced_tor(), bold=True)
-    # add_row(tor_grid)
-    # # add_row(tor_grid, 'Werk gedaan dit jaar', gedaan_werk_tor_dit_jaar())
-    # add_row(tor_grid, 'Activeren (50% van te factureren)', te_factureren / 2)
-    # add_row(tor_grid, 'Nog te factureren', te_factureren - invoiced_tor())
-    # add_row(tor_grid, 'Tor onderhanden vorig jaar', -tor_onderhanden_2019)
-    # add_row(tor_grid, 'Onderhandenwerk TOR dit jaar', onderhanden_werk_tor(), bold=True)
-    #
-    # return VBlock([TextBlock('TOR 3', midsize), tor_done_block(), tor_grid])
 
 
 def render_resultaat_berekening(output_folder: Path):

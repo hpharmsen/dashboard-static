@@ -7,7 +7,7 @@ from pathlib import Path
 
 from dateutil.relativedelta import relativedelta
 
-from model import errors
+from model import log
 from model.caching import load_cache
 from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.table import Table, TableConfig
@@ -557,7 +557,7 @@ def corona_block():
 
 
 def error_block():
-    errs = errors.get_errors()
+    errs = log.get_errors()
     if not errs:
         return None
     error_lines = [

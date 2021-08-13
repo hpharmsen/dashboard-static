@@ -5,7 +5,6 @@
 # - Omzet prognose uit Simplicate??
 
 # COMMERCE
-# - omzet_per_klant_laatste_zes_maanden()
 # - Percentage Herhaalopdrachten (churn)
 
 # OPERATIONS
@@ -33,26 +32,24 @@ import shutil
 
 from model.caching import load_cache, clear_cache, cache_created_time_stamp, cache_modified_time_stamp
 from model.finance import cash
+from model.log import init_log
 from view.billable import render_billable_page
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
+from view.klanten import render_klant_page
 from view.sales import render_sales_page
 
-# from view.service import render_service_page
-# from view.service_issues import render_service_issues_page
 from view.verzuim import render_verzuim_page
 from view.vrije_dagen import render_vrije_dagen_page
-from view.winstgevendheid import render_winstgevendheid_page
 from view.onderhanden_werk import render_onderhanden_werk_page
 from view.resultaat_berekening import render_resultaat_berekening
-from view.budget import render_budget_status_page
-from view.target import render_target_page
 from view.travelbase import render_travelbase_page
 
 from configparser import ConfigParser
 from pathlib import Path
 
+from view.winstgevendheid import render_winstgevendheid_page
 
 
 def main():
@@ -69,7 +66,7 @@ def main():
 def module_initialisations():
     # Update cash trend on loading of this module
     cash()
-
+    init_log()
 
 def get_output_folder():
     ini = ConfigParser()
@@ -119,6 +116,8 @@ def render_all_pages(output_folder):
     render_billable_page(output_folder)
     print( '..winstgevendheid')
     render_winstgevendheid_page(output_folder)
+    print( '..klanten')
+    render_klant_page(output_folder)
     print( '..resultaatberekening')
     render_resultaat_berekening(output_folder)
     print( '..correcties')
@@ -132,10 +131,8 @@ def render_all_pages(output_folder):
     # render_resultaat_vergelijking_page(output_folder)
     # render_productiviteit_page(output_folder)
     # render_tor_page(output_folder)
-    # render_service_issues_page(output_folder)
     # render_budget_status_page(output_folder)
     # render_target_page(output_folder)
-    # render_service_page(output_folder)
     print( '..dashboard')
     render_dashboard(output_folder)
 

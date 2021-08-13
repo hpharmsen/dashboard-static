@@ -11,6 +11,7 @@ import requests
 from pysimplicate import Simplicate
 
 from model.caching import reportz
+from model.log import log
 
 _simplicate = None  # Singleton
 _simplicate_hours_dataframe = pd.DataFrame()
@@ -124,6 +125,11 @@ def update_hours():
     df.to_pickle(PANDAS_FILE)
     return df
 
+def calculate_turnover(row):
+    if row['project_number'] == 'TOR-3' and not row['service'].count('ase 2'): # For TOR only count fase 2 services
+        return 0
+    tariff = row['tariff'] or row['service_tariff'] # If not tariff per user then take the tariff per service
+    return (row['hours'] + row['corrections']) * tariff
 
 def complement_hours_dataframe(df):
     if df.empty:
@@ -131,23 +137,21 @@ def complement_hours_dataframe(df):
         df['week'] = ""
         df['corrections_value'] = ""
     else:
-        df['turnover'] = (df['hours'] + df['corrections']) * df['tariff']
-        df['turnover'] = df.apply(
-            lambda a: 0
-            if a['project_number'] == 'TOR-3' and a['service'] == 'Development Sprints Q1'
-            else a['turnover'],
-            axis=1,
-        )
-
+        #
+        df['turnover'] = df.apply( calculate_turnover, axis=1)
         df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1], axis=1)
         df['corrections_value'] = df.apply(
-            lambda a: (a['corrections']) * (a['tariff'] if a['tariff'] > 0 else a['service_tariff']), axis=1
+            lambda a: (a['corrections']) * (a['tariff'] or a['service_tariff']), axis=1
         )
 
 
 def flatten_hours_data(data):
-    result = [
-        {
+    def convert(d):
+        tariff = d.get('tariff')
+        if tariff == None:
+            log( f"{d['project']['name']} has no tariff for {d['employee']['name']}")
+            tariff = 0
+        return {
             'employee': d['employee']['name'],
             'organization': d['project']['organization']['name'],
             'project_id': d['project']['id'],
@@ -158,7 +162,7 @@ def flatten_hours_data(data):
             'service_tariff': float(d['type']['tariff']),
             'label': d['type']['label'],
             'billable': d['billable'],
-            'tariff': d['tariff'],
+            'tariff': tariff,
             'hours': d['hours'],
             'day': d['start_date'].split()[0],
             'status': d.get(
@@ -166,8 +170,8 @@ def flatten_hours_data(data):
             ),  # Dat status niet ingevuld is, kan waarschijnlijk alleen bij mijn eigen uren
             'corrections': d['corrections']['amount'],
         }
-        for d in data
-    ]
+
+    result = [convert( d ) for d in data]
     return result
 
 
@@ -234,11 +238,22 @@ def onderhanden_werk():
 
     json_data = session.get(report_url).json()
     value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return value
+    return value - 25000 # omdat we CEO niet goed krijgen
+
+def onderhanden_werk_df():
+    sim = simplicate()
+    session = requests.Session()
+    login_url = 'https://oberon.simplicate.com/site/login'
+    login_data = {
+        'LoginForm[username]': sim.ini['simplicate']['username'],
+        'LoginForm[password]': sim.ini['simplicate']['password'],
+    }
+    report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData'
+    session.post(login_url, login_data)
+
+    json_data = session.get(report_url).json()
 
 
 if __name__ == '__main__':
-    onderhanden_werk()
-    sys.exit()
     os.chdir('..')
     update_hours()

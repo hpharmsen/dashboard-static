@@ -4,7 +4,7 @@ import warnings
 
 import pandas as pd
 
-from model import errors
+from model import log
 from model.caching import reportz
 from sources import database as db
 from sources.yuki import yuki
@@ -144,8 +144,8 @@ def balans_full(date_str=''):
         CASH_ACCOUNTS + DEBITEUREN + CREDITEUREN + OVERIGE_VLOTTENDE_ACTIVA + OVERIGE_VLOTTENDE_PASSIVA
     )
     for b in balans:
-        if b['code'][0] != '0' and b['code'] not in all_balance_accounts and abs(b['amount']) > 1:
-            errors.log_error(
+        if b['code'][0] != '0' and b['code'] not in all_balance_accounts and abs(b['amount']) > 2000:
+            log.log_error(
                 'finance.py', 'balans_full()', f'Onbekende balanspost {b["code"]} {b["description"]} € {b["amount"]}.'
             )
     return balans

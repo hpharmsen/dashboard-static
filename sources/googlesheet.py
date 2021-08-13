@@ -4,7 +4,7 @@ from google.oauth2.service_account import Credentials
 from google.auth.transport.requests import AuthorizedSession
 import gspread  # https://github.com/burnash/gspread
 
-from model import errors
+from model import log
 from model.caching import reportz
 
 
@@ -41,10 +41,10 @@ def get_spreadsheet(sheet_name):
         try:
             sheet = gc.open(sheet_name)
         except gspread.exceptions.SpreadsheetNotFound:
-            errors.log_error('googlesheet.py', 'get_spreasheeet()', 'Could not find ' + sheet_name)
+            log.log_error('googlesheet.py', 'get_spreasheeet()', 'Could not find ' + sheet_name)
             return None
         except gspread.exceptions.APIError:
-            errors.log_error('googlesheet.py', 'get_spreasheeet()', 'Could not open ' + sheet_name)
+            log.log_error('googlesheet.py', 'get_spreasheeet()', 'Could not open ' + sheet_name)
             return None
         SHEETS[sheet_name] = sheet
     return SHEETS[sheet_name]

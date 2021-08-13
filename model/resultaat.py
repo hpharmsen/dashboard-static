@@ -1,14 +1,16 @@
 import calendar
+import decimal
 import os
 from datetime import datetime, timedelta
 
-from model import errors
+from model import log
 from model.caching import reportz
 from beautiful_date import *
 import pandas as pd
 from decimal import Decimal
 
 from model.productiviteit import tuple_of_productie_users
+from model.winstgevendheid import winst_per_klant
 from sources import database as db
 from model.trendline import trends
 from sources.simplicate import simplicate, onderhanden_werk, DATE_FORMAT, hours_dataframe
@@ -342,15 +344,35 @@ def top_x_klanten_laatste_zes_maanden(number=3):
 def omzet_per_klant_laatste_zes_maanden():
     ''' DataFrame van klant, omzet, percentage '''
 
-    # TODO: Invullen vanuit Simplicate (of Yuki)
-    df = pd.DataFrame([{'klant': 'alle klanten', 'omzet': 1, 'percentage': 100.0}])
+    result = winst_per_klant(datetime.now() + timedelta(days=-183))
+
+    # Nieuw dataframe met alleen de juiste kolommen
+    data = [result['customer'], result['turnover hours'] + result['turnover fixed']]
+    headers = ['klant', 'omzet']
+    df = pd.concat( data, axis=1, keys=headers)
+
+    # Percentages per klant
     totaal = df['omzet'].sum()
     df['percentage'] = df['omzet'] * 100.0 / totaal
-    return df
+    return df.sort_values(by="omzet", ascending=False)
+
+
+def simplicate_gefactureerd(tm_maand=12):
+    sim = simplicate()
+    from_date = '2021-01-01'
+    until_date = datetime.today().strftime(DATE_FORMAT)
+    inv = sim.invoice({'from_date':from_date, 'until_date':until_date})
+    inv_df = sim.to_pandas(inv)
+    invs = inv_df[['invoice_number', 'total_excluding_vat','status_name', 'organization_name', 'project_name', 'date']]
+    return decimal.Decimal(invs['total_excluding_vat'].sum())
 
 
 if __name__ == '__main__':
     os.chdir('..')
+    print(simplicate_gefactureerd())
+    print( yuki().income())
+    print( simplicate_gefactureerd() -  yuki().income())
+
     # update_omzet_per_week()
     # print(debiteuren_leeftijd_analyse())
     # print(debiteuren_30_60_90_yuki())
