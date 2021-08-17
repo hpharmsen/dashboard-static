@@ -23,7 +23,7 @@
 
 # HR
 # - Begroot aantal mensen
-# - Vergelijking met de begroting per maand (Jelle)
+
 
 import sys
 import os
@@ -40,6 +40,7 @@ from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
 from view.klanten import render_klant_page
 from view.sales import render_sales_page
+from view.travelbase import render_travelbase_page
 
 from view.verzuim import render_verzuim_page
 from view.vrije_dagen import render_vrije_dagen_page
@@ -62,6 +63,7 @@ def main():
     copy_resources(output_folder)
     render_all_pages(output_folder)
 
+
 def module_initialisations():
     # Update cash trend on loading of this module
     cash()
@@ -73,6 +75,7 @@ def cd_to_script_path():
     if path_to_go:
         os.chdir(path_to_go)
 
+
 def process_command_line_params(output_folder):
     clear_cache = False
     for param in sys.argv[1:]:
@@ -80,9 +83,9 @@ def process_command_line_params(output_folder):
             clear_cache = True
         if param == '--onceaday':
             cache_created = cache_created_time_stamp()
-            yesterday = datetime.datetime.today().date() + datetime.timedelta( days=-1 )
-            if cache_created and cache_created.date() > yesterday :
-                print( 'Script has already run today: exiting')
+            yesterday = datetime.datetime.today().date() + datetime.timedelta(days=-1)
+            if cache_created and cache_created.date() > yesterday:
+                print('Script has already run today: exiting')
                 sys.exit()
             clear_cache = True
     return clear_cache
@@ -93,40 +96,40 @@ def copy_resources(output_folder):
     resource_path = Path(__file__).resolve().parent / 'resources'
     for p in resource_path.iterdir():
         if p.is_file() and p.name[0] != '.':
-            shutil.copyfile( p, output_folder / p.name )
+            shutil.copyfile(p, output_folder / p.name)
 
 
 def render_all_pages(output_folder):
     # render the html pages
-    print( '..vrije dagen')
+    print('..vrije dagen')
     render_vrije_dagen_page(output_folder)
-    print( '..sales')
+    print('..sales')
     render_sales_page(output_folder)
-    print( '..onderhanden')
+    print('..onderhanden')
     render_onderhanden_werk_page(output_folder)
-    print( '..debiteuren')
+    print('..debiteuren')
     render_debiteuren_page(output_folder)
-    print( '..billable')
+    print('..billable')
     render_billable_page(output_folder)
-    print( '..winstgevendheid')
+    print('..winstgevendheid')
     render_winstgevendheid_page(output_folder)
-    print( '..klanten')
+    print('..klanten')
     render_klant_page(output_folder)
-    print( '..resultaatberekening')
+    print('..resultaatberekening')
     render_resultaat_berekening(output_folder)
-    print( '..correcties')
+    print('..correcties')
     render_correcties_page(output_folder)
-    print( '..verzuim')
+    print('..verzuim')
     render_verzuim_page(output_folder)
+    print('..travelbase')
+    render_travelbase_page(output_folder)
 
     # Pages missing since the move to Simplicate. They might or might not return.
     # render_resultaat_vergelijking_page(output_folder)
     # render_productiviteit_page(output_folder)
-    # render_tor_page(output_folder)
-    # render_budget_status_page(output_folder)
-    # render_target_page(output_folder)
-    print( '..dashboard')
+    print('..dashboard')
     render_dashboard(output_folder)
+
 
 if __name__ == '__main__':
     main()

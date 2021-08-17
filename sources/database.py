@@ -15,18 +15,7 @@ def get_db():
 
 def get_travelbase_db():
     global travelbase_db
-    return travelbase_db or dbClass(
-        'tor-database.cix2oo33paia.eu-west-1.rds.amazonaws.com',
-        'analytics',
-        'analytics',
-        'pg2u032riVERbXgslNszg2IIWkx4',
-    )
-
-
-# dbClass.from_inifile(scriptpath / 'credentials.ini', 'travelbase')
-
-# def dict_list(query):
-#     return get_db().execute(query)
+    return travelbase_db or dbClass.from_inifile(scriptpath / 'credentials.ini', section='travelbase')
 
 
 def value(query, database=None):

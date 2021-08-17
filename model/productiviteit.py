@@ -1,6 +1,5 @@
 import datetime
 import os
-import sys
 from model.caching import reportz
 from model.trendline import trends
 from sources.simplicate import simplicate, hours_dataframe, DATE_FORMAT
@@ -35,34 +34,13 @@ def tuple_of_productie_users():
     return users
 
 
-# @reportz(hours=24)
-# def cijfers_werknemers_value(user, key):
-#     tab = sheet_tab('Cijfers werknemers 2019', '2019')
-#     col = tab[0].index(key)
-#     rows = [r for r in tab if r[0] == user]
-#     if not rows:
-#         return 0
-#     target = rows[0][col]
-#     if not target:
-#         return 0
-#     return to_int(target.replace(',', '.'))
-
-
-# def user_target(user):
-#     return cijfers_werknemers_value(user, 'Target jaar')
-#
-#
-# def user_target_now(user):
-#     return fraction_of_the_year_past() * user_target(user)
-
-
 @reportz(hours=2)
 def geboekte_uren(only_productie_users=0, only_clients=0, billable=0, fromdate=None, untildate=None):
     users = tuple_of_productie_users() if only_productie_users else None
     return geboekte_uren_users(users, only_clients, billable, fromdate, untildate)
 
 
-# @reportz(hours=2)
+@reportz(hours=2)
 def geboekte_uren_users(users, only_clients=0, billable=0, fromdate=None, untildate=None):
     df = hours_dataframe()  # Do not count leaves
 
@@ -204,7 +182,7 @@ def weekno_to_date(rec):
     return rec
 
 
-########### CORRECTIONS ###########################
+############### CORRECTIONS ####################
 
 
 def format_project_name(row):
@@ -251,34 +229,71 @@ def corrections_all():
 
 
 @reportz(hours=24)
-def corrections_percentage():
+def corrections_percentage(from_weeks_ago, until_weeks_ago):
     df = hours_dataframe()
-    one_week_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-1)).strftime(DATE_FORMAT)
-    five_weeks_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-5)).strftime(DATE_FORMAT)
+    one_week_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-until_weeks_ago)).strftime(DATE_FORMAT)
+    five_weeks_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-from_weeks_ago)).strftime(DATE_FORMAT)
     data = df.query(f'(tariff>0 or service_tariff>0) and day>="{five_weeks_ago}" and day<"{one_week_ago}"')
     percentage_corrected = 100 * -data['corrections'].sum() / data['hours'].sum()
     return percentage_corrected
 
 
+def largest_corrections(minimum, weeks_back):
+    df = hours_dataframe()
+    today = datetime.datetime.today().strftime(DATE_FORMAT)
+    two_weeks_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-weeks_back)).strftime(DATE_FORMAT)
+    query = f'corrections < 0 and day>="{two_weeks_ago}" and day<"{today}"'
+    top_corrections = (
+        df.query(query)
+        .groupby(['project_id', 'project_number', 'project_name'])[['corrections']]
+        .sum()
+        .query(f'corrections<-{minimum}')
+        .sort_values(by='corrections')
+        .reset_index()  # make index a column
+    )
+    top_corrections['corrections'] = -top_corrections['corrections']
+    return top_corrections
+
+
 if __name__ == '__main__':
     os.chdir('..')
-    print(corrections_percentage())
-    sys.exit()
-    today = datetime.datetime(2021, 1, 16)  # datetime.date.today()
-    yesterday = datetime.datetime(2021, 1, 11)  # today + datetime.timedelta(days=-1)
-    b = geboekte_uren(only_productie_users=1, only_clients=1, fromdate=yesterday, untildate=today)
-    print(b)
-    lastmonth = datetime.date.today() - datetime.timedelta(days=30)
-    print(productiviteit_perc_productie(lastmonth))
+
+    until_date = datetime.date.today() + datetime.timedelta(weeks=-1)
+    from_date = datetime.date.today() + datetime.timedelta(weeks=-2)
+
     print()
     print('productiviteit_perc_productie')
-    print(productieve_uren_productie(), '/', beschikbare_uren_productie(), '=', productiviteit_perc_productie())
+    print(
+        productieve_uren_productie(from_date, until_date),
+        '/',
+        beschikbare_uren_productie(from_date, until_date),
+        '=',
+        productiviteit_perc_productie(from_date, until_date),
+    )
     print()
     print('billable_perc_productie')
-    print(billable_uren_productie(), '/', beschikbare_uren_productie(), '=', billable_perc_productie())
+    print(
+        billable_uren_productie(from_date, until_date),
+        '/',
+        beschikbare_uren_productie(from_date, until_date),
+        '=',
+        billable_perc_productie(from_date, until_date),
+    )
     print()
     print('productiviteit_perc_iedereen')
-    print(productieve_uren_iedereen(), '/', beschikbare_uren_iedereen(), '=', productiviteit_perc_iedereen())
+    print(
+        productieve_uren_iedereen(from_date, until_date),
+        '/',
+        beschikbare_uren_iedereen(from_date, until_date),
+        '=',
+        productiviteit_perc_iedereen(from_date, until_date),
+    )
     print()
     print('billable_perc_iedereen')
-    print(billable_uren_iedereen(), '/', beschikbare_uren_iedereen(), '=', billable_perc_iedereen())
+    print(
+        billable_uren_iedereen(from_date, until_date),
+        '/',
+        beschikbare_uren_iedereen(from_date, until_date),
+        '=',
+        billable_perc_iedereen(from_date, until_date),
+    )

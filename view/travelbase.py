@@ -7,14 +7,16 @@ from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
 from layout.chart import StackedBarChart, ChartConfig, MultiScatterChart
 from model.travelbase import BRANDS, get_bookings_per_week, update_bookings_per_day
+from settings import get_output_folder
 
 CHART_COLORS = [['#6666cc', '#ddeeff'], ['#66cc66', '#eeffdd'], ['#cc6666', '#ffddee'], ['#ccc66', '#ffffdd']]
 BAR_COLORS = ['#6666cc', '#66cc66', '#cc6666', '#cccc66']
 
 
 def render_travelbase_page(output_folder):
-    update_bookings_per_day()
-    bookings = get_bookings_per_week()
+    update_bookings_per_day('bookings')
+    update_bookings_per_day('tickets')
+    bookings = get_bookings_per_week(type='bookings')
     totals = [(brand, bookings[brand].sum()) for brand in BRANDS]
     totals_table = Table(totals, TableConfig(aligns=['left', 'right'], formats=['', '0'], totals=[0, 1]))
     page = Page(
@@ -78,4 +80,4 @@ def bar_chart(data, width, height):
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.dirname(__file__)))
-    render_travelbase_page(Path('/Users/hp/MT/Dashboard'))
+    render_travelbase_page(get_output_folder())

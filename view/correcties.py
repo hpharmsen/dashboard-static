@@ -7,6 +7,7 @@ from view.dashboard import GRAY, dependent_color
 from pathlib import Path
 from settings import get_output_folder
 
+
 def render_correcties_page(output_folder: Path):
 
     page = Page(

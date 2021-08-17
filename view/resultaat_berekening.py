@@ -52,9 +52,9 @@ def add_row(grid, *args, header=False, bold=False):
 def winst_berekening_block():
     grid = Grid(cols=5, aligns=['left', 'right', 'right', 'right', 'right'], has_header=True)
 
-    log( 'RESULTAAT BEREKENING')
+    log('RESULTAAT BEREKENING')
     laatste_maand = laatste_geboekte_maand()
-    log( 'laatste_maand', laatste_maand)
+    log('laatste_maand', laatste_maand)
 
     naam_laatste_maand = MAANDEN[laatste_maand - 1]
     naam_huidige_maand = MAANDEN[laatste_maand]
@@ -66,15 +66,15 @@ def winst_berekening_block():
     add_row(grid, '', 'Boekhouding (Yuki)', 'Correctie', 'Totaal nu', 'Begroot', bold=True)
 
     omzet_tm_laatste_maand = omzet_tm_maand(laatste_maand)
-    log( f'Yuki omzet tm {naam_laatste_maand}', omzet_tm_laatste_maand)
+    log(f'Yuki omzet tm {naam_laatste_maand}', omzet_tm_laatste_maand)
     add_row(grid, f'Omzet t/m {naam_laatste_maand}', (omzet_tm_laatste_maand, yuki_omzet_url))
 
     projectkosten_tm_laatste_maand = projectkosten_tm_maand(laatste_maand)
-    log( f'Yuki projectkosten tm {naam_laatste_maand}', projectkosten_tm_laatste_maand)
+    log(f'Yuki projectkosten tm {naam_laatste_maand}', projectkosten_tm_laatste_maand)
     add_row(grid, f'Projectkosten t/m {naam_laatste_maand}', (-projectkosten_tm_maand(laatste_maand), yuki_omzet_url))
 
     omzet_nu = omzet_tm_nu()
-    log( 'Yuki omzet tm nu', omzet_nu)
+    log('Yuki omzet tm nu', omzet_nu)
     add_row(
         grid,
         f'Omzet vanaf {naam_huidige_maand}',
@@ -92,13 +92,13 @@ def winst_berekening_block():
     )
 
     onderhanden = onderhanden_werk()
-    log( 'Simplicate onderhanden werk', onderhanden)
+    log('Simplicate onderhanden werk', onderhanden)
     add_row(grid, f'Onderhanden werk nu (Simplicate)', '', (onderhanden, 'onderhanden.html'), '', '')
 
     begroot = omzet_begroot()
-    log( 'Begroot', begroot)
+    log('Begroot', begroot)
     werkelijk = bruto_marge_werkelijk()
-    log( 'Bruto marge (omz-proj+onderh)', werkelijk)
+    log('Bruto marge (omz-proj+onderh)', werkelijk)
     add_row(
         grid,
         f'Opbrengsten',
@@ -111,7 +111,7 @@ def winst_berekening_block():
     add_row(grid)
 
     kosten_tm_laatste_maand = kosten_boekhoudkundig_tm_maand(laatste_maand)
-    log( f'Kosten tm {naam_laatste_maand}', kosten_tm_laatste_maand)
+    log(f'Kosten tm {naam_laatste_maand}', kosten_tm_laatste_maand)
     add_row(
         grid,
         f'Kosten t/m {naam_laatste_maand}',
@@ -122,7 +122,7 @@ def winst_berekening_block():
     )
 
     begroot = kosten_begroot_na_maand(laatste_maand)
-    log( f'Kosten begroot vanaf {naam_huidige_maand}', begroot)
+    log(f'Kosten begroot vanaf {naam_huidige_maand}', begroot)
     add_row(
         grid,
         f'Begrote kosten vanaf {naam_huidige_maand}',

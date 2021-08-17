@@ -3,8 +3,6 @@ import math
 import os
 import datetime
 import urllib
-from pathlib import Path
-
 from dateutil.relativedelta import relativedelta
 
 from model import log
@@ -22,6 +20,7 @@ from model.productiviteit import (
     billable_perc_iedereen,
     percentage_directe_werknemers,
     corrections_percentage,
+    largest_corrections,
 )
 from model.resultaat import (
     omzet_begroot,
@@ -114,7 +113,7 @@ def klanten_block():
 
 
 def travelbase_block():
-    bookings = get_bookings_per_week(only_complete_weeks=True)
+    bookings = get_bookings_per_week(type='bookings', only_complete_weeks=True)
     legend = ', '.join([f'{brand}: {int(bookings[brand].sum())}' for brand in BRANDS])
     return VBlock(
         [
@@ -278,18 +277,33 @@ def planning_chart():
 
 
 def corrections_block():
+    WEEKS_BACK = 4
+    INTERESTING_CORRECTION = 8
+
     def corrections_percentage_coloring(value):
         return dependent_color(value, red_treshold=4.9, green_treshold=2)
+
+    def project_link(row_index, fullline):
+        return f'https://oberon.simplicate.com/projects/{fullline[0]}/hours'
 
     result = VBlock(
         [
             TextBlock('Correcties', midsize),
             HBlock(
                 [
-                    TextBlock(corrections_percentage(), midsize, format='%', color=corrections_percentage_coloring),
-                    TextBlock('correcties op uren<br/>tussen 1 week geleden<br/>en 5 weken geleden.', color=GRAY),
+                    TextBlock(
+                        corrections_percentage(WEEKS_BACK, 1),
+                        midsize,
+                        format='%',
+                        color=corrections_percentage_coloring,
+                    ),
+                    TextBlock(f'correcties op uren tussen<br/>1 en {WEEKS_BACK} weken geleden.', color=GRAY),
                 ],
                 padding=70,
+            ),
+            Table(
+                largest_corrections(INTERESTING_CORRECTION, WEEKS_BACK),
+                TableConfig(headers=[], aligns=['left', 'left', 'right'], hide_columns=[0], row_linking=project_link),
             ),
         ],
         link='corrections.html',
@@ -589,6 +603,5 @@ def error_block():
 
 if __name__ == '__main__':
     os.chdir('..')
-    debiteuren_block()
     load_cache()
     render_dashboard(get_output_folder())

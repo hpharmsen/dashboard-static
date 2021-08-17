@@ -10,5 +10,6 @@ def fraction_of_the_year_past(start_day=None):
     else:
         y = datetime.today().year
         start_date_time = datetime(y, 1, 1)
-    days_in_the_year = (datetime.today() - start_date_time).days + 1
+    end_date_time = datetime.today()
+    days_in_the_year = (end_date_time - start_date_time).days + 1
     return days_in_the_year / 365

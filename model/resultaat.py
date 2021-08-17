@@ -3,7 +3,6 @@ import decimal
 import os
 from datetime import datetime, timedelta
 
-from model import log
 from model.caching import reportz
 from beautiful_date import *
 import pandas as pd
@@ -349,7 +348,7 @@ def omzet_per_klant_laatste_zes_maanden():
     # Nieuw dataframe met alleen de juiste kolommen
     data = [result['customer'], result['turnover hours'] + result['turnover fixed']]
     headers = ['klant', 'omzet']
-    df = pd.concat( data, axis=1, keys=headers)
+    df = pd.concat(data, axis=1, keys=headers)
 
     # Percentages per klant
     totaal = df['omzet'].sum()
@@ -361,17 +360,17 @@ def simplicate_gefactureerd(tm_maand=12):
     sim = simplicate()
     from_date = '2021-01-01'
     until_date = datetime.today().strftime(DATE_FORMAT)
-    inv = sim.invoice({'from_date':from_date, 'until_date':until_date})
+    inv = sim.invoice({'from_date': from_date, 'until_date': until_date})
     inv_df = sim.to_pandas(inv)
-    invs = inv_df[['invoice_number', 'total_excluding_vat','status_name', 'organization_name', 'project_name', 'date']]
+    invs = inv_df[['invoice_number', 'total_excluding_vat', 'status_name', 'organization_name', 'project_name', 'date']]
     return decimal.Decimal(invs['total_excluding_vat'].sum())
 
 
 if __name__ == '__main__':
     os.chdir('..')
     print(simplicate_gefactureerd())
-    print( yuki().income())
-    print( simplicate_gefactureerd() -  yuki().income())
+    print(yuki().income())
+    print(simplicate_gefactureerd() - yuki().income())
 
     # update_omzet_per_week()
     # print(debiteuren_leeftijd_analyse())

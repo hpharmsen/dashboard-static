@@ -144,7 +144,7 @@ def balans_full(date_str=''):
         CASH_ACCOUNTS + DEBITEUREN + CREDITEUREN + OVERIGE_VLOTTENDE_ACTIVA + OVERIGE_VLOTTENDE_PASSIVA
     )
     for b in balans:
-        if b['code'][0] != '0' and b['code'] not in all_balance_accounts and abs(b['amount']) > 2000:
+        if b['code'][0] != '0' and b['code'] not in all_balance_accounts and abs(b['amount']) > 6000:
             log.log_error(
                 'finance.py', 'balans_full()', f'Onbekende balanspost {b["code"]} {b["description"]} € {b["amount"]}.'
             )

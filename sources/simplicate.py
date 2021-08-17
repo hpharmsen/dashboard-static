@@ -122,11 +122,13 @@ def update_hours():
     df.to_pickle(PANDAS_FILE)
     return df
 
+
 def calculate_turnover(row):
-    if row['project_number'] == 'TOR-3' and not row['service'].count('ase 2'): # For TOR only count fase 2 services
+    if row['project_number'] == 'TOR-3' and not row['service'].count('ase 2'):  # For TOR only count fase 2 services
         return 0
-    tariff = row['tariff'] or row['service_tariff'] # If not tariff per user then take the tariff per service
+    tariff = row['tariff'] or row['service_tariff']  # If not tariff per user then take the tariff per service
     return (row['hours'] + row['corrections']) * tariff
+
 
 def complement_hours_dataframe(df):
     if df.empty:
@@ -135,18 +137,16 @@ def complement_hours_dataframe(df):
         df['corrections_value'] = ""
     else:
         #
-        df['turnover'] = df.apply( calculate_turnover, axis=1)
+        df['turnover'] = df.apply(calculate_turnover, axis=1)
         df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1], axis=1)
-        df['corrections_value'] = df.apply(
-            lambda a: (a['corrections']) * (a['tariff'] or a['service_tariff']), axis=1
-        )
+        df['corrections_value'] = df.apply(lambda a: (a['corrections']) * (a['tariff'] or a['service_tariff']), axis=1)
 
 
 def flatten_hours_data(data):
     def convert(d):
         tariff = d.get('tariff')
         if tariff == None:
-            log( f"{d['project']['name']} has no tariff for {d['employee']['name']}")
+            log(f"{d['project']['name']} has no tariff for {d['employee']['name']}")
             tariff = 0
         return {
             'employee': d['employee']['name'],
@@ -168,7 +168,7 @@ def flatten_hours_data(data):
             'corrections': d['corrections']['amount'],
         }
 
-    result = [convert( d ) for d in data]
+    result = [convert(d) for d in data]
     return result
 
 
@@ -235,7 +235,8 @@ def onderhanden_werk():
 
     json_data = session.get(report_url).json()
     value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return value - 25000 # omdat we CEO niet goed krijgen
+    return value - 25000  # omdat we CEO niet goed krijgen
+
 
 def onderhanden_werk_df():
     sim = simplicate()
@@ -254,3 +255,30 @@ def onderhanden_werk_df():
 if __name__ == '__main__':
     os.chdir('..')
     update_hours()
+USER_MAPPING = {
+    "geertjan": "geert-jan",
+    "raymond": "ray",
+    "jeroen": "jeroens",
+    "robinveer": "robin",
+    "vinz.timmermans": "vinz",
+    "jordy.boelhouwer": "jordy",
+}  # Map Simplicate name to oberon id
+
+
+@reportz(hours=1)
+def name2user():
+    employees = simplicate().employee()
+    return {
+        t["name"]: get_oberon_id_from_email(t["work_email"]) for t in employees if t.get("name") and t.get('work_email')
+    }
+
+
+@reportz(hours=1)
+def user2name():
+    return {value: key for key, value in name2user().items()}
+
+
+def get_oberon_id_from_email(email):
+    # Based on the e-mail address from Simplicate, get the username used in extranet planning database
+    id = email.split("@")[0]
+    return USER_MAPPING.get(id, id)
