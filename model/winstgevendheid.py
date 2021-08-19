@@ -5,14 +5,13 @@ from functools import partial
 
 from model.log import log_error
 from sources.googlesheet import sheet_tab, to_int, to_float
-from sources import database as db
-from model.caching import reportz
+from model.caching import reportz, use_cache
 
 from model.utilities import fraction_of_the_year_past
 from sources.simplicate import hours_dataframe, simplicate, DATE_FORMAT, user2name, name2user
 
 MT_SALARIS = 110000
-OVERIGE_KOSTEN_PER_FTE_PER_MAAND = 1274
+OVERIGE_KOSTEN_PER_FTE_PER_MAAND = 1000
 OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR = (
     (139 + 168 + 47) / 4 / 40
 )  # Overige personeelskosten, kantoorkosten (niet huur), Afschrijvingen (niet kantoor)
@@ -105,7 +104,7 @@ def loonkosten_per_persoon():
     return users
 
 
-# @reportz(hours=60)
+@reportz(hours=60)
 def uurkosten_per_persoon():
 
     # Vaste werknemers
@@ -142,7 +141,7 @@ def calculate_turnover_fixed(projects, row):
     return 0
 
 
-# @reportz(hours=60)
+@reportz(hours=60)
 def winst_per_project():
     result = (
         project_results()
@@ -159,7 +158,7 @@ def winst_per_project():
     return result
 
 
-# @reportz(hours=60)
+@reportz(hours=60)
 def winst_per_klant(from_date: datetime = None):
     result = (
         project_results(from_date)
@@ -176,7 +175,7 @@ def winst_per_klant(from_date: datetime = None):
     return result
 
 
-@reportz(hours=1)
+@reportz(hours=24)
 def project_results(from_date: datetime = None):
 
     simplicate_projects = simplicate().project()
@@ -216,6 +215,7 @@ def project_results(from_date: datetime = None):
     return result
 
 
+@reportz(hours=24)
 def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnover per person
 
     # Get hours and hours turnover per person
@@ -226,6 +226,8 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
         .rename(columns={'turnover': 'turnover hours'})
         .reset_index()
     )
+    for employee in ['Angela Duijs', 'Lunah Smits', 'Mel Schuurman', 'Martijn van Klaveren']:
+        result = result.append( {'employee':employee, 'hours':0, 'turnover hours':0}, ignore_index=True)
 
     # Add results from fixed price projects
     result['turnover fixed'] = 0
@@ -245,6 +247,7 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
     return result[['employee', 'hours', 'turnover', 'margin']]
 
 
+@reportz(hours=24)
 def calculate_employee_costs(row):
     user = name2user()[row['employee']]
     loonkosten_user = loonkosten_per_persoon().get(user)
@@ -268,6 +271,7 @@ def hours_per_person(project_id):
     return df
 
 
+@reportz(hours=24)
 def hours_filtered(from_date: datetime = None):
     filter = 'type=="normal" and employee != "Freelancer" and organization != "Oberon"'
     if from_date:
@@ -278,5 +282,7 @@ def hours_filtered(from_date: datetime = None):
 
 if __name__ == '__main__':
     os.chdir('..')
-    pp = winst_per_persoon()
+    use_cache = False
+    pp = winst_per_persoon().sort_values(by="employee")
+    totals = pp[['hours', 'turnover', 'costs', 'margin']].sum()
     print(pp)

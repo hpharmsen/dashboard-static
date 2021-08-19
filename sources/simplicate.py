@@ -223,33 +223,23 @@ def hours_data_from_day(day: datetime.date, use_cache=True):
 
 
 def onderhanden_werk():
-    sim = simplicate()
+    ini = simplicate().ini['simplicate']
     session = requests.Session()
     login_url = 'https://oberon.simplicate.com/site/login'
     login_data = {
-        'LoginForm[username]': sim.ini['simplicate']['username'],
-        'LoginForm[password]': sim.ini['simplicate']['password'],
+        'LoginForm[username]': ini['username'],
+        'LoginForm[password]': ini['password'],
     }
     report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData'
     session.post(login_url, login_data)
 
-    json_data = session.get(report_url).json()
+    try:
+        json_data = session.get(report_url).json()
+    except ConnectionResetError:
+        log.log_error( 'simplicate.py', 'onderhanden_werk', 'Connection reset by Simplicate')
+        return 0
     value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return value - 25000  # omdat we CEO niet goed krijgen
-
-
-def onderhanden_werk_df():
-    sim = simplicate()
-    session = requests.Session()
-    login_url = 'https://oberon.simplicate.com/site/login'
-    login_data = {
-        'LoginForm[username]': sim.ini['simplicate']['username'],
-        'LoginForm[password]': sim.ini['simplicate']['password'],
-    }
-    report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData'
-    session.post(login_url, login_data)
-
-    json_data = session.get(report_url).json()
+    return value - 25000  # !! omdat we CEO niet goed krijgen
 
 
 if __name__ == '__main__':

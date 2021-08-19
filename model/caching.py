@@ -7,7 +7,7 @@ from layout.basic_layout import doFormat
 
 CACHE_FILE = ''
 cache = {}
-
+use_cache = True # Default but can be overwritten for debug purposes
 
 def load_cache():
     global cache
@@ -54,26 +54,34 @@ def reportz(func=None, *, hours=0.1):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        global use_cache
+
         # getting the parameters sorted out in a string
         args_str = ', '.join([str(arg) for arg in args])
         kwargs_str = ', '.join([':'.join([str(j) for j in i]) for i in kwargs.items()])
         all_args = args_str + (', ' if args_str and kwargs_str else '') + kwargs_str
         func_str = func.__name__ + (f'({all_args})' if all_args else '')
 
-        # Executing the function unless it's in the cache
-        try:
-            value, timestamp = cache[func_str]
-            diff = datetime.datetime.now() - timestamp
-            dh = diff.seconds / 3600
-            if dh < hours:
-                return value
-            else:
-                del cache[func_str]
-        except KeyError:
-            pass
+        if use_cache:
+            # Executing the function unless it's in the cache
+            try:
+                value, timestamp = cache[func_str]
+                diff = datetime.datetime.now() - timestamp
+                dh = diff.seconds / 3600
+                if dh < hours:
+                    return value
+                else:
+                    del cache[func_str]
+            except KeyError:
+                pass
+
         # No cache hit, calculate..
         before = datetime.datetime.now()
+
+        # --- Run the actual function ---
         value = func(*args, **kwargs)
+        # -------------------------------
+
         excution_time = datetime.datetime.now() - before
         cache[func_str] = (value, datetime.datetime.now())
         printable_func_str = func_str[:77].split('\n')[0]

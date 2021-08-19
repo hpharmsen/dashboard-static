@@ -60,7 +60,11 @@ def sheet_tab(sheetname, tabname):
         sheet = get_spreadsheet(sheetname)
         if not sheet:
             return None
-        TABS[key] = sheet.worksheet(tabname).get_all_values()
+        try:
+            TABS[key] = sheet.worksheet(tabname).get_all_values()
+        except ConnectionError:
+            log.log_error('googlesheet.py', 'sheet_tab', f'Could not load {sheetname} - {tabname}')
+            return []
     return TABS[key]
 
 
