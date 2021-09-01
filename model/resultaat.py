@@ -236,7 +236,7 @@ def last_day_of_last_month():
 def last_day_of_month(m):
     y = datetime.now().year  # !! Gaat mis na einde jaar
     d = calendar.monthrange(y, m)[1]
-    return datetime(y, m, d)
+    return datetime(y, m, d).strftime(DATE_FORMAT)
 
 
 def update_omzet_per_week():

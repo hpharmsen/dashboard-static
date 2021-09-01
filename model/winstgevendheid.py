@@ -122,12 +122,30 @@ def uurkosten_per_persoon():
         log_error(
             'winstgevendheid.py', 'uurkosten_per_persoon', 'kan niet bij Freelance tab in contracten sheet'
         )  # Error in the spreadsheet
-    else:
-        id_col = freelancers[0].index('Id')
-        bruto_per_uur_col = freelancers[0].index('BrutoPerUur')
-        for line in freelancers[1:]:
-            if line[id_col]:
-                name = user2name()[line[id_col]]
+        return res
+    id_col = freelancers[0].index('Id')
+    bruto_per_uur_col = freelancers[0].index('BrutoPerUur')
+    for line in freelancers[1:]:
+        if line[id_col]:
+            name = user2name().get(line[id_col])
+            if name:
+                res[name] = round(
+                    float(line[bruto_per_uur_col].replace(',', '.')) + OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR, 2
+                )
+
+    # Flex
+    flex = sheet_tab('Contracten werknemers', 'Flex')
+    if not flex:
+        log_error(
+            'winstgevendheid.py', 'uurkosten_per_persoon', 'kan niet bij Flex tab in contracten sheet'
+        )  # Error in the spreadsheet
+        return res
+    id_col = flex[0].index('Id')
+    bruto_per_uur_col = flex[0].index('BrutoPerUur')
+    for line in flex[1:]:
+        if line[id_col]:
+            name = user2name().get(line[id_col])
+            if name:
                 res[name] = round(
                     float(line[bruto_per_uur_col].replace(',', '.')) + OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR, 2
                 )
@@ -237,6 +255,8 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
             turnover = project['turnover fixed'] / project['hours'] * ph['hours']
             result.loc[result.employee == ph['employee'], 'turnover fixed'] += turnover
 
+    result.loc[result.employee == 'Paulo Nuno da Cruz Moreno', 'employee'] = "Paulo Nuno Da Cruz Moreno" # !! temporary
+
     # Add the salary and office costs per person
     result['costs'] = result.apply(calculate_employee_costs, axis=1)
 
@@ -249,6 +269,7 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
 
 @reportz(hours=24)
 def calculate_employee_costs(row):
+    nu = name2user()
     user = name2user()[row['employee']]
     loonkosten_user = loonkosten_per_persoon().get(user)
     if loonkosten_user:
@@ -284,5 +305,4 @@ if __name__ == '__main__':
     os.chdir('..')
     use_cache = False
     pp = winst_per_persoon().sort_values(by="employee")
-    totals = pp[['hours', 'turnover', 'costs', 'margin']].sum()
     print(pp)

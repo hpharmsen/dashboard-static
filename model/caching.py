@@ -56,8 +56,15 @@ def reportz(func=None, *, hours=0.1):
     def wrapper(*args, **kwargs):
         global use_cache
 
+        def make_str(arg):
+            s = str(arg)
+            splitted = s.split()
+            if len(splitted) == 4 and splitted[1]=='object':
+                return splitted[0][1:]
+            return s
+
         # getting the parameters sorted out in a string
-        args_str = ', '.join([str(arg) for arg in args])
+        args_str = ', '.join([make_str(arg) for arg in args])
         kwargs_str = ', '.join([':'.join([str(j) for j in i]) for i in kwargs.items()])
         all_args = args_str + (', ' if args_str and kwargs_str else '') + kwargs_str
         func_str = func.__name__ + (f'({all_args})' if all_args else '')

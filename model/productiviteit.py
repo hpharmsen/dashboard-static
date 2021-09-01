@@ -208,8 +208,12 @@ def corrections_last_month():
         .copy()
     )
     result = pd.DataFrame()
-    result['project'] = x.apply(format_project_name, axis=1)
-    result['hours'] = x.apply(lambda a: f"{-int(a['corrections'])}/{int(a['hours'])}", axis=1)
+    if x.empty:
+        result['project'] = ""
+        result['hours'] = ""
+    else:
+        result['project'] = x.apply(format_project_name, axis=1)
+        result['hours'] = x.apply(lambda a: f"{-int(a['corrections'])}/{int(a['hours'])}", axis=1)
     return result
 
 

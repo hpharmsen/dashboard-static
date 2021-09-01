@@ -11,8 +11,7 @@ from model.winstgevendheid import (
     OVERIGE_KOSTEN_PER_FTE_PER_MAAND,
     winst_per_persoon,
 )
-from settings import get_output_folder
-from view.dashboard import GRAY
+from settings import get_output_folder, GRAY
 
 
 def render_winstgevendheid_page(output_folder: Path):

@@ -1,3 +1,5 @@
+import random
+import sys
 from pathlib import Path
 import requests
 import datetime
@@ -12,6 +14,36 @@ BASE_URL = 'https://api.yukiworks.nl/ws/Accounting.asmx'
 
 _yuki = None  # Singleton
 
+ACCOUNT_CODES = {'tangible_fixed_assets': '02',
+                 'financial_fixed_assets': '03',
+                 'share_capital':['0800','0805'],
+                 'reserves':'0840',
+                 'undistributed_result':['0900'],
+                 'liquid_assets': [11,12,23101],
+                 'debtors': 1300,
+                 'other_receivables': [1321,1330,1335,1350,13999],
+                 'creditors':[15,16000],
+                 'other_debts':[16100,16999,23000,23010,23020,23310],
+                 'debts_to_employees':[170,20000],
+                 'taxes':[171,175,179,18,24],
+
+                 'costs':4,
+                 'people':40,
+                 'housing':41,
+                 'marketing':44,
+                 'other_expenses':45,
+                 'depreciation': 49,
+                 'teamproposition':80002,
+                 'productproposition':[80001,80050],
+                 'service':80004,
+                 'hosting':80003,
+                 'other_income':[80060,80070,80999,85000],
+                 'subsidy':40105, 'income':8,
+                 'hosting_expenses':60352,
+                 'outsourcing_expenses':60350,
+                 'project_expenses':60351,
+                 'financial_result':[85,86,87,88,89],
+                 }
 
 def yuki():
     global _yuki
@@ -37,6 +69,9 @@ class Yuki:
             url += f'{key}={value}&'
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "lxml")
+        if response.status_code==500:
+            print( 'Yuki:', response.text)
+            sys.exit()
         return soup.html.body
 
     def administrations(self):
@@ -65,19 +100,19 @@ class Yuki:
             ]
         return result
 
-    # @reportz(hours=24)
+    @reportz(hours=24)
     def account_balance(self, date_str=None, balance_type=None, account_codes=None):
         # Resultatenrekening en balans
         if not date_str:
             date_str = datetime.datetime.today().strftime('%Y-%m-%d')
-        if type(account_codes) == 'str':
+        if account_codes and type(account_codes) != list:
             account_codes = [account_codes]
 
         def valid_code(code):
             if not account_codes:
                 return True
             for c in account_codes:
-                if code.startswith(c):
+                if code.startswith(str(c)):
                     return True
             return False
 
@@ -112,12 +147,43 @@ class Yuki:
         return res
 
     def costs(self, date_str=None):
-        res = sum([a['amount'] for a in self.account_balance(date_str, account_codes=['4'])])
+        return self.post('costs', date_str)
+
+    #@reportz(hours=24)
+    def post(self, account, date_str=None):
+        ab = self.account_balance(date_str, account_codes=ACCOUNT_CODES[account])
+        res = 0
+        for a in ab:
+            multiplier = -1 if a['code'][:2] in ('08', '09','15','16','17') else 1
+            res += a['amount'] * multiplier
         return res
+
+    def test_codes(self):
+
+        account_codes = []
+        for codes in ACCOUNT_CODES.values():
+            if type(codes) != list:
+                codes = [codes]
+            account_codes += [str(code) for code in codes]
+
+        ab = yuki.account_balance()
+        for post in ab:
+            for ac in account_codes:
+                if post['code'].startswith(ac):
+                    break
+            else:
+                print( f"code {post['code']} ({post['description']} ) niet gevonden.")
+                continue
+        else:
+            print( 'Grote else')
 
 
 if __name__ == '__main__':
     yuki = Yuki()
+    yuki.test_codes()
+    b = yuki.account_balance('2021-04-30')
+    import pandas as pd
+    df = pd.DataFrame(b)
     print(yuki.profit('2021-01-31'))
 
     print(yuki.profit())

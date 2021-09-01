@@ -193,15 +193,17 @@ class Grid(Block):
         self.rows = rows
         self.cols = cols
         self.cells = [[None for i in range(cols)] for j in range(rows)]
+        self.styles = [] # Cell styles
         self.aligns = aligns
         self.has_header = has_header
 
-    def add_row(self, row=[]):
+    def add_row(self, row=[], styles=[]):
         assert len(row) <= self.cols, 'Row has more items than grid rows have'
         self.rows += 1
         if len(row) < self.cols:
             row += [None] * (self.cols - len(row))
         self.cells += [row]
+        self.styles += [styles] # Cell styles
 
     def set_cell(self, row, col, block):
         assert row < self.rows
@@ -212,13 +214,15 @@ class Grid(Block):
         width = f' width="{self.width}"' if self.width else ''
         res = f'<table{width} class="grid">'
         for row in range(self.rows):
+            styles = self.styles[row] if self.styles else []
             res += '<tr>'
             for col in range(self.cols):
                 child = self.cells[row][col]
                 childHtml = child.render() if child else '&nbsp'
-                align = f'align="{self.aligns[col]}"' if self.aligns else ''
+                align = f' align="{self.aligns[col]}"' if self.aligns else ''
                 tag = 'th' if row == 0 and self.has_header else 'td'
-                res += f'<{tag} {align}>{childHtml}</{tag}>\n'
+                style = f' style="{styles[col]}"' if len(styles) > col else ''
+                res += f'<{tag}{align}{style}>{childHtml}</{tag}>\n'
             res += '</tr>'
         res += '</table>'
         return res

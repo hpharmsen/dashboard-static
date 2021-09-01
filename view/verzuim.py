@@ -2,7 +2,7 @@ import datetime
 import os
 from pathlib import Path
 
-from settings import get_output_folder
+from settings import get_output_folder, GRAY, dependent_color
 from layout.basic_layout import headersize, midsize, defsize
 from layout.block import VBlock, TextBlock, Page, HBlock
 from layout.table import Table, TableConfig
@@ -13,7 +13,6 @@ from model.organisatie import (
     verzuim_absence_hours,
     verzuimpercentage,
 )
-from view.dashboard import GRAY, dependent_color
 
 
 def render_verzuim_page(output_folder: Path):

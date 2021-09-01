@@ -155,6 +155,7 @@ def flatten_hours_data(data):
             'project_name': d['project']['name'],
             'project_number': d['project'].get('project_number', ''),
             'service': d['projectservice']['name'],
+            'service_id': d['projectservice']['id'],
             'type': d['type']['type'],
             'service_tariff': float(d['type']['tariff']),
             'label': d['type']['label'],
@@ -222,7 +223,8 @@ def hours_data_from_day(day: datetime.date, use_cache=True):
     return data
 
 
-def onderhanden_werk():
+@reportz(hours=24)
+def onderhanden_werk(year=None, month=None, day=None):
     ini = simplicate().ini['simplicate']
     session = requests.Session()
     login_url = 'https://oberon.simplicate.com/site/login'
@@ -230,7 +232,10 @@ def onderhanden_werk():
         'LoginForm[username]': ini['username'],
         'LoginForm[password]': ini['password'],
     }
-    report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData'
+    report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData?q={"page":"process","project_status":["active"]}'
+    if year and month:
+        report_url = report_url[:-1] + f',"date":"{year}-{month}-{day}"' + '}'
+
     session.post(login_url, login_data)
 
     try:
@@ -238,8 +243,11 @@ def onderhanden_werk():
     except ConnectionResetError:
         log.log_error( 'simplicate.py', 'onderhanden_werk', 'Connection reset by Simplicate')
         return 0
+    except json.decoder.JSONDecodeError:
+        log.log_error( 'simplicate.py', 'onderhanden_werk', 'JSON DecodeError')
+        return 0
     value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return value - 25000  # !! omdat we CEO niet goed krijgen
+    return value - 21320  # !! omdat we CEO niet goed krijgen
 
 
 if __name__ == '__main__':

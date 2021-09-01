@@ -1,7 +1,8 @@
 import os
 from decimal import Decimal
+from functools import partial
 
-from settings import get_output_folder
+from settings import get_output_folder, MAANDEN
 from model.caching import clear_cache
 from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
 from layout.basic_layout import defsize, midsize
@@ -24,7 +25,6 @@ from model.resultaat import (
 from pathlib import Path
 
 # from model.resultaat_vergelijking import MAANDEN
-MAANDEN = ["Jan", "Feb", "Mrt", "Apr", "Mei", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dec"]
 
 
 def line(key, value, format='K', url='', tooltip=''):
@@ -34,17 +34,18 @@ def line(key, value, format='K', url='', tooltip=''):
     return block
 
 
-def add_row(grid, *args, header=False, bold=False):
+def add_row(grid, *args, header=False, bold=False, coloring=None):
     row = []
     style = 'font-weight:bold' if bold else ''
-    for arg in args:
+    for idx, arg in enumerate(args):
         if not isinstance(arg, Block):
             format = url = ''
             if isinstance(arg, tuple):
                 arg, url = arg
             if isinstance(arg, int) or isinstance(arg, Decimal) or isinstance(arg, float):
                 format = '.'
-            arg = TextBlock(arg, defsize, style=style, format=format, url=url)
+            colorfunc = partial(coloring,idx) if coloring else None # Convert function with idx, value as function to value as function
+            arg = TextBlock(arg, defsize, style=style, format=format, url=url, color=colorfunc)
         row += [arg]
     grid.add_row(row)
 
@@ -52,10 +53,7 @@ def add_row(grid, *args, header=False, bold=False):
 def winst_berekening_block():
     grid = Grid(cols=5, aligns=['left', 'right', 'right', 'right', 'right'], has_header=True)
 
-    log('RESULTAAT BEREKENING')
     laatste_maand = laatste_geboekte_maand()
-    log('laatste_maand', laatste_maand)
-
     naam_laatste_maand = MAANDEN[laatste_maand - 1]
     naam_huidige_maand = MAANDEN[laatste_maand]
     yuki_omzet_url = 'https://oberon.yukiworks.nl/domain/aspx/Finances.aspx?app=FinReports.aspx'

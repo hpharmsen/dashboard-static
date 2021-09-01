@@ -11,7 +11,7 @@ from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.table import Table, TableConfig
 from layout.chart import StackedBarChart, ScatterChart, ChartConfig
 from layout.basic_layout import defsize, midsize, headersize
-from settings import get_output_folder
+from settings import get_output_folder, GREEN, YELLOW, ORANGE, RED, BLACK, GRAY, dependent_color
 from model.organisatie import aantal_mensen, aantal_fte, aantal_fte_begroot, verzuimpercentage, vrije_dagen_pool
 from model.productiviteit import (
     productiviteit_perc_productie,
@@ -38,22 +38,6 @@ from model.sales import sales_waarde, top_x_sales
 from model.travelbase import get_bookings_per_week, BRANDS
 from model.trendline import trends
 from view.travelbase import scatterchart as travelbase_scatterchart
-
-GREEN = 'green'  #'#7C7'
-YELLOW = '#FD0'
-ORANGE = '#FFA500'
-RED = '#c00'
-BLACK = '#000'
-GRAY = 'gray'
-DATE_FORMAT = '%Y-%m-%d'
-
-
-def dependent_color(value, red_treshold, green_treshold):
-    # Returns color GREEN, BLACK, RED depending on value
-    if red_treshold < green_treshold:
-        return RED if value < red_treshold else GREEN if value > green_treshold else BLACK
-    else:
-        return RED if value > red_treshold else GREEN if value < green_treshold else BLACK
 
 
 def render_dashboard(output_folder):
