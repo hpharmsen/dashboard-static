@@ -245,7 +245,7 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
         .reset_index()
     )
     for employee in ['Angela Duijs', 'Lunah Smits', 'Mel Schuurman', 'Martijn van Klaveren']:
-        result = result.append( {'employee':employee, 'hours':0, 'turnover hours':0}, ignore_index=True)
+        result = result.append({'employee': employee, 'hours': 0, 'turnover hours': 0}, ignore_index=True)
 
     # Add results from fixed price projects
     result['turnover fixed'] = 0
@@ -255,7 +255,7 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
             turnover = project['turnover fixed'] / project['hours'] * ph['hours']
             result.loc[result.employee == ph['employee'], 'turnover fixed'] += turnover
 
-    result.loc[result.employee == 'Paulo Nuno da Cruz Moreno', 'employee'] = "Paulo Nuno Da Cruz Moreno" # !! temporary
+    result.loc[result.employee == 'Paulo Nuno da Cruz Moreno', 'employee'] = "Paulo Nuno Da Cruz Moreno"  # !! temporary
 
     # Add the salary and office costs per person
     result['costs'] = result.apply(calculate_employee_costs, axis=1)

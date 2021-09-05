@@ -7,7 +7,8 @@ from layout.basic_layout import doFormat
 
 CACHE_FILE = ''
 cache = {}
-use_cache = True # Default but can be overwritten for debug purposes
+use_cache = True  # Default but can be overwritten for debug purposes
+
 
 def load_cache():
     global cache
@@ -59,7 +60,7 @@ def reportz(func=None, *, hours=0.1):
         def make_str(arg):
             s = str(arg)
             splitted = s.split()
-            if len(splitted) == 4 and splitted[1]=='object':
+            if len(splitted) == 4 and splitted[1] == 'object':
                 return splitted[0][1:]
             return s
 

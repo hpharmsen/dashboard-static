@@ -1,20 +1,26 @@
-import json
-import math
 import os
-import datetime
-import urllib
 import calendar
+import pdfkit
 
-from dateutil.relativedelta import relativedelta
-
-from model import log
 from model.caching import load_cache, reportz
 from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.table import Table, TableConfig
 from layout.chart import StackedBarChart, ScatterChart, ChartConfig
 from layout.basic_layout import defsize, midsize, headersize
-from settings import get_output_folder, GREEN, YELLOW, ORANGE, RED, BLACK, GRAY, dependent_color, MAANDEN, BOLD, \
-    TOPLINE, DOUBLE_TOPLINE
+from settings import (
+    get_output_folder,
+    GREEN,
+    YELLOW,
+    ORANGE,
+    RED,
+    BLACK,
+    GRAY,
+    dependent_color,
+    MAANDEN,
+    BOLD,
+    TOPLINE,
+    DOUBLE_TOPLINE,
+)
 from model.organisatie import aantal_mensen, aantal_fte, aantal_fte_begroot, verzuimpercentage, vrije_dagen_pool
 from model.productiviteit import (
     productiviteit_perc_productie,
@@ -57,12 +63,21 @@ def render_maandrapportage(output_folder, year, month):
     # vorige maand kolom in de balans de totale winst t/m vorige maand nodig heb, reken ik eerst even
     # het winstblok uit voor vorige maand. Side-effect is dat de winsst in gtotal_profit komt.
     # Die zetten we vervolgens in gtotal_profit_last_month
-    profit_and_loss_block(year, month-1)
+    profit_and_loss_block(year, month - 1)
     gtotal_profit_last_month = gtotal_profit
-    page = Page([VBlock([TextBlock(f'Maandrapportage {MAANDEN[month - 1].lower()}, {year}', headersize),
-                         profit_and_loss_block(year, month),
-                         balance_block(year, month)])])
-    page.render(output_folder / f'monthly{year}_{month:02}.html')
+    page = Page(
+        [
+            VBlock(
+                [
+                    TextBlock(f'Maandrapportage {MAANDEN[month - 1].lower()}, {year}', headersize),
+                    profit_and_loss_block(year, month),
+                    balance_block(year, month),
+                ]
+            )
+        ]
+    )
+    page.render(output_folder / f'monthly{year}_{month:02}.html', template='maandrapportage.html')
+
 
 def profit_and_loss_block(year, month):
     global gtotal_profit, gtotal_profit_last_month
@@ -70,8 +85,12 @@ def profit_and_loss_block(year, month):
     begroting = HeaderSheet('Begroting 2021', 'Begroting', header_col=2, header_row=2)
     omzetplanning = HeaderSheet('Begroting 2021', 'Omzetplanning')
 
-    grid = Grid(cols=8, has_header=False, line_height=0,
-                aligns=['left', 'right', 'right', 'right', '', 'right', 'right', 'right'])
+    grid = Grid(
+        cols=8,
+        has_header=False,
+        line_height=0,
+        aligns=['left', 'right', 'right', 'right', '', 'right', 'right', 'right'],
+    )
 
     def add_normal_row(title, result, budget=None):
         if budget:
@@ -79,7 +98,18 @@ def profit_and_loss_block(year, month):
             budget_ytd = TextBlock(budget[1], format='.', color=GRAY)
         else:
             budget_month, budget_ytd = 0, 0
-        grid.add_row([TextBlock(title), TextBlock(result[0], format='.'), '',budget_month,'', TextBlock(result[1], format='.'), '', budget_ytd])
+        grid.add_row(
+            [
+                TextBlock(title),
+                TextBlock(result[0], format='.'),
+                '',
+                budget_month,
+                '',
+                TextBlock(result[1], format='.'),
+                '',
+                budget_ytd,
+            ]
+        )
 
     def add_subtotal_row(title, subtotal, budget=None, style=TOPLINE):
         if budget:
@@ -87,10 +117,19 @@ def profit_and_loss_block(year, month):
             budget_ytd = TextBlock(budget[1], format='.', color=GRAY, style=BOLD)
         else:
             budget_month, budget_ytd = 0, 0
-        grid.add_row([TextBlock(title, style=BOLD),'',
-                     TextBlock(subtotal[0], format='.', style=BOLD), budget_month, '','',
-                     TextBlock(subtotal[1], format='.', style=BOLD), budget_ytd],
-                     styles = ['', style, style, '', '', style, style, ''])
+        grid.add_row(
+            [
+                TextBlock(title, style=BOLD),
+                '',
+                TextBlock(subtotal[0], format='.', style=BOLD),
+                budget_month,
+                '',
+                '',
+                TextBlock(subtotal[1], format='.', style=BOLD),
+                budget_ytd,
+            ],
+            styles=['', style, style, '', '', style, style, ''],
+        )
 
     def yuki_figures(post, year, month, negate=False):
         date = last_date_of_month(year, month)
@@ -101,7 +140,6 @@ def profit_and_loss_block(year, month):
         return (monthly, ytd)
 
     def turnover_planning(begroting_posts):
-
         def budget_ytd(sheet, post):
             return sum([get_int(sheet[post, MAANDEN[m - 1]]) for m in range(1, month + 1)])
 
@@ -112,9 +150,10 @@ def profit_and_loss_block(year, month):
         return (planned_month, planned_ytd)
 
     def budgeted(begroting_posts):
-
         def budget_month(sheet, post):
-            return get_int(sheet[post,maand]) - get_int(sheet[post,MAANDEN[month - 2]]) if month else budget_column(post)
+            return (
+                get_int(sheet[post, maand]) - get_int(sheet[post, MAANDEN[month - 2]]) if month else budget_column(post)
+            )
 
         if type(begroting_posts) != list:
             begroting_posts = [begroting_posts]
@@ -128,16 +167,26 @@ def profit_and_loss_block(year, month):
     def budget_column(sheet, post):
         return get_int(sheet[post, maand])
 
-
     # Header
-    grid.add_row(['', '', TextBlock(maand, style=BOLD), TextBlock('begroot', color=GRAY),'','',TextBlock('ytd', style=BOLD), TextBlock('begroot', color=GRAY)],
-                 styles=['width:160px;','','','','width:80px;'])
+    grid.add_row(
+        [
+            '',
+            '',
+            TextBlock(maand, style=BOLD),
+            TextBlock('begroot', color=GRAY),
+            '',
+            '',
+            TextBlock('ytd', style=BOLD),
+            TextBlock('begroot', color=GRAY),
+        ],
+        styles=['width:160px;', '', '', '', 'width:80px;'],
+    )
 
     # Product propositie
     omzet_projecten = yuki_figures('productproposition', year, month, negate=True)
     add_normal_row('Omzet projecten', omzet_projecten)
 
-    projectkosten =  yuki_figures('project_expenses', year, month, negate=True)
+    projectkosten = yuki_figures('project_expenses', year, month, negate=True)
     add_normal_row('Projectkosten', projectkosten)
 
     product_propositie = tuple_add(omzet_projecten, projectkosten)
@@ -149,7 +198,7 @@ def profit_and_loss_block(year, month):
     omzet_trajecten = yuki_figures('teamproposition', year, month, negate=True)
     add_normal_row('Omzet trajecten', omzet_trajecten)
 
-    uitbesteed_werk =  yuki_figures('outsourcing_expenses', year, month, negate=True)
+    uitbesteed_werk = yuki_figures('outsourcing_expenses', year, month, negate=True)
     add_normal_row('Uitbesteed werk', uitbesteed_werk)
 
     team_propositie = tuple_add(omzet_trajecten, uitbesteed_werk)
@@ -159,7 +208,7 @@ def profit_and_loss_block(year, month):
 
     # Service
     service = yuki_figures('service', year, month, negate=True)
-    service_budgeted = turnover_planning( 'Service totaal')
+    service_budgeted = turnover_planning('Service totaal')
     add_subtotal_row('Service', service, service_budgeted)
     grid.add_row()
 
@@ -167,7 +216,7 @@ def profit_and_loss_block(year, month):
     omzet_hosting = yuki_figures('hosting', year, month, negate=True)
     add_normal_row('Omzet hosting', omzet_hosting)
 
-    hostingkosten =  yuki_figures('hosting_expenses', year, month, negate=True)
+    hostingkosten = yuki_figures('hosting_expenses', year, month, negate=True)
     add_normal_row('Hostingkosten', hostingkosten)
 
     hosting = tuple_add(omzet_hosting, hostingkosten)
@@ -176,32 +225,39 @@ def profit_and_loss_block(year, month):
     grid.add_row()
 
     # Travelbase
-    travelbase = (0,0)
+    travelbase = (0, 0)
     travelbase_budgeted = turnover_planning('Travelbase totaal')
     add_subtotal_row('Travelbase', travelbase, travelbase_budgeted)
     grid.add_row()
 
     # Overige inkomsten
     other_income = yuki_figures('other_income', year, month, negate=True)
-    other_budgeted = (0,0)
+    other_budgeted = (0, 0)
     add_subtotal_row('Overige inkomsten', other_income, other_budgeted)
     grid.add_row()
 
     # BRUTO MARGE
     grid.add_row()
     margin = tuple_add(product_propositie, team_propositie, service, hosting, travelbase, other_income)
-    margin_budgeted = tuple_add( product_propositie_budgeted, team_propositie_budgeted, service_budgeted, hosting_budgeted, travelbase_budgeted, other_budgeted)
+    margin_budgeted = tuple_add(
+        product_propositie_budgeted,
+        team_propositie_budgeted,
+        service_budgeted,
+        hosting_budgeted,
+        travelbase_budgeted,
+        other_budgeted,
+    )
     add_subtotal_row('BRUTO MARGE', margin, margin_budgeted, style=DOUBLE_TOPLINE)
     grid.add_row()
     grid.add_row()
 
     # Personeel
-    wbso =  yuki_figures('subsidy', year, month)
-    people = tuple(p-w for p,w in zip(yuki_figures('people', year, month), wbso))
-    people_budgeted = budgeted(['Management','Medewerkers'])
+    wbso = yuki_figures('subsidy', year, month)
+    people = tuple(p - w for p, w in zip(yuki_figures('people', year, month), wbso))
+    people_budgeted = budgeted(['Management', 'Medewerkers'])
     add_normal_row('Mensen', people, people_budgeted)
 
-    wbso_budgeted = tuple (-x for x in budgeted( 'Subsidie'))
+    wbso_budgeted = tuple(-x for x in budgeted('Subsidie'))
     add_normal_row('WBSO', wbso, wbso_budgeted)
 
     personnell = tuple_add(people, wbso)
@@ -210,15 +266,15 @@ def profit_and_loss_block(year, month):
 
     # Bedrijfskosten
     housing = yuki_figures('housing', year, month)
-    housing_budgeted = budgeted( 'Huisvesting')
+    housing_budgeted = budgeted('Huisvesting')
     add_normal_row('Huisvesting', housing, housing_budgeted)
 
-    marketing =  yuki_figures('marketing', year, month)
-    marketing_budgeted = budgeted( 'Marketing')
+    marketing = yuki_figures('marketing', year, month)
+    marketing_budgeted = budgeted('Marketing')
     add_normal_row('Sales / Marketing', marketing, marketing_budgeted)
 
-    other_expenses =  yuki_figures('other_expenses', year, month)
-    other_expenses_budgeted = budgeted( 'Overige kosten')
+    other_expenses = yuki_figures('other_expenses', year, month)
+    other_expenses_budgeted = budgeted('Overige kosten')
     add_normal_row('Overige kosten', other_expenses, other_expenses_budgeted)
 
     company_costs = tuple_add(housing, marketing, other_expenses)
@@ -227,58 +283,86 @@ def profit_and_loss_block(year, month):
 
     # BEDRIJFSLASTEN
     operating_expenses = tuple_add(personnell, company_costs)
-    operating_expenses_budgeted = tuple_add( people_budgeted, wbso_budgeted, housing_budgeted, marketing_budgeted, other_expenses_budgeted)
+    operating_expenses_budgeted = tuple_add(
+        people_budgeted, wbso_budgeted, housing_budgeted, marketing_budgeted, other_expenses_budgeted
+    )
     add_subtotal_row('TOTAAL BEDRIJFSLASTEN', operating_expenses, operating_expenses_budgeted, style=DOUBLE_TOPLINE)
     grid.add_row()
     grid.add_row()
 
     # Deprecation
     depreciation = yuki_figures('depreciation', year, month, negate=True)
-    depreciation_budgeted = budgeted( 'Afschrijvingen')
+    depreciation_budgeted = budgeted('Afschrijvingen')
     add_subtotal_row('Afschrijvingen', depreciation, depreciation_budgeted, style='')
 
     # Financial
     financial = yuki_figures('financial_result', year, month, negate=True)
-    financial_budgeted = (0,0)
+    financial_budgeted = (0, 0)
     add_subtotal_row('Financieel resultaat', financial, financial_budgeted, style='')
     grid.add_row()
 
     # Winst
-    #total_costs =  [oe+d-f for oe,d,f in zip(operating_expenses, depreciation, financial)]
-    profit = [m-oe+d+f for m,oe,d,f  in zip(margin,operating_expenses, depreciation, financial)]
-    total_costs_budgeted =  tuple_add( operating_expenses_budgeted, depreciation_budgeted, financial_budgeted )
-    profit_budgeted = [m-c for m,c in zip(margin_budgeted,total_costs_budgeted)]
+    # total_costs =  [oe+d-f for oe,d,f in zip(operating_expenses, depreciation, financial)]
+    profit = [m - oe + d + f for m, oe, d, f in zip(margin, operating_expenses, depreciation, financial)]
+    total_costs_budgeted = tuple_add(operating_expenses_budgeted, depreciation_budgeted, financial_budgeted)
+    profit_budgeted = [m - c for m, c in zip(margin_budgeted, total_costs_budgeted)]
     add_subtotal_row('Winst volgens de boekhouding', profit, profit_budgeted, style=DOUBLE_TOPLINE)
 
     wip_now, wip_last_month = get_work_in_progress(year, month)
-    mutation_wip = (wip_now-wip_last_month,wip_now-0) # !! Die 0 is in 2021 het geval. Moet per 2022 wellicht anders.
+    mutation_wip = (
+        wip_now - wip_last_month,
+        wip_now - 0,
+    )  # !! Die 0 is in 2021 het geval. Moet per 2022 wellicht anders.
     add_subtotal_row('Mutatie onderhanden werk', mutation_wip, style='')
     total_profit = tuple_add(profit, mutation_wip)
-    gtotal_profit = total_profit # save for balance
-    grid.add_row([TextBlock('TOTAAL WINST', style=BOLD), '',
-                  TextBlock(total_profit[0], format='.', style=BOLD), '', '', '',
-                  TextBlock(total_profit[1], format='.', style=BOLD)],
-                 styles=['', '', 'border:2px solid gray', '', '', '', 'border:2px solid gray'])
-
+    gtotal_profit = total_profit  # save for balance
+    grid.add_row(
+        [
+            TextBlock('TOTAAL WINST', style=BOLD),
+            '',
+            TextBlock(total_profit[0], format='.', style=BOLD),
+            '',
+            '',
+            '',
+            TextBlock(total_profit[1], format='.', style=BOLD),
+        ],
+        styles=['', '', 'border:2px solid gray', '', '', '', 'border:2px solid gray'],
+    )
 
     return VBlock([TextBlock(f'Winst & verliesrekening', midsize), grid])
+
 
 # Balans
 def balance_block(year, month):
     global gtotal_profit, gtotal_profit_last_month
     maand = MAANDEN[month - 1]
-    vorige_maand = MAANDEN[month-2] if month >=2 else f'Begin {year}'
+    vorige_maand = MAANDEN[month - 2] if month >= 2 else f'Begin {year}'
     grid = Grid(cols=6, has_header=False, aligns=['left', 'right', 'right', '', 'right', 'right'])
 
     def add_normal_row(title, result):
-        grid.add_row([TextBlock(title), TextBlock(result[0], format='.'), '', '', TextBlock(result[1], format='.', color="GRAY"), ''])
+        grid.add_row(
+            [
+                TextBlock(title),
+                TextBlock(result[0], format='.'),
+                '',
+                '',
+                TextBlock(result[1], format='.', color="GRAY"),
+                '',
+            ]
+        )
 
-
-    def add_subtotal_row( title, subtotal, style=TOPLINE ):
-        grid.add_row([TextBlock(title, style=BOLD), '',
-                      TextBlock(subtotal[0], format='.', style=BOLD), '', '',
-                      TextBlock(subtotal[1], format='.', style=BOLD, color="GRAY")],
-                     styles=['', style, style, '', style, style])
+    def add_subtotal_row(title, subtotal, style=TOPLINE):
+        grid.add_row(
+            [
+                TextBlock(title, style=BOLD),
+                '',
+                TextBlock(subtotal[0], format='.', style=BOLD),
+                '',
+                '',
+                TextBlock(subtotal[1], format='.', style=BOLD, color="GRAY"),
+            ],
+            styles=['', style, style, '', style, style],
+        )
 
     def yuki_figures(post, year, month):
         date = last_date_of_month(year, month)
@@ -288,9 +372,17 @@ def balance_block(year, month):
         return (current_value, previous_value)
 
     # Header
-    grid.add_row(['', '', TextBlock(f'{maand.lower()}', style=BOLD),
-                  '', '', TextBlock(f'{vorige_maand.lower()}', style=BOLD, color=GRAY)],
-                 styles=['width:160px;','','','width:80px;'])
+    grid.add_row(
+        [
+            '',
+            '',
+            TextBlock(f'{maand.lower()}', style=BOLD),
+            '',
+            '',
+            TextBlock(f'{vorige_maand.lower()}', style=BOLD, color=GRAY),
+        ],
+        styles=['width:160px;', '', '', 'width:80px;'],
+    )
 
     # Materiele vaste activa
     tangible_fixed_assets = yuki_figures('tangible_fixed_assets', year, month)
@@ -302,31 +394,31 @@ def balance_block(year, month):
 
     # Vaste activa
     fixed_assets = tuple_add(tangible_fixed_assets, financial_fixed_assets)
-    add_subtotal_row( 'Vaste activa', fixed_assets)
+    add_subtotal_row('Vaste activa', fixed_assets)
 
     # Debiteuren
     debtors = yuki_figures('debtors', year, month)
-    add_normal_row('Debiteuren',debtors )
+    add_normal_row('Debiteuren', debtors)
 
     # Overige vorderingen
     other_receivables = yuki_figures('other_receivables', year, month)
-    add_normal_row('Overige vorderingen',other_receivables )
+    add_normal_row('Overige vorderingen', other_receivables)
 
     # Onderhanden werk
-    work_in_progress = get_work_in_progress(year,month)
-    add_normal_row('Onderhanden werk', work_in_progress )
+    work_in_progress = get_work_in_progress(year, month)
+    add_normal_row('Onderhanden werk', work_in_progress)
 
     # Liquide middelen
     liquid_assets = yuki_figures('liquid_assets', year, month)
     add_normal_row('Liquide middelen', liquid_assets)
 
     # Vlottende activa
-    current_assets = tuple_add(debtors, other_receivables, work_in_progress, liquid_assets )
-    add_subtotal_row( 'Vlottende activa', current_assets)
+    current_assets = tuple_add(debtors, other_receivables, work_in_progress, liquid_assets)
+    add_subtotal_row('Vlottende activa', current_assets)
 
     # TOTAAL ACTIVA
     total_assets = tuple_add(fixed_assets, current_assets)
-    add_subtotal_row( 'TOTAAL ACTIVA', total_assets, style=DOUBLE_TOPLINE)
+    add_subtotal_row('TOTAAL ACTIVA', total_assets, style=DOUBLE_TOPLINE)
     grid.add_row([])
 
     # Aandelenkapitaal
@@ -339,13 +431,15 @@ def balance_block(year, month):
 
     # Onverdeeld resultaat
     undistributed_result_last_year = yuki_figures('undistributed_result', year, month)
-    #undistributed_result = tuple_add(undistributed_result_last_year, gtotal_profit)
-    undistributed_result = (undistributed_result_last_year[0]+gtotal_profit[1],
-                            undistributed_result_last_year[0]+gtotal_profit_last_month[1])
+    # undistributed_result = tuple_add(undistributed_result_last_year, gtotal_profit)
+    undistributed_result = (
+        undistributed_result_last_year[0] + gtotal_profit[1],
+        undistributed_result_last_year[0] + gtotal_profit_last_month[1],
+    )
     add_normal_row('Onverdeeld resultaat', undistributed_result)
 
     # Eigen vermogen
-    equity = tuple_add( share_capital, reserves, undistributed_result)
+    equity = tuple_add(share_capital, reserves, undistributed_result)
     add_subtotal_row('Eigen vermogen', equity)
 
     # Crediteuren
@@ -376,15 +470,23 @@ def balance_block(year, month):
     # Tijd voor wat checks
     assert total_assets == total_liabilities, f"Balans klopt niet {total_assets} != {total_liabilities}"
 
-    return VBlock([TextBlock(f'Balans per einde {maand.lower()} {year}', midsize), grid], css_class="page-break-before")
+    return VBlock(
+        [TextBlock(f'Balans per einde {maand.lower()} {year}', midsize), grid],
+        css_class="page-break-before",
+        style="page-break-before: always;",
+    )
 
 
 def tuple_add(*args):
     return [sum(l) for l in list(zip(*args))]
 
+
 def get_work_in_progress(year, month):
-    return (onderhanden_werk(year, month, calendar.monthrange(year, month)[1]),
-            onderhanden_werk(year, month-1, calendar.monthrange(year, month - 1)[1]) if month > 1 else 0)  # !! Moet anders vanaf 2022
+    return (
+        onderhanden_werk(year, month, calendar.monthrange(year, month)[1]),
+        onderhanden_werk(year, month - 1, calendar.monthrange(year, month - 1)[1]) if month > 1 else 0,
+    )  # !! Moet anders vanaf 2022
+
 
 # Kasstroomoverzicht
 # Deze dan ook in vergelijking met de vastgestelde begroting.
@@ -421,10 +523,18 @@ def get_work_in_progress(year, month):
 #
 # Grafieken kunnen handig zijn, fleuren vaak de presentatie wat op. Ik zou dit alleen doen als het zinvol is.
 
-def last_date_of_month(year:int, month:int):
+
+def last_date_of_month(year: int, month: int):
     return f'{year}-{month:02}-{calendar.monthrange(year, month)[1]:02}'
+
 
 if __name__ == '__main__':
     os.chdir('..')
     load_cache()
-    render_maandrapportage(get_output_folder(), 2021, 4)
+    year = 2021
+    month = 4
+    render_maandrapportage(get_output_folder(), year, month)
+
+    pdfpath = str(get_output_folder() / f'monthly{year}_{month:02}.html')
+    options = {"enable-local-file-access": None}
+    pdfkit.from_file(pdfpath, f'{year}_{month}.pdf', options=options)

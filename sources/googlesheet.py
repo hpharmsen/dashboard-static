@@ -8,6 +8,7 @@ from model import log
 from model.caching import reportz
 from collections import defaultdict
 
+
 def panic(s):
     print(s)
     sys.exit()
@@ -83,25 +84,27 @@ def to_float(s):
 def to_int(s):
     return int(round(to_float(s)))
 
-class HeaderSheet():
-    ''' Headersheet reads a Google Sheet with headers in the first row and in the first column.
-        Pass (1-based) parameters header_row and header_col when the header data are not in the first row or col.
 
-        After initialization the data is addressable as headersheet['Turnover','January']
-        Passing non-existing headers returns None
-        WARNING: sheets with duplicate headers lead to mayhem!
-    '''
+class HeaderSheet:
+    """Headersheet reads a Google Sheet with headers in the first row and in the first column.
+    Pass (1-based) parameters header_row and header_col when the header data are not in the first row or col.
+
+    After initialization the data is addressable as headersheet['Turnover','January']
+    Passing non-existing headers returns None
+    WARNING: sheets with duplicate headers lead to mayhem!
+    """
+
     def __init__(self, sheetname, tabname, header_row=1, header_col=1):
         self.raw_data = sheet_tab(sheetname, tabname)
         self.data = defaultdict(dict)
-        column_headers = self.raw_data[header_row-1]
+        column_headers = self.raw_data[header_row - 1]
         for row in self.raw_data[header_row:]:
-            row_header = row[header_col-1]
+            row_header = row[header_col - 1]
             if not row_header:
                 continue
             for idx, value in enumerate(row):
                 if idx < header_col:
-                    continue # Header, hadden we al
+                    continue  # Header, hadden we al
                 column_header = column_headers[idx]
                 if not column_header:
                     continue
@@ -119,5 +122,5 @@ class HeaderSheet():
 if __name__ == '__main__':
     os.chdir('..')
     s = HeaderSheet('Begroting 2021', 'Begroting', header_row=2, header_col=2)
-    a = s['Medewerkers','Apr']
+    a = s['Medewerkers', 'Apr']
     pass

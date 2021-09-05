@@ -232,7 +232,9 @@ def onderhanden_werk(year=None, month=None, day=None):
         'LoginForm[username]': ini['username'],
         'LoginForm[password]': ini['password'],
     }
-    report_url = 'https://oberon.simplicate.com/v1/reporting/process/reloadData?q={"page":"process","project_status":["active"]}'
+    report_url = (
+        'https://oberon.simplicate.com/v1/reporting/process/reloadData?q={"page":"process","project_status":["active"]}'
+    )
     if year and month:
         report_url = report_url[:-1] + f',"date":"{year}-{month}-{day}"' + '}'
 
@@ -241,13 +243,13 @@ def onderhanden_werk(year=None, month=None, day=None):
     try:
         json_data = session.get(report_url).json()
     except ConnectionResetError:
-        log.log_error( 'simplicate.py', 'onderhanden_werk', 'Connection reset by Simplicate')
+        log.log_error('simplicate.py', 'onderhanden_werk', 'Connection reset by Simplicate')
         return 0
     except json.decoder.JSONDecodeError:
-        log.log_error( 'simplicate.py', 'onderhanden_werk', 'JSON DecodeError')
+        log.log_error('simplicate.py', 'onderhanden_werk', 'JSON DecodeError')
         return 0
     value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return value# - 21320  # !! omdat we CEO niet goed krijgen
+    return value  # - 21320  # !! omdat we CEO niet goed krijgen
 
 
 if __name__ == '__main__':

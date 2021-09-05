@@ -25,7 +25,8 @@ class Block:
         tooltip='',
         padding=40,
         link=None,
-        css_class=''
+        css_class='',
+        style='',
     ):
         self.id = id
         self.width = width
@@ -39,6 +40,7 @@ class Block:
         self.padding = padding  # Distance to next object
         self.link = link  # Anchor for this block
         self.css_class = css_class
+        self.style = style
 
     def add_absolute_block(self, left, top, block, link=''):
         ''' Will be deprecated '''
@@ -99,12 +101,12 @@ class Block:
         classes = self.css_class if self.css_class else ''
         if self.tooltip:
             classes += ' tooltip'
-        #tooltip_class = 'class="tooltip"' if self.tooltip else ''
+        # tooltip_class = 'class="tooltip"' if self.tooltip else ''
         if classes:
             classes = f'class="{classes}"'
 
         tooltip_text = f'<span class="tooltiptext">{wrap(self.tooltip,42)}</span>' if self.tooltip else ''
-        res = f'''<div {id} {classes} style="{position_str} {width} {height} {padding} background-color:{self.bg_color}; ">
+        res = f'''<div {id} {classes} style="{self.style} {position_str} {width} {height} {padding} background-color:{self.bg_color}; ">
                     {tooltip_text}
                     {self.render_content()}
                     {self.render_children()}
@@ -134,7 +136,17 @@ class HBlock(Block):
 
 class VBlock(Block):
     def __init__(
-        self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None, css_class=''
+        self,
+        children=[],
+        width=None,
+        height=None,
+        padding=40,
+        bg_color='white',
+        id='',
+        link=None,
+        tooltip=None,
+        css_class='',
+        style='',
     ):
         super().__init__(
             children=children,
@@ -146,7 +158,8 @@ class VBlock(Block):
             align_children='vertical',
             link=link,
             tooltip=tooltip,
-            css_class=css_class
+            css_class=css_class,
+            style=style,
         )
 
 
@@ -165,7 +178,7 @@ class TextBlock(Block):
         url=None,
         tooltip='',
         padding=30.0,
-        pagebreak=False
+        pagebreak=False,
     ):
         super().__init__([], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding)
         self.text = doFormat(text, format)
@@ -205,7 +218,7 @@ class Grid(Block):
         self.rows = rows
         self.cols = cols
         self.cells = [[None for i in range(cols)] for j in range(rows)]
-        self.styles = [] # Cell styles
+        self.styles = []  # Cell styles
         self.aligns = aligns
         self.line_height = line_height
         self.has_header = has_header
@@ -216,7 +229,7 @@ class Grid(Block):
         if len(row) < self.cols:
             row += [None] * (self.cols - len(row))
         self.cells += [row]
-        self.styles += [styles] # Cell styles
+        self.styles += [styles]  # Cell styles
 
     def set_cell(self, row, col, block):
         assert row < self.rows
@@ -251,7 +264,7 @@ class Page(Block):
         ''' Add extra js code to be run in window.onload'''
         self.onloadcode += code
 
-    def render(self, filename: Path):
+    def render(self, filename: Path, template='template.html'):
         with open(filename, 'w') as f:
 
             timestamp = cache_modified_time_stamp().strftime('%d-%m %H:%M')
@@ -259,7 +272,6 @@ class Page(Block):
                 '..' if str(filename).count('klanten/') else '.'
             )  # Als file in subdir: base=..  Kan netter voor subsubs etc.
 
-            template = 'template.html'
             with open(Path(__file__).resolve().parent / template) as t:
                 template_html = t.read()
             page_html = (

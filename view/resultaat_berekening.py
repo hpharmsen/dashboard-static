@@ -44,7 +44,9 @@ def add_row(grid, *args, header=False, bold=False, coloring=None):
                 arg, url = arg
             if isinstance(arg, int) or isinstance(arg, Decimal) or isinstance(arg, float):
                 format = '.'
-            colorfunc = partial(coloring,idx) if coloring else None # Convert function with idx, value as function to value as function
+            colorfunc = (
+                partial(coloring, idx) if coloring else None
+            )  # Convert function with idx, value as function to value as function
             arg = TextBlock(arg, defsize, style=style, format=format, url=url, color=colorfunc)
         row += [arg]
     grid.add_row(row)
