@@ -223,7 +223,7 @@ def hours_data_from_day(day: datetime.date, use_cache=True):
     return data
 
 
-@reportz(hours=24)
+@reportz(hours=72)
 def onderhanden_werk(year=None, month=None, day=None):
     ini = simplicate().ini['simplicate']
     session = requests.Session()
@@ -247,7 +247,7 @@ def onderhanden_werk(year=None, month=None, day=None):
         log.log_error( 'simplicate.py', 'onderhanden_werk', 'JSON DecodeError')
         return 0
     value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return value - 21320  # !! omdat we CEO niet goed krijgen
+    return value# - 21320  # !! omdat we CEO niet goed krijgen
 
 
 if __name__ == '__main__':

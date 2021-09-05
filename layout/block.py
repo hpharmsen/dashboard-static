@@ -25,6 +25,7 @@ class Block:
         tooltip='',
         padding=40,
         link=None,
+        css_class=''
     ):
         self.id = id
         self.width = width
@@ -37,6 +38,7 @@ class Block:
         self.tooltip = tooltip  # If set, shows this text as an html over tooltip
         self.padding = padding  # Distance to next object
         self.link = link  # Anchor for this block
+        self.css_class = css_class
 
     def add_absolute_block(self, left, top, block, link=''):
         ''' Will be deprecated '''
@@ -94,9 +96,15 @@ class Block:
             if position == 'absolute'
             else f'position:relative; {float} {clear}'
         )
-        tooltip_class = 'class="tooltip"' if self.tooltip else ''
+        classes = self.css_class if self.css_class else ''
+        if self.tooltip:
+            classes += ' tooltip'
+        #tooltip_class = 'class="tooltip"' if self.tooltip else ''
+        if classes:
+            classes = f'class="{classes}"'
+
         tooltip_text = f'<span class="tooltiptext">{wrap(self.tooltip,42)}</span>' if self.tooltip else ''
-        res = f'''<div {id} {tooltip_class} style="{position_str} {width} {height} {padding} background-color:{self.bg_color}; ">
+        res = f'''<div {id} {classes} style="{position_str} {width} {height} {padding} background-color:{self.bg_color}; ">
                     {tooltip_text}
                     {self.render_content()}
                     {self.render_children()}
@@ -126,7 +134,7 @@ class HBlock(Block):
 
 class VBlock(Block):
     def __init__(
-        self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None
+        self, children=[], width=None, height=None, padding=40, bg_color='white', id='', link=None, tooltip=None, css_class=''
     ):
         super().__init__(
             children=children,
@@ -138,6 +146,7 @@ class VBlock(Block):
             align_children='vertical',
             link=link,
             tooltip=tooltip,
+            css_class=css_class
         )
 
 
@@ -156,6 +165,7 @@ class TextBlock(Block):
         url=None,
         tooltip='',
         padding=30.0,
+        pagebreak=False
     ):
         super().__init__([], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding)
         self.text = doFormat(text, format)
@@ -167,10 +177,12 @@ class TextBlock(Block):
         else:
             self.color = color
         self.url = url
+        self.page_break_before = pagebreak
 
     def render_content(self):
         colorstr = f'color:{self.color};' if self.color else ''
-        res = f'''<span style="font-size:{self.font_size}px; {colorstr} font-family:{self.font_family}; {self.style}">{self.text}</span>'''
+        pagebreak = ' class="new-page" ' if self.page_break_before else ''
+        res = f'''<span {pagebreak} style="font-size:{self.font_size}px; {colorstr} font-family:{self.font_family}; {self.style}">{self.text}</span>'''
         if self.url:
             res = f'<a href="{self.url}" class="link">{res}</a>'
         return res
@@ -188,13 +200,14 @@ def wrap(s, width):
 
 
 class Grid(Block):
-    def __init__(self, rows=0, cols=0, width=None, height=None, id='', aligns=None, has_header=False):
-        super().__init__(width=width, height=height, id=id)
+    def __init__(self, rows=0, cols=0, width=None, line_height=None, id='', aligns=None, has_header=False):
+        super().__init__(width=width, id=id)
         self.rows = rows
         self.cols = cols
         self.cells = [[None for i in range(cols)] for j in range(rows)]
         self.styles = [] # Cell styles
         self.aligns = aligns
+        self.line_height = line_height
         self.has_header = has_header
 
     def add_row(self, row=[], styles=[]):
@@ -215,7 +228,8 @@ class Grid(Block):
         res = f'<table{width} class="grid">'
         for row in range(self.rows):
             styles = self.styles[row] if self.styles else []
-            res += '<tr>'
+            line_height = f' style="line-height:{self.line_height}px;"' if self.line_height else ''
+            res += f'<tr{line_height}>'
             for col in range(self.cols):
                 child = self.cells[row][col]
                 childHtml = child.render() if child else '&nbsp'

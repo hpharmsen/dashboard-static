@@ -13,6 +13,20 @@ table.grid th {background-color:#393; color:white}
 .linkable_row {cursor: pointer}
 .linkable_row:hover {background-color:#ddd}
 
+@media print {
+  .keep-together {
+    page-break-inside: avoid;
+  }
+
+  .break-before {
+        page-break-before: always;
+    }
+
+  .break-after {
+        page-break-after: always;
+   }
+}
+
 
 # Tooltips
 

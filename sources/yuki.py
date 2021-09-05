@@ -1,9 +1,6 @@
-import random
 import sys
-from pathlib import Path
 import requests
 import datetime
-from configparser import ConfigParser
 from bs4 import BeautifulSoup
 from decimal import Decimal
 
@@ -16,16 +13,16 @@ _yuki = None  # Singleton
 
 ACCOUNT_CODES = {'tangible_fixed_assets': '02',
                  'financial_fixed_assets': '03',
-                 'share_capital':['0800','0805'],
-                 'reserves':'0840',
+                 'share_capital':'0800',
+                 'reserves':['0840','0805'],
                  'undistributed_result':['0900'],
                  'liquid_assets': [11,12,23101],
                  'debtors': 1300,
                  'other_receivables': [1321,1330,1335,1350,13999],
-                 'creditors':[15,16000],
-                 'other_debts':[16100,16999,23000,23010,23020,23310],
-                 'debts_to_employees':[170,20000],
-                 'taxes':[171,175,179,18,24],
+                 'creditors':[16000],
+                 'other_debts':[15,16100,16999,23000,23010,23020,23310],
+                 'debts_to_employees':[170,175,20000],
+                 'taxes':[171,176,179,18,24],
 
                  'costs':4,
                  'people':40,
@@ -37,7 +34,7 @@ ACCOUNT_CODES = {'tangible_fixed_assets': '02',
                  'productproposition':[80001,80050],
                  'service':80004,
                  'hosting':80003,
-                 'other_income':[80060,80070,80999,85000],
+                 'other_income':[80060,80070,80999],
                  'subsidy':40105, 'income':8,
                  'hosting_expenses':60352,
                  'outsourcing_expenses':60350,
@@ -149,13 +146,15 @@ class Yuki:
     def costs(self, date_str=None):
         return self.post('costs', date_str)
 
-    #@reportz(hours=24)
+    @reportz(hours=24)
     def post(self, account, date_str=None):
         ab = self.account_balance(date_str, account_codes=ACCOUNT_CODES[account])
         res = 0
         for a in ab:
-            multiplier = -1 if a['code'][:2] in ('08', '09','15','16','17') else 1
+            multiplier = -1 if a['code'][:2] in ('08', '09','15','16','17','18','20','23','24') else 1
             res += a['amount'] * multiplier
+        import pandas as pd
+        p = pd.DataFrame(ab)
         return res
 
     def test_codes(self):
