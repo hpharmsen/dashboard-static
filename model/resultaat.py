@@ -314,12 +314,14 @@ def vulling_van_de_planning():
         ]
     )
     leave_hours_per_week = leaves.groupby(['week']).sum(['hours'])
-    table['leaves'] = table.apply(
-        lambda row: leave_hours_per_week.at[row['weekno'], 'hours']
-        if row['weekno'] in leave_hours_per_week.index
-        else 0,
-        axis=1,
-    )
+
+    def get_leave_hours_for_week(row):
+        weekno = int(row['weekno'])
+        if weekno in leave_hours_per_week.index:
+            return leave_hours_per_week.at[weekno, 'hours']
+        return 0
+
+    table['leaves'] = table.apply(get_leave_hours_for_week, axis=1)
 
     # Filled
     table['filled'] = table.apply(lambda row: int(100 * row['plannedhours'] / (row['roster'] - row['leaves'])), axis=1)

@@ -11,17 +11,23 @@ BASE_URL = 'https://api.yukiworks.nl/ws/Accounting.asmx'
 
 _yuki = None  # Singleton
 
+ASSETS = 1
+LIABILITIES = 2
+INCOME = 3
+COSTS = 4
+
 ACCOUNT_CODES = {
     'tangible_fixed_assets': '02',
     'financial_fixed_assets': '03',
     'share_capital': '0800',
-    'reserves': ['0840', '0805'],
+    'reserves': ['0840', '0805', '0890'],  # Algemene reserve, Agio reserve, Overige reserve
     'undistributed_result': ['0900'],
-    'liquid_assets': [11, 12, 23101],
+    'liquid_assets': [11, 12],
     'debtors': 1300,
-    'other_receivables': [1321, 1330, 1335, 1350, 13999],
+    'other_receivables': [1321, 1330, 1335, 1350, 13999, 23310],
+    'kruisposten': 23101,  # Special case, kan debet en credit zijn
     'creditors': [16000],
-    'other_debts': [15, 16100, 16999, 23000, 23010, 23020, 23310],
+    'other_debts': [15, 16100, 16999, 23000, 23010, 23020],
     'debts_to_employees': [170, 175, 20000],
     'taxes': [171, 176, 179, 18, 24],
     'costs': 4,
@@ -34,7 +40,8 @@ ACCOUNT_CODES = {
     'productproposition': [80001, 80050],
     'service': 80004,
     'hosting': 80003,
-    'other_income': [80060, 80070, 80999],
+    'turnover': [8000, 8005, 8006, 80999],  # Alles behalve onderhuur
+    'other_income': [80070],  # Onderhuur
     'subsidy': 40105,
     'income': 8,
     'hosting_expenses': 60352,
@@ -149,11 +156,39 @@ class Yuki:
         return self.post('costs', date_str)
 
     @reportz(hours=24)
-    def post(self, account, date_str=None):
+    def post(self, account, account_type=None, date_str=None):
         ab = self.account_balance(date_str, account_codes=ACCOUNT_CODES[account])
         res = 0
         for a in ab:
-            multiplier = -1 if a['code'][:2] in ('08', '09', '15', '16', '17', '18', '20', '23', '24') else 1
+            if account_type in (ASSETS, COSTS):
+                multiplier = 1
+            elif account_type in (LIABILITIES, INCOME):
+                multiplier = -1
+            else:
+                multiplier = (
+                    -1
+                    if a['code'][:2]
+                    in (
+                        '08',
+                        '09',
+                        '15',
+                        '16',
+                        '17',
+                        '18',
+                        '20',
+                        '23',
+                        '24',
+                        '49',
+                        '60',
+                        '80',
+                        '85',
+                        '86',
+                        '87',
+                        '88',
+                        '89',
+                    )
+                    else 1
+                )
             res += a['amount'] * multiplier
         import pandas as pd
 
@@ -183,10 +218,12 @@ class Yuki:
 if __name__ == '__main__':
     yuki = Yuki()
     yuki.test_codes()
-    b = yuki.account_balance('2021-04-30')
+    j = yuki.account_balance('2021-01-31')
+    s = yuki.account_balance('2021-09-30')
     import pandas as pd
 
-    df = pd.DataFrame(b)
+    dj = pd.DataFrame(j)
+    ds = pd.DataFrame(s)
     print(yuki.profit('2021-01-31'))
 
     print(yuki.profit())

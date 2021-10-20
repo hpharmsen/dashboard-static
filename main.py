@@ -1,5 +1,35 @@
 # TODO
 
+# === DDA Talk over kengetallen ==================
+# KPI's
+# Omzet is uren x tarief - kosten Dus als KPI's: BILLABLE UREN en GEMIDDELD TARIEF
+
+# EFFECTIVITEIT = hoeveel heb je de mensen werkelijk op klantwerk.
+# Normaal werken mensen 1832 uur
+# Hoeveel daarvan op klantwerk? 50% is echt te weinig. 65% is aan de lage kant maar kan.
+# Als het niet minimaal 60% a 65% is staat je winstgevendheid onder druk.
+# Als je groeit: directe mensen 70%/75%/80%
+# PM/lead eerder 40%/50%/60%
+
+# efficiency = Hoe goed je bent om projecten binnen de gestelde tijd af te ronden = het gemiddelde
+# daadwerkelijke uurtarief (effective rate). = BBI / UREN OP DE KLANT
+# Efficiëncy maandelijks uitrekenen. Ook op type werk.
+# Daadwerkelijke uurtarief t.o.v. geoffreerd uurtarief is een maatstaf van je kwaliteit
+
+# Dus:
+# uren op de klant / Beschikbare uren = effectiviteit
+# BBI / billable uren = Gemiddeld tarief
+# Dit alles liever alleen voor de uren-kant van de business.
+
+# 3x5 = Magic: 5% meer uren op de klant boeken, 5% hoger gemiddeld uurtarief, 5% hogere prijs
+
+# Labour Efficiency Ratio (dLER) = BBI / loonkosten van de directe mensen. 1,9 is te laag, 2,0 is ondergrens, 2,2 is goed.
+
+# Met al deze dingen: het probleem helder krijgen en daarmee bepalen wat de next steps zijn
+# Het volgende is dan: 6 tot 12 maanden vooruit kijken
+# ================================================
+
+
 # FINANCE
 # - Vergelijking met begroting
 # - Omzet prognose uit Simplicate??

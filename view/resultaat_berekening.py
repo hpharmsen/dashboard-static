@@ -98,7 +98,7 @@ def winst_berekening_block():
     begroot = omzet_begroot()
     log('Begroot', begroot)
     werkelijk = bruto_marge_werkelijk()
-    log('Bruto marge (omz-proj+onderh)', werkelijk)
+    log('BBI (omz-proj+onderh)', werkelijk)
     add_row(
         grid,
         f'Opbrengsten',

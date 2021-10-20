@@ -38,6 +38,7 @@ GOOGLE_SHEETS_APP = (
 )
 
 
+@reportz(hours=6)
 def get_bookings_per_week(type: str, only_complete_weeks=False):
     db = get_travelbase_db()
     dfs = []
@@ -71,7 +72,7 @@ def get_bookings_per_week(type: str, only_complete_weeks=False):
     return all
 
 
-# @reportz(hours=6)
+@reportz(hours=6)
 def update_bookings_per_day(type: str):
     db = get_travelbase_db()
     for brand in BRANDS:
@@ -115,9 +116,9 @@ if __name__ == '__main__':
     os.chdir('..')
     sql = f'''select count(*) as aantal 
                   from bookings 
-                  where status in ('accepted', 'cancelled-guest', 'cancelled-partner')'''
+                  where brand="texel" and month(created_at)=8 and status in ('accepted', 'cancelled-guest', 'cancelled-partner')'''
     db = get_travelbase_db()
     print(db.execute(sql))
-    update_bookings_per_day(type='tickets')
-    update_bookings_per_day(type='bookings')
-    get_bookings_per_week(type='tickets')
+    # update_bookings_per_day(type='tickets')
+    # update_bookings_per_day(type='bookings')
+    # get_bookings_per_week(type='tickets')

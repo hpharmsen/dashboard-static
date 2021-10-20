@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import sys
+from decimal import Decimal
 
 import pandas as pd
 from pathlib import Path
@@ -103,7 +104,7 @@ def update_hours():
     while day < today:
 
         print(day)
-        data = hours_data_from_day(day, use_cache=False)
+        data = hours_data_from_day(day, use_cache=True)
         # Update the dataframe with he newly loaded data
         flat_data = flatten_hours_data(data)
         if df.empty:
@@ -224,7 +225,7 @@ def hours_data_from_day(day: datetime.date, use_cache=True):
 
 
 @reportz(hours=72)
-def onderhanden_werk(year=None, month=None, day=None):
+def onderhanden_werk(date_str=None):
     ini = simplicate().ini['simplicate']
     session = requests.Session()
     login_url = 'https://oberon.simplicate.com/site/login'
@@ -235,8 +236,8 @@ def onderhanden_werk(year=None, month=None, day=None):
     report_url = (
         'https://oberon.simplicate.com/v1/reporting/process/reloadData?q={"page":"process","project_status":["active"]}'
     )
-    if year and month:
-        report_url = report_url[:-1] + f',"date":"{year}-{month}-{day}"' + '}'
+    if date_str:
+        report_url = report_url[:-1] + f',"date":"{date_str}"' + '}'
 
     session.post(login_url, login_data)
 
@@ -249,7 +250,7 @@ def onderhanden_werk(year=None, month=None, day=None):
         log.log_error('simplicate.py', 'onderhanden_werk', 'JSON DecodeError')
         return 0
     value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return value  # - 21320  # !! omdat we CEO niet goed krijgen
+    return Decimal(value)  # - 21320  # !! omdat we CEO niet goed krijgen
 
 
 if __name__ == '__main__':

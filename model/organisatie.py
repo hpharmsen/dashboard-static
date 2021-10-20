@@ -84,7 +84,7 @@ def vrije_dagen_overzicht():
     frac = fraction_of_the_year_past()
 
     # Get the list of current employees
-    employees = sim.employee({'employment_status': 'active'})
+    employees = sim.employee({'status': 'active'})
     employees = [u['name'] for u in employees if u['name'] != 'Filipe José Mariano dos Santos']
 
     # 1. Get the balance of all active employees per start of the year
