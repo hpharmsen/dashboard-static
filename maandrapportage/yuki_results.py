@@ -1,6 +1,6 @@
 import calendar
 
-from sources.simplicate import onderhanden_werk
+from model.onderhanden_werk import simplicate_onderhanden_werk
 from sources.yuki import Yuki, COSTS, ASSETS, LIABILITIES
 
 
@@ -195,8 +195,8 @@ class YukiResult:
     def get_work_in_progress(self, date_str: str = None):
         date_str, prev_date = self.date_couple(date_str)
         return (
-            onderhanden_werk(date_str=date_str),
-            onderhanden_werk(date_str=prev_date),
+            simplicate_onderhanden_werk(date_str=date_str),
+            simplicate_onderhanden_werk(date_str=prev_date),
         )
 
 

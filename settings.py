@@ -7,6 +7,11 @@ def get_output_folder():
     ini.read(Path(__file__).resolve().parent / 'sources' / 'credentials.ini')
     return Path(ini['output']['folder'])
 
+def get_monthly_folder():
+    ini = ConfigParser()
+    ini.read(Path(__file__).resolve().parent / 'sources' / 'credentials.ini')
+    return Path(ini['output']['monthly'])
+
 
 ini = ConfigParser()
 ini.read(Path(__file__).resolve().parent / 'sources' / 'credentials.ini')

@@ -8,7 +8,6 @@ from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
 from layout.basic_layout import defsize, midsize
 from model.log import log
 from model.resultaat import (
-    onderhanden_werk,
     omzet_begroot,
     omzet_tm_maand,
     omzet_tm_nu,
@@ -22,6 +21,7 @@ from model.resultaat import (
     kosten_boekhoudkundig_tm_maand,
     kosten_begroot_na_maand,
 )
+from model.onderhanden_werk import simplicate_onderhanden_werk
 from pathlib import Path
 
 # from model.resultaat_vergelijking import MAANDEN
@@ -91,7 +91,7 @@ def winst_berekening_block():
         (-projectkosten_tm_nu() + projectkosten_tm_maand(laatste_maand), yuki_omzet_url),
     )
 
-    onderhanden = onderhanden_werk()
+    onderhanden = simplicate_onderhanden_werk()
     log('Simplicate onderhanden werk', onderhanden)
     add_row(grid, f'Onderhanden werk nu (Simplicate)', '', (onderhanden, 'onderhanden.html'), '', '')
 

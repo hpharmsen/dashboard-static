@@ -1,17 +1,19 @@
 import datetime
 import os
+import sys
 from pathlib import Path
 
 import pdfkit
 
 from financials import profit_and_loss_block, balance_block, cashflow_analysis_block
+from layout.chart import BarChart, ChartConfig
 from model.productiviteit import geboekte_uren_users, geboekte_omzet_users, beschikbare_uren
 from view.dashboard import cash_block, debiteuren_block
 from yuki_results import YukiResult
 from model.caching import load_cache
 from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.basic_layout import headersize, midsize
-from settings import get_output_folder, MAANDEN, GRAY
+from settings import get_output_folder, MAANDEN, GRAY, get_monthly_folder
 from main import get_output_folder
 
 
@@ -37,7 +39,7 @@ def render_maandrapportage(output_folder, year, month):
             )
         ]
     )
-    htmlpath = output_folder / f'monthly{year}_{month:02}.html'
+    htmlpath = output_folder / f'{year}_{month:02}.html'
     page.render(htmlpath, template='maandrapportage.html')
 
     # Generate PDF
@@ -85,17 +87,31 @@ def hours_block(year, month):
     grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(r, format='€') for r in actual_hourly_rates])
     grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(t, format='K') for t in turnovers])
 
+    chart = BarChart(
+        turnovers,
+        ChartConfig(
+            width=54*month,
+            height=150,
+            colors=['#ddeeff'],
+            bottom_labels=[MAANDEN[m] for m in range(month)],
+            #max_y_axis=roster_hours,
+            y_axis_max_ticks=5,
+        ),
+    )
+
     return VBlock(
         [
             TextBlock('Billable uren', midsize),
             TextBlock(
                 '''Beschikbare uren zijn alle uren die we hebben na afrek van vrije dagen en verzuim.<br/>
-                          Klant uren zijn alle uren besteed aan werk voor klanten. <br/>
-                          Billable uren is wat er over is na correcties. <br/>
-                          Omzet is de omzet gemaakt in die uren.''',
+                   Klant uren zijn alle uren besteed aan werk voor klanten. <br/>
+                   Billable uren is wat er over is na correcties. <br/>
+                   Omzet is de omzet gemaakt in die uren.''',
                 color=GRAY,
             ),
             grid,
+            TextBlock('Omzet op uren per maand'),
+            chart
         ]
     )
 
@@ -136,23 +152,36 @@ def hours_block(year, month):
 # Grafieken kunnen handig zijn, fleuren vaak de presentatie wat op. Ik zou dit alleen doen als het zinvol is.
 
 
-def render_maandrapportage_page(output_folder: Path):
+def render_maandrapportage_page(monthly_folder, output_folder: Path, year, month):
     lines = []
-    for month in range(1, 10):
-        month_name = MAANDEN[month - 1]
-        htmlpath = output_folder / f'monthly{year}_{month:02}.html'
-        pdfpath = htmlpath.with_suffix('.pdf')
-        lines += [HBlock([TextBlock(month_name, url=htmlpath), TextBlock('pdf', url=pdfpath)])]
+    files = sorted([f for f in monthly_folder.iterdir() if f.suffix == '.html'])
+    for file in files:
+        month_num = int(file.stem.split('_')[1])
+        htmlpath = monthly_folder / file
+        pdfpath = os.path.relpath(htmlpath.with_suffix('.pdf'), start=output_folder)
+        htmlpath = os.path.relpath(htmlpath, start=output_folder)
+        lines += [HBlock([TextBlock(MAANDEN[month_num - 1], url=htmlpath), TextBlock('pdf', url=pdfpath)])]
     page = Page([TextBlock('Maandrapportages', headersize)] + lines)
     page.render(output_folder / 'maandrapportages.html')
 
 
+def report(render_year, render_month):
+    print( f'Generating report for {MAANDEN[render_month-1]} {render_year}')
+    render_maandrapportage(get_monthly_folder(), render_year, render_month)
+    render_maandrapportage_page(get_monthly_folder(), get_output_folder(), render_year, render_month)
+
 if __name__ == '__main__':
     os.chdir('..')
     load_cache()
-    year = 2021
-    render_month = 9
-    for month in range(render_month, render_month + 1):
-        render_maandrapportage(get_output_folder(), year, month)
-
-    render_maandrapportage_page(get_output_folder())
+    if len(sys.argv) > 1 and sys.argv[1]=='all':
+        for m in range( 1, datetime.datetime.today().month ):
+            report( datetime.datetime.today().year, m )
+    else:
+        try:
+            render_month = int(sys.argv[1])
+        except:
+            render_month = datetime.datetime.today().month - 1
+            if render_month == 0:
+                render_month = 12
+        render_year = datetime.datetime.today().year if render_month < 12 else datetime.datetime.today().year - 1
+        report(render_year, render_month)

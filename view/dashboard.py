@@ -265,7 +265,7 @@ def corrections_block():
     INTERESTING_CORRECTION = 8
 
     def corrections_percentage_coloring(value):
-        return dependent_color(value, red_treshold=4.9, green_treshold=2)
+        return dependent_color(value, red_treshold=4.9, green_treshold=3)
 
     def project_link(row_index, fullline):
         return f'https://oberon.simplicate.com/projects/{fullline[0]}/hours'
@@ -409,7 +409,7 @@ def cash_block():
     return VBlock(
         [
             TextBlock('Cash', midsize),
-            trends.chart('cash', 250, 150),
+            trends.chart('cash', 250, 150, min_y_axis=0, x_start=months_ago(6)),
         ]
     )
 

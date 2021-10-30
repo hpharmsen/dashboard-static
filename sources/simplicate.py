@@ -1,13 +1,9 @@
 import datetime
 import json
 import os
-import sys
-from decimal import Decimal
 
 import pandas as pd
-from pathlib import Path
 
-import requests
 from pysimplicate import Simplicate
 
 from model.caching import reportz
@@ -222,35 +218,6 @@ def hours_data_from_day(day: datetime.date, use_cache=True):
         with open(cache_file, 'w') as f:
             json.dump(data, f)
     return data
-
-
-@reportz(hours=72)
-def onderhanden_werk(date_str=None):
-    ini = simplicate().ini['simplicate']
-    session = requests.Session()
-    login_url = 'https://oberon.simplicate.com/site/login'
-    login_data = {
-        'LoginForm[username]': ini['username'],
-        'LoginForm[password]': ini['password'],
-    }
-    report_url = (
-        'https://oberon.simplicate.com/v1/reporting/process/reloadData?q={"page":"process","project_status":["active"]}'
-    )
-    if date_str:
-        report_url = report_url[:-1] + f',"date":"{date_str}"' + '}'
-
-    session.post(login_url, login_data)
-
-    try:
-        json_data = session.get(report_url).json()
-    except ConnectionResetError:
-        log.log_error('simplicate.py', 'onderhanden_werk', 'Connection reset by Simplicate')
-        return 0
-    except json.decoder.JSONDecodeError:
-        log.log_error('simplicate.py', 'onderhanden_werk', 'JSON DecodeError')
-        return 0
-    value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return Decimal(value)  # - 21320  # !! omdat we CEO niet goed krijgen
 
 
 if __name__ == '__main__':

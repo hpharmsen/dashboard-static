@@ -12,7 +12,8 @@ from model.productiviteit import tuple_of_productie_users
 from model.winstgevendheid import winst_per_klant
 from sources import database as db
 from model.trendline import trends
-from sources.simplicate import simplicate, onderhanden_werk, DATE_FORMAT, hours_dataframe
+from sources.simplicate import simplicate, DATE_FORMAT, hours_dataframe
+from model.onderhanden_werk import simplicate_onderhanden_werk
 from sources.yuki import yuki
 from sources.googlesheet import sheet_tab, sheet_value
 
@@ -104,7 +105,7 @@ def omzet_begroot_tm_maand(m):
 
 @reportz
 def bruto_marge_werkelijk():
-    res = omzet_tm_nu() - projectkosten_tm_nu() + onderhanden_werk()
+    res = omzet_tm_nu() - projectkosten_tm_nu() + simplicate_onderhanden_werk()
     return res
 
 

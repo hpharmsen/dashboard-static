@@ -109,7 +109,7 @@ def uurkosten_per_persoon():
 
     # Vaste werknemers
     loonkosten_pp = loonkosten_per_persoon()
-    loonkosten_pp = {user2name()[key]: val for key, val in loonkosten_pp.items()}
+    loonkosten_pp = {user2name()[key]: val for key, val in loonkosten_pp.items()if user2name().get(key)}
     res = {}
     for user, kosten in loonkosten_pp.items():
         res[user] = round(
@@ -244,6 +244,7 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
         .rename(columns={'turnover': 'turnover hours'})
         .reset_index()
     )
+    # Voeg mensen toe die geen uren boeken
     for employee in ['Angela Duijs', 'Lunah Smits', 'Mel Schuurman', 'Martijn van Klaveren']:
         result = result.append({'employee': employee, 'hours': 0, 'turnover hours': 0}, ignore_index=True)
 
@@ -269,7 +270,6 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
 
 @reportz(hours=24)
 def calculate_employee_costs(row):
-    nu = name2user()
     user = name2user()[row['employee']]
     loonkosten_user = loonkosten_per_persoon().get(user)
     if loonkosten_user:
