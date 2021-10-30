@@ -90,11 +90,11 @@ def hours_block(year, month):
     chart = BarChart(
         turnovers,
         ChartConfig(
-            width=54*month,
+            width=54 * month,
             height=150,
             colors=['#ddeeff'],
             bottom_labels=[MAANDEN[m] for m in range(month)],
-            #max_y_axis=roster_hours,
+            # max_y_axis=roster_hours,
             y_axis_max_ticks=5,
         ),
     )
@@ -111,7 +111,7 @@ def hours_block(year, month):
             ),
             grid,
             TextBlock('Omzet op uren per maand'),
-            chart
+            chart,
         ]
     )
 
@@ -166,16 +166,17 @@ def render_maandrapportage_page(monthly_folder, output_folder: Path, year, month
 
 
 def report(render_year, render_month):
-    print( f'Generating report for {MAANDEN[render_month-1]} {render_year}')
+    print(f'Generating report for {MAANDEN[render_month-1]} {render_year}')
     render_maandrapportage(get_monthly_folder(), render_year, render_month)
     render_maandrapportage_page(get_monthly_folder(), get_output_folder(), render_year, render_month)
+
 
 if __name__ == '__main__':
     os.chdir('..')
     load_cache()
-    if len(sys.argv) > 1 and sys.argv[1]=='all':
-        for m in range( 1, datetime.datetime.today().month ):
-            report( datetime.datetime.today().year, m )
+    if len(sys.argv) > 1 and sys.argv[1] == 'all':
+        for m in range(1, datetime.datetime.today().month):
+            report(datetime.datetime.today().year, m)
     else:
         try:
             render_month = int(sys.argv[1])

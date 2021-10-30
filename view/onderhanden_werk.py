@@ -20,8 +20,8 @@ def onderhanden_werk_list():
     )
 
     def add_service_row(row):
-        start_date = row['start_date'] if  type(row['start_date']) == str else ''
-        end_date = row['end_date'] if  type(row['end_date']) == str else ''
+        start_date = row['start_date'] if type(row['start_date']) == str else ''
+        end_date = row['end_date'] if type(row['end_date']) == str else ''
         grid.add_row(
             [
                 TextBlock(row['service'], style=ITALIC),
@@ -32,7 +32,7 @@ def onderhanden_werk_list():
                 TextBlock(row['gefactureerd'], format='€', style=ITALIC),
                 TextBlock(row['ohw_type'], style=ITALIC),
                 TextBlock(start_date, style=ITALIC),
-                TextBlock(end_date, style=ITALIC)
+                TextBlock(end_date, style=ITALIC),
             ]
         )
 
@@ -52,20 +52,23 @@ def onderhanden_werk_list():
                 TextBlock(correcties, format='€'),
                 TextBlock(verkoopmarge, format='€'),
                 TextBlock(gefactureerd, format='€'),
-                TextBlock(row['pm'], style=BOLD)
+                TextBlock(row['pm'], style=BOLD),
             ]
         )
 
-    grid.add_row([
-                TextBlock(''),
-                TextBlock('OHW', style=BOLD),
-                TextBlock('Besteed', style=BOLD),
-                TextBlock('Correcties', style=BOLD),
-                TextBlock('Verkoopmarge', style=BOLD),
-                TextBlock('Gefactureerd', style=BOLD),
-                TextBlock('Type', style=BOLD),
-                TextBlock('Startdatum', style=BOLD),
-                TextBlock('Einddatum', style=BOLD)])
+    grid.add_row(
+        [
+            TextBlock(''),
+            TextBlock('OHW', style=BOLD),
+            TextBlock('Besteed', style=BOLD),
+            TextBlock('Correcties', style=BOLD),
+            TextBlock('Verkoopmarge', style=BOLD),
+            TextBlock('Gefactureerd', style=BOLD),
+            TextBlock('Type', style=BOLD),
+            TextBlock('Startdatum', style=BOLD),
+            TextBlock('Einddatum', style=BOLD),
+        ]
+    )
     sim = simplicate()
     onderhanden = ohw_list(sim, minimum_amount=1000)
     last_project_number = ''

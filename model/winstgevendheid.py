@@ -109,7 +109,7 @@ def uurkosten_per_persoon():
 
     # Vaste werknemers
     loonkosten_pp = loonkosten_per_persoon()
-    loonkosten_pp = {user2name()[key]: val for key, val in loonkosten_pp.items()if user2name().get(key)}
+    loonkosten_pp = {user2name()[key]: val for key, val in loonkosten_pp.items() if user2name().get(key)}
     res = {}
     for user, kosten in loonkosten_pp.items():
         res[user] = round(
