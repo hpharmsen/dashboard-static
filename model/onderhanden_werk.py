@@ -113,15 +113,22 @@ def simplicate_projects_and_services(sim):
     project_service = pd.merge(services,projects,on=['project_id'])
     return project_service
 
-def ohw_list(sim):
-    rename_columns = {'project_number_y':'project_number', 'Marge gerealiseerd':'verkoopmarge', 'OHW2':'ohw', 'project_manager_name':'pm'}
-    return_columns = ['project_number', 'service', 'Besteed', 'Correcties', 'Gefactureerd', 'verkoopmarge', 'ohw', 'ohw_type', 'organization_name', 'project_name', 'project_id', 'service_id','pm','start_date','end_date']
+def ohw_list(sim, minimum_amount=0):
+    rename_columns = {'project_number_y':'project_number', 'Marge gerealiseerd':'verkoopmarge', 'OHW2':'ohw', 'project_manager_name':'pm', 'Besteed':'besteed', 'Correcties':'correcties', 'Gefactureerd': 'gefactureerd'}
+    return_columns = list(rename_columns.values()) + ['service','ohw_type', 'organization_name', 'project_name', 'project_id', 'service_id','start_date','end_date']
 
     project_status_dataframe = get_project_status_dataframe()
     projects_and_services = simplicate_projects_and_services(sim)
     merged = pd.merge(project_status_dataframe,projects_and_services, on=['project_number', 'service']) \
            .rename(columns=rename_columns) \
            [return_columns]
+
+    if minimum_amount:
+        # Get project numbers of all projects with > +/- minimum_amount OWH
+        ohw_projects = set(merged.groupby(['project_number']).sum('ohw').query(f'abs(ohw) >= {minimum_amount}').reset_index()['project_number'])
+        # Filter merged with this list
+        merged = merged.query('abs(ohw) > 0 & project_number in @ohw_projects').sort_values(by='project_number')
+
     merged.sort_values(by='project_number')
     return merged
 

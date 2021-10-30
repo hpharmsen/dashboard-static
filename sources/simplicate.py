@@ -43,7 +43,7 @@ def active_projects():
     return projects
 
 
-def onderhanden_werk_list():
+def old_onderhanden_werk_list():
     df = update_hours()
 
     def corrections(project):
