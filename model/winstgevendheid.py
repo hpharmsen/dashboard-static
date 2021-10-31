@@ -278,7 +278,9 @@ def calculate_employee_costs(row):
         ]
     else:
         # Freelance
-        uurkosten = uurkosten_per_persoon()[row['employee']]
+        uurkosten = uurkosten_per_persoon().get(row['employee'])
+        if not uurkosten:
+            return 0
         costs = row['hours'] * (uurkosten + OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR)
     return costs
 

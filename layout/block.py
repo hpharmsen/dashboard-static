@@ -202,6 +202,8 @@ class TextBlock(Block):
 
 
 def wrap(s, width):
+    if s.count('<br'):
+        return s # Newlines already included. No wrapping needed
     chunks = []
     while s:
         if len(s) < width:

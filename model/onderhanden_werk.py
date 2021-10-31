@@ -1,16 +1,15 @@
 import json
 import os
 from decimal import Decimal
-import datetime
 import requests
 import pandas as pd
-from model.caching import reportz
-from model.log import log
+from model.caching import reportz, load_cache
+import model.log as log
 from sources.simplicate import simplicate
 from settings import ini
 
 
-@reportz(hours=72)
+@reportz(hours=24)
 def project_status_data(date_str=None):
     ''' Get Simplicate project status page in json form '''
     session = requests.Session()
@@ -25,8 +24,12 @@ def project_status_data(date_str=None):
 
     session.post(login_url, login_data)
 
+    return session.get(report_url).json()
     try:
-        json_data = session.get(report_url).json()
+        try:
+            json_data = session.get(report_url).json()
+        except:
+            json_data = session.get(report_url).json() # Try again
     except ConnectionResetError:
         log.log_error('simplicate.py', 'onderhanden_werk', 'Connection reset by Simplicate')
         return 0
@@ -37,14 +40,10 @@ def project_status_data(date_str=None):
 
 
 @reportz(hours=72)
-def simplicate_onderhanden_werk(date_str=None):
-    ''' Old version '''
-    json_data = project_status_data(date_str)
-    value = json_data['table']['rows'][0]['columns'][-1][0]['value']
-    return Decimal(value)
+def simplicate_onderhanden_werk(date_str:str=''):
+    return Decimal(ohw_list(simplicate(), date_str)['ohw'].sum().item()) # Itemw converts numpy.uint64 to Python scalar
 
-
-def get_project_status_dataframe():
+def get_project_status_dataframe(date_str:str):
     ''' Convert Simplicates project status page into an enhanced dataframe with own OHW calculation.'''
 
     def ohw_type(s):
@@ -94,7 +93,7 @@ def get_project_status_dataframe():
         prs['OHW2'] = prs.apply(calculate_ohw, axis=1)  # Calculate based on ohw_type
         return prs
 
-    json = project_status_data()
+    json = project_status_data(date_str)
     df = parse_project_status_json(json)
     enhance_project_status_dataframe(df)
     return df
@@ -111,7 +110,7 @@ def simplicate_projects_and_services(sim):
     )
 
     # Same with the list of projects
-    projects = sim.to_pandas(sim.project({'status': 'tab_pactive'}))[
+    projects = sim.to_pandas(sim.project())[ # {'status': 'tab_pactive'}
         ['id', 'project_number', 'name', 'organization_name', 'project_manager_name']
     ].rename(columns={'id': 'project_id', 'name': 'project_name'})
 
@@ -120,15 +119,17 @@ def simplicate_projects_and_services(sim):
     return project_service
 
 
-def ohw_list(sim, minimum_amount=0):
+def ohw_list(sim, date_str='', minimum_amount=0):
     rename_columns = {
         'project_number_y': 'project_number',
-        'Marge gerealiseerd': 'verkoopmarge',
         'OHW2': 'ohw',
         'project_manager_name': 'pm',
         'Besteed': 'besteed',
         'Correcties': 'correcties',
+        'Marge gerealiseerd': 'verkoopmarge',
+        'Verwacht':'verwacht',
         'Gefactureerd': 'gefactureerd',
+        ' Besteed': 'inkoop',
     }
     return_columns = list(rename_columns.values()) + [
         'service',
@@ -141,11 +142,11 @@ def ohw_list(sim, minimum_amount=0):
         'end_date',
     ]
 
-    project_status_dataframe = get_project_status_dataframe()
+    project_status_dataframe = get_project_status_dataframe(date_str)
     projects_and_services = simplicate_projects_and_services(sim)
-    merged = pd.merge(project_status_dataframe, projects_and_services, on=['project_number', 'service']).rename(
-        columns=rename_columns
-    )[return_columns]
+    merged = pd.merge(project_status_dataframe, projects_and_services, on=['project_number', 'service'])\
+        .rename(columns=rename_columns) \
+        [return_columns]
 
     if minimum_amount:
         # Get project numbers of all projects with > +/- minimum_amount OWH
@@ -164,5 +165,6 @@ def ohw_list(sim, minimum_amount=0):
 
 if __name__ == '__main__':
     os.chdir('..')
+    load_cache()
     sim = simplicate()
     print(ohw_list(sim)['ohw'].sum())

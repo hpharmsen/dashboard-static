@@ -13,11 +13,28 @@ from settings import get_output_folder, BOLD, ITALIC
 
 def onderhanden_werk_list():
     grid = Grid(
-        cols=9,
+        cols=5,
         has_header=False,
         line_height=0,
-        aligns=['left', 'right', 'right', 'right', 'right', 'right', 'left', 'right', 'right'],
+        aligns=['left', 'right', 'left', 'right', 'right'],
     )
+
+    def explanation( row ):
+        if row['ohw_type'] == 'Strippenkaart':
+            explainfields = ['besteed']
+        elif row['ohw_type'] == 'Fixed':
+            explainfields = ['verwacht']
+        else:
+            explainfields = ['besteed', 'correcties', 'inkoop', 'verkoopmarge']
+        result = row['ohw_type'] + '<br/>'
+        for field in explainfields:
+            if row[field]:
+                if row[field] > 0:
+                    result += f'+ {field}: {row[field]}<br/>'
+                else:
+                    result += f'- {field}: {-row[field]}<br/>'
+        result += f'- gefactureerd: {row["gefactureerd"]}'
+        return result
 
     def add_service_row(row):
         start_date = row['start_date'] if type(row['start_date']) == str else ''
@@ -25,12 +42,7 @@ def onderhanden_werk_list():
         grid.add_row(
             [
                 TextBlock(row['service'], style=ITALIC),
-                TextBlock(row['ohw'], format='€', style=ITALIC),
-                TextBlock(row['besteed'], format='€', style=ITALIC),
-                TextBlock(row['correcties'], format='€', style=ITALIC),
-                TextBlock(row['verkoopmarge'], format='€', style=ITALIC),
-                TextBlock(row['gefactureerd'], format='€', style=ITALIC),
-                TextBlock(row['ohw_type'], style=ITALIC),
+                TextBlock(row['ohw'], format='€', tooltip=explanation(row), style=ITALIC),
                 TextBlock(start_date, style=ITALIC),
                 TextBlock(end_date, style=ITALIC),
             ]
@@ -40,18 +52,10 @@ def onderhanden_werk_list():
         row = service_rows[0]
         title = f"{row['project_number']} - {row['organization_name']} {row['project_name']}"
         ohw = sum([sr['ohw'] for sr in service_rows])
-        besteed = sum([sr['besteed'] for sr in service_rows])
-        correcties = sum([sr['correcties'] for sr in service_rows])
-        verkoopmarge = sum([sr['verkoopmarge'] for sr in service_rows])
-        gefactureerd = sum([sr['gefactureerd'] for sr in service_rows])
         grid.add_row(
             [
                 TextBlock(title, style=BOLD),
                 TextBlock(ohw, format='€', style=BOLD),
-                TextBlock(besteed, format='€'),
-                TextBlock(correcties, format='€'),
-                TextBlock(verkoopmarge, format='€'),
-                TextBlock(gefactureerd, format='€'),
                 TextBlock(row['pm'], style=BOLD),
             ]
         )
@@ -60,11 +64,6 @@ def onderhanden_werk_list():
         [
             TextBlock(''),
             TextBlock('OHW', style=BOLD),
-            TextBlock('Besteed', style=BOLD),
-            TextBlock('Correcties', style=BOLD),
-            TextBlock('Verkoopmarge', style=BOLD),
-            TextBlock('Gefactureerd', style=BOLD),
-            TextBlock('Type', style=BOLD),
             TextBlock('Startdatum', style=BOLD),
             TextBlock('Einddatum', style=BOLD),
         ]
