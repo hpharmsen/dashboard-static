@@ -3,7 +3,10 @@ import atexit
 import pickle
 import datetime
 from functools import wraps, partial
+from pathlib import Path
+
 from layout.basic_layout import doFormat
+from settings import DATE_FORMAT
 
 CACHE_FILE = ''
 cache = {}
@@ -31,7 +34,14 @@ def clear_cache():
     print('Removing', CACHE_FILE)
     if os.path.isfile(CACHE_FILE):
         os.remove(CACHE_FILE)
-
+    two_weeks_ago = (datetime.datetime.today() - datetime.timedelta(weeks=2)).strftime(DATE_FORMAT)
+    simplicate_cache_folder = Path(os.path.dirname(__file__)).parent / 'sources/simplicate_cache'
+    for json_file in simplicate_cache_folder.iterdir():
+        if json_file.suffix == '.json' and json_file.stem > two_weeks_ago:
+            json_file.unlink()
+    pandas_file = simplicate_cache_folder / 'hours.pd'
+    if pandas_file.is_file():
+        pandas_file.unlink()
 
 def cache_created_time_stamp():
     if os.path.isfile(CACHE_FILE):

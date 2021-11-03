@@ -24,7 +24,8 @@ def project_status_data(date_str=None):
 
     session.post(login_url, login_data)
 
-    return session.get(report_url).json()
+    res = session.get(report_url)
+    return res.json()
     try:
         try:
             json_data = session.get(report_url).json()

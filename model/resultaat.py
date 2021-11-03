@@ -266,12 +266,12 @@ def get_turnover_from_simplicate(fromday, untilday):
     return int(turnover)
 
 
-@reportz(hours=24)
+#@reportz(hours=24)
 def vulling_van_de_planning():
     # Planned hours
     last_week = (datetime.today() + timedelta(weeks=-1)).strftime(DATE_FORMAT)
     # last_day = trends.last_registered_day('omzet_per_week')
-    query = f'''select week(day,5) as weekno, ifnull(round(sum(dayhours)),0) as plannedhours from
+    query = f'''select year(day) as year, week(day,5) as weekno, ifnull(round(sum(dayhours)),0) as plannedhours from
         (select day, sum(hours) as dayhours from
             (select date(startDate) as day,
                     sum(least((enddate - startDate)/10000,8)) as hours
@@ -327,7 +327,7 @@ def vulling_van_de_planning():
     # Filled
     table['filled'] = table.apply(lambda row: int(100 * row['plannedhours'] / (row['roster'] - row['leaves'])), axis=1)
     table['monday'] = table.apply(
-        lambda row: datetime.strptime(f'2021-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT), axis=1
+        lambda row: datetime.strptime(f'{int(row["year"])}-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT), axis=1
     )
     res = table[['monday', 'filled']].to_dict('records')
     return res

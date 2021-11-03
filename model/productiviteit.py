@@ -194,7 +194,7 @@ def percentage_directe_werknemers():
     return 100 * beschikbare_uren_productie(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
 
 
-@reportz(hours=8)
+#@reportz(hours=8)
 def billable_trend_person_week(user, startweek=1):
     # Returns a list of labels and a list of hours
     thisweek = datetime.datetime.now().isocalendar()[1]
