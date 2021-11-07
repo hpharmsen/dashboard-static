@@ -18,13 +18,15 @@ COSTS = 4
 
 ACCOUNT_CODES = {
     'tangible_fixed_assets': '02',
+    'investments': ['02110', '02200', '02300', '02400'],
+    # Verbouwingen, Machines, Inventaris, Hardware (tangible minus afschrijvingen)
     'financial_fixed_assets': '03',
     'share_capital': '0800',
     'reserves': ['0840', '0805', '0890'],  # Algemene reserve, Agio reserve, Overige reserve
     'undistributed_result': ['0900'],
     'liquid_assets': [11, 12],
     'debtors': 1300,
-    'other_receivables': [1321, 1330, 1335, 1350, 13999, 23310],
+    'other_receivables': [1321, 1330, 1335, 1350, 13999, 233],
     'kruisposten': 23101,  # Special case, kan debet en credit zijn
     'creditors': [16000],
     'other_debts': [15, 16100, 16999, 23000, 23010, 23020],

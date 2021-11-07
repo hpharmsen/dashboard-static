@@ -2,6 +2,8 @@ import math
 import os
 from pathlib import Path
 
+import pandas as pd
+
 from layout.basic_layout import headersize
 from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
@@ -16,7 +18,9 @@ BAR_COLORS = ['#6666cc', '#66cc66', '#cc6666', '#cccc66']
 def render_travelbase_page(output_folder):
     update_bookings_per_day('bookings')
     update_bookings_per_day('tickets')
-    bookings = get_bookings_per_week(type='bookings')
+    bookings = get_bookings_per_week(booking_type='bookings')
+    if type(bookings) != pd.DataFrame:
+        return  # An error occurred, no use to proceed
     totals = [(brand, bookings[brand].sum()) for brand in BRANDS]
     totals_table = Table(totals, TableConfig(aligns=['left', 'right'], formats=['', '0'], totals=[0, 1]))
     page = Page(

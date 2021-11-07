@@ -1,6 +1,9 @@
+import logging
 from pathlib import Path
 from hplib.dbclass import dbClass  # pip3 install git+https://github.com/hpharmsen/hplib
 import pandas as pd
+
+from model.log import log_error
 
 scriptpath = Path(__file__).resolve().parent
 
@@ -32,8 +35,11 @@ def value(query, database=None):
 def dataframe(query, database=None):
     if not database:
         database = get_db()
-    return pd.read_sql_query(query, database.db)
-
+    try:
+        return pd.read_sql_query(query, database.db)
+    except ConnectionResetError:
+        log_error('database.py', 'dataframe', 'Database connection reset')
+        return None
 
 def table(query):
     return dataframe(query).to_dict(orient='records')

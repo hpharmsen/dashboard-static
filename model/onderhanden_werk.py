@@ -23,39 +23,37 @@ def project_status_data(date_str=None):
         report_url = report_url[:-1] + f',"date":"{date_str}"' + '}'
 
     session.post(login_url, login_data)
-
-    res = session.get(report_url)
-    return res.json()
     try:
         try:
             json_data = session.get(report_url).json()
         except:
-            json_data = session.get(report_url).json() # Try again
+            json_data = session.get(report_url).json()  # Try again
     except ConnectionResetError:
         log.log_error('simplicate.py', 'onderhanden_werk', 'Connection reset by Simplicate')
-        return 0
+        return
     except json.decoder.JSONDecodeError:
         log.log_error('simplicate.py', 'onderhanden_werk', 'JSON DecodeError')
-        return 0
+        return
+    except:
+        log.log_error('simplicate.py', 'onderhanden_werk', 'Unknown error')
+        return
     return json_data
 
 
 @reportz(hours=72)
-def simplicate_onderhanden_werk(date_str:str=''):
-    return Decimal(ohw_list(simplicate(), date_str)['ohw'].sum().item()) # Itemw converts numpy.uint64 to Python scalar
+def simplicate_onderhanden_werk(date_str: str = ''):
+    list = ohw_list(simplicate(), date_str)
+    if type(list) != pd.DataFrame:
+        return 0
+    return Decimal(list['ohw'].sum().item())  # Itemw converts numpy.uint64 to Python scalar
 
 def get_project_status_dataframe(date_str:str):
     ''' Convert Simplicates project status page into an enhanced dataframe with own OHW calculation.'''
 
     def ohw_type(s):
         if s['payment_type'] == 'Vaste prijs':
-            if s['Budget']:
-                return 'Strippenkaart'
-            else:
-                return 'Fixed'
-        else:
-            return 'Normal'
-        return int(result)
+            return 'Strippenkaart' if s['Budget'] else 'Fixed'
+        return 'Normal'
 
     def calculate_ohw(s):
         # Calculate OHW based on ohw_type
@@ -95,6 +93,8 @@ def get_project_status_dataframe(date_str:str):
         return prs
 
     json = project_status_data(date_str)
+    if not json:
+        return
     df = parse_project_status_json(json)
     enhance_project_status_dataframe(df)
     return df
@@ -144,8 +144,10 @@ def ohw_list(sim, date_str='', minimum_amount=0):
     ]
 
     project_status_dataframe = get_project_status_dataframe(date_str)
+    if type(project_status_dataframe) != pd.DataFrame:
+        return  # Error occurred, no use to go on
     projects_and_services = simplicate_projects_and_services(sim)
-    merged = pd.merge(project_status_dataframe, projects_and_services, on=['project_number', 'service'])\
+    merged = pd.merge(project_status_dataframe, projects_and_services, on=['project_number', 'service']) \
         .rename(columns=rename_columns) \
         [return_columns]
 
@@ -153,7 +155,7 @@ def ohw_list(sim, date_str='', minimum_amount=0):
         # Get project numbers of all projects with > +/- minimum_amount OWH
         ohw_projects = set(
             merged.groupby(['project_number'])
-            .sum('ohw')
+                .sum('ohw')
             .query(f'abs(ohw) >= {minimum_amount}')
             .reset_index()['project_number']
         )

@@ -1,18 +1,24 @@
 import os
+
+import pandas as pd
+
 from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
 from layout.basic_layout import headersize
 from model.finance import debiteuren_leeftijd_analyse
 from pathlib import Path
-from settings import get_output_folder
+from settings import get_output_folder, RED
 
 
 def render_debiteuren_page(output_folder: Path):
+    debiteuren = debiteuren_leeftijd_analyse()
+    if type(debiteuren) != pd.DataFrame:
+        return  # Error occurred, no use to proceed
     page = Page(
         [
             TextBlock('Debiteuren', headersize),
             Table(
-                debiteuren_leeftijd_analyse(),
+                debiteuren,
                 TableConfig(
                     headers=['klant', 'openstaand', '<30 dg', '30-60 dg', '60-90 dg', '> 90 dg'],
                     aligns=['left', 'right', 'right', 'right', 'right', 'right'],

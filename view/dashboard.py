@@ -3,6 +3,8 @@ import math
 import os
 import datetime
 import urllib
+
+import pandas as pd
 from dateutil.relativedelta import relativedelta
 
 from model import log
@@ -97,7 +99,9 @@ def klanten_block():
 
 
 def travelbase_block():
-    bookings = get_bookings_per_week(type='bookings', only_complete_weeks=True)
+    bookings = get_bookings_per_week(booking_type='bookings', only_complete_weeks=True)
+    if type(bookings) != pd.DataFrame:
+        return TextBlock('Kon boekingen niet ophalen', color=RED)
     legend = ', '.join([f'{brand}: {int(bookings[brand].sum())}' for brand in BRANDS])
     return VBlock(
         [
@@ -218,7 +222,10 @@ def billable_chart():
 
 def planning_chart():
     # Vulling van de planning uit de planning database
-    xy = [{'x': a['monday'], 'y': a['filled']} for a in vulling_van_de_planning()]
+    vulling = vulling_van_de_planning()
+    if not vulling:
+        return TextBlock('Kon de planning niet ophalen', color=RED)
+    xy = [{'x': a['monday'], 'y': a['filled']} for a in vulling]
     return VBlock(
         [
             TextBlock('Planning', midsize),
@@ -557,7 +564,6 @@ def corona_block():
 
 
 def error_block():
-    return None
     errs = log.get_errors()
     if not errs:
         return None

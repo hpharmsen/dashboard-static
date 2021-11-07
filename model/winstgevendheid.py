@@ -19,9 +19,13 @@ PRODUCTIVITEIT = 0.85
 
 
 def parse_date(date_str):
-    d, m, y = date_str.split()
+    try:  # Normally, dates in the contracten sheet are formatted like 2 feb. 1969
+        d, m, y = date_str.split()
+        m = ['jan.', 'feb.', 'mrt.', 'apr.', 'mei', 'jun.', 'jul.', 'aug.', 'sep.', 'okt.', 'nov.', 'dec.'].index(m) + 1
+    except:  # But not always...
+        d, m, y = date_str.split('-')
+        m = int(m)
     d = int(d)
-    m = ['jan.', 'feb.', 'mrt.', 'apr.', 'mei', 'jun.', 'jul.', 'aug.', 'sep.', 'okt.', 'nov.', 'dec.'].index(m) + 1
     y = int(y)
     return d, m, y
 

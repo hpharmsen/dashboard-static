@@ -181,17 +181,6 @@ def kosten_werkelijk():
 
 ##### DIVERSEN #####
 
-
-def virtuele_dag():
-    """Als boekhouding van de nog niet is bijgewerkt retourneert
-    dit het dagnummer doorgenummerd vanuit de laatste complete maand. Dus 31, 32, 33, etc.
-    Anders gewoon het dagnummer."""
-    d = datetime.today().day
-    m = datetime.today.month
-    d += 30 * (laatste_geboekte_maand() - m)  # Gewoon in de nieuwe maanden doortellen
-    return d
-
-
 def laatste_geboekte_maand():
     # Nummer van de laatste maand die in de boekhouding is bijgewerkt
     tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
@@ -285,6 +274,8 @@ def vulling_van_de_planning():
     order by day
     limit 16'''
     table = db.dataframe(query)
+    if type(table) != pd.DataFrame:
+        return  # Error occured, no use to proceed
 
     # Roster
     timetable = [

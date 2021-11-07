@@ -179,7 +179,7 @@ class YukiResult:
         kruisposten = self.month_prev('kruisposten', date_str=date_str)
         if kruisposten[0] > 0:
             result = (result[0] + kruisposten[0], result[1])
-        if kruisposten[1] < 0:
+        if kruisposten[1] > 0:
             result = (result[0], result[1] + kruisposten[1])
         return result
 

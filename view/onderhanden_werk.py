@@ -1,6 +1,8 @@
 import math
 import os
 
+import pandas as pd
+
 from model.caching import load_cache
 from model.onderhanden_werk import ohw_list
 from sources.simplicate import simplicate
@@ -8,7 +10,7 @@ from layout.basic_layout import headersize, midsize
 from layout.block import VBlock, TextBlock, Page, Grid
 from layout.table import Table, TableConfig
 from pathlib import Path
-from settings import get_output_folder, BOLD, ITALIC
+from settings import get_output_folder, BOLD, ITALIC, RED
 
 
 def onderhanden_werk_list():
@@ -70,6 +72,8 @@ def onderhanden_werk_list():
     )
     sim = simplicate()
     onderhanden = ohw_list(sim, minimum_amount=1000)
+    if type(onderhanden) != pd.DataFrame:
+        return TextBlock('Fout in ophalen onderhanden werk', color=RED)
     last_project_number = ''
     service_rows = []
     for _, row in onderhanden.iterrows():

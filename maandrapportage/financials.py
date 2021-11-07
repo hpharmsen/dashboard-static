@@ -357,9 +357,9 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
 def cashflow_analysis_block(yuki_result, year, month):
     grid = Grid(cols=3, has_header=False, aligns=['left', 'right', 'right'])
 
-    def add_normal_row(title, value, shift=False):
+    def add_normal_row(title, value, shift=False, value_color=None):
         row = [TextBlock(title)]
-        value_text = TextBlock(value, format='.')
+        value_text = TextBlock(value, format='.', color=value_color)
         if shift:
             row += ['', value_text]
         else:
@@ -390,7 +390,7 @@ def cashflow_analysis_block(yuki_result, year, month):
 
     # Afschrijvingen
     deprecation = -yuki_result.depreciation()[0]
-    add_normal_row('Afschrijving', deprecation)
+    add_normal_row('Afschrijvingen', deprecation)
 
     # Cashflow
     cashflow = profit + deprecation
@@ -402,21 +402,26 @@ def cashflow_analysis_block(yuki_result, year, month):
         'debtors',
     )
     other_receivables = yuki_result.other_receivables()
-    increase_receivables = debtors[1] + other_receivables[1] - debtors[0] - other_receivables[0]
-    add_normal_row('Toename vorderingen', increase_receivables)
+    financial_fixed_assets = yuki_result.month_prev('financial_fixed_assets')
+    increase_receivables = debtors[0] + other_receivables[0] + financial_fixed_assets[0] \
+                           - debtors[1] - other_receivables[1] - financial_fixed_assets[1]
+    descr = 'Toegenomen vorderingen' if increase_receivables >= 0 else 'Afgenomen vorderingen'
+    add_normal_row(descr, -increase_receivables)
 
     # Toename onderhanden werk
     in_progress = yuki_result.get_work_in_progress()
-    increase_in_progress = in_progress[1] - in_progress[0]
-    add_normal_row('Toename onderhanden werk', increase_in_progress)
+    increase_in_progress = in_progress[0] - in_progress[1]
+    descr = 'Toegenomen onderhanden werk' if increase_in_progress >= 0 else 'Afgenomen onderhanden werk'
+    add_normal_row(descr, -increase_in_progress)
 
     # Toename crediteuren
     short_term_debt = yuki_result.short_term_debt()
     increase_creditors = short_term_debt[0] - short_term_debt[1]
-    add_normal_row('Toename crediteuren', increase_creditors)
+    descr = 'Toegenomen crediteuren' if increase_creditors >= 0 else 'Afgenomen crediteuren'
+    add_normal_row(descr, increase_creditors)
 
     # Verandering van netto werkkapitaal
-    increase_working_capital = increase_receivables + increase_in_progress + increase_creditors
+    increase_working_capital = -increase_receivables - increase_in_progress + increase_creditors
     add_subtotal_row('Verandering van netto werkkapitaal', increase_working_capital)
     grid.add_row([])
 
@@ -425,21 +430,23 @@ def cashflow_analysis_block(yuki_result, year, month):
     add_subtotal_row('Operationele kasstroom', operating_cash_flow)
 
     # Investeringen
-    investments = 0
-    add_normal_row('Investeringen', investments, shift=True)
+    investment_in_assets = yuki_result.month_prev('investments')
+    investments = investment_in_assets[0] - investment_in_assets[1]  # This month - last month = investments
+    add_normal_row('Investeringen', -investments, shift=True)
 
     # Mutaties eigen vermogen
     equity_mutations = 0
     add_normal_row('Mutaties eigen vermogen', equity_mutations, shift=True)
 
     # Netto kasstroom
-    net_cash_flow = operating_cash_flow + investments + equity_mutations
+    net_cash_flow = operating_cash_flow - investments + equity_mutations
     add_subtotal_row('Netto kasstroom', net_cash_flow)
 
     # Toename liquide middelen
     liquid_assets = yuki_result.month_prev('liquid_assets')
     increase_liquid_assets = liquid_assets[0] - liquid_assets[1]
-    add_normal_row('Toename liquide middelen', increase_liquid_assets, shift=True)
+    color = RED if increase_liquid_assets != net_cash_flow else None
+    add_normal_row('Toename liquide middelen', increase_liquid_assets, shift=True, value_color=color)
 
     return VBlock(
         [TextBlock(f'Cashflow analyse', midsize), grid],

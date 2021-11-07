@@ -39,17 +39,20 @@ GOOGLE_SHEETS_APP = (
 
 
 @reportz(hours=6)
-def get_bookings_per_week(type: str, only_complete_weeks=False):
+def get_bookings_per_week(booking_type: str, only_complete_weeks=False):
     db = get_travelbase_db()
     dfs = []
     mysql_week_mode = 5  # Week 1 is the first week with a Monday in this year
     for brand in BRANDS:
         sql = f'''select YEAR(created_at) as year, WEEK(created_at, {mysql_week_mode}) as week, count(*) as aantal 
-                  from {type} 
+                  from {booking_type} 
                   where brand="{brand}" and status in ('accepted', 'cancelled-guest', 'cancelled-partner', 'no-show')
                   group by year, week 
                   order by year, week'''
-        df = dataframe(sql, db).set_index(['year', 'week'])
+        df = dataframe(sql, db)
+        if type(df) != pd.DataFrame:
+            return []  # Error occurred, no use to continue
+        df = df.set_index(['year', 'week'])
         if only_complete_weeks:
             df = df[:-1]
         dfs += [df]
@@ -61,7 +64,7 @@ def get_bookings_per_week(type: str, only_complete_weeks=False):
     )
 
     # Save to trends
-    if type == 'tickets':
+    if booking_type == 'tickets':
         trend_name = 'travelbase_tickets_' + brand
     else:
         trend_name = 'travelbase_' + brand
@@ -73,20 +76,22 @@ def get_bookings_per_week(type: str, only_complete_weeks=False):
 
 
 @reportz(hours=6)
-def update_bookings_per_day(type: str):
+def update_bookings_per_day(booking_type: str):
     db = get_travelbase_db()
     for brand in BRANDS:
-        day, value = get_latest(type, brand)
+        day, value = get_latest(booking_type, brand)
         day_constraint = f'and created_at>="{day}"' if day else ''
         sql = f'''select DATE(created_at) as day, count(*) as aantal 
-                  from {type} 
+                  from {booking_type} 
                   where brand="{brand}" {day_constraint} and status in ('accepted', 'cancelled-guest', 'cancelled-partner')
                   group by day 
                   order by day'''
         df = dataframe(sql, db)
+        if type(df) != pd.DataFrame:
+            return  # Error occurred, no use to proceed
         for index, row in df.iterrows():
             if row['day'] != day or row['value'] != value:
-                save_value(type, brand, row['day'], row['aantal'])
+                save_value(booking_type, brand, row['day'], row['aantal'])
     return True
 
 

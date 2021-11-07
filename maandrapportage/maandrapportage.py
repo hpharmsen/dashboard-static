@@ -87,17 +87,19 @@ def hours_block(year, month):
     grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(r, format='€') for r in actual_hourly_rates])
     grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(t, format='K') for t in turnovers])
 
-    chart = BarChart(
-        turnovers,
-        ChartConfig(
-            width=54 * month,
-            height=150,
-            colors=['#ddeeff'],
-            bottom_labels=[MAANDEN[m] for m in range(month)],
-            # max_y_axis=roster_hours,
-            y_axis_max_ticks=5,
-        ),
-    )
+    chart = None
+    if month >= 3:  # Voor maart heeft een grafiekje niet veel zin
+        chart = BarChart(
+            turnovers,
+            ChartConfig(
+                width=54 * month,
+                height=150,
+                colors=['#ddeeff'],
+                bottom_labels=[MAANDEN[m] for m in range(month)],
+                # max_y_axis=roster_hours,
+                y_axis_max_ticks=5,
+            ),
+        )
 
     return VBlock(
         [
