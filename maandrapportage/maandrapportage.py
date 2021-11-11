@@ -16,11 +16,41 @@ from layout.basic_layout import headersize, midsize
 from settings import get_output_folder, MAANDEN, GRAY, get_monthly_folder
 from main import get_output_folder
 
-
 # TODO:
 # - Omzet Travelbase is nog nul
 # - Investeringen is nog nul
 # - Mutaties eigen vermogen is nog nul
+
+from dataclasses import dataclass
+
+
+class HoursData:
+    ''' Class to store and calculate the main production KPI's '''
+    beschikbaar: float
+    op_klant_geboekt: float
+    billable: float
+    omzet: float
+
+    def __init__(self, fromdate, untildate):
+        self.beschikbaar = beschikbare_uren(fromdate=fromdate, untildate=untildate)
+        self.op_klant_geboekt = geboekte_uren_users(users=None, only_clients=1, only_billable=0, fromdate=fromdate,
+                                                    untildate=untildate)
+        self.billable = geboekte_uren_users(users=None, only_clients=1, only_billable=1, fromdate=fromdate,
+                                            untildate=untildate)
+        self.omzet = geboekte_omzet_users(users=None, only_clients=1, only_billable=0, fromdate=fromdate,
+                                          untildate=untildate)
+
+    def effectivity(self):
+        return 100 * self.op_klant_geboekt / self.beschikbaar
+
+    def billable_perc(self):
+        return 100 * self.billable / self.beschikbaar
+
+    def correcties(self):
+        return self.op_klant_geboekt - self.billable
+
+    def uurloon(self):
+        return self.omzet / self.billable
 
 
 def render_maandrapportage(output_folder, year, month):
@@ -50,53 +80,33 @@ def render_maandrapportage(output_folder, year, month):
 
 def hours_block(year, month):
     month_names = []
-    available_hours = []
-    client_hours = []
-    effectivity = []
-    billable_hours = []
-    writeoffs = []
-    turnovers = []
+    data = []
     for m in range(month):
         month_names += [TextBlock(MAANDEN[m])]
         fromdate = datetime.datetime(year, m + 1, 1)
         untildate = datetime.datetime(year, m + 2, 1) if m < 11 else datetime.datetime(year + 1, m + 1, 1)
-        beschikbaar = beschikbare_uren(fromdate=fromdate, untildate=untildate)
-        op_klant_geboekt = geboekte_uren_users(
-            users=None, only_clients=1, only_billable=0, fromdate=fromdate, untildate=untildate
-        )
-        available_hours += [beschikbaar]
-        client_hours += [op_klant_geboekt]
-        effectivity += [100 * op_klant_geboekt / beschikbaar]
-        billable_hours += [
-            geboekte_uren_users(users=None, only_clients=1, only_billable=1, fromdate=fromdate, untildate=untildate)
-        ]
-        writeoffs += [billable_hours[-1] - client_hours[-1]]
-        turnovers += [
-            geboekte_omzet_users(users=None, only_clients=1, only_billable=0, fromdate=fromdate, untildate=untildate)
-        ]
-
-    actual_hourly_rates = [t / h for t, h in zip(turnovers, billable_hours)]
+        data += [HoursData(fromdate, untildate)]
 
     grid = Grid(cols=month + 1, has_header=False, line_height=0)  # +1 is for the header column
     grid.add_row([None] + month_names)
-    grid.add_row([TextBlock('Beschikbare uren')] + [TextBlock(b, format='.') for b in available_hours])
-    grid.add_row([TextBlock('Effectiviteit')] + [TextBlock(b, format='%') for b in effectivity])
-    grid.add_row([TextBlock('Klant uren')] + [TextBlock(b, format='.') for b in client_hours])
-    grid.add_row([TextBlock('Correcties')] + [TextBlock(b, format='.') for b in writeoffs])
-    grid.add_row([TextBlock('Billable uren')] + [TextBlock(b, format='.') for b in billable_hours])
-    grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(r, format='€') for r in actual_hourly_rates])
-    grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(t, format='K') for t in turnovers])
+    grid.add_row([TextBlock('Beschikbare uren')] + [TextBlock(d.beschikbaar, format='.') for d in data])
+    grid.add_row([TextBlock('Effectiviteit')] + [TextBlock(d.effectivity(), format='%') for d in data])
+    grid.add_row([TextBlock('Klant uren')] + [TextBlock(d.op_klant_geboekt, format='.') for d in data])
+    grid.add_row([TextBlock('Correcties')] + [TextBlock(-d.correcties(), format='.') for d in data])
+    grid.add_row([TextBlock('Billable uren')] + [TextBlock(d.billable, format='.') for d in data])
+    grid.add_row([TextBlock('Billable %')] + [TextBlock(d.billable_perc(), format='%') for d in data])
+    grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(d.uurloon(), format='€') for d in data])
+    grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(d.omzet, format='K') for d in data])
 
     chart = None
     if month >= 3:  # Voor maart heeft een grafiekje niet veel zin
         chart = BarChart(
-            turnovers,
+            [d.omzet for d in data],
             ChartConfig(
                 width=54 * month,
                 height=150,
                 colors=['#ddeeff'],
                 bottom_labels=[MAANDEN[m] for m in range(month)],
-                # max_y_axis=roster_hours,
                 y_axis_max_ticks=5,
             ),
         )

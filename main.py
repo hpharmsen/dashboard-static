@@ -2,7 +2,7 @@
 
 # Afspraken met Gert;
 # - Uitrekenen van beschikbare uren toch op basis vabn rooster. Evt rooster/verzuim/verlof apart.
-# - Billable percentage erbij in maandrapportage
+# √ Billable percentage erbij in maandrapportage
 # - Op de homepage de maandrapportagecijfers per week
 # - Met staafgrafiek per week met % effectief en % billable
 
