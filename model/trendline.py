@@ -19,6 +19,8 @@ class TrendLines:
 
     def update(self, trendname, value, date=None):
         db = get_db()
+        if not db:
+            return  # An error occurred. No use to continue.
         if type(date) == str:
             datestr = date
         else:
@@ -68,6 +70,8 @@ class TrendLines:
         #     self.trends[key] = value
         # pass
         db = get_db()
+        if not db:
+            return []  # An error occurred. No use to continue
         trenddata = db.execute('select * from trends order by date')
         for d in trenddata:
             trendname = d['trendline']
@@ -102,7 +106,6 @@ class TrendLines:
             y_axis_max_ticks=5,
         )
         return ScatterChart(xy, chart_config)
-
 
 trends = TrendLines()
 

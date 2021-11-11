@@ -23,7 +23,7 @@ def onderhanden_werk_list():
 
     def explanation( row ):
         if row['ohw_type'] == 'Strippenkaart':
-            explainfields = ['besteed']
+            explainfields = ['restant_budget']
         elif row['ohw_type'] == 'Fixed':
             explainfields = ['verwacht']
         else:
@@ -35,7 +35,8 @@ def onderhanden_werk_list():
                     result += f'+ {field}: {row[field]}<br/>'
                 else:
                     result += f'- {field}: {-row[field]}<br/>'
-        result += f'- gefactureerd: {row["gefactureerd"]}'
+        if row['ohw_type'] != 'Strippenkaart':
+            result += f'- gefactureerd: {row["gefactureerd"]}'
         return result
 
     def add_service_row(row):

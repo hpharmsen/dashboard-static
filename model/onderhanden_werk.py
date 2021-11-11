@@ -5,7 +5,7 @@ import requests
 import pandas as pd
 from model.caching import reportz, load_cache
 import model.log as log
-from sources.simplicate import simplicate
+from sources.simplicate import simplicate, active_projects, active_services
 from settings import ini
 
 
@@ -52,15 +52,19 @@ def get_project_status_dataframe(date_str:str):
 
     def ohw_type(s):
         if s['payment_type'] == 'Vaste prijs':
-            return 'Strippenkaart' if s['Budget'] else 'Fixed'
+            if s['Budget'] and s['Budget'] == s['Gefactureerd']:
+                return 'Strippenkaart'
+            return 'Fixed'
         return 'Normal'
 
     def calculate_ohw(s):
         # Calculate OHW based on ohw_type
+        if s['service_status'] != 'open' and s['Gefactureerd']:
+            return 0  # Service is closed and invoiced
         if s['ohw_type'] == 'Strippenkaart':
             result = -s['Restant budget']
-        elif s['ohw_type'] == 'Fixed':
-            result = s['Verwacht'] - s['Gefactureerd']
+        # elif s['ohw_type'] == 'Fixed':
+        #    result = s['Verwacht'] - s['Gefactureerd']
         else:
             result = s['Besteed'] + s['Correcties'] + s[' Besteed'] - s['Gefactureerd'] + s['Marge gerealiseerd']
         return int(result)
@@ -81,13 +85,29 @@ def get_project_status_dataframe(date_str:str):
         return project_status_dataframe
 
     def enhance_project_status_dataframe(prs: pd.DataFrame):
-        prs['project_number'] = prs.apply(
-            lambda s: s['project'].rsplit('(')[-1].split(')')[0], axis=1
-        )  # Between () in project
-        prs['payment_type'] = prs.apply(
-            lambda s: s['service'].rsplit('[')[-1].split(']')[0].strip(), axis=1
-        )  # Between [] in service
-        prs['service'] = prs.apply(lambda s: s['service'].split(' [')[0].strip(), axis=1)  # Chop off [Vaste prijs]
+        projects = active_projects()
+        services = active_services()
+        ''' Add extra fields tot the project status datframe like project_number service and real OHW '''
+        get_project_number_between_brackets = lambda s: s['project'].rsplit('(')[-1].split(')')[0]
+        prs['project_number'] = prs.apply(get_project_number_between_brackets, axis=1)  # Between () in project
+
+        get_payment_type_between_brackets = lambda s: s['service'].rsplit('[')[-1].split(']')[0].strip()
+        prs['payment_type'] = prs.apply(get_payment_type_between_brackets, axis=1)
+
+        get_service_part_before_brackets = lambda s: s['service'].split(' [')[0].strip()
+        prs['service'] = prs.apply(get_service_part_before_brackets, axis=1)  # Chop off [Vaste prijs]
+
+        def get_service_status(row):
+            project_number = row['project_number']
+            project_id = projects.get(project_number)
+            if not project_id:
+                return
+            service_name = row['service']
+            status = 'open' if (project_id, service_name) in services else 'closed'
+            return status
+
+        prs['service_status'] = prs.apply(get_service_status, axis=1)
+
         prs['ohw_type'] = prs.apply(ohw_type, axis=1)  # Strippenkaart, Fixed or Normal
         prs['OHW2'] = prs.apply(calculate_ohw, axis=1)  # Calculate based on ohw_type
         return prs
@@ -131,6 +151,7 @@ def ohw_list(sim, date_str='', minimum_amount=0):
         'Verwacht':'verwacht',
         'Gefactureerd': 'gefactureerd',
         ' Besteed': 'inkoop',
+        'Restant budget': 'restant_budget'
     }
     return_columns = list(rename_columns.values()) + [
         'service',

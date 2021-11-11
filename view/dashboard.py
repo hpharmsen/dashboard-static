@@ -58,7 +58,7 @@ def commerce_block():
     commerce = VBlock(
         [
             TextBlock('Commerce', headersize),
-            TextBlock('saleswaarde', midsize, padding=10),
+            TextBlock('Saleswaarde', midsize, padding=10),
             TextBlock('Verwachte omzet maal kans van alle actieve<br/>salestrajecten.', color=GRAY),
             TextBlock(
                 sales_waarde_value,

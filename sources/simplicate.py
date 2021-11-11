@@ -32,38 +32,17 @@ def simplicate():
 
 @reportz(hours=24)
 def active_projects():
-    projects = [
-        {
-            'project': project.get('project_number', ''),
-            'spent': project['budget']['hours'].get('value_spent', 0),
-            'invoiced': project['budget']['total']['value_invoiced'],
-        }
-        for project in simplicate().project({'active': True})
-    ]
-    return projects
+    ''' Returns a dict of project_number:project_id '''
+    sim = simplicate()
+    return {p['project_number']: p['id'] for p in sim.project({'active': True})}
 
 
-def old_onderhanden_werk_list():
-    df = update_hours()
-
-    def corrections(project):
-        return df.query(f'project_number=="{project}"')['corrections_value'].sum()
-
-    oh = pd.DataFrame(
-        [
-            {
-                'project': project['project'],
-                'spent': project['spent'],
-                'corr': corrections(project),
-                'inv': project['invoiced'],
-                'OH': project['spent'] + corrections(project['project']) - project['invoiced'],
-            }
-            for project in active_projects()
-        ]
-    ).sort_values(by=['OH'])
-
-    oh.drop(oh[(oh.project == 'TOR-3')].index, inplace=True)
-    return oh
+@reportz(hours=24)
+def active_services():
+    ''' Returns a set of (project_id, service_name) tuples'''
+    sim = simplicate()
+    status_list = sim.service({'status': 'open'})
+    return {(s['project_id'], s.get('name', 'x')) for s in status_list}
 
 
 def hours_dataframe():

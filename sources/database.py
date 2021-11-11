@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from hplib.dbclass import dbClass  # pip3 install git+https://github.com/hpharmsen/hplib
 import pandas as pd
+from pymysql import OperationalError
 
 from model.log import log_error
 
@@ -13,7 +14,11 @@ travelbase_db = None
 
 def get_db():
     global db
-    return db or dbClass.from_inifile(scriptpath / 'credentials.ini')
+    try:
+        return db or dbClass.from_inifile(scriptpath / 'credentials.ini')
+    except OperationalError:
+        log_error('database.py', 'get_db()', 'Could not connect to database')
+        return
 
 
 def get_travelbase_db():
@@ -24,6 +29,8 @@ def get_travelbase_db():
 def value(query, database=None):
     if not database:
         database = get_db()
+    if not database:
+        return 0
     res = database.execute(query)[0]
     res = res[list(res.keys())[0]]
     if res:
@@ -35,11 +42,17 @@ def value(query, database=None):
 def dataframe(query, database=None):
     if not database:
         database = get_db()
+    if not database:
+        return None
     try:
         return pd.read_sql_query(query, database.db)
     except ConnectionResetError:
         log_error('database.py', 'dataframe', 'Database connection reset')
         return None
 
+
 def table(query):
-    return dataframe(query).to_dict(orient='records')
+    df = dataframe(query)
+    if type(df) != pd.DataFrame:
+        return []
+    return df.to_dict(orient='records')
