@@ -122,7 +122,7 @@ def operations_block():
     return VBlock(
         [
             TextBlock('Operations', headersize),
-            #productiviteit_block(),
+            # productiviteit_block(),
             HBlock([kpi_grid()], link="operations.html"),
             billable_chart(),
             planning_chart(),

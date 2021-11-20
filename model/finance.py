@@ -21,8 +21,8 @@ def debiteuren_leeftijd_analyse():
     df = df.append(yuki_result, ignore_index=True)
     df = (
         df.groupby(["factuuradres"])
-            .agg({'open': 'sum', 'a30': 'sum', "a60": 'sum', 'a90': 'sum', "90plus": 'sum'})
-            .reset_index()
+        .agg({'open': 'sum', 'a30': 'sum', "a60": 'sum', 'a90': 'sum', "90plus": 'sum'})
+        .reset_index()
     )
     df = df.sort_values("open", ascending=False)
     return df

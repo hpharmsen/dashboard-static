@@ -403,8 +403,14 @@ def cashflow_analysis_block(yuki_result, year, month):
     )
     other_receivables = yuki_result.other_receivables()
     financial_fixed_assets = yuki_result.month_prev('financial_fixed_assets')
-    increase_receivables = debtors[0] + other_receivables[0] + financial_fixed_assets[0] \
-                           - debtors[1] - other_receivables[1] - financial_fixed_assets[1]
+    increase_receivables = (
+        debtors[0]
+        + other_receivables[0]
+        + financial_fixed_assets[0]
+        - debtors[1]
+        - other_receivables[1]
+        - financial_fixed_assets[1]
+    )
     descr = 'Toegenomen vorderingen' if increase_receivables >= 0 else 'Afgenomen vorderingen'
     add_normal_row(descr, -increase_receivables)
 

@@ -107,6 +107,7 @@ class TrendLines:
         )
         return ScatterChart(xy, chart_config)
 
+
 trends = TrendLines()
 
 

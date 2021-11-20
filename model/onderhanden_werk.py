@@ -47,7 +47,8 @@ def simplicate_onderhanden_werk(date_str: str = ''):
         return 0
     return Decimal(list['ohw'].sum().item())  # Itemw converts numpy.uint64 to Python scalar
 
-def get_project_status_dataframe(date_str:str):
+
+def get_project_status_dataframe(date_str: str):
     ''' Convert Simplicates project status page into an enhanced dataframe with own OHW calculation.'''
 
     def ohw_type(s):
@@ -131,7 +132,7 @@ def simplicate_projects_and_services(sim):
     )
 
     # Same with the list of projects
-    projects = sim.to_pandas(sim.project())[ # {'status': 'tab_pactive'}
+    projects = sim.to_pandas(sim.project())[  # {'status': 'tab_pactive'}
         ['id', 'project_number', 'name', 'organization_name', 'project_manager_name']
     ].rename(columns={'id': 'project_id', 'name': 'project_name'})
 
@@ -148,10 +149,10 @@ def ohw_list(sim, date_str='', minimum_amount=0):
         'Besteed': 'besteed',
         'Correcties': 'correcties',
         'Marge gerealiseerd': 'verkoopmarge',
-        'Verwacht':'verwacht',
+        'Verwacht': 'verwacht',
         'Gefactureerd': 'gefactureerd',
         ' Besteed': 'inkoop',
-        'Restant budget': 'restant_budget'
+        'Restant budget': 'restant_budget',
     }
     return_columns = list(rename_columns.values()) + [
         'service',
@@ -168,15 +169,15 @@ def ohw_list(sim, date_str='', minimum_amount=0):
     if type(project_status_dataframe) != pd.DataFrame:
         return  # Error occurred, no use to go on
     projects_and_services = simplicate_projects_and_services(sim)
-    merged = pd.merge(project_status_dataframe, projects_and_services, on=['project_number', 'service']) \
-        .rename(columns=rename_columns) \
-        [return_columns]
+    merged = pd.merge(project_status_dataframe, projects_and_services, on=['project_number', 'service']).rename(
+        columns=rename_columns
+    )[return_columns]
 
     if minimum_amount:
         # Get project numbers of all projects with > +/- minimum_amount OWH
         ohw_projects = set(
             merged.groupby(['project_number'])
-                .sum('ohw')
+            .sum('ohw')
             .query(f'abs(ohw) >= {minimum_amount}')
             .reset_index()['project_number']
         )

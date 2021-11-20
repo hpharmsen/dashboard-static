@@ -203,7 +203,7 @@ class TextBlock(Block):
 
 def wrap(s, width):
     if s.count('<br'):
-        return s # Newlines already included. No wrapping needed
+        return s  # Newlines already included. No wrapping needed
     chunks = []
     while s:
         if len(s) < width:
@@ -250,7 +250,7 @@ class Grid(Block):
                 if not child:
                     childHtml = '&nbsp'
                 else:
-                    if type(child) == str: # Grid children should be blocks. If it's a string, turn it into a block
+                    if type(child) == str:  # Grid children should be blocks. If it's a string, turn it into a block
                         child = TextBlock(child)
                     childHtml = child.render()
                 align = f' align="{self.aligns[col]}"' if self.aligns else ''

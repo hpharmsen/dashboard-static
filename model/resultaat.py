@@ -181,6 +181,7 @@ def kosten_werkelijk():
 
 ##### DIVERSEN #####
 
+
 def laatste_geboekte_maand():
     # Nummer van de laatste maand die in de boekhouding is bijgewerkt
     tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
@@ -255,7 +256,7 @@ def get_turnover_from_simplicate(fromday, untilday):
     return int(turnover)
 
 
-#@reportz(hours=24)
+# @reportz(hours=24)
 def vulling_van_de_planning():
     # Planned hours
     last_week = (datetime.today() + timedelta(weeks=-1)).strftime(DATE_FORMAT)
@@ -318,7 +319,8 @@ def vulling_van_de_planning():
     # Filled
     table['filled'] = table.apply(lambda row: int(100 * row['plannedhours'] / (row['roster'] - row['leaves'])), axis=1)
     table['monday'] = table.apply(
-        lambda row: datetime.strptime(f'{int(row["year"])}-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT), axis=1
+        lambda row: datetime.strptime(f'{int(row["year"])}-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT),
+        axis=1,
     )
     res = table[['monday', 'filled']].to_dict('records')
     return res

@@ -21,7 +21,7 @@ def onderhanden_werk_list():
         aligns=['left', 'right', 'left', 'right', 'right'],
     )
 
-    def explanation( row ):
+    def explanation(row):
         if row['ohw_type'] == 'Strippenkaart':
             explainfields = ['restant_budget']
         elif row['ohw_type'] == 'Fixed':
