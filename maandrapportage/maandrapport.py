@@ -5,16 +5,15 @@ from pathlib import Path
 
 import pdfkit
 
-from financials import profit_and_loss_block, balance_block, cashflow_analysis_block
+from maandrapportage.financials import profit_and_loss_block, balance_block, cashflow_analysis_block
 from layout.chart import BarChart, ChartConfig
-from model.productiviteit import geboekte_uren_users, geboekte_omzet_users, beschikbare_uren
-from view.dashboard import cash_block, debiteuren_block
-from yuki_results import YukiResult
+from model.productiviteit import geboekte_uren_users, geboekte_omzet_users, beschikbare_uren_volgens_rooster
+from maandrapportage.yuki_results import YukiResult
 from model.caching import load_cache
 from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.basic_layout import headersize, midsize
-from settings import get_output_folder, MAANDEN, GRAY, get_monthly_folder
-from main import get_output_folder
+from settings import get_output_folder, MAANDEN, GRAY, get_monthly_folder, EFFECTIVITY_GREEN, EFFECTIVITY_RED, \
+    CORRECTIONS_RED, CORRECTIONS_GREEN
 
 # TODO:
 # - Omzet Travelbase is nog nul
@@ -26,13 +25,16 @@ from dataclasses import dataclass
 
 class HoursData:
     ''' Class to store and calculate the main production KPI's '''
-    beschikbaar: float
-    op_klant_geboekt: float
-    billable: float
-    omzet: float
+    # rooster : float
+    # verlof : float
+    # verzuim : float
+    # beschikbaar: float
+    # op_klant_geboekt: float
+    # billable: float
+    # omzet: float
 
     def __init__(self, fromdate, untildate):
-        self.beschikbaar = beschikbare_uren(fromdate=fromdate, untildate=untildate)
+        self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(fromdate=fromdate, untildate=untildate)
         self.op_klant_geboekt = geboekte_uren_users(users=None, only_clients=1, only_billable=0, fromdate=fromdate,
                                                     untildate=untildate)
         self.billable = geboekte_uren_users(users=None, only_clients=1, only_billable=1, fromdate=fromdate,
@@ -40,14 +42,20 @@ class HoursData:
         self.omzet = geboekte_omzet_users(users=None, only_clients=1, only_billable=0, fromdate=fromdate,
                                           untildate=untildate)
 
+    def beschikbaar(self):
+        return self.rooster - self.verlof - self.verzuim
+
     def effectivity(self):
-        return 100 * self.op_klant_geboekt / self.beschikbaar
+        return 100 * self.op_klant_geboekt / self.beschikbaar()
 
     def billable_perc(self):
-        return 100 * self.billable / self.beschikbaar
+        return 100 * self.billable / self.beschikbaar()
 
     def correcties(self):
         return self.op_klant_geboekt - self.billable
+
+    def correcties_perc(self):
+        return (self.op_klant_geboekt-self.billable)/self.op_klant_geboekt
 
     def uurloon(self):
         return self.omzet / self.billable
@@ -77,6 +85,35 @@ def render_maandrapportage(output_folder, year, month):
     options = {"enable-local-file-access": None}
     pdfkit.from_file(str(htmlpath), str(pdfpath), options=options)
 
+NO_FUNC = lambda a: None  # Create empty function
+
+def KPIgrid( headers, data, effectivity_coloring=NO_FUNC, corrections_coloring=NO_FUNC, verbose=True):
+    grid = Grid(cols=len(data)+1, has_header=False, line_height=0)  # +1 is for the header column
+    grid.add_row([None] + headers)
+
+    if verbose:
+        grid.add_row([TextBlock('Rooster uren')] + [TextBlock(d.rooster, format='.') for d in data])
+        grid.add_row([TextBlock('Verlof')] + [TextBlock(-d.verlof, format='.') for d in data])
+        grid.add_row([TextBlock('Verzuim')] + [TextBlock(-d.verzuim, format='.') for d in data])
+        grid.add_row([TextBlock('Beschikbare uren')] + [TextBlock(d.beschikbaar(), format='.') for d in data])
+
+    tooltip = f'Groen bij {EFFECTIVITY_GREEN}, Rood onder de {EFFECTIVITY_RED}'
+    grid.add_row([TextBlock('Effectiviteit', tooltip=tooltip)] + [TextBlock(d.effectivity(), color=effectivity_coloring(d), format='%') for d in data])
+
+    if verbose:
+        grid.add_row([TextBlock('Klant uren')] + [TextBlock(d.op_klant_geboekt, format='.') for d in data])
+
+    tooltip = f'Groen onder de {CORRECTIONS_GREEN*100:.0f}%, Rood boven de {CORRECTIONS_RED*100:.0f}%'
+    grid.add_row([TextBlock('Correcties', tooltip=tooltip)] + [TextBlock(-d.correcties(), color=corrections_coloring(d), format='.') for d in data])
+
+    if verbose:
+        grid.add_row([TextBlock('Billable uren')] + [TextBlock(d.billable, format='.') for d in data])
+        grid.add_row([TextBlock('Billable %')] + [TextBlock(d.billable_perc(), format='%') for d in data])
+        grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(d.uurloon(), format='€') for d in data])
+
+    grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(d.omzet, format='K') for d in data])
+    return grid
+
 
 def hours_block(year, month):
     month_names = []
@@ -86,17 +123,7 @@ def hours_block(year, month):
         fromdate = datetime.datetime(year, m + 1, 1)
         untildate = datetime.datetime(year, m + 2, 1) if m < 11 else datetime.datetime(year + 1, m + 1, 1)
         data += [HoursData(fromdate, untildate)]
-
-    grid = Grid(cols=month + 1, has_header=False, line_height=0)  # +1 is for the header column
-    grid.add_row([None] + month_names)
-    grid.add_row([TextBlock('Beschikbare uren')] + [TextBlock(d.beschikbaar, format='.') for d in data])
-    grid.add_row([TextBlock('Effectiviteit')] + [TextBlock(d.effectivity(), format='%') for d in data])
-    grid.add_row([TextBlock('Klant uren')] + [TextBlock(d.op_klant_geboekt, format='.') for d in data])
-    grid.add_row([TextBlock('Correcties')] + [TextBlock(-d.correcties(), format='.') for d in data])
-    grid.add_row([TextBlock('Billable uren')] + [TextBlock(d.billable, format='.') for d in data])
-    grid.add_row([TextBlock('Billable %')] + [TextBlock(d.billable_perc(), format='%') for d in data])
-    grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(d.uurloon(), format='€') for d in data])
-    grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(d.omzet, format='K') for d in data])
+    grid = KPIgrid( month_names, data )
 
     chart = None
     if month >= 3:  # Voor maart heeft een grafiekje niet veel zin

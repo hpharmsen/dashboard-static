@@ -39,6 +39,7 @@ from model.finance import debiteuren_30_60_90_yuki, gemiddelde_betaaltermijn
 from model.sales import sales_waarde, top_x_sales
 from model.travelbase import get_bookings_per_week, BRANDS
 from model.trendline import trends
+from view.operations import kpi_grid
 from view.travelbase import scatterchart as travelbase_scatterchart
 
 
@@ -121,7 +122,8 @@ def operations_block():
     return VBlock(
         [
             TextBlock('Operations', headersize),
-            productiviteit_block(),
+            #productiviteit_block(),
+            HBlock([kpi_grid()], link="operations.html"),
             billable_chart(),
             planning_chart(),
             corrections_block(),

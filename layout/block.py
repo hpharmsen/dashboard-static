@@ -247,7 +247,12 @@ class Grid(Block):
             res += f'<tr{line_height}>'
             for col in range(self.cols):
                 child = self.cells[row][col]
-                childHtml = child.render() if child else '&nbsp'
+                if not child:
+                    childHtml = '&nbsp'
+                else:
+                    if type(child) == str: # Grid children should be blocks. If it's a string, turn it into a block
+                        child = TextBlock(child)
+                    childHtml = child.render()
                 align = f' align="{self.aligns[col]}"' if self.aligns else ''
                 tag = 'th' if row == 0 and self.has_header else 'td'
                 style = f' style="{styles[col]}"' if len(styles) > col else ''

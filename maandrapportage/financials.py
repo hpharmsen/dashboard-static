@@ -1,6 +1,6 @@
 from layout.basic_layout import midsize
 from layout.block import Grid, TextBlock, VBlock
-from yuki_results import YukiResult, tuple_add, last_date_of_month
+from maandrapportage.yuki_results import YukiResult, tuple_add, last_date_of_month
 from settings import MAANDEN, GRAY, TOPLINE, BOLD, DOUBLE_TOPLINE, RED
 from sources.googlesheet import HeaderSheet
 

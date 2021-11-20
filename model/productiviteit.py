@@ -1,6 +1,9 @@
 import datetime
 import os
-from model.caching import reportz
+from collections import defaultdict
+
+from model.caching import reportz, load_cache
+from model.organisatie import verzuim_absence_hours, leave_hours
 from model.trendline import trends
 from sources.simplicate import simplicate, hours_dataframe, DATE_FORMAT
 import pandas as pd
@@ -69,11 +72,14 @@ def create_querystring(users, only_clients=0, only_billable=0, fromdate=None, un
     if untildate:
         query += [f'day < "{untildate.strftime(DATE_FORMAT)}"']
     if only_clients:
-        query += ['organization not in ("Oberon", "Qikker Online B.V.")']
+        query += ['organization not in ("Oberon", "Qikker Online B.V.") ']
     if users:
         if type(users) == str:
             users = (users,)  # make it a tuple
         query += [f'employee in {users}']
+    else:
+        interns = get_interns(simplicate())
+        query += [f'''employee not in ("{'","'.join(interns)}")''']
     if only_billable:
         query += ['(tariff > 0 or service_tariff>0)']
 
@@ -91,21 +97,38 @@ def beschikbare_uren_iedereen(fromdate=None, untildate=None):
     hours = geboekte_uren(only_productie_users=0, fromdate=fromdate, untildate=untildate)
     return hours
 
+@reportz(hours=24)
+def get_interns(sim):
+    ''' Returns a set of users with function Stagiair'''
+    return {e['name'] for e in sim.employee({'function': 'Stagiair'})}
 
-def beschikbare_uren(fromdate=None, untildate=None):
-    ''' Nieuwe methode, op basis van alle medewerkers (geen stagairs) en hun geboekte uren per dag afgerond naar 0, 4 of 8 uur'''
+@reportz(hours=2)
+def beschikbare_uren_via_wat_is_geboekt(fromdate, untildate, employees:list=[]):
+    ''' Oude methode, op basis van alle medewerkers (geen stagairs) en hun geboekte uren per dag afgerond naar 0, 4 of 8 uur'''
     sim = simplicate()
-    interns = [e['name'] for e in sim.employee({'function': 'Stagiair'})]
+    interns = get_interns(sim)
+    query = f'day>="{fromdate}" and day<"{untildate}"'
+    if employees:
+        query += ' and employee in @employees'
+    else:
+        query += ' and employee not in @interns'
     grouped = (
         hours_dataframe()
-        .query(f'day>="{fromdate}" and day<"{untildate}" and employee not in @interns')  # Filter on date range
+        .query(query)  # Filter on date range
         .groupby(['employee', 'day', 'type'])[['hours']]
         .sum()  # Group hours by employee, day and type
         .unstack()  # Dubbel niveau headers eruit
         .fillna(0)  # Nan -> 0
         .reset_index()
     )  # Convert indexes to columns
-    grouped.columns = ['employee', 'day', 'absence', 'leave', 'normal']
+    if len(grouped.columns)  == 3:
+        assert list(grouped.columns.values) == [('employee', ''), ('day', ''), ('hours', 'normal')]
+        grouped.columns = ['employee', 'day', 'normal']
+    elif len(grouped.columns)  == 4:
+        assert list(grouped.columns.values) == [('employee', ''), ('day', ''), ('hours', 'leave'), ('hours', 'normal')]
+        grouped.columns = ['employee', 'day', 'leave', 'normal']
+    else:
+        grouped.columns = ['employee', 'day', 'absence', 'leave', 'normal']
     grouped['available'] = grouped.apply(
         lambda a: min(8, round((a['normal']) / 4, 0) * 4), axis=1
     )  # Round to closest multiple of 4
@@ -297,48 +320,111 @@ def largest_corrections(minimum, weeks_back):
     top_corrections['corrections'] = -top_corrections['corrections']
     return top_corrections
 
+@reportz(hours=24)
+def get_timetable(sim):
+    res = sim.timetable()
+    return res
+
+
+def beschikbare_uren_volgens_rooster(fromdate, untildate, employees:list=[]):
+    # todo: wat doen we met stagairs? Die tellen nu mee.
+
+    if type(fromdate) in (datetime.datetime,datetime.date):
+        fromdate = fromdate.strftime(DATE_FORMAT)
+    if type(untildate) in (datetime.datetime,datetime.date):
+        untildate = untildate.strftime(DATE_FORMAT)
+
+    sim = simplicate()
+    # Get the list of current employees
+    if not employees:
+        interns = get_interns(sim)
+        employees = set(hours_dataframe().query(f'day>="{fromdate}" and day<"{untildate}"').employee.unique())
+        employees.difference_update(interns)
+
+    # Roosteruren
+    timetable = get_timetable(sim)
+    tot = 0
+    for t in timetable:
+        if t['employee']['name'] not in employees \
+            or t['start_date'] >= untildate \
+            or t.get('end_date','9999') < fromdate:
+            continue
+        day = max(t['start_date'],fromdate)
+        y,m,d = day.split('-')
+        date = datetime.datetime(int(y),int(m),int(d))
+        table = [(t['even_week'][f'day_{i}']['hours'], t['odd_week'][f'day_{i}']['hours']) for i in range(1, 8)]
+        ending_day_of_roster = min(t.get('end_date','9999'), untildate)
+        while date.strftime(DATE_FORMAT) < ending_day_of_roster:
+            day_of_week = date.weekday()  # weekday is 0 for Monday
+            week_number = date.isocalendar()[1]
+            index = week_number % 2
+            tot += table[day_of_week][index]
+            date += datetime.timedelta(days=1)
+
+    # Vrij
+    leave = leave_hours(fromdate, untildate, employees)
+
+    # Ziek
+    absence = verzuim_absence_hours(fromdate, untildate, employees)
+
+    return tot, leave, absence
 
 if __name__ == '__main__':
     os.chdir('..')
+    load_cache()
 
-    until_date = datetime.date.today() + datetime.timedelta(weeks=-1)
-    from_date = datetime.date.today() + datetime.timedelta(weeks=-2)
+    # until_date = datetime.date.today() + datetime.timedelta(weeks=-1)
+    # from_date = datetime.date.today() + datetime.timedelta(weeks=-2)
+    sim = simplicate()
+    fromdate = '2021-06-01'
+    untildate = '2021-10-01'
+    # Get the list of current employees
+    employees = set(hours_dataframe().query(f'day>="{fromdate}" and day<"{untildate}"').employee.unique())
 
-    b = beschikbare_uren('2021-09-01', '2021-10-01')
-
-    print()
-    print('productiviteit_perc_productie')
-    print(
-        productieve_uren_productie(from_date, until_date),
-        '/',
-        beschikbare_uren_productie(from_date, until_date),
-        '=',
-        productiviteit_perc_productie(from_date, until_date),
-    )
-    print()
-    print('billable_perc_productie')
-    print(
-        billable_uren_productie(from_date, until_date),
-        '/',
-        beschikbare_uren_productie(from_date, until_date),
-        '=',
-        billable_perc_productie(from_date, until_date),
-    )
-    print()
-    print('productiviteit_perc_iedereen')
-    print(
-        productieve_uren_iedereen(from_date, until_date),
-        '/',
-        beschikbare_uren_iedereen(from_date, until_date),
-        '=',
-        productiviteit_perc_iedereen(from_date, until_date),
-    )
-    print()
-    print('billable_perc_iedereen')
-    print(
-        billable_uren_iedereen(from_date, until_date),
-        '/',
-        beschikbare_uren_iedereen(from_date, until_date),
-        '=',
-        billable_perc_iedereen(from_date, until_date),
-    )
+    for e in employees:
+         r, v, z = beschikbare_uren_volgens_rooster(fromdate, untildate, [e])
+         c = r - v - z # rooster - vrij - ziek
+         b = beschikbare_uren_via_wat_is_geboekt(fromdate, untildate, [e])
+         if c-b>30:
+            print( e, b, c, b-c)
+    #for i in range( 9 ):
+    #    c = beschikbare_uren2(f'2021-0{i+1}-01', f'2021-{i+2}-01')
+    #    b = beschikbare_uren(f'2021-0{i+1}-01', f'2021-{i+2}-01')
+    #    print( i+1, b, c )
+    a = b-c
+    # print()
+    # print('productiviteit_perc_productie')
+    # print(
+    #     productieve_uren_productie(from_date, until_date),
+    #     '/',
+    #     beschikbare_uren_productie(from_date, until_date),
+    #     '=',
+    #     productiviteit_perc_productie(from_date, until_date),
+    # )
+    # print()
+    # print('billable_perc_productie')
+    # print(
+    #     billable_uren_productie(from_date, until_date),
+    #     '/',
+    #     beschikbare_uren_productie(from_date, until_date),
+    #     '=',
+    #     billable_perc_productie(from_date, until_date),
+    # )
+    # print()
+    # print('productiviteit_perc_iedereen')
+    # print(
+    #     productieve_uren_iedereen(from_date, until_date),
+    #     '/',
+    #     beschikbare_uren_iedereen(from_date, until_date),
+    #     '=',
+    #     productiviteit_perc_iedereen(from_date, until_date),
+    # )
+    # print()
+    # print('billable_perc_iedereen')
+    # print(
+    #     billable_uren_iedereen(from_date, until_date),
+    #     '/',
+    #     beschikbare_uren_iedereen(from_date, until_date),
+    #     '=',
+    #     billable_perc_iedereen(from_date, until_date),
+    # )

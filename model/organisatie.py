@@ -54,14 +54,22 @@ def verzuim_normal_hours(from_day):
     return result
 
 
-def verzuim_absence_hours(from_day):
-    result = (
-        hours_dataframe()
-        .query(f'type=="absence" and day >="{from_day}" and label != "Feestdagenverlof / National holidays leave"')[
-            'hours'
-        ]
-        .sum()
-    )
+def verzuim_absence_hours(from_day, until_day=None, employees:list=[]):
+    query = f'type!="normal" and project_name=="Verzuim / Sick leave" and day >="{from_day}"'
+    if until_day:
+        query += f' and day <"{until_day}"'
+    if employees:
+        query += ' and employee in @employees'
+    result = hours_dataframe().query(query)['hours'].sum()
+    return result
+
+def leave_hours(from_day, until_day=None, employees:list=[]):
+    query = f'type!="normal" and project_name=="Verlof / Leave" and day >="{from_day}"'
+    if until_day:
+        query += f' and day <"{until_day}"'
+    if employees:
+        query += ' and employee in @employees'
+    result = hours_dataframe().query(query)['hours'].sum()
     return result
 
 

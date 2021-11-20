@@ -27,6 +27,12 @@ TOPLINE = 'border-top:2px solid #999;'
 DOUBLE_TOPLINE = 'border-top-style:double;border-top-color:#999'
 DATE_FORMAT = '%Y-%m-%d'
 
+EFFECTIVITY_GREEN = 65
+EFFECTIVITY_RED = 60
+CORRECTIONS_RED = .05 # Red at > 5% corrections
+CORRECTIONS_GREEN = .02 # Green at < 1 % corrections
+TURNOVER_GREEN = 69000 # Omzet per week
+TURNOVER_RED = 59000   # Nog geen rekening houdend met het feit dat er meer omzet is dan hours turnover
 
 def dependent_color(value, red_treshold, green_treshold):
     # Returns color GREEN, BLACK, RED depending on value
