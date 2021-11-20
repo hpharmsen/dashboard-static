@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from settings import get_output_folder
 
-from layout.basic_layout import headersize, midsize
+from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.block import VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 from model.organisatie import vrije_dagen_overzicht
@@ -27,7 +27,7 @@ def render_vrije_dagen_page(output_folder: Path):
 
     page = Page(
         [
-            TextBlock('Vrije dagen', headersize),
+            TextBlock('Vrije dagen', HEADER_SIZE),
             table,
             TextBlock(
                 f'Pool = Dagen van vorig jaar + Dagen dit jaar * deel van het jaar dat is geweest ({fraction_of_the_year_past()*100:.0f}%).'

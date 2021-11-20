@@ -3,7 +3,7 @@ from typing import NamedTuple, Callable, List
 
 import pandas as pd
 
-from layout.basic_layout import doFormat
+from layout.basic_layout import do_format
 from layout.block import Block, wrap
 
 
@@ -87,7 +87,7 @@ class Table(Block):
             for field, align, format, add_total in zip_longest(
                 line, self.config.aligns, self.config.formats, self.config.totals, fillvalue=''
             ):
-                formatted_field = doFormat(field, format)
+                formatted_field = do_format(field, format)
                 coloring = ''
                 # Row color
                 if self.config.row_coloring:
@@ -117,7 +117,7 @@ class Table(Block):
                 self.config.totals, totals, self.config.aligns, self.config.formats
             ):
                 if add_total and format:
-                    t = doFormat(t, format)
+                    t = do_format(t, format)
                 res += f'<td style="text-align:{align}"><b>{t}</b></td>'
             res += '</tr>'
         res += '</table>'

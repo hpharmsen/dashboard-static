@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from settings import get_output_folder, GRAY, dependent_color
-from layout.basic_layout import headersize, midsize, defsize
+from layout.basic_layout import HEADER_SIZE, MID_SIZE, DEF_SIZE
 from layout.block import VBlock, TextBlock, Page, HBlock
 from layout.table import Table, TableConfig
 from model.organisatie import (
@@ -41,21 +41,21 @@ def render_verzuim_page(output_folder: Path):
     verzuim_color = dependent_color(verzuim, 3, 1.5)
     page = Page(
         [
-            TextBlock('Vrije dagen', headersize),
+            TextBlock('Vrije dagen', HEADER_SIZE),
             TextBlock(f'Van {start} tot {today}', color=GRAY),
             HBlock(
                 [
                     VBlock(
                         [
-                            TextBlock('Geboekte uren', defsize, color='gray', padding=5),
-                            TextBlock('Verzuim uren', defsize, color='gray'),
-                            TextBlock('Verzuimopercentage', defsize, color='gray'),
+                            TextBlock('Geboekte uren', DEF_SIZE, color='gray', padding=5),
+                            TextBlock('Verzuim uren', DEF_SIZE, color='gray'),
+                            TextBlock('Verzuimopercentage', DEF_SIZE, color='gray'),
                         ]
                     ),
                     VBlock(
                         [
-                            TextBlock(verzuim_normal_hours(start), defsize, format='0', padding=5),
-                            TextBlock(verzuim_absence_hours(start), defsize, format='0'),
+                            TextBlock(verzuim_normal_hours(start), DEF_SIZE, format='0', padding=5),
+                            TextBlock(verzuim_absence_hours(start), DEF_SIZE, format='0'),
                             TextBlock(verzuim, verzuim_color, format='%1'),
                         ]
                     ),

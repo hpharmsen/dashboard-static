@@ -5,7 +5,7 @@ import datetime
 from functools import wraps, partial
 from pathlib import Path
 
-from layout.basic_layout import doFormat
+from layout.basic_layout import do_format
 from settings import DATE_FORMAT
 
 CACHE_FILE = ''

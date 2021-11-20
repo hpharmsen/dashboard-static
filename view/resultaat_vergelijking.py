@@ -1,6 +1,6 @@
 import os
 from settings import get_output_folder
-from layout.basic_layout import midsize, headersize
+from layout.basic_layout import MID_SIZE, HEADER_SIZE
 from layout.block import VBlock, TextBlock, Page
 from model.resultaat_vergelijking import (
     omzet_per_maand,
@@ -18,7 +18,7 @@ def render_resultaat_vergelijking_page():
 
     omzet = VBlock(
         [
-            TextBlock('Omzet vergelijking', midsize),
+            TextBlock('Omzet vergelijking', MID_SIZE),
             LineChart(
                 [omzet_per_maand(), omzet_begroot_per_maand(), omzet_vorig_jaar_per_maand()],
                 ChartConfig(
@@ -34,7 +34,7 @@ def render_resultaat_vergelijking_page():
 
     winst = VBlock(
         [
-            TextBlock('Winst vergelijking', midsize),
+            TextBlock('Winst vergelijking', MID_SIZE),
             LineChart(
                 [winst_per_maand(), winst_begroot_per_maand(), winst_vorig_jaar_per_maand()],
                 ChartConfig(
@@ -48,7 +48,7 @@ def render_resultaat_vergelijking_page():
         ]
     )
 
-    page = Page([TextBlock('Resultaat', headersize), VBlock([omzet, winst])])
+    page = Page([TextBlock('Resultaat', HEADER_SIZE), VBlock([omzet, winst])])
 
     page.render('output/resultaat_vergelijking.html')
 

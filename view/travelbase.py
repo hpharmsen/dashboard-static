@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from layout.basic_layout import headersize
+from layout.basic_layout import HEADER_SIZE
 from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
 from layout.chart import StackedBarChart, ChartConfig, MultiScatterChart
@@ -25,7 +25,7 @@ def render_travelbase_page(output_folder):
     totals_table = Table(totals, TableConfig(aligns=['left', 'right'], formats=['', '0'], totals=[0, 1]))
     page = Page(
         [
-            TextBlock('Travelbase', headersize),
+            TextBlock('Travelbase', HEADER_SIZE),
             TextBlock('Aantal boekingen per week. Weken lopen van maandag t/m zondag.', color='gray'),
             bar_chart(bookings, 600, 400),
             totals_table,

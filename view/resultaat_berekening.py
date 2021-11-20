@@ -5,7 +5,7 @@ from functools import partial
 from settings import get_output_folder, MAANDEN
 from model.caching import clear_cache
 from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
-from layout.basic_layout import defsize, midsize
+from layout.basic_layout import DEF_SIZE, MID_SIZE
 from model.log import log
 from model.resultaat import (
     omzet_begroot,
@@ -29,8 +29,8 @@ from pathlib import Path
 
 def line(key, value, format='K', url='', tooltip=''):
     block = Block()
-    block.add_absolute_block(0, 0, TextBlock(key, defsize, color='gray', url=url, tooltip=tooltip))
-    block.add_absolute_block(150, 0, TextBlock(value, defsize, format=format, url=url, tooltip=tooltip))
+    block.add_absolute_block(0, 0, TextBlock(key, DEF_SIZE, color='gray', url=url, tooltip=tooltip))
+    block.add_absolute_block(150, 0, TextBlock(value, DEF_SIZE, format=format, url=url, tooltip=tooltip))
     return block
 
 
@@ -47,7 +47,7 @@ def add_row(grid, *args, header=False, bold=False, coloring=None):
             colorfunc = (
                 partial(coloring, idx) if coloring else None
             )  # Convert function with idx, value as function to value as function
-            arg = TextBlock(arg, defsize, style=style, format=format, url=url, color=colorfunc)
+            arg = TextBlock(arg, DEF_SIZE, style=style, format=format, url=url, color=colorfunc)
         row += [arg]
     grid.add_row(row)
 
@@ -158,7 +158,7 @@ def winst_berekening_block():
         begroot,
         bold=True,
     )
-    return VBlock([TextBlock('Winstberekening', midsize), grid], id="Winstberekening")
+    return VBlock([TextBlock('Winstberekening', MID_SIZE), grid], id="Winstberekening")
 
 
 def render_resultaat_berekening(output_folder: Path):

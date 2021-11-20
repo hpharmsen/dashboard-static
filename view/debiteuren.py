@@ -4,7 +4,7 @@ import pandas as pd
 
 from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
-from layout.basic_layout import headersize
+from layout.basic_layout import HEADER_SIZE
 from model.finance import debiteuren_leeftijd_analyse
 from pathlib import Path
 from settings import get_output_folder, RED
@@ -16,7 +16,7 @@ def render_debiteuren_page(output_folder: Path):
         return  # Error occurred, no use to proceed
     page = Page(
         [
-            TextBlock('Debiteuren', headersize),
+            TextBlock('Debiteuren', HEADER_SIZE),
             Table(
                 debiteuren,
                 TableConfig(

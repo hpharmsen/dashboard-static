@@ -1,4 +1,6 @@
-# TODO
+"""Main program for the dashboard. Start as python main.py, pyhton main.py --nocache or pyhton main.py --onceaday"""
+
+# TODO: The list below is my backlog
 
 # Afspraken met Gert;
 # - Uitrekenen van beschikbare uren toch op basis vabn rooster. Evt rooster/verzuim/verlof apart.
@@ -29,7 +31,7 @@
 
 # 3x5 = Magic: 5% meer uren op de klant boeken, 5% hoger gemiddeld uurtarief, 5% hogere prijs
 
-# Labour Efficiency Ratio (dLER) = BBI / loonkosten van de directe mensen. 1,9 is te laag, 2,0 is ondergrens, 2,2 is goed.
+# Labour Efficiency Ratio (dLER) = BBI / loonkosten van directe mensen. 1,9 is te laag, 2,0 is ondergrens, 2,2 is goed.
 
 # Met al deze dingen: het probleem helder krijgen en daarmee bepalen wat de next steps zijn
 # Het volgende is dan: 6 tot 12 maanden vooruit kijken
@@ -49,7 +51,7 @@
 # - Billable uren vs geplande uren?
 # Uit de teamleader whitepaper
 # - 1. Gemiddelde opbrengst per uur (%) = Factureerbare waarde per uur / kosten per uur
-# - Factureerbare waarde per uur (€) bereken je door het beschikbare budget te delen door het aantal gepresteerde uren op projecten.
+# - Factureerbare waarde per uur (€) = beschikbare budget te delen door het aantal gepresteerde uren op projecten.
 # - Kosten per uur (€) = Loon + onkosten + (algemene kosten / #werkn).
 #   en dat deel je door de netto capaciteit (billable en intern maar zonder ziek en vakantiedagen)
 # - 2. Performance  (%)  = Efficiëntie x Billability
@@ -65,6 +67,7 @@ import sys
 import os
 import datetime
 import shutil
+from pathlib import Path
 
 from model.caching import load_cache, clear_cache, cache_created_time_stamp
 from model.finance import cash
@@ -77,21 +80,18 @@ from view.debiteuren import render_debiteuren_page
 from view.klanten import render_klant_page
 from view.sales import render_sales_page
 from view.travelbase import render_travelbase_page
-
 from view.verzuim import render_verzuim_page
 from view.vrije_dagen import render_vrije_dagen_page
 from view.onderhanden_werk import render_onderhanden_werk_page
 from view.resultaat_berekening import render_resultaat_berekening
-
-from pathlib import Path
-
 from view.winstgevendheid import render_winstgevendheid_page
 
 
 def main():
+    ''' What it says: the main function '''
     cd_to_script_path()
     output_folder = get_output_folder()
-    clear_the_cache = process_command_line_params(output_folder)
+    clear_the_cache = process_command_line_params()
     if clear_the_cache:
         clear_cache()
     load_cache()
@@ -101,9 +101,8 @@ def main():
 
 
 def module_initialisations():
-    # Update cash trend on loading of this module
-    cash()
-    init_log()
+    cash() # Update cash trend on loading of this module'''
+    init_log() # Start log entry with the current date
 
 
 def cd_to_script_path():
@@ -112,27 +111,27 @@ def cd_to_script_path():
         os.chdir(path_to_go)
 
 
-def process_command_line_params(output_folder):
-    clear_cache = False
+def process_command_line_params():
+    clear_the_cache = False
     for param in sys.argv[1:]:
         if param == '--nocache':
-            clear_cache = True
+            clear_the_cache = True
         if param == '--onceaday':
             cache_created = cache_created_time_stamp()
             yesterday = datetime.datetime.today().date() + datetime.timedelta(days=-1)
             if cache_created and cache_created.date() > yesterday:
                 print('Script has already run today: exiting')
                 sys.exit()
-            clear_cache = True
-    return clear_cache
+            clear_the_cache = True
+    return clear_the_cache
 
 
 def copy_resources(output_folder):
     # Copy things like js and css files
     resource_path = Path(__file__).resolve().parent / 'resources'
-    for p in resource_path.iterdir():
-        if p.is_file() and p.name[0] != '.':
-            shutil.copyfile(p, output_folder / p.name)
+    for path in resource_path.iterdir():
+        if path.is_file() and path.name[0] != '.':
+            shutil.copyfile(path, output_folder / path.name)
 
 
 def render_all_pages(output_folder):

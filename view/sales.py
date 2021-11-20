@@ -1,6 +1,6 @@
 import os
 from settings import get_output_folder
-from layout.basic_layout import headersize, midsize
+from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 from model.sales import sales_waarde_details
@@ -11,7 +11,7 @@ def render_sales_page(output_folder: Path):
 
     sales_trajecten = VBlock(
         [
-            TextBlock('Actieve&nbsp;salestrajecten', midsize),
+            TextBlock('Actieve&nbsp;salestrajecten', MID_SIZE),
             Table(
                 sales_waarde_details(),
                 TableConfig(
@@ -26,7 +26,7 @@ def render_sales_page(output_folder: Path):
 
     pijplijn = VBlock(
         [
-            TextBlock('Werk&nbsp;in&nbsp;de&nbsp;pijplijn', midsize),
+            TextBlock('Werk&nbsp;in&nbsp;de&nbsp;pijplijn', MID_SIZE),
             TextBlock('Moet uit Simplicate komen'),
             # Table(
             #     werk_in_pijplijn_details(),
@@ -40,7 +40,7 @@ def render_sales_page(output_folder: Path):
         ]
     )
 
-    page = Page([TextBlock('Sales', headersize), HBlock([sales_trajecten, pijplijn])])
+    page = Page([TextBlock('Sales', HEADER_SIZE), HBlock([sales_trajecten, pijplijn])])
 
     page.render(output_folder / 'sales.html')
 

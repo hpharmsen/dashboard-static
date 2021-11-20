@@ -1,5 +1,5 @@
 import os
-from layout.basic_layout import headersize, midsize
+from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
 from pathlib import Path
@@ -19,7 +19,7 @@ def render_winstgevendheid_page(output_folder: Path):
     client_data = winst_per_klant()
     per_client = VBlock(
         [
-            TextBlock('Per klant', midsize),
+            TextBlock('Per klant', MID_SIZE),
             Table(
                 client_data,
                 TableConfig(
@@ -36,7 +36,7 @@ def render_winstgevendheid_page(output_folder: Path):
     project_data = winst_per_project()
     per_project = VBlock(
         [
-            TextBlock('Per project', midsize),
+            TextBlock('Per project', MID_SIZE),
             Table(
                 project_data,
                 TableConfig(
@@ -53,7 +53,7 @@ def render_winstgevendheid_page(output_folder: Path):
     person_data = winst_per_persoon()
     per_person = VBlock(
         [
-            TextBlock('Per persoon (voorlopig)', midsize),
+            TextBlock('Per persoon (voorlopig)', MID_SIZE),
             Table(
                 person_data,
                 TableConfig(
@@ -69,7 +69,7 @@ def render_winstgevendheid_page(output_folder: Path):
 
     page = Page(
         [
-            TextBlock('Winstgevendheid', headersize),
+            TextBlock('Winstgevendheid', HEADER_SIZE),
             TextBlock(
                 f'''Uitgaande van een productiviteit van {PRODUCTIVITEIT*100:.0f}% 
                                en €{OVERIGE_KOSTEN_PER_FTE_PER_MAAND} per persoon per maand bureaukosten.''',

@@ -1,4 +1,4 @@
-from layout.basic_layout import midsize
+from layout.basic_layout import MID_SIZE
 from layout.block import Grid, TextBlock, VBlock
 from maandrapportage.yuki_results import YukiResult, tuple_add, last_date_of_month
 from settings import MAANDEN, GRAY, TOPLINE, BOLD, DOUBLE_TOPLINE, RED
@@ -190,7 +190,7 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
         styles=['', '', 'border:2px solid gray', '', '', '', 'border:2px solid gray'],
     )
 
-    return VBlock([TextBlock(f'Winst & verliesrekening', midsize), grid])
+    return VBlock([TextBlock(f'Winst & verliesrekening', MID_SIZE), grid])
 
 
 # Balans
@@ -346,7 +346,7 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
         )
 
     return VBlock(
-        [TextBlock(f'Balans per einde {maand.lower()} {year}', midsize), grid],
+        [TextBlock(f'Balans per einde {maand.lower()} {year}', MID_SIZE), grid],
         css_class="page-break-before",
         style="page-break-before: always;",
     )
@@ -455,7 +455,7 @@ def cashflow_analysis_block(yuki_result, year, month):
     add_normal_row('Toename liquide middelen', increase_liquid_assets, shift=True, value_color=color)
 
     return VBlock(
-        [TextBlock(f'Cashflow analyse', midsize), grid],
+        [TextBlock(f'Cashflow analyse', MID_SIZE), grid],
         css_class="page-break-before",
         style="page-break-before: always;",
     )

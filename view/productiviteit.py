@@ -1,5 +1,5 @@
 import os
-from layout.basic_layout import doFormat, headersize
+from layout.basic_layout import do_format, HEADER_SIZE
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table
 from model.productiviteit import (
@@ -44,7 +44,7 @@ def render_productiviteit_page():
         if target:
             total = sum([row[3] for row in data])
             perc = (total / user_target_now(user) - 1) * 100
-            percstr = doFormat(perc, '+%')
+            percstr = do_format(perc, '+%')
             targetstr = f'target: € {target:,.0f}'.replace(',', '.')
         else:
             targetstr = percstr = ''
@@ -60,7 +60,7 @@ def render_productiviteit_page():
         )
 
     page = Page(
-        [TextBlock('Productiviteit', headersize), VBlock([TextBlock('Under construction', color='red'), tables])]
+        [TextBlock('Productiviteit', HEADER_SIZE), VBlock([TextBlock('Under construction', color='red'), tables])]
     )
     page.add_onloadcode('make_users_clickable();')
     page.render('output/productiviteit.html')
@@ -79,7 +79,7 @@ def render_productiviteit_page():
             400, 400, values=chartdata, color='#6666cc', fill_color='#ddeeff', y_start=0, x_type='date'
         )
 
-        page = Page([TextBlock(f'Productiviteit {user}', headersize), chart, productiviteit_table])
+        page = Page([TextBlock(f'Productiviteit {user}', HEADER_SIZE), chart, productiviteit_table])
         page.render(f'output/productiviteit_{user}.html')
 
 

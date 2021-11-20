@@ -2,7 +2,7 @@ import datetime
 import os
 from pathlib import Path
 
-from layout.basic_layout import headersize
+from layout.basic_layout import HEADER_SIZE
 from layout.block import Page, TextBlock
 from maandrapportage.maandrapport import HoursData, KPIgrid
 from settings import (
@@ -19,7 +19,7 @@ def render_operations_page(output_folder: Path):
     weeks = 20
     page = Page(
         [
-            TextBlock('Operations KPI' 's', headersize),
+            TextBlock('Operations KPI' 's', HEADER_SIZE),
             TextBlock(
                 f"Belangrijkste KPI's per week de afgelopen {weeks} weken",
                 color="gray",

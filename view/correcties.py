@@ -1,7 +1,7 @@
 import os
 from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
-from layout.basic_layout import headersize
+from layout.basic_layout import HEADER_SIZE
 from model.productiviteit import corrections_all, corrections_last_month
 from pathlib import Path
 from settings import get_output_folder, GRAY, dependent_color
@@ -11,7 +11,7 @@ def render_correcties_page(output_folder: Path):
 
     page = Page(
         [
-            TextBlock('Correcties', headersize),
+            TextBlock('Correcties', HEADER_SIZE),
             TextBlock('correcties op uren tussen 1 week geleden en 5 weken geleden.', color=GRAY),
             corrections_last_month_table(),
             TextBlock('Alle correcties dit jaar<br/>Tabel toont uren en gecorrigeerde uren.', color=GRAY),

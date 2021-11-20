@@ -11,7 +11,7 @@ from model.productiviteit import geboekte_uren_users, geboekte_omzet_users, besc
 from maandrapportage.yuki_results import YukiResult
 from model.caching import load_cache
 from layout.block import TextBlock, Page, VBlock, HBlock, Grid
-from layout.basic_layout import headersize, midsize
+from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from settings import (
     get_output_folder,
     MAANDEN,
@@ -81,7 +81,7 @@ def render_maandrapportage(output_folder, year, month):
         [
             VBlock(
                 [
-                    TextBlock(f'Maandrapportage {MAANDEN[month - 1].lower()}, {year}', headersize),
+                    TextBlock(f'Maandrapportage {MAANDEN[month - 1].lower()}, {year}', HEADER_SIZE),
                     hours_block(year, month),
                     profit_and_loss_block(yuki_result, year, month),
                     balance_block(yuki_result, year, month),
@@ -162,7 +162,7 @@ def hours_block(year, month):
 
     return VBlock(
         [
-            TextBlock('Billable uren', midsize),
+            TextBlock('Billable uren', MID_SIZE),
             TextBlock(
                 '''Beschikbare uren zijn alle uren die we hebben na afrek van vrije dagen en verzuim.<br/>
                    Klant uren zijn alle uren besteed aan werk voor klanten. <br/>
@@ -222,7 +222,7 @@ def render_maandrapportage_page(monthly_folder, output_folder: Path, year, month
         pdfpath = os.path.relpath(htmlpath.with_suffix('.pdf'), start=output_folder)
         htmlpath = os.path.relpath(htmlpath, start=output_folder)
         lines += [HBlock([TextBlock(MAANDEN[month_num - 1], url=htmlpath), TextBlock('pdf', url=pdfpath)])]
-    page = Page([TextBlock('Maandrapportages', headersize)] + lines)
+    page = Page([TextBlock('Maandrapportages', HEADER_SIZE)] + lines)
     page.render(output_folder / 'maandrapportages.html')
 
 

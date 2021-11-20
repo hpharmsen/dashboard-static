@@ -6,7 +6,7 @@ import pandas as pd
 from model.caching import load_cache
 from model.onderhanden_werk import ohw_list
 from sources.simplicate import simplicate
-from layout.basic_layout import headersize, midsize
+from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.block import VBlock, TextBlock, Page, Grid
 from layout.table import Table, TableConfig
 from pathlib import Path
@@ -103,7 +103,7 @@ def onderhanden_werk_list():
 
 def render_onderhanden_werk_page(output_folder: Path):
 
-    page = Page([TextBlock('Onderhanden werk', headersize), onderhanden_werk_list()])
+    page = Page([TextBlock('Onderhanden werk', HEADER_SIZE), onderhanden_werk_list()])
     page.render(output_folder / 'onderhanden.html')
 
 

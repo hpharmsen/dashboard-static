@@ -1,16 +1,9 @@
-from functools import partial
+''' Base object for all formatting '''
+
 from pathlib import Path
 from model.caching import cache_modified_time_stamp
 
-from layout.basic_layout import doFormat
-
-Kformatter = partial(doFormat, format='K')
-
-# Block: children=[],  align_children='absolute',; id='',
-# HVBlock: children=[], id=''
-# Text: text, font_size=12,; color='',; font_family='Arial',; style='',; format=''
-
-# width=None,; height=None,; bg_color='white', link/url, tooltip, padding
+from layout.basic_layout import do_format
 
 
 class Block:
@@ -71,11 +64,6 @@ class Block:
 
     def render_absolute(self, left=None, top=None):
         return self.do_render('absolute', left=left, top=top)
-        # return f'''<div style="position:absolute; left:{left}px; top:{top}px; {width} {height} background-color:{self.bg_color}">
-        #             {self.content()}
-        #             {self.render_children()}
-        #             </div>
-        #         '''
 
     def render(self, align=''):
         id = f'id="{self.id}"' if self.id else ''
@@ -106,7 +94,8 @@ class Block:
             classes = f'class="{classes}"'
 
         tooltip_text = f'<span class="tooltiptext">{wrap(self.tooltip,42)}</span>' if self.tooltip else ''
-        res = f'''<div {id} {classes} style="{self.style} {position_str} {width} {height} {padding} background-color:{self.bg_color}; ">
+        res = f'''<div {id} {classes}
+                   style="{self.style} {position_str} {width} {height} {padding} background-color:{self.bg_color}; ">
                     {tooltip_text}
                     {self.render_content()}
                     {self.render_children()}
@@ -181,7 +170,7 @@ class TextBlock(Block):
         pagebreak=False,
     ):
         super().__init__([], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding)
-        self.text = doFormat(text, format)
+        self.text = do_format(text, format)
         self.font_size = font_size
         self.font_family = font_family
         self.style = style
@@ -195,7 +184,8 @@ class TextBlock(Block):
     def render_content(self):
         colorstr = f'color:{self.color};' if self.color else ''
         pagebreak = ' class="new-page" ' if self.page_break_before else ''
-        res = f'''<span {pagebreak} style="font-size:{self.font_size}px; {colorstr} font-family:{self.font_family}; {self.style}">{self.text}</span>'''
+        res = f'''<span {pagebreak} style="font-size:{self.font_size}px; {colorstr} font-family:{self.font_family};
+                    {self.style}">{self.text}</span>'''
         if self.url:
             res = f'<a href="{self.url}" class="link">{res}</a>'
         return res
@@ -290,4 +280,4 @@ class Page(Block):
             f.write(page_html)
 
     def render_absolute(self, left=None, top=None):
-        raise ('Page has no render absolute')
+        raise RuntimeError('Page has no render absolute')

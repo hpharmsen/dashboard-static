@@ -1,6 +1,6 @@
 import os
 from layout.block import TextBlock, Page, Grid, VBlock
-from layout.basic_layout import headersize, midsize
+from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.chart import ChartConfig, BarChart
 from model.productiviteit import (
     tuple_of_productie_users,
@@ -36,7 +36,7 @@ def render_billable_page(output_folder: Path):
                 y_axis_max_ticks=5,
             ),
         )
-        user_block = VBlock([TextBlock(f'{user} {perc_productive:.0f}%  / {perc:.0f}%', font_size=midsize), chart])
+        user_block = VBlock([TextBlock(f'{user} {perc_productive:.0f}%  / {perc:.0f}%', font_size=MID_SIZE), chart])
         grid.set_cell(row, col, user_block)
         col += 1
         if col == cols:
@@ -45,7 +45,7 @@ def render_billable_page(output_folder: Path):
 
     page = Page(
         [
-            TextBlock('Billable uren', headersize),
+            TextBlock('Billable uren', HEADER_SIZE),
             TextBlock(
                 'Billable uren per week het afgelopen halfjaar.<br/><br/>'
                 + 'Grafiek toont uren gewerkt op billable projecten zonder rekening te houden met correcties.<br/>'
