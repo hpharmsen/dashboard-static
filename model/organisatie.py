@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
+from model.caching import cache
 from model.utilities import fraction_of_the_year_past, Day
 from sources.googlesheet import sheet_tab, sheet_value
-from sources.simplicate import hours_dataframe, simplicate, DATE_FORMAT
-from model.caching import reportz
+from sources.simplicate import hours_dataframe, simplicate
 
 FTE_SHEET = 'Begroting 2020'
 FTE_TAB = 'Personeelsplanning'
@@ -15,19 +15,19 @@ FTE_ROW = 30
 FTE_START_COL = 4
 
 
-@reportz(hours=168)
+@cache(hours=168)
 def aantal_mensen(hours=168):
     tab = sheet_tab('Contracten werknemers', 'stats')
     return sheet_value(tab, 2, 6)
 
 
-@reportz(hours=168)
+@cache(hours=168)
 def aantal_fte():
     tab = sheet_tab('Contracten werknemers', 'stats')
     return sheet_value(tab, 3, 6)
 
 
-@reportz(hours=168)
+@cache(hours=168)
 def aantal_fte_begroot():
     tab = sheet_tab(FTE_SHEET, FTE_TAB)
     m = datetime.today().month

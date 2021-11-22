@@ -2,21 +2,21 @@ import calendar
 import decimal
 import os
 from datetime import datetime, timedelta
-
-from model.caching import reportz
-from beautiful_date import *
-import pandas as pd
 from decimal import Decimal
 
+import pandas as pd
+from beautiful_date import *
+
+from model.caching import cache
+from model.onderhanden_werk import simplicate_onderhanden_werk
 from model.productiviteit import tuple_of_productie_users
+from model.trendline import trends
 from model.utilities import Day
 from model.winstgevendheid import winst_per_klant
 from sources import database as db
-from model.trendline import trends
-from sources.simplicate import simplicate, DATE_FORMAT, hours_dataframe
-from model.onderhanden_werk import simplicate_onderhanden_werk
-from sources.yuki import yuki
 from sources.googlesheet import sheet_tab, sheet_value
+from sources.simplicate import simplicate, DATE_FORMAT, hours_dataframe
+from sources.yuki import yuki
 
 BEGROTING_SHEET = 'Begroting 2021'
 BEGROTING_TAB = 'Begroting'
@@ -56,13 +56,13 @@ def winst_begroot():
 #################### OMZET #############################
 
 
-@reportz
+@cache
 def omzet_verschil_percentage():
     ''' Hoeveel de omzet percentueel hoger is dan begroot '''
     return 100 * omzet_verschil() / omzet_begroot()
 
 
-@reportz
+@cache
 def omzet_verschil():
     ''' Hoeveel de omzet boven de begrote omzet ligt. '''
     o = bruto_marge_werkelijk()
@@ -73,13 +73,13 @@ def omzet_verschil():
 ##### BEGROTE OMZET #####
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def omzet_begroot():
     res = omzet_begroot_na_maand(0)
     return res
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def omzet_begroot_na_maand(m):
     ''' Begrote kosten na maand m gerekend tot vandaag '''
 
@@ -91,7 +91,7 @@ def omzet_begroot_na_maand(m):
     return Decimal(res)
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def omzet_begroot_tm_maand(m):
     ''' Begrote kosten t/m maand m  '''
     if m == 0:
@@ -104,28 +104,28 @@ def omzet_begroot_tm_maand(m):
 ##### OMZET #####
 
 
-@reportz
+@cache
 def bruto_marge_werkelijk():
     res = omzet_tm_nu() - projectkosten_tm_nu() + simplicate_onderhanden_werk()
     return res
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def omzet_tm_maand(m):
     return yuki().income(last_day_of_month(m))
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def projectkosten_tm_maand(m):
     return yuki().direct_costs(last_day_of_month(m))
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def omzet_tm_nu():
     return yuki().income()
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def projectkosten_tm_nu():
     return yuki().direct_costs()
 
@@ -137,7 +137,7 @@ def kosten_boekhoudkundig_tm_maand(m):
     return yuki().costs(last_day_of_month(m))
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def kosten_begroot_tm_maand(m):
     ''' Begrote kosten t/m maand m  '''
     if m == 0:
@@ -147,7 +147,7 @@ def kosten_begroot_tm_maand(m):
     return Decimal(res)
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def kosten_begroot_na_maand(m):
     ''' Begrote kosten na maand m gerekend tot vandaag '''
     h = huidige_maand()
@@ -246,7 +246,7 @@ def update_omzet_per_week():
         trends.update(trend_name, week_turnover, monday)
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def get_turnover_from_simplicate(fromday, untilday):
     # Including untilday
     # turnover = simplicate().turnover(
@@ -330,13 +330,13 @@ def vulling_van_de_planning():
 ################# KLANTEN #####################################
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def top_x_klanten_laatste_zes_maanden(number=3):
     # df = omzet_per_klant().copy(deep=True)
     return omzet_per_klant_laatste_zes_maanden().head(number)
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def omzet_per_klant_laatste_zes_maanden():
     ''' DataFrame van klant, omzet, percentage '''
 

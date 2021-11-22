@@ -1,10 +1,12 @@
-import os
 import datetime
-import requests
+import os
+
 import pandas as pd
-from sources.database import get_travelbase_db, dataframe
-from model.caching import reportz
+import requests
+
+from model.caching import cache
 from model.trendline import trends
+from sources.database import get_travelbase_db, dataframe
 
 # STRUCTUUR:
 # [{'arrival_date': d   atetime.date(2021, 5, 24),
@@ -38,7 +40,7 @@ GOOGLE_SHEETS_APP = (
 )
 
 
-@reportz(hours=6)
+@cache(hours=6)
 def get_bookings_per_week(booking_type: str, only_complete_weeks=False):
     db = get_travelbase_db()
     dfs = []
@@ -75,7 +77,7 @@ def get_bookings_per_week(booking_type: str, only_complete_weeks=False):
     return all
 
 
-@reportz(hours=6)
+@cache(hours=6)
 def update_bookings_per_day(booking_type: str):
     db = get_travelbase_db()
     for brand in BRANDS:

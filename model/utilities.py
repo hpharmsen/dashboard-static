@@ -1,12 +1,13 @@
+from dataclasses import dataclass
 from datetime import datetime, date, timedelta
 
 from dateutil.relativedelta import relativedelta
 
-from model.caching import reportz
+from model.caching import cache
 from settings import DATE_FORMAT
 
 
-class Day():
+class Day:
     ''' In Dashboard most dates are used as yyy-mm-dd strings. This class is to facilitate that. '''
 
     def __init__(self, *args):
@@ -57,7 +58,13 @@ class Day():
         return self.as_datetime().strftime(date_format)
 
 
-@reportz(hours=24)
+@dataclass
+class Period():
+    fromday: Day
+    untilday: Day
+
+
+@cache(hours=24)
 def fraction_of_the_year_past(start_day=None):
     if start_day:
         start_date_time = datetime.combine(start_day, datetime.min.time())

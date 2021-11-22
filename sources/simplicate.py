@@ -3,10 +3,9 @@ import json
 import os
 
 import pandas as pd
-
 from pysimplicate import Simplicate
 
-from model.caching import reportz
+from model.caching import cache
 from model.log import log
 from settings import ini
 
@@ -30,14 +29,14 @@ def simplicate():
     return _simplicate
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def active_projects():
     ''' Returns a dict of project_number:project_id '''
     sim = simplicate()
     return {p['project_number']: p['id'] for p in sim.project({'active': True})}
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def active_services():
     ''' Returns a set of (project_id, service_name) tuples'''
     sim = simplicate()
@@ -212,7 +211,7 @@ USER_MAPPING = {
 }  # Map Simplicate name to oberon id
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def name2user():
     employees = simplicate().employee()
     return {
@@ -220,7 +219,7 @@ def name2user():
     }
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def user2name():
     return {value: key for key, value in name2user().items()}
 

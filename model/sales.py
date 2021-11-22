@@ -1,7 +1,6 @@
 import os
 
-from sources.googlesheet import sheet_tab, sheet_value
-from model.caching import reportz
+from model.caching import cache
 from model.trendline import trends
 from sources.simplicate import simplicate
 
@@ -20,7 +19,7 @@ def is_int(s):
         return False
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def sales_waarde():
     res = sum([s['value'] for s in open_sales()])
     trends.update('sales_waarde', res)
@@ -34,7 +33,7 @@ def format_project_name(line, maxlen):
     return name
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def sales_waarde_details():
     # klant, project, grootte, kans, fase, waarde, bron
 
@@ -59,7 +58,7 @@ def top_x_sales(number=99, minimal_amount=0):
     return [[format_project_name(a, 35), a['value']] for a in top if a['value'] > minimal_amount][:number]
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def open_sales():
     sim = simplicate()
     fl = sim.sales_flat()

@@ -1,7 +1,5 @@
-from collections import defaultdict
-import atexit
-import json
 import datetime
+from collections import defaultdict
 
 from layout.chart import ScatterChart, ChartConfig
 from sources.database import get_db
@@ -115,5 +113,4 @@ trends = TrendLines()
 # atexit.register(save_trends)
 
 if __name__ == '__main__':
-    import os
     pass

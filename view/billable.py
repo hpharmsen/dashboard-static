@@ -1,20 +1,19 @@
 import os
-from layout.block import TextBlock, Page, Grid, VBlock
-from layout.basic_layout import HEADER_SIZE, MID_SIZE
-from layout.chart import ChartConfig, BarChart
-from model.productiviteit import (
-    tuple_of_productie_users,
-    billable_trend_person_week,
-    billable_perc_user,
-    productiviteit_perc_user,
-    roster_hours_user,
-)
 from pathlib import Path
+
+from layout.basic_layout import HEADER_SIZE, MID_SIZE
+from layout.block import TextBlock, Page, Grid, VBlock
+from layout.chart import ChartConfig, BarChart
+from maandrapportage.maandrapport import HoursData
+from model.productiviteit import tuple_of_productie_users, billable_trend_person_week
+from model.utilities import Day
 from settings import get_output_folder
 
 
 def render_billable_page(output_folder: Path):
     users = sorted(tuple_of_productie_users())
+    untilday = Day()
+    fromday = Day().plus_months(-6)
     cols = 3
     rows = len(users) // cols + 1
     grid = Grid(rows, cols)
@@ -22,9 +21,7 @@ def render_billable_page(output_folder: Path):
     col = 0
     for user in users:
         labels, hours = billable_trend_person_week(user, startweek=0)  # {weekno: hours} dict
-        perc = billable_perc_user(user)
-        perc_productive = productiviteit_perc_user(user)
-        roster_hours = roster_hours_user(user)
+        hours_data = HoursData(fromday, untilday, user)
         chart = BarChart(
             hours,
             ChartConfig(
@@ -32,11 +29,18 @@ def render_billable_page(output_folder: Path):
                 height=220,
                 colors=['#ddeeff'],
                 bottom_labels=labels,
-                max_y_axis=roster_hours,
+                max_y_axis=hours_data.rooster,
                 y_axis_max_ticks=5,
             ),
         )
-        user_block = VBlock([TextBlock(f'{user} {perc_productive:.0f}%  / {perc:.0f}%', font_size=MID_SIZE), chart])
+        user_block = VBlock(
+            [
+                TextBlock(
+                    f'{user} {hours_data.effectivity():.0f}%  / {hours_data.billable_perc():.0f}%', font_size=MID_SIZE
+                ),
+                chart,
+            ]
+        )
         grid.set_cell(row, col, user_block)
         col += 1
         if col == cols:

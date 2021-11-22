@@ -1,26 +1,19 @@
 import json
 import math
 import os
-import datetime
 import urllib
 
 import pandas as pd
-from dateutil.relativedelta import relativedelta
 
+from layout.basic_layout import DEF_SIZE, MID_SIZE, HEADER_SIZE
+from layout.block import TextBlock, Page, VBlock, HBlock, Grid
+from layout.chart import StackedBarChart, ScatterChart, ChartConfig
+from layout.table import Table, TableConfig
 from model import log
 from model.caching import load_cache
-from layout.block import TextBlock, Page, VBlock, HBlock, Grid
-from layout.table import Table, TableConfig
-from layout.chart import StackedBarChart, ScatterChart, ChartConfig
-from layout.basic_layout import DEF_SIZE, MID_SIZE, HEADER_SIZE
-from model.utilities import Day
-from settings import get_output_folder, GREEN, YELLOW, ORANGE, RED, BLACK, GRAY, dependent_color
+from model.finance import debiteuren_30_60_90_yuki, gemiddelde_betaaltermijn
 from model.organisatie import aantal_mensen, aantal_fte, aantal_fte_begroot, verzuimpercentage, vrije_dagen_pool
 from model.productiviteit import (
-    productiviteit_perc_productie,
-    productiviteit_perc_iedereen,
-    billable_perc_productie,
-    billable_perc_iedereen,
     percentage_directe_werknemers,
     corrections_percentage,
     largest_corrections,
@@ -36,10 +29,11 @@ from model.resultaat import (
     update_omzet_per_week,
     vulling_van_de_planning,
 )
-from model.finance import debiteuren_30_60_90_yuki, gemiddelde_betaaltermijn
 from model.sales import sales_waarde, top_x_sales
 from model.travelbase import get_bookings_per_week, BRANDS
 from model.trendline import trends
+from model.utilities import Day
+from settings import get_output_folder, GREEN, YELLOW, ORANGE, RED, BLACK, GRAY, dependent_color
 from view.operations import kpi_grid
 from view.travelbase import scatterchart as travelbase_scatterchart
 
@@ -274,7 +268,8 @@ def corrections_block():
                     ),
                     TextBlock(
                         f'correcties op uren van<br/> week {fromday.week_number()} tot en met week {fromday.week_number() + WEEKS_BACK - 1}.',
-                        color=GRAY),
+                        color=GRAY,
+                    ),
                 ],
                 padding=70,
             ),

@@ -1,13 +1,14 @@
 import os
 from datetime import datetime
-import pandas as pd
 from functools import partial
 
+import pandas as pd
+
+from model.caching import cache
+from model.log import log_error
+from model.utilities import fraction_of_the_year_past, Day
 from sources.googlesheet import sheet_tab, to_int, to_float
 from sources.simplicate import hours_dataframe, simplicate, user2name, name2user
-from model.log import log_error
-from model.caching import reportz
-from model.utilities import fraction_of_the_year_past, Day
 
 MT_SALARIS = 110000
 OVERIGE_KOSTEN_PER_FTE_PER_MAAND = 1000
@@ -29,7 +30,7 @@ def parse_date(date_str):
     return d, m, y
 
 
-@reportz(hours=60)
+@cache(hours=60)
 def loonkosten_per_persoon():
     """Dict met gegevens uit het contracten sheet met user als key
     en velden:
@@ -104,7 +105,7 @@ def loonkosten_per_persoon():
     return users
 
 
-@reportz(hours=60)
+@cache(hours=60)
 def uurkosten_per_persoon():
 
     # Vaste werknemers
@@ -159,7 +160,7 @@ def calculate_turnover_fixed(projects, row):
     return 0
 
 
-@reportz(hours=60)
+@cache(hours=60)
 def winst_per_project():
     result = (
         project_results()
@@ -176,7 +177,7 @@ def winst_per_project():
     return result
 
 
-@reportz(hours=60)
+@cache(hours=60)
 def winst_per_klant(fromday: Day = None):
     result = (
         project_results(fromday)
@@ -193,7 +194,7 @@ def winst_per_klant(fromday: Day = None):
     return result
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def project_results(fromday: Day = None):
     simplicate_projects = simplicate().project()
     projects = {
@@ -232,7 +233,7 @@ def project_results(fromday: Day = None):
     return result
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def winst_per_persoon(fromday: Day = None):  # Get hours and hours turnover per person
 
     # Get hours and hours turnover per person
@@ -267,7 +268,7 @@ def winst_per_persoon(fromday: Day = None):  # Get hours and hours turnover per 
     return result[['employee', 'hours', 'turnover', 'margin']]
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def calculate_employee_costs(row):
     user = name2user()[row['employee']]
     loonkosten_user = loonkosten_per_persoon().get(user)
@@ -293,7 +294,7 @@ def hours_per_person(project_id):
     return df
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def hours_filtered(fromday: Day = None):
     filter = 'type=="normal" and employee != "Freelancer" and organization != "Oberon"'
     if fromday:

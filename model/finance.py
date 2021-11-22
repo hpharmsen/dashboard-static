@@ -1,14 +1,15 @@
-import datetime
+import os
 import os
 import warnings
 
 import pandas as pd
 
 from model import log
-from model.caching import reportz
+from model.caching import cache
+from model.trendline import trends
 from sources import database as db
 from sources.yuki import yuki
-from model.trendline import trends
+
 
 #################### DEBITEUREN ################################################
 
@@ -28,7 +29,7 @@ def debiteuren_leeftijd_analyse():
     return df
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def debiteuren_leeftijd_analyse_extranet():
     query = 'select * from age_analysis_view order by 90plus desc, a90 desc, a60 desc'
     warnings.filterwarnings("ignore")
@@ -36,7 +37,7 @@ def debiteuren_leeftijd_analyse_extranet():
     return result
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def debiteuren_leeftijd_analyse_yuki():
     debiteuren = yuki().debtors()
     df = pd.DataFrame(debiteuren)
@@ -56,13 +57,13 @@ def debiteuren_leeftijd_analyse_yuki():
     return df
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def debiteuren_openstaand():
     dla = debiteuren_leeftijd_analyse()
     return dla['open'].sum()
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def debiteuren_30_60_90():
     dla = debiteuren_leeftijd_analyse()
     a30 = dla['a30'].sum()

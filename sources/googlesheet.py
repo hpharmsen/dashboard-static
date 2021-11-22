@@ -1,12 +1,13 @@
-import sys
 import os
-from google.oauth2.service_account import Credentials
-from google.auth.transport.requests import AuthorizedSession
+import sys
+from collections import defaultdict
+
 import gspread  # https://github.com/burnash/gspread
+from google.auth.transport.requests import AuthorizedSession
+from google.oauth2.service_account import Credentials
 
 from model import log
-from model.caching import reportz
-from collections import defaultdict
+from model.caching import cache
 
 
 def panic(s):
@@ -54,7 +55,7 @@ def get_spreadsheet(sheet_name):
 TABS = {}
 
 
-@reportz(hours=2)
+@cache(hours=2)
 def sheet_tab(sheetname, tabname):
     key = (sheetname, tabname)
     if not TABS.get(key):

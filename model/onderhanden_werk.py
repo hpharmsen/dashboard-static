@@ -1,15 +1,17 @@
 import json
 import os
 from decimal import Decimal
-import requests
+
 import pandas as pd
-from model.caching import reportz, load_cache
+import requests
+
 import model.log as log
-from sources.simplicate import simplicate, active_projects, active_services
+from model.caching import cache, load_cache
 from settings import ini
+from sources.simplicate import simplicate, active_projects, active_services
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def project_status_data(date_str=None):
     ''' Get Simplicate project status page in json form '''
     session = requests.Session()
@@ -40,7 +42,7 @@ def project_status_data(date_str=None):
     return json_data
 
 
-@reportz(hours=72)
+@cache(hours=72)
 def simplicate_onderhanden_werk(date_str: str = ''):
     list = ohw_list(simplicate(), date_str)
     if type(list) != pd.DataFrame:

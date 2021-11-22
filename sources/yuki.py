@@ -1,10 +1,11 @@
-import sys
-import requests
 import datetime
-from bs4 import BeautifulSoup
+import sys
 from decimal import Decimal
 
-from model.caching import reportz
+import requests
+from bs4 import BeautifulSoup
+
+from model.caching import cache
 from settings import ini
 
 BASE_URL = 'https://api.yukiworks.nl/ws/Accounting.asmx'
@@ -108,7 +109,7 @@ class Yuki:
             ]
         return result
 
-    @reportz(hours=24)
+    @cache(hours=24)
     def account_balance(self, date_str=None, balance_type=None, account_codes=None):
         # Resultatenrekening en balans
         if not date_str:
@@ -157,7 +158,7 @@ class Yuki:
     def costs(self, date_str=None):
         return self.post('costs', date_str)
 
-    @reportz(hours=24)
+    @cache(hours=24)
     def post(self, account, account_type=None, date_str=None):
         ab = self.account_balance(date_str, account_codes=ACCOUNT_CODES[account])
         res = 0

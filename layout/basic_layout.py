@@ -1,6 +1,7 @@
 ''' For formatting text in Blocks '''
 
 from functools import partial
+
 import pandas as pd
 
 DEF_SIZE = 12

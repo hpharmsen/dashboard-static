@@ -1,9 +1,9 @@
 ''' Base object for all formatting '''
 import os
 from pathlib import Path
-from model.caching import cache_modified_time_stamp
 
 from layout.basic_layout import do_format
+from model.caching import cache_modified_time_stamp
 
 
 class Block:
@@ -78,7 +78,12 @@ class Block:
             options['padding'] = ''
         return self.do_render('relative', options, block_id=block_id)
 
-    def do_render(self, position, options, block_id='', ):
+    def do_render(
+            self,
+            position,
+            options,
+            block_id='',
+    ):
         height = f'height:{self.height}px; ' if self.height else ''
         width = f'width:{self.width}px; ' if self.width else ''
         position_str = (
@@ -113,8 +118,17 @@ class HBlock(Block):
     # pylint: disable=too-many-arguments
     # This is what it takes to be a UI widget
 
-    def __init__(self, children: list, width=None, height=None, padding=40, bg_color='white', block_id='', link=None,
-                 tooltip=None):
+    def __init__(
+            self,
+            children: list,
+            width=None,
+            height=None,
+            padding=40,
+            bg_color='white',
+            block_id='',
+            link=None,
+            tooltip=None,
+    ):
         super().__init__(
             children=children,
             width=width,
@@ -224,8 +238,10 @@ class Grid(Block):
 
     # pylint: disable=too-many-arguments
     # This is what it takes to be a UI widget
-    def __init__(self, rows=0, cols=0, width=None, line_height=None, block_id='', aligns=None, has_header=False,
-                 children=None):
+    def __init__(
+            self, rows=0, cols=0, width=None, line_height=None, block_id='', aligns=None, has_header=False,
+            children=None
+    ):
         super().__init__(width=width, block_id=block_id)
         self.rows = rows
         self.cols = cols

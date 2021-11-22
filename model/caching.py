@@ -1,33 +1,32 @@
-import os
 import atexit
-import pickle
 import datetime
+import os
+import pickle
 from functools import wraps, partial
 from pathlib import Path
 
-from layout.basic_layout import do_format
 from settings import DATE_FORMAT
 
 CACHE_FILE = ''
-cache = {}
+cache_dict = {}
 use_cache = True  # Default but can be overwritten for debug purposes
 
 
 def load_cache():
-    global cache
+    global cache_dict
     try:
         with open(CACHE_FILE, 'rb') as cachefile:
-            cache = pickle.load(cachefile)
+            cache_dict = pickle.load(cachefile)
         print('Loaded cache')
     except:
-        cache = {}
+        cache_dict = {}
         print('New cache')
 
 
 def save_cache():
-    global cache
+    global cache_dict
     with open(CACHE_FILE, 'wb') as cachefile:
-        pickle.dump(cache, cachefile)
+        pickle.dump(cache_dict, cachefile)
 
 
 def clear_cache():
@@ -60,9 +59,9 @@ def cache_modified_time_stamp():
     # return os.stat(CACHE_FILE).st_mtime
 
 
-def reportz(func=None, *, hours=0.1):
+def cache(func=None, *, hours=0.1):
     if func is None:
-        return partial(reportz, hours=hours)
+        return partial(cache, hours=hours)
 
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -84,13 +83,13 @@ def reportz(func=None, *, hours=0.1):
         if use_cache:
             # Executing the function unless it's in the cache
             try:
-                value, timestamp = cache[func_str]
+                value, timestamp = cache_dict[func_str]
                 diff = datetime.datetime.now() - timestamp
                 dh = diff.seconds / 3600
                 if dh < hours:
                     return value
                 else:
-                    del cache[func_str]
+                    del cache_dict[func_str]
             except KeyError:
                 pass
 
@@ -102,7 +101,7 @@ def reportz(func=None, *, hours=0.1):
         # -------------------------------
 
         excution_time = datetime.datetime.now() - before
-        cache[func_str] = (value, datetime.datetime.now())
+        cache_dict[func_str] = (value, datetime.datetime.now())
         printable_func_str = func_str[:77].split('\n')[0]
         if printable_func_str != func_str:
             printable_func_str += '...'

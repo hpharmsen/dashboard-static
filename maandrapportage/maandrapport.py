@@ -5,13 +5,13 @@ from pathlib import Path
 
 import pdfkit
 
-from maandrapportage.financials import profit_and_loss_block, balance_block, cashflow_analysis_block
+from layout.basic_layout import HEADER_SIZE, MID_SIZE
+from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.chart import BarChart, ChartConfig
-from model.productiviteit import geboekte_uren_users, geboekte_omzet_users, beschikbare_uren_volgens_rooster
+from maandrapportage.financials import profit_and_loss_block, balance_block, cashflow_analysis_block
 from maandrapportage.yuki_results import YukiResult
 from model.caching import load_cache
-from layout.block import TextBlock, Page, VBlock, HBlock, Grid
-from layout.basic_layout import HEADER_SIZE, MID_SIZE
+from model.productiviteit import geboekte_uren_users, geboekte_omzet_users, beschikbare_uren_volgens_rooster
 from model.utilities import Day
 from settings import (
     get_output_folder,
@@ -24,12 +24,11 @@ from settings import (
     CORRECTIONS_GREEN,
 )
 
+
 # TODO:
 # - Omzet Travelbase is nog nul
 # - Investeringen is nog nul
 # - Mutaties eigen vermogen is nog nul
-
-from dataclasses import dataclass
 
 
 class HoursData:
@@ -43,17 +42,17 @@ class HoursData:
     # billable: float
     # omzet: float
 
-    def __init__(self, fromday: Day, untilday: Day):
-        self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(fromday, untilday)
-        self.op_klant_geboekt = geboekte_uren_users(
-            users=None, only_clients=1, only_billable=0, fromday=fromday, untilday=untilday
-        )
+    def __init__(self, fromday: Day, untilday: Day, employees: list = []):
+        self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(fromday, untilday, employees)
+        self.op_klant_geboekt = geboekte_uren_users(fromday, untilday, users=employees, only_clients=1, only_billable=0)
         self.billable = geboekte_uren_users(
-            users=None, only_clients=1, only_billable=1, fromday=fromday, untilday=untilday
+            fromday,
+            untilday,
+            users=employees,
+            only_clients=1,
+            only_billable=1,
         )
-        self.omzet = geboekte_omzet_users(
-            users=None, only_clients=1, only_billable=0, fromday=fromday, untilday=untilday
-        )
+        self.omzet = geboekte_omzet_users(fromday, untilday, users=employees, only_clients=1, only_billable=0)
 
     def beschikbaar(self):
         return self.rooster - self.verlof - self.verzuim

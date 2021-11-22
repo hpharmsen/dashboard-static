@@ -1,11 +1,12 @@
 import collections
 from datetime import datetime
+
 from dateutil import parser as dateparser
 from jira import JIRA, JIRAError  # pip install jira
-from sources import database as db
-from pathlib import Path
-from model.caching import reportz
+
+from model.caching import cache
 from settings import ini
+from sources import database as db
 
 DEFAULT_FIELDS = ['created', 'assignee', 'project', 'priority', 'updated', 'summary', 'status', 'labels', 'resolution']
 SORT_ON_COUNT = 1
@@ -18,7 +19,7 @@ jira_server = ini['jira']['server']
 jira = JIRA(basic_auth=(jira_user, jira_key), options={'server': jira_server})
 
 
-@reportz(hours=24)
+@cache(hours=24)
 def alle_issues_van_project(project_key):
     return jira_issues_and_where_the_ball_is('', project_keys=[project_key])
 
@@ -29,45 +30,45 @@ def open_issues_van_project(project_key):
     return grouped
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def service_issues_per_status():
     return group_issues_by_field(service_issues(), 'status', sort_field='status_id', split_by_where_the_ball_is=True)
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def service_issues_per_prioriteit():
     return group_issues_by_field(
         service_issues(), 'priority', sort_field='priority_id', split_by_where_the_ball_is=True
     )
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def service_issues_per_persoon():
     issues = service_issues()
     res = group_issues_by_field(issues, 'assignee')
     return res
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def service_issues_per_project():
     return group_issues_by_field(
         service_issues(), 'project', sort_field=SORT_ON_COUNT, reverse=True, split_by_where_the_ball_is=True
     )
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def service_issues_per_maand():
     return group_issues_by_field(service_issues(), 'updated_month', reverse=True)
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def service_issues_per_laatste_update():
     return group_issues_by_field(
         service_issues(), 'time_since_update', sort_field='updated', reverse=True, split_by_where_the_ball_is=True
     )
 
 
-@reportz(hours=0.1)
+@cache(hours=0.1)
 def belangrijkste_service_issues():
     # Ranking van klanten
     query = f'''select JiraURL, round(tt) as total, round(tu) as turnover, round(tu/tt) as hourly 
@@ -105,12 +106,12 @@ def belangrijkste_service_issues():
     return [[r['key'], r['status'], r['priority'], r['days_open'], r['assignee'], r['points']] for r in issues[:10]]
 
 
-@reportz(hours=2)
+@cache(hours=2)
 def service_issues():
     return jira_issues_and_where_the_ball_is(service_jql())
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def service_assigned_to_oberon(extra_constraint=''):
     jql = jql_add(service_jql(), '(assignee in membersOf(Oberon) OR assignee=EMPTY)')
     if extra_constraint:
@@ -124,7 +125,7 @@ def service_jql():
     return jql
 
 
-@reportz(hours=1)
+@cache(hours=1)
 def service_jira_keys():
     # From Oberview
     query = 'SELECT JiraURL FROM project p JOIN customer c on c.id=p.customerId WHERE project_type = "service" and JiraURL != ""'

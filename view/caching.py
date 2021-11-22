@@ -1,6 +1,6 @@
 from layout.block import Page
 from layout.table import Table
-from model.caching import cache as saved_cache
+from model.caching import cache_dict as saved_cache
 
 
 def render_detailpage():
