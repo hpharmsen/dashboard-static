@@ -9,6 +9,7 @@ import pandas as pd
 from decimal import Decimal
 
 from model.productiviteit import tuple_of_productie_users
+from model.utilities import Day
 from model.winstgevendheid import winst_per_klant
 from sources import database as db
 from model.trendline import trends
@@ -354,9 +355,8 @@ def omzet_per_klant_laatste_zes_maanden():
 
 def simplicate_gefactureerd(tm_maand=12):
     sim = simplicate()
-    from_date = '2021-01-01'
-    until_date = datetime.today().strftime(DATE_FORMAT)
-    inv = sim.invoice({'from_date': from_date, 'until_date': until_date})
+    params = {'from_date': Day('2021-01-01').str, 'until_date': Day().str}
+    inv = sim.invoice(params)
     inv_df = sim.to_pandas(inv)
     invs = inv_df[['invoice_number', 'total_excluding_vat', 'status_name', 'organization_name', 'project_name', 'date']]
     return decimal.Decimal(invs['total_excluding_vat'].sum())

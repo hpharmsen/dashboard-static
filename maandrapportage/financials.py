@@ -21,18 +21,18 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
 
     def add_normal_row(title, result, budget=None):
         if budget:
-            budget_month = TextBlock(budget[0], format='.', color=GRAY)
-            budget_ytd = TextBlock(budget[1], format='.', color=GRAY)
+            budget_month = TextBlock(budget[0], text_format='.', color=GRAY)
+            budget_ytd = TextBlock(budget[1], text_format='.', color=GRAY)
         else:
             budget_month, budget_ytd = 0, 0
         grid.add_row(
             [
                 TextBlock(title),
-                TextBlock(result[0], format='.'),
+                TextBlock(result[0], text_format='.'),
                 '',
                 budget_month,
                 '',
-                TextBlock(result[1], format='.'),
+                TextBlock(result[1], text_format='.'),
                 '',
                 budget_ytd,
             ]
@@ -40,19 +40,19 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
 
     def add_subtotal_row(title, subtotal, budget=None, style=TOPLINE):
         if budget:
-            budget_month = TextBlock(budget[0], format='.', color=GRAY, style=BOLD)
-            budget_ytd = TextBlock(budget[1], format='.', color=GRAY, style=BOLD)
+            budget_month = TextBlock(budget[0], text_format='.', color=GRAY, style=BOLD)
+            budget_ytd = TextBlock(budget[1], text_format='.', color=GRAY, style=BOLD)
         else:
             budget_month, budget_ytd = 0, 0
         grid.add_row(
             [
                 TextBlock(title, style=BOLD),
                 '',
-                TextBlock(subtotal[0], format='.', style=BOLD),
+                TextBlock(subtotal[0], text_format='.', style=BOLD),
                 budget_month,
                 '',
                 '',
-                TextBlock(subtotal[1], format='.', style=BOLD),
+                TextBlock(subtotal[1], text_format='.', style=BOLD),
                 budget_ytd,
             ],
             styles=['', style, style, '', '', style, style, ''],
@@ -180,12 +180,12 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
         [
             TextBlock('TOTAAL WINST', style=BOLD),
             '',
-            TextBlock(total_profit_month, format='.', style=BOLD),
-            TextBlock(profit_budgeted[0], format='.', style=BOLD, color=GRAY),
+            TextBlock(total_profit_month, text_format='.', style=BOLD),
+            TextBlock(profit_budgeted[0], text_format='.', style=BOLD, color=GRAY),
             '',
             '',
-            TextBlock(total_profit_ytd, format='.', style=BOLD),
-            TextBlock(profit_budgeted[1], format='.', style=BOLD, color=GRAY),
+            TextBlock(total_profit_ytd, text_format='.', style=BOLD),
+            TextBlock(profit_budgeted[1], text_format='.', style=BOLD, color=GRAY),
         ],
         styles=['', '', 'border:2px solid gray', '', '', '', 'border:2px solid gray'],
     )
@@ -204,10 +204,10 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
         grid.add_row(
             [
                 TextBlock(title),
-                TextBlock(result[0], format='.'),
+                TextBlock(result[0], text_format='.'),
                 '',
                 '',
-                TextBlock(result[1], format='.', color="GRAY"),
+                TextBlock(result[1], text_format='.', color="GRAY"),
                 '',
             ]
         )
@@ -217,10 +217,10 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
             [
                 TextBlock(title, style=BOLD),
                 '',
-                TextBlock(subtotal[0], format='.', style=BOLD),
+                TextBlock(subtotal[0], text_format='.', style=BOLD),
                 '',
                 '',
-                TextBlock(subtotal[1], format='.', style=BOLD, color="GRAY"),
+                TextBlock(subtotal[1], text_format='.', style=BOLD, color="GRAY"),
             ],
             styles=['', style, style, '', style, style],
         )
@@ -359,7 +359,7 @@ def cashflow_analysis_block(yuki_result, year, month):
 
     def add_normal_row(title, value, shift=False, value_color=None):
         row = [TextBlock(title)]
-        value_text = TextBlock(value, format='.', color=value_color)
+        value_text = TextBlock(value, text_format='.', color=value_color)
         if shift:
             row += ['', value_text]
         else:
@@ -371,7 +371,7 @@ def cashflow_analysis_block(yuki_result, year, month):
             [
                 TextBlock(title, style=BOLD),
                 '',
-                TextBlock(value, format='.', style=BOLD),
+                TextBlock(value, text_format='.', style=BOLD),
             ],
             styles=['', style, style],
         )

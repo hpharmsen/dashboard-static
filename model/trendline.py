@@ -1,14 +1,10 @@
-import os
 from collections import defaultdict
 import atexit
 import json
 import datetime
 
-# from model.productiviteit import billable_perc_iedereen
 from layout.chart import ScatterChart, ChartConfig
 from sources.database import get_db
-
-# TREND_FILE = os.path.dirname(__file__) + '/trends.json'
 
 
 class TrendLines:
@@ -119,15 +115,5 @@ trends = TrendLines()
 # atexit.register(save_trends)
 
 if __name__ == '__main__':
-    # trends.update( 'newline', 10, datetime.datetime(2019,10,1))
-    # trends.update( 'newline', 15, datetime.datetime(2019,10,3))
-    # trends.update( 'newline', 12, datetime.datetime(2019,10,4))
-    # trends.update( 'newline', 5, datetime.datetime(2019,10,8))
-    # trends.update( 'newline', 19)
-    # trends.update( 'other trend', 5)
-
-    # for i in reversed(range(10)):
-    #    day = datetime.datetime.today()-datetime.timedelta( days=30*i )
-    #    trends.update( 'billable', billable_perc_iedereen(fromdate=day-datetime.timedelta(days=30), untildate=day), day)
-    # save_trends()
+    import os
     pass

@@ -45,7 +45,7 @@ def onderhanden_werk_list():
         grid.add_row(
             [
                 TextBlock(row['service'], style=ITALIC),
-                TextBlock(row['ohw'], format='€', tooltip=explanation(row), style=ITALIC),
+                TextBlock(row['ohw'], text_format='€', tooltip=explanation(row), style=ITALIC),
                 TextBlock(start_date, style=ITALIC),
                 TextBlock(end_date, style=ITALIC),
             ]
@@ -58,7 +58,7 @@ def onderhanden_werk_list():
         grid.add_row(
             [
                 TextBlock(title, style=BOLD),
-                TextBlock(ohw, format='€', style=BOLD),
+                TextBlock(ohw, text_format='€', style=BOLD),
                 TextBlock(row['pm'], style=BOLD),
             ]
         )
@@ -97,7 +97,7 @@ def onderhanden_werk_list():
     # Totaal
     total_ohw = onderhanden['ohw'].sum()
     grid.add_row()
-    grid.add_row([TextBlock('TOTAAL', style=BOLD), TextBlock(total_ohw, format='€', style=BOLD)])
+    grid.add_row([TextBlock('TOTAAL', style=BOLD), TextBlock(total_ohw, text_format='€', style=BOLD)])
     return grid
 
 

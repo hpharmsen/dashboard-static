@@ -5,6 +5,7 @@ from pathlib import Path
 from layout.basic_layout import HEADER_SIZE
 from layout.block import Page, TextBlock
 from maandrapportage.maandrapport import HoursData, KPIgrid
+from model.utilities import Day
 from settings import (
     dependent_color,
     EFFECTIVITY_RED,
@@ -31,12 +32,11 @@ def render_operations_page(output_folder: Path):
 
 
 def kpi_grid(weeks=4, reverse=False):
-    today = datetime.date.today()
-    monday = today - datetime.timedelta(days=today.weekday())
+    monday = Day().last_monday()
     data = []
     week_numbers = []
     for _ in range(weeks):
-        monday_earlier = monday - datetime.timedelta(days=7)
+        monday_earlier = monday.plus_days(-7)
         if reverse:
             data += [HoursData(monday_earlier, monday)]
             week_numbers += [monday_earlier.strftime('wk %W')]
@@ -53,6 +53,31 @@ def kpi_grid(weeks=4, reverse=False):
         effectivity_coloring=effectivity_coloring,
         corrections_coloring=corrections_coloring,
     )
+
+
+# def kpi_grid(weeks=4, reverse=False):
+#     today = datetime.date.today()
+#     monday = today - datetime.timedelta(days=today.weekday())
+#     data = []
+#     week_numbers = []
+#     for _ in range(weeks):
+#         monday_earlier = monday - datetime.timedelta(days=7)
+#         if reverse:
+#             data += [HoursData(monday_earlier, monday)]
+#             week_numbers += [monday_earlier.strftime('wk %W')]
+#         else:
+#             data = [HoursData(monday_earlier, monday)] + data
+#             week_numbers = [monday_earlier.strftime('wk %W')] + week_numbers
+#         monday = monday_earlier
+#     effectivity_coloring = lambda value: dependent_color(value.effectivity(), EFFECTIVITY_RED, EFFECTIVITY_GREEN)
+#     corrections_coloring = lambda value: dependent_color(value.correcties_perc(), CORRECTIONS_RED, CORRECTIONS_GREEN)
+#     return KPIgrid(
+#         week_numbers,
+#         data,
+#         verbose=False,
+#         effectivity_coloring=effectivity_coloring,
+#         corrections_coloring=corrections_coloring,
+#     )
 
 
 if __name__ == '__main__':

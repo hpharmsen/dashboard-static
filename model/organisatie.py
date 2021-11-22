@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from model.utilities import fraction_of_the_year_past
+from model.utilities import fraction_of_the_year_past, Day
 from sources.googlesheet import sheet_tab, sheet_value
 from sources.simplicate import hours_dataframe, simplicate, DATE_FORMAT
 from model.caching import reportz
@@ -64,23 +64,23 @@ def verzuim_absence_hours(from_day, until_day=None, employees: list = []):
     return result
 
 
-def leave_hours(from_day, until_day=None, employees: list = []):
-    query = f'type!="normal" and project_name=="Verlof / Leave" and day >="{from_day}"'
-    if until_day:
-        query += f' and day <"{until_day}"'
+def leave_hours(fromday: Day = None, untilday: Day = None, employees: list = []):
+    query = f'type!="normal" and project_name=="Verlof / Leave" and day >="{fromday}"'
+    if untilday:
+        query += f' and day <"{untilday}"'
     if employees:
         query += ' and employee in @employees'
     result = hours_dataframe().query(query)['hours'].sum()
     return result
 
 
-def verzuim_list(from_day):
+def verzuim_list(fromday):
     result = (
         hours_dataframe()
-        .query(
-            f'type=="absence" and day >="{from_day}" and label !="Feestdagenverlof / National holidays leave" and hours>0'
+            .query(
+            f'type=="absence" and day >="{fromday}" and label !="Feestdagenverlof / National holidays leave" and hours>0'
         )
-        .sort_values(['employee', 'day'])[['employee', 'day', 'label', 'hours']]
+            .sort_values(['employee', 'day'])[['employee', 'day', 'label', 'hours']]
     )
     return result
 

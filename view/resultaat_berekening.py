@@ -1,11 +1,12 @@
+''' Voor het genereren van de resultaat_berekening.html pagina
+    waarin stap voor stap staat hoe het resultaat is berekend.'''
 import os
 from decimal import Decimal
 from functools import partial
+from pathlib import Path
 
 from settings import get_output_folder, MAANDEN
 from model.caching import clear_cache
-from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
-from layout.basic_layout import DEF_SIZE, MID_SIZE
 from model.log import log
 from model.resultaat import (
     omzet_begroot,
@@ -22,32 +23,24 @@ from model.resultaat import (
     kosten_begroot_na_maand,
 )
 from model.onderhanden_werk import simplicate_onderhanden_werk
-from pathlib import Path
-
-# from model.resultaat_vergelijking import MAANDEN
-
-
-def line(key, value, format='K', url='', tooltip=''):
-    block = Block()
-    block.add_absolute_block(0, 0, TextBlock(key, DEF_SIZE, color='gray', url=url, tooltip=tooltip))
-    block.add_absolute_block(150, 0, TextBlock(value, DEF_SIZE, format=format, url=url, tooltip=tooltip))
-    return block
+from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
+from layout.basic_layout import DEF_SIZE, MID_SIZE
 
 
-def add_row(grid, *args, header=False, bold=False, coloring=None):
+def add_row(grid, *args, bold=False, coloring=None):
     row = []
     style = 'font-weight:bold' if bold else ''
     for idx, arg in enumerate(args):
         if not isinstance(arg, Block):
-            format = url = ''
+            text_format = url = ''
             if isinstance(arg, tuple):
                 arg, url = arg
-            if isinstance(arg, int) or isinstance(arg, Decimal) or isinstance(arg, float):
-                format = '.'
+            if isinstance(arg, (int, Decimal, float)):
+                text_format = '.'
             colorfunc = (
                 partial(coloring, idx) if coloring else None
             )  # Convert function with idx, value as function to value as function
-            arg = TextBlock(arg, DEF_SIZE, style=style, format=format, url=url, color=colorfunc)
+            arg = TextBlock(arg, DEF_SIZE, style=style, text_format=text_format, url=url, color=colorfunc)
         row += [arg]
     grid.add_row(row)
 
@@ -93,7 +86,7 @@ def winst_berekening_block():
 
     onderhanden = simplicate_onderhanden_werk()
     log('Simplicate onderhanden werk', onderhanden)
-    add_row(grid, f'Onderhanden werk nu (Simplicate)', '', (onderhanden, 'onderhanden.html'), '', '')
+    add_row(grid, 'Onderhanden werk nu (Simplicate)', '', (onderhanden, 'onderhanden.html'), '', '')
 
     begroot = omzet_begroot()
     log('Begroot', begroot)
@@ -101,7 +94,7 @@ def winst_berekening_block():
     log('BBI (omz-proj+onderh)', werkelijk)
     add_row(
         grid,
-        f'Opbrengsten',
+        'Opbrengsten',
         omzet_tm_laatste_maand - projectkosten_tm_laatste_maand,
         '',
         werkelijk,
@@ -134,7 +127,7 @@ def winst_berekening_block():
 
     add_row(
         grid,
-        f'Kosten',
+        'Kosten',
         kosten_tm_laatste_maand,
         '',
         kosten_werkelijk(),
@@ -158,7 +151,7 @@ def winst_berekening_block():
         begroot,
         bold=True,
     )
-    return VBlock([TextBlock('Winstberekening', MID_SIZE), grid], id="Winstberekening")
+    return VBlock([TextBlock('Winstberekening', MID_SIZE), grid], block_id="Winstberekening")
 
 
 def render_resultaat_berekening(output_folder: Path):

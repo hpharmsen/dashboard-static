@@ -42,7 +42,7 @@ class Chart(Block):
         id = id_pattern.sub('', config.title) + '_' + randomString()
         # padding = config.padding if hasattr(config,'padding') else None
         super().__init__(
-            id=id,
+            block_id=id,
             width=config.width,
             height=config.height,
             bg_color=config.bg_color,
@@ -80,21 +80,21 @@ class Chart(Block):
         self.y_axis_max_ticks = f'maxTicksLimit: {config.y_axis_max_ticks},' if config.y_axis_max_ticks else ''
         self.y_axis_font_size = f'fontSize: {config.y_axis_font_size if config.y_axis_font_size else 9},'
 
-    def do_render(self, left, top, position):
+    def do_render(self, position: str, options: dict):
         data = f'''{{
                 datasets: {self.datasets},
                 labels: {str(self.labels)}
             }}'''
 
-        return f'''<div style="position:{position}; left:{left}px; top:{top}px; width:{self.width}px; height:{self.height}px; background-color:{self.bg_color}; margin-bottom:{self.padding}">
-		        <canvas id="{self.id}_canvas" width="{self.width}px" height="{self.height-self.canvas_height_difference}px"></canvas>
+        return f'''<div style="position:{position}; left:{options['left']}px; top:{options['top']}px; width:{self.width}px; height:{self.height}px; background-color:{self.bg_color}; margin-bottom:{self.padding}">
+		        <canvas id="{self.block_id}_canvas" width="{self.width}px" height="{self.height - self.canvas_height_difference}px"></canvas>
             </div>
         
             <script>
                 Chart.plugins.unregister(ChartDataLabels); // To make sure not all charts show labels automatically
                 window.addEventListener('load',  function() {{
-                    var ctx_{self.id} = document.getElementById('{self.id}_canvas').getContext('2d');
-                    window.{self.id}Chart = new Chart(ctx_{self.id}, {{
+                    var ctx_{self.block_id} = document.getElementById('{self.block_id}_canvas').getContext('2d');
+                    window.{self.block_id}Chart = new Chart(ctx_{self.block_id}, {{
                         type: '{self.type}', 
                         data: {data}, 
                         //plugins: [ChartDataLabels], // Add this line to enable data labels for this chart
@@ -105,10 +105,12 @@ class Chart(Block):
             </script>'''
 
     def render(self, align=''):
-        return self.do_render(0, 0, 'relative')
+        options = {'left': 0, 'top': 0}
+        return self.do_render('relative', options)
 
     def render_absolute(self, left, top):
-        return self.do_render(left, top, 'absolute')
+        options = {'left': left, 'top': top}
+        return self.do_render('absolute', options)
 
 
 class PieChart(Chart):

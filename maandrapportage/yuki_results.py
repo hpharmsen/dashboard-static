@@ -1,6 +1,7 @@
 import calendar
 
 from model.onderhanden_werk import simplicate_onderhanden_werk
+from model.utilities import Day
 from sources.yuki import Yuki, COSTS, ASSETS, LIABILITIES
 
 
@@ -32,10 +33,8 @@ class YukiResult:
         """Returns a date plus last day of previous month if date is passed.
         If not, returns self.date and self.prev_date"""
         if date_str:
-            y, m, d = date_str.split('-')
-            y = int(y)
-            m = int(m)
-            prev_date = last_date_of_month(y, m - 1) if m > 1 else last_date_of_month(y - 1, 12)
+            day = Day(date_str)
+            prev_date = last_date_of_month(day.y, day.m - 1) if day.m > 1 else last_date_of_month(day.y - 1, 12)
         else:
             date_str = self.date
             prev_date = self.prev_date

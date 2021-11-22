@@ -1,7 +1,7 @@
 p, a, span, td, th {font-family:arial; font-size:12px; white-space: nowrap;}
 a {text-decoration:none; color:#333}
 #menubar a { color: #66C }
-a td, a th { min-width:5em; color:#333}
+a td, a th { min-width:1em; color:#333}
 
 table { border-collapse: collapse;}
 table td, th {margin:0; padding:16px 10px}

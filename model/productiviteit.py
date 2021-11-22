@@ -1,10 +1,10 @@
 import datetime
 import os
-from collections import defaultdict
 
 from model.caching import reportz, load_cache
 from model.organisatie import verzuim_absence_hours, leave_hours
 from model.trendline import trends
+from model.utilities import Day
 from sources.simplicate import simplicate, hours_dataframe, DATE_FORMAT
 import pandas as pd
 
@@ -38,15 +38,15 @@ def tuple_of_productie_users():
 
 
 @reportz(hours=2)
-def geboekte_uren(only_productie_users=0, only_clients=0, only_billable=0, fromdate=None, untildate=None):
+def geboekte_uren(only_productie_users=0, only_clients=0, only_billable=0, fromday: Day = None, untilday: Day = None):
     users = tuple_of_productie_users() if only_productie_users else None
-    return geboekte_uren_users(users, only_clients, only_billable, fromdate, untildate)
+    return geboekte_uren_users(users, only_clients, only_billable, fromday, untilday)
 
 
 @reportz(hours=2)
-def geboekte_uren_users(users, only_clients=0, only_billable=0, fromdate=None, untildate=None):
+def geboekte_uren_users(users, only_clients=0, only_billable=0, fromday: Day = None, untilday: Day = None):
     querystring = create_querystring(
-        users, only_clients=only_clients, only_billable=only_billable, fromdate=fromdate, untildate=untildate
+        users, only_clients=only_clients, only_billable=only_billable, fromday=fromday, untilday=untilday
     )
     df = hours_dataframe().query(querystring)
     hours = df['hours'].sum()
@@ -56,21 +56,21 @@ def geboekte_uren_users(users, only_clients=0, only_billable=0, fromdate=None, u
 
 
 @reportz(hours=2)
-def geboekte_omzet_users(users, only_clients=0, only_billable=0, fromdate=None, untildate=None):
+def geboekte_omzet_users(users, only_clients=0, only_billable=0, fromday: Day = None, untilday: Day = None):
     querystring = create_querystring(
-        users, only_clients=only_clients, only_billable=only_billable, fromdate=fromdate, untildate=untildate
+        users, only_clients=only_clients, only_billable=only_billable, fromday=fromday, untilday=untilday
     )
     df = hours_dataframe().query(querystring)
     turnover = df['turnover'].sum()
     return turnover
 
 
-def create_querystring(users, only_clients=0, only_billable=0, fromdate=None, untildate=None):
+def create_querystring(users, only_clients=0, only_billable=0, fromday: Day = None, untilday: Day = None):
     query = ['type=="normal"']
-    if fromdate:
-        query += [f'day >= "{fromdate.strftime(DATE_FORMAT)}"']
-    if untildate:
-        query += [f'day < "{untildate.strftime(DATE_FORMAT)}"']
+    if fromday:
+        query += [f'day >= "{fromday}"']
+    if untilday:
+        query += [f'day < "{untilday}"']
     if only_clients:
         query += ['organization not in ("Oberon", "Qikker Online B.V.") ']
     if users:
@@ -87,14 +87,14 @@ def create_querystring(users, only_clients=0, only_billable=0, fromdate=None, un
 
 
 @reportz(hours=24)
-def beschikbare_uren_productie(fromdate=None, untildate=None):
-    hours = geboekte_uren(only_productie_users=1, fromdate=fromdate, untildate=untildate)
+def beschikbare_uren_productie(fromday: Day = None, untilday: Day = None):
+    hours = geboekte_uren(only_productie_users=1, fromday=fromday, untilday=untilday)
     return hours
 
 
 @reportz(hours=24)
-def beschikbare_uren_iedereen(fromdate=None, untildate=None):
-    hours = geboekte_uren(only_productie_users=0, fromdate=fromdate, untildate=untildate)
+def beschikbare_uren_iedereen(fromday: Day = None, untilday: Day = None):
+    hours = geboekte_uren(only_productie_users=0, fromday=fromday, untilday=untilday)
     return hours
 
 
@@ -105,11 +105,11 @@ def get_interns(sim):
 
 
 @reportz(hours=2)
-def beschikbare_uren_via_wat_is_geboekt(fromdate, untildate, employees: list = []):
+def beschikbare_uren_via_wat_is_geboekt(fromday: Day, untilday: Day, employees: list = []):
     ''' Oude methode, op basis van alle medewerkers (geen stagairs) en hun geboekte uren per dag afgerond naar 0, 4 of 8 uur'''
     sim = simplicate()
     interns = get_interns(sim)
-    query = f'day>="{fromdate}" and day<"{untildate}"'
+    query = f'day>="{fromday}" and day<"{untilday}"'
     if employees:
         query += ' and employee in @employees'
     else:
@@ -142,14 +142,14 @@ def beschikbare_uren_via_wat_is_geboekt(fromdate, untildate, employees: list = [
 
 
 @reportz(hours=2)
-def productieve_uren_productie(fromdate=None, untildate=None):
-    hours = geboekte_uren(only_productie_users=1, only_clients=1, fromdate=fromdate, untildate=untildate)
+def productieve_uren_productie(fromday: Day = None, untilday: Day = None):
+    hours = geboekte_uren(only_productie_users=1, only_clients=1, fromday=fromday, untilday=untilday)
     return hours
 
 
 @reportz(hours=2)
-def productieve_uren_iedereen(fromdate=None, untildate=None):
-    hours = geboekte_uren(only_productie_users=0, only_clients=1, fromdate=fromdate, untildate=untildate)
+def productieve_uren_iedereen(fromday: Day = None, untilday: Day = None):
+    hours = geboekte_uren(only_productie_users=0, only_clients=1, fromday=fromday, untilday=untilday)
     return hours
 
 
@@ -157,37 +157,37 @@ def productieve_uren_iedereen(fromdate=None, untildate=None):
 
 
 @reportz(hours=2)
-def billable_uren_productie(fromdate=None, untildate=None):
+def billable_uren_productie(fromday: Day = None, untilday: Day = None):
     hours = geboekte_uren(
-        only_productie_users=1, only_clients=1, only_billable=1, fromdate=fromdate, untildate=untildate
+        only_productie_users=1, only_clients=1, only_billable=1, fromday=fromday, untilday=untilday
     )
     return hours
 
 
 @reportz(hours=2)
-def billable_uren_iedereen(fromdate=None, untildate=None):
+def billable_uren_iedereen(fromday: Day = None, untilday: Day = None):
     hours = geboekte_uren(
-        only_productie_users=0, only_clients=1, only_billable=1, fromdate=fromdate, untildate=untildate
+        only_productie_users=0, only_clients=1, only_billable=1, fromday=fromday, untilday=untilday
     )
     return hours
 
 
 # Percentages
-def productiviteit_perc_productie(fromdate=None, untildate=None):
-    return 100 * productieve_uren_productie(fromdate, untildate) / beschikbare_uren_productie(fromdate, untildate)
+def productiviteit_perc_productie(fromday: Day = None, untilday: Day = None):
+    return 100 * productieve_uren_productie(fromday, untilday) / beschikbare_uren_productie(fromday, untilday)
 
 
-def billable_perc_productie(fromdate=None, untildate=None):
-    return 100 * billable_uren_productie(fromdate, untildate) / beschikbare_uren_productie(fromdate, untildate)
+def billable_perc_productie(fromday: Day = None, untilday: Day = None):
+    return 100 * billable_uren_productie(fromday, untilday) / beschikbare_uren_productie(fromday, untilday)
 
 
-def productiviteit_perc_iedereen(fromdate=None, untildate=None):
-    return 100 * productieve_uren_iedereen(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
+def productiviteit_perc_iedereen(fromday: Day = None, untilday: Day = None):
+    return 100 * productieve_uren_iedereen(fromday, untilday) / beschikbare_uren_iedereen(fromday, untilday)
 
 
-def billable_perc_iedereen(fromdate=None, untildate=None):
-    avail = beschikbare_uren_iedereen(fromdate, untildate)
-    res = 100 * billable_uren_iedereen(fromdate, untildate) / avail
+def billable_perc_iedereen(fromday: Day = None, untilday: Day = None):
+    avail = beschikbare_uren_iedereen(fromday, untilday)
+    res = 100 * billable_uren_iedereen(fromday, untilday) / avail
     trends.update('billable_hele_team', round(res, 1))
     return res
 
@@ -214,9 +214,9 @@ def productiviteit_perc_user(user):
 
 def percentage_directe_werknemers():
     '''DDA Cijfer. Is het percentage productiemedewerkers tov het geheel'''
-    untildate = datetime.date.today()
-    fromdate = untildate - datetime.timedelta(days=183)
-    return 100 * beschikbare_uren_productie(fromdate, untildate) / beschikbare_uren_iedereen(fromdate, untildate)
+    untilday = Day()
+    fromday = untilday.plus_days(days=-183)
+    return 100 * beschikbare_uren_productie(fromday, untilday) / beschikbare_uren_iedereen(fromday, untilday)
 
 
 # @reportz(hours=8)
@@ -261,15 +261,15 @@ def format_project_name(row):
 def corrections_last_month():
     # Returns a dataframe with project, hours
     df = hours_dataframe()
-    lastmonth = (datetime.datetime.today() + datetime.timedelta(days=-30)).strftime(DATE_FORMAT)
+    lastmonth = Day().plus_days(-30)
     x = (
         df.query(f'day>="{lastmonth}"')
-        .groupby(['organization', 'project_name'])
-        .agg({'hours': 'sum', 'corrections': 'sum'})
-        .sort_values('corrections')
-        .query('corrections < -10')
-        .reset_index()
-        .copy()
+            .groupby(['organization', 'project_name'])
+            .agg({'hours': 'sum', 'corrections': 'sum'})
+            .sort_values('corrections')
+            .query('corrections < -10')
+            .reset_index()
+            .copy()
     )
     result = pd.DataFrame()
     if x.empty:
@@ -297,27 +297,23 @@ def corrections_all():
 
 
 @reportz(hours=24)
-def corrections_percentage(from_weeks_ago, until_weeks_ago):
+def corrections_percentage(fromday: Day, untilday: Day):
     df = hours_dataframe()
-    one_week_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-until_weeks_ago)).strftime(DATE_FORMAT)
-    five_weeks_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-from_weeks_ago)).strftime(DATE_FORMAT)
-    data = df.query(f'(tariff>0 or service_tariff>0) and day>="{five_weeks_ago}" and day<"{one_week_ago}"')
+    data = df.query(f'(tariff>0 or service_tariff>0) and day>="{fromday}" and day<"{untilday}"')
     percentage_corrected = 100 * -data['corrections'].sum() / data['hours'].sum()
     return percentage_corrected
 
 
-def largest_corrections(minimum, weeks_back):
+def largest_corrections(minimum, fromday: Day, untilday: Day):
     df = hours_dataframe()
-    today = datetime.datetime.today().strftime(DATE_FORMAT)
-    two_weeks_ago = (datetime.datetime.today() + datetime.timedelta(weeks=-weeks_back)).strftime(DATE_FORMAT)
-    query = f'corrections < 0 and day>="{two_weeks_ago}" and day<"{today}"'
+    query = f'corrections < 0 and day>="{fromday}" and day<"{untilday}"'
     top_corrections = (
         df.query(query)
-        .groupby(['project_id', 'project_number', 'project_name'])[['corrections']]
-        .sum()
-        .query(f'corrections<-{minimum}')
-        .sort_values(by='corrections')
-        .reset_index()  # make index a column
+            .groupby(['project_id', 'project_number', 'project_name'])[['corrections']]
+            .sum()
+            .query(f'corrections<-{minimum}')
+            .sort_values(by='corrections')
+            .reset_index()  # make index a column
     )
     top_corrections['corrections'] = -top_corrections['corrections']
     return top_corrections
@@ -329,19 +325,14 @@ def get_timetable(sim):
     return res
 
 
-def beschikbare_uren_volgens_rooster(fromdate, untildate, employees: list = []):
+def beschikbare_uren_volgens_rooster(fromday: Day, untilday: Day, employees: list = []):
     # todo: wat doen we met stagairs? Die tellen nu mee.
-
-    if type(fromdate) in (datetime.datetime, datetime.date):
-        fromdate = fromdate.strftime(DATE_FORMAT)
-    if type(untildate) in (datetime.datetime, datetime.date):
-        untildate = untildate.strftime(DATE_FORMAT)
 
     sim = simplicate()
     # Get the list of current employees
     if not employees:
         interns = get_interns(sim)
-        employees = set(hours_dataframe().query(f'day>="{fromdate}" and day<"{untildate}"').employee.unique())
+        employees = set(hours_dataframe().query(f'day>="{fromday}" and day<"{untilday}"').employee.unique())
         employees.difference_update(interns)
 
     # Roosteruren
@@ -349,28 +340,24 @@ def beschikbare_uren_volgens_rooster(fromdate, untildate, employees: list = []):
     tot = 0
     for t in timetable:
         if (
-            t['employee']['name'] not in employees
-            or t['start_date'] >= untildate
-            or t.get('end_date', '9999') < fromdate
+                t['employee']['name'] not in employees
+                or t['start_date'] >= untilday.str
+                or t.get('end_date', '9999') < fromday.str
         ):
             continue
-        day = max(t['start_date'], fromdate)
-        y, m, d = day.split('-')
-        date = datetime.datetime(int(y), int(m), int(d))
+        day = Day(max(t['start_date'], fromday.str))
         table = [(t['even_week'][f'day_{i}']['hours'], t['odd_week'][f'day_{i}']['hours']) for i in range(1, 8)]
-        ending_day_of_roster = min(t.get('end_date', '9999'), untildate)
-        while date.strftime(DATE_FORMAT) < ending_day_of_roster:
-            day_of_week = date.weekday()  # weekday is 0 for Monday
-            week_number = date.isocalendar()[1]
-            index = week_number % 2
-            tot += table[day_of_week][index]
-            date += datetime.timedelta(days=1)
+        ending_day_of_roster = min(t.get('end_date', '9999'), untilday.str)
+        while day.str < ending_day_of_roster:
+            index = day.week_number() % 2
+            tot += table[day.day_of_week()][index]
+            day = day.next()
 
     # Vrij
-    leave = leave_hours(fromdate, untildate, employees)
+    leave = leave_hours(fromday, untilday, employees)
 
     # Ziek
-    absence = verzuim_absence_hours(fromdate, untildate, employees)
+    absence = verzuim_absence_hours(fromday, untilday, employees)
 
     return tot, leave, absence
 
@@ -379,58 +366,16 @@ if __name__ == '__main__':
     os.chdir('..')
     load_cache()
 
-    # until_date = datetime.date.today() + datetime.timedelta(weeks=-1)
-    # from_date = datetime.date.today() + datetime.timedelta(weeks=-2)
     sim = simplicate()
-    fromdate = '2021-06-01'
-    untildate = '2021-10-01'
+    fromday = Day('2021-06-01')
+    untilday = Day('2021-10-01')
     # Get the list of current employees
-    employees = set(hours_dataframe().query(f'day>="{fromdate}" and day<"{untildate}"').employee.unique())
+    employees = set(hours_dataframe().query(f'day>="{fromday}" and day<"{untilday}"').employee.unique())
 
     for e in employees:
-        r, v, z = beschikbare_uren_volgens_rooster(fromdate, untildate, [e])
+        r, v, z = beschikbare_uren_volgens_rooster(fromday, untilday, [e])
         c = r - v - z  # rooster - vrij - ziek
-        b = beschikbare_uren_via_wat_is_geboekt(fromdate, untildate, [e])
+        b = beschikbare_uren_via_wat_is_geboekt(fromday, untilday, [e])
         if c - b > 30:
             print(e, b, c, b - c)
-    # for i in range( 9 ):
-    #    c = beschikbare_uren2(f'2021-0{i+1}-01', f'2021-{i+2}-01')
-    #    b = beschikbare_uren(f'2021-0{i+1}-01', f'2021-{i+2}-01')
-    #    print( i+1, b, c )
     a = b - c
-    # print()
-    # print('productiviteit_perc_productie')
-    # print(
-    #     productieve_uren_productie(from_date, until_date),
-    #     '/',
-    #     beschikbare_uren_productie(from_date, until_date),
-    #     '=',
-    #     productiviteit_perc_productie(from_date, until_date),
-    # )
-    # print()
-    # print('billable_perc_productie')
-    # print(
-    #     billable_uren_productie(from_date, until_date),
-    #     '/',
-    #     beschikbare_uren_productie(from_date, until_date),
-    #     '=',
-    #     billable_perc_productie(from_date, until_date),
-    # )
-    # print()
-    # print('productiviteit_perc_iedereen')
-    # print(
-    #     productieve_uren_iedereen(from_date, until_date),
-    #     '/',
-    #     beschikbare_uren_iedereen(from_date, until_date),
-    #     '=',
-    #     productiviteit_perc_iedereen(from_date, until_date),
-    # )
-    # print()
-    # print('billable_perc_iedereen')
-    # print(
-    #     billable_uren_iedereen(from_date, until_date),
-    #     '/',
-    #     beschikbare_uren_iedereen(from_date, until_date),
-    #     '=',
-    #     billable_perc_iedereen(from_date, until_date),
-    # )

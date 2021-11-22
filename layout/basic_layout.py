@@ -15,21 +15,21 @@ def do_format(item, format_string=None):
             format_string = format_string[1:]
             if item > 0:
                 plus = '+'
-        if format_string == 'K':
+        if format_string == 'K':  # Thousands as K's
             formatted = f'{item / 1000:,.0f} K'.replace(',', '.')
-        elif format_string == '%':
+        elif format_string == '%':  # Percent
             formatted = f"{item:.0f}%"
-        elif format_string == '%1':
+        elif format_string == '%1':  # Percent with 1 decimal place
             formatted = f"{item:.1f}%"
-        elif format_string == '.':
+        elif format_string in ('.', '.0', '0'):  # format as int
             formatted = f"{item:,.0f}".replace(',', '.')
-        elif format_string == '.1':
+        elif format_string == '.1':  # One decimal place
             formatted = f"{item:,.1f}".replace(',', '.')
-        elif format_string == '.2':
+        elif format_string == '.2':  # two deceimal places
             formatted = f"{item:,.2f}".replace(',', '.')
         elif format_string == '€':
             formatted = f"€ {item:,.0f}".replace(',', '.')
-        elif format_string == '.5':
+        elif format_string == '.5':  # Rounded to a half
             formatted = str(round(float(str(item).replace(',', '.')) * 2) / 2)
         try:
             return plus + formatted

@@ -19,7 +19,7 @@ def render_productiviteit_page():
         [
             Table(
                 productiviteit_overzicht(),
-                id='overzicht',
+                block_id='overzicht',
                 headers=[
                     'persoon',
                     'omzet',
@@ -51,7 +51,7 @@ def render_productiviteit_page():
         tables.add_block(
             Table(
                 data,
-                id='productiviteit_' + user,
+                block_id='productiviteit_' + user,
                 headers=[user, targetstr, percstr, 'omzet', 'uren', 'per uur'],
                 aligns=['left', 'left', 'left', 'right', 'right', 'right'],
                 formats=['', '', '', '€', '.', '€'],

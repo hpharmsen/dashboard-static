@@ -54,9 +54,9 @@ def render_verzuim_page(output_folder: Path):
                     ),
                     VBlock(
                         [
-                            TextBlock(verzuim_normal_hours(start), DEF_SIZE, format='0', padding=5),
-                            TextBlock(verzuim_absence_hours(start), DEF_SIZE, format='0'),
-                            TextBlock(verzuim, verzuim_color, format='%1'),
+                            TextBlock(verzuim_normal_hours(start), DEF_SIZE, text_format='.', padding=5),
+                            TextBlock(verzuim_absence_hours(start), DEF_SIZE, text_format='.'),
+                            TextBlock(verzuim, verzuim_color, text_format='%1'),
                         ]
                     ),
                 ]

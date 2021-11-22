@@ -3,17 +3,16 @@ from datetime import datetime
 import pandas as pd
 from functools import partial
 
-from model.log import log_error
 from sources.googlesheet import sheet_tab, to_int, to_float
-from model.caching import reportz, use_cache
-
-from model.utilities import fraction_of_the_year_past
-from sources.simplicate import hours_dataframe, simplicate, DATE_FORMAT, user2name, name2user
+from sources.simplicate import hours_dataframe, simplicate, user2name, name2user
+from model.log import log_error
+from model.caching import reportz
+from model.utilities import fraction_of_the_year_past, Day
 
 MT_SALARIS = 110000
 OVERIGE_KOSTEN_PER_FTE_PER_MAAND = 1000
 OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR = (
-    (139 + 168 + 47) / 4 / 40
+        (139 + 168 + 47) / 4 / 40
 )  # Overige personeelskosten, kantoorkosten (niet huur), Afschrijvingen (niet kantoor)
 PRODUCTIVITEIT = 0.85
 
@@ -102,9 +101,6 @@ def loonkosten_per_persoon():
                 'jaar_kosten_pt': 12 * maand_kosten_ft * to_int(line[uren_col]) / 40,
                 'fraction_of_the_year_worked': end_year_fraction - start_year_fraction,
             }
-    sum_all = sum([users[k]['jaar_kosten_pt'] * users[k]['fraction_of_the_year_worked'] for k in users.keys()])
-    sum_employees = sum_all - sum_directie
-
     return users
 
 
@@ -181,16 +177,16 @@ def winst_per_project():
 
 
 @reportz(hours=60)
-def winst_per_klant(from_date: datetime = None):
+def winst_per_klant(fromday: Day = None):
     result = (
-        project_results(from_date)
-        .replace(['QS Ventures', 'KV New B.V.'], 'Capital A')
-        .replace(['T-Mobile Netherlands B.V.'], 'Ben')
-        .groupby(['customer'])[['hours', 'turnover hours', 'turnover fixed', 'costs of hours', 'margin']]
-        .sum()
-        .query('hours >= 10')
-        .sort_values(by='margin', ascending=False)
-        .reset_index()[['customer', 'hours', 'turnover hours', 'turnover fixed', 'costs of hours', 'margin']]
+        project_results(fromday)
+            .replace(['QS Ventures', 'KV New B.V.'], 'Capital A')
+            .replace(['T-Mobile Netherlands B.V.'], 'Ben')
+            .groupby(['customer'])[['hours', 'turnover hours', 'turnover fixed', 'costs of hours', 'margin']]
+            .sum()
+            .query('hours >= 10')
+            .sort_values(by='margin', ascending=False)
+            .reset_index()[['customer', 'hours', 'turnover hours', 'turnover fixed', 'costs of hours', 'margin']]
     )
     result['turnover per hour'] = (result['turnover hours'] + result['turnover fixed']) / result['hours']
     result['margin per hour'] = result['margin'] / result['hours']
@@ -198,8 +194,7 @@ def winst_per_klant(from_date: datetime = None):
 
 
 @reportz(hours=24)
-def project_results(from_date: datetime = None):
-
+def project_results(fromday: Day = None):
     simplicate_projects = simplicate().project()
     projects = {
         p['id']: {
@@ -211,7 +206,7 @@ def project_results(from_date: datetime = None):
         for p in simplicate_projects
     }
 
-    df = hours_filtered(from_date)
+    df = hours_filtered(fromday)
     uurkosten = uurkosten_per_persoon()
     pd.options.mode.chained_assignment = (
         None  # Ignore 'A value is trying to be set on a copy of a slice from a DataFrame' error
@@ -238,15 +233,15 @@ def project_results(from_date: datetime = None):
 
 
 @reportz(hours=24)
-def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnover per person
+def winst_per_persoon(fromday: Day = None):  # Get hours and hours turnover per person
 
     # Get hours and hours turnover per person
     result = (
-        hours_filtered(from_date)
-        .groupby(['employee'])[['hours', 'turnover']]
-        .sum()
-        .rename(columns={'turnover': 'turnover hours'})
-        .reset_index()
+        hours_filtered(fromday)
+            .groupby(['employee'])[['hours', 'turnover']]
+            .sum()
+            .rename(columns={'turnover': 'turnover hours'})
+            .reset_index()
     )
     # Voeg mensen toe die geen uren boeken
     for employee in ['Angela Duijs', 'Lunah Smits', 'Mel Schuurman', 'Martijn van Klaveren']:
@@ -254,7 +249,7 @@ def winst_per_persoon(from_date: datetime = None):  # Get hours and hours turnov
 
     # Add results from fixed price projects
     result['turnover fixed'] = 0
-    for index, project in fixed_projects(from_date).iterrows():
+    for index, project in fixed_projects(fromday).iterrows():
         person_hours = hours_per_person(index)
         for _, ph in person_hours.iterrows():
             turnover = project['turnover fixed'] / project['hours'] * ph['hours']
@@ -289,8 +284,8 @@ def calculate_employee_costs(row):
     return costs
 
 
-def fixed_projects(from_date: datetime):
-    return project_results(from_date).query('`turnover fixed` > 0')[['number', 'name', 'hours', 'turnover fixed']]
+def fixed_projects(fromday: Day = None):
+    return project_results(fromday).query('`turnover fixed` > 0')[['number', 'name', 'hours', 'turnover fixed']]
 
 
 def hours_per_person(project_id):
@@ -299,10 +294,10 @@ def hours_per_person(project_id):
 
 
 @reportz(hours=24)
-def hours_filtered(from_date: datetime = None):
+def hours_filtered(fromday: Day = None):
     filter = 'type=="normal" and employee != "Freelancer" and organization != "Oberon"'
-    if from_date:
-        filter += f' and day>="{from_date.strftime(DATE_FORMAT)}"'
+    if fromday:
+        filter += f' and day>="{fromday}"'
     df = hours_dataframe().query(filter)
     return df
 
