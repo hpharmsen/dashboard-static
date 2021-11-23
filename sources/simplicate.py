@@ -7,6 +7,7 @@ from pysimplicate import Simplicate
 
 from model.caching import cache
 from model.log import log
+from model.utilities import Period
 from settings import ini
 
 _simplicate = None  # Singleton
@@ -44,10 +45,12 @@ def active_services():
     return {(s['project_id'], s.get('name', 'x')) for s in status_list}
 
 
-def hours_dataframe():
+def hours_dataframe(period: Period = None):
     global _simplicate_hours_dataframe
     if _simplicate_hours_dataframe.empty:
         _simplicate_hours_dataframe = update_hours()
+    if period:
+        return _simplicate_hours_dataframe.query(f'day>="{period.fromday}" and day<"{period.untilday}"')
     return _simplicate_hours_dataframe
 
 
