@@ -1,10 +1,8 @@
 import os
-import os
 import warnings
 
 import pandas as pd
 
-from model import log
 from model.caching import cache
 from model.trendline import trends
 from sources import database as db
@@ -144,13 +142,13 @@ OVERIGE_VLOTTENDE_PASSIVA = (
 def balans_full(date_str=''):
     balans = yuki().account_balance(balance_type='B', date_str=date_str)
     all_balance_accounts = (
-        CASH_ACCOUNTS + DEBITEUREN + CREDITEUREN + OVERIGE_VLOTTENDE_ACTIVA + OVERIGE_VLOTTENDE_PASSIVA
+            CASH_ACCOUNTS + DEBITEUREN + CREDITEUREN + OVERIGE_VLOTTENDE_ACTIVA + OVERIGE_VLOTTENDE_PASSIVA
     )
-    for b in balans:
-        if b['code'][0] != '0' and b['code'] not in all_balance_accounts and abs(b['amount']) > 6000:
-            log.log_error(
-                'finance.py', 'balans_full()', f'Onbekende balanspost {b["code"]} {b["description"]} € {b["amount"]}.'
-            )
+    # for b in balans:
+    #     if b['code'][0] != '0' and b['code'] not in all_balance_accounts and abs(b['amount']) > 6000:
+    #         log.log_error(
+    #             'finance.py', 'balans_full()', f'Onbekende balanspost {b["code"]} {b["description"]} € {b["amount"]}.'
+    #         )
     return balans
 
 

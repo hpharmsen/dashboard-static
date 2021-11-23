@@ -1,11 +1,10 @@
-import datetime
 import os
 from pathlib import Path
 
 from layout.basic_layout import HEADER_SIZE
 from layout.block import Page, TextBlock
 from maandrapportage.maandrapport import HoursData, KPIgrid
-from model.utilities import Day
+from model.utilities import Day, Period
 from settings import (
     dependent_color,
     EFFECTIVITY_RED,
@@ -25,31 +24,28 @@ def render_operations_page(output_folder: Path):
                 f"Belangrijkste KPI's per week de afgelopen {weeks} weken",
                 color="gray",
             ),
-            kpi_grid(weeks=weeks, reverse=False),
+            kpi_grid(weeks=weeks),
         ]
     )
     page.render(output_folder / 'operations.html')
 
 
-def kpi_grid(weeks=4, reverse=False):
+def kpi_grid(weeks=4, verbose=True):
     monday = Day().last_monday()
     data = []
     week_numbers = []
     for _ in range(weeks):
         monday_earlier = monday.plus_days(-7)
-        if reverse:
-            data += [HoursData(monday_earlier, monday)]
-            week_numbers += [monday_earlier.strftime('wk %W')]
-        else:
-            data = [HoursData(monday_earlier, monday)] + data
-            week_numbers = [monday_earlier.strftime('wk %W')] + week_numbers
+        period = Period(monday_earlier, monday)
+        data = [HoursData(period)] + data
+        week_numbers = [monday_earlier.strftime('wk %W')] + week_numbers
         monday = monday_earlier
     effectivity_coloring = lambda value: dependent_color(value.effectivity(), EFFECTIVITY_RED, EFFECTIVITY_GREEN)
     corrections_coloring = lambda value: dependent_color(value.correcties_perc(), CORRECTIONS_RED, CORRECTIONS_GREEN)
     return KPIgrid(
         week_numbers,
         data,
-        verbose=False,
+        verbose=verbose,
         effectivity_coloring=effectivity_coloring,
         corrections_coloring=corrections_coloring,
     )

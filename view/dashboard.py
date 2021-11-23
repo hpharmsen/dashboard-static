@@ -1,23 +1,17 @@
-import json
 import math
 import os
-import urllib
 
 import pandas as pd
 
 from layout.basic_layout import DEF_SIZE, MID_SIZE, HEADER_SIZE
-from layout.block import TextBlock, Page, VBlock, HBlock, Grid
+from layout.block import TextBlock, Page, VBlock, HBlock
 from layout.chart import StackedBarChart, ScatterChart, ChartConfig
 from layout.table import Table, TableConfig
 from model import log
 from model.caching import load_cache
 from model.finance import debiteuren_30_60_90_yuki, gemiddelde_betaaltermijn
-from model.organisatie import aantal_mensen, aantal_fte, aantal_fte_begroot, verzuimpercentage, vrije_dagen_pool
-from model.productiviteit import (
-    percentage_directe_werknemers,
-    corrections_percentage,
-    largest_corrections,
-)
+from model.organisatie import aantal_mensen, aantal_fte, aantal_fte_begroot, verzuimpercentage
+from model.productiviteit import corrections_percentage, largest_corrections
 from model.resultaat import (
     omzet_begroot,
     bruto_marge_werkelijk,
@@ -32,7 +26,7 @@ from model.resultaat import (
 from model.sales import sales_waarde, top_x_sales
 from model.travelbase import get_bookings_per_week, BRANDS
 from model.trendline import trends
-from model.utilities import Day
+from model.utilities import Day, Period
 from settings import get_output_folder, GREEN, YELLOW, ORANGE, RED, BLACK, GRAY, dependent_color
 from view.operations import kpi_grid
 from view.travelbase import scatterchart as travelbase_scatterchart
@@ -118,89 +112,13 @@ def operations_block():
         [
             TextBlock('Operations', HEADER_SIZE),
             TextBlock("KPI's", MID_SIZE),
-            HBlock([kpi_grid()], link="operations.html", padding=40),
+            HBlock([kpi_grid(verbose=False)], link="operations.html", padding=40),
             TextBlock(''),  # !! Tijdeijke fix
             billable_chart(),
-            planning_chart(),
             corrections_block(),
+            planning_chart(),
         ]
     )
-
-
-def productiviteit_block():
-    # Productiviteit is: max aantal werkuren (contract minus verlof en feestdagen) * 85%
-    productivity_coloring = lambda value: dependent_color(value, 68, 75)
-    # Volgens Simplicate > 75% is goed (groen), >70% is redelijk, >65 is break even, <65% is verlies
-
-    fromday = Day().plus_weeks(-2)
-    untilday = Day().plus_weeks(-1)
-
-    productiviteit_perc_productie_block = TextBlock(
-        productiviteit_perc_productie(fromday, untilday),
-        MID_SIZE,
-        text_format='%',
-        tooltip='''Percentage van geboekte uren door productiemensen (dat is ex. office,
-                       recruitment, MT) op productietaken zoals FE, Non-billable, PM of Testing. Tussen 1 en 2 weken geleden.''',
-        color=productivity_coloring,
-    )
-
-    billable_perc_productie_block = TextBlock(
-        billable_perc_productie(fromday, untilday),
-        MID_SIZE,
-        text_format='%',
-        tooltip='''Percentage van geboekte uren door productiemensen (ex. office,
-                       recruitment, MT) op billable taken zoals FE, PM of Testing. Tussen 1 en 2 weken geleden.''',
-    )
-    productiviteit_perc_iedereen_block = TextBlock(
-        productiviteit_perc_iedereen(fromday, untilday),
-        MID_SIZE,
-        text_format='%',
-        tooltip='''Percentage van geboekte uren door het hele team op productietaken
-                       zoals FE, Non-billable, PM of Testing. Tussen 1 en 2 weken geleden.''',
-        color=productivity_coloring,
-    )
-
-    billable_perc_iedereen_block = TextBlock(
-        billable_perc_iedereen(fromday, untilday),
-        MID_SIZE,
-        text_format='%',
-        tooltip='''Percentage van geboekte uren door het hele team op billable taken
-                       zoals FE, BE, PM of Testing. Tussen 1 en 2 weken geleden.''',
-    )
-
-    return VBlock(
-        [
-            TextBlock('Productiviteit', MID_SIZE),
-            HBlock(
-                [
-                    TextBlock('&nbsp', DEF_SIZE, padding=90, color=GRAY),
-                    TextBlock('productief', DEF_SIZE, color=GRAY),
-                    TextBlock('billable', DEF_SIZE, color=GRAY),
-                ]
-            ),
-            HBlock(
-                [
-                    TextBlock(
-                        f'Productie ({int(percentage_directe_werknemers())}%)',
-                        DEF_SIZE,
-                        padding=0,
-                        color=GRAY,
-                        tooltip='DDA noemt dit directe werknemers. Daar is het gemiddeld 86% van het werknemersbestand.',
-                    ),
-                    productiviteit_perc_productie_block,
-                    billable_perc_productie_block,
-                ]
-            ),
-            HBlock(
-                [
-                    TextBlock('Hele team', DEF_SIZE, padding=38, color=GRAY),
-                    productiviteit_perc_iedereen_block,
-                    billable_perc_iedereen_block,
-                ]
-            ),
-        ]
-    )
-
 
 def months_ago(number):
     return Day().plus_months(-number).str
@@ -244,15 +162,14 @@ def planning_chart():
 
 
 def corrections_block():
-    WEEKS_BACK = 4
-    INTERESTING_CORRECTION = 8
-    untilday = Day()
-    fromday = untilday.plus_weeks(-WEEKS_BACK)
+    weeks_back = 4
+    interesting_correction = 8
+    period = Period(Day().plus_weeks(-weeks_back))
 
     def corrections_percentage_coloring(value):
         return dependent_color(value, red_treshold=4.9, green_treshold=3)
 
-    def project_link(row_index, fullline):
+    def project_link(_, fullline):
         return f'https://oberon.simplicate.com/projects/{fullline[0]}/hours'
 
     result = VBlock(
@@ -261,20 +178,21 @@ def corrections_block():
             HBlock(
                 [
                     TextBlock(
-                        corrections_percentage(fromday, untilday),
+                        corrections_percentage(period),
                         MID_SIZE,
                         text_format='%',
                         color=corrections_percentage_coloring,
                     ),
                     TextBlock(
-                        f'correcties op uren van<br/> week {fromday.week_number()} tot en met week {fromday.week_number() + WEEKS_BACK - 1}.',
+                        f'correcties op uren van<br/> week {period.fromday.week_number()} ' +
+                        f'tot en met week {period.fromday.week_number() + weeks_back - 1}.',
                         color=GRAY,
                     ),
                 ],
                 padding=70,
             ),
             Table(
-                largest_corrections(INTERESTING_CORRECTION, fromday, untilday),
+                largest_corrections(interesting_correction, period),
                 TableConfig(headers=[], aligns=['left', 'left', 'right'], hide_columns=[0], row_linking=project_link),
             ),
         ],
@@ -294,9 +212,11 @@ def finance_block():
 
 def resultaat_block():
     return None
-    winst_coloring = lambda value: dependent_color(value, -20000, 20000)
+
+    def winst_coloring(value): return dependent_color(value, -20000, 20000)
     winst_percentage = int(winst_werkelijk() / bruto_marge_werkelijk() * 100)
-    winst_percentage_coloring = lambda value: dependent_color(value, 6, 15)
+
+    def winst_percentage_coloring(value): return dependent_color(value, 6, 15)
     resultaat = VBlock(
         [
             TextBlock('Resultaat', MID_SIZE),
@@ -449,8 +369,8 @@ def team_block():
 
 
 def verzuim_block():
-
-    verzuim = verzuimpercentage()
+    period = Period(Day().plus_months(-3))
+    verzuim = verzuimpercentage(period)
     verzuim_color = dependent_color(verzuim, 3, 1.5)
     return VBlock(
         [
@@ -468,80 +388,28 @@ def verzuim_block():
     )
 
 
-def vakantiedagen_block():
-    pool = vrije_dagen_pool()
-    pool_color = BLACK  # dependent_color(pool, 10, 2)
-    return VBlock(
-        [
-            TextBlock('Vrije dagen pool', MID_SIZE, padding=5),
-            TextBlock(
-                'Aantal dagen dat eigenlijk al opgemaakt<br/>had moeten worden maar dat niet is.', DEF_SIZE, color=GRAY
-            ),
-            HBlock(
-                [
-                    TextBlock(pool, MID_SIZE, text_format='.1', color=pool_color),
-                    TextBlock('dagen/fte', color=GRAY, padding=0),
-                ],
-                link='freedays.html',
-            ),
-        ]
-    )
+# def vakantiedagen_block():
+#     pool = vrije_dagen_pool()
+#     pool_color = BLACK  # dependent_color(pool, 10, 2)
+#     return VBlock(
+#         [
+#             TextBlock('Vrije dagen pool', MID_SIZE, padding=5),
+#             TextBlock(
+#             'Aantal dagen dat eigenlijk al opgemaakt<br/>had moeten worden maar dat niet is.', DEF_SIZE, color=GRAY
+#             ),
+#             HBlock(
+#                 [
+#                     TextBlock(pool, MID_SIZE, text_format='.1', color=pool_color),
+#                     TextBlock('dagen/fte', color=GRAY, padding=0),
+#                 ],
+#                 link='freedays.html',
+#             ),
+#         ]
+#     )
 
 
 def tevredenheid_block():
     return None  # VBlock([TextBlock('Happiness', midsize), TextBlock('Data nodig...', color=GRAY)])
-
-
-def rocks_block():
-    def rocks_row(owner, rock):
-        return [TextBlock(owner, color=GREEN), TextBlock(rock)]
-
-    rocks_grid = Grid(cols=3)
-    rocks_grid.add_row(rocks_row('HPH', '1. Verhuizen'))
-    rocks_grid.add_row(rocks_row('HPH', '2. Qikker def. besluit'))
-    rocks_grid.add_row(rocks_row('Martijn', '3. Marketing vol op gang'))
-    rocks_grid.add_row(rocks_row('Gert', '4. Zomertijd nuttig inzetten'))
-    rocks_grid.add_row(rocks_row('RdB', '5. TOR live'))
-
-    return VBlock([TextBlock('Q3 Rocks', HEADER_SIZE), rocks_grid])
-
-
-def corona_block():
-    corona_url = 'https://coronadashboard.rijksoverheid.nl/json/NL.json'
-    corona_besmet = '-'
-    corona_color = RED
-    reproduction_index = '-'
-    reproduction_color = RED
-    format = None
-    try:
-        with urllib.request.urlopen(corona_url) as f:
-            corona_json = json.load(f)
-        corona_besmet = corona_json['infectious_people_count']['last_value']['infectious_avg']
-        if corona_besmet == None:
-            # Soms is avg None, dan rekenen we het zelf uit
-            corona_besmet = (
-                corona_json['infectious_people_count']['last_value']['infectious_high']
-                + corona_json['infectious_people_count']['last_value']['infectious_low']
-            ) / 2
-        corona_color = dependent_color(corona_besmet, 3600, 1200)
-        reproduction_index = corona_json['reproduction_index_last_known_average']['last_value'][
-            'reproduction_index_avg'
-        ]
-        if reproduction_index == None:
-            reproduction_index = '-'
-        reproduction_color = dependent_color(reproduction_index, 1, 0.75)
-        format = '.2'
-    except:
-        pass
-    return VBlock(
-        [
-            TextBlock('Corona', HEADER_SIZE),
-            TextBlock('Geschat aantal met Corona besmette mensen in Nederland', DEF_SIZE, padding=5, color=GRAY),
-            TextBlock(corona_besmet, MID_SIZE, color=corona_color),
-            TextBlock('Reproductie index', DEF_SIZE, padding=5, color=GRAY),
-            TextBlock(reproduction_index, MID_SIZE, text_format=format, color=reproduction_color),
-        ]
-    )
 
 
 def error_block():

@@ -11,7 +11,7 @@ from model.caching import cache
 from model.onderhanden_werk import simplicate_onderhanden_werk
 from model.productiviteit import tuple_of_productie_users
 from model.trendline import trends
-from model.utilities import Day
+from model.utilities import Day, Period
 from model.winstgevendheid import winst_per_klant
 from sources import database as db
 from sources.googlesheet import sheet_tab, sheet_value
@@ -30,26 +30,27 @@ RESULTAAT_TAB = 'Resultaat'
 RESULTAAT_KOSTEN_ROW = BEGROTING_KOSTEN_ROW
 RESULTAAT_BIJGEWERKT_ROW = 51
 
+
 ##### WINST #####
 
 
 def winst_verschil_percentage():
-    ''' Hoeveel de winst percentueel hoger is dan begroot '''
+    """ Hoeveel de winst percentueel hoger is dan begroot """
     return 100 * winst_verschil() / winst_begroot()
 
 
 def winst_verschil():
-    ''' Hoeveel de winst boven de begrote winst ligt. '''
+    """ Hoeveel de winst boven de begrote winst ligt. """
     return winst_werkelijk() - winst_begroot()
 
 
 def winst_werkelijk():
-    ''' De daadwerkelijk gerealiseerde kosten tot nu toe '''
+    """ De daadwerkelijk gerealiseerde kosten tot nu toe """
     return bruto_marge_werkelijk() - kosten_werkelijk()
 
 
 def winst_begroot():
-    ''' De begrote winst tot nu toe '''
+    """ De begrote winst tot nu toe """
     return omzet_begroot() - kosten_begroot()
 
 
@@ -58,13 +59,13 @@ def winst_begroot():
 
 @cache
 def omzet_verschil_percentage():
-    ''' Hoeveel de omzet percentueel hoger is dan begroot '''
+    """ Hoeveel de omzet percentueel hoger is dan begroot """
     return 100 * omzet_verschil() / omzet_begroot()
 
 
 @cache
 def omzet_verschil():
-    ''' Hoeveel de omzet boven de begrote omzet ligt. '''
+    """ Hoeveel de omzet boven de begrote omzet ligt. """
     o = bruto_marge_werkelijk()
     b = omzet_begroot()
     return o - b
@@ -81,7 +82,7 @@ def omzet_begroot():
 
 @cache(hours=24)
 def omzet_begroot_na_maand(m):
-    ''' Begrote kosten na maand m gerekend tot vandaag '''
+    """ Begrote kosten na maand m gerekend tot vandaag """
 
     h = huidige_maand()
     begroot_tm_m = omzet_begroot_tm_maand(m)
@@ -93,7 +94,7 @@ def omzet_begroot_na_maand(m):
 
 @cache(hours=24)
 def omzet_begroot_tm_maand(m):
-    ''' Begrote kosten t/m maand m  '''
+    """ Begrote kosten t/m maand m  """
     if m == 0:
         return 0
     tab = sheet_tab(BEGROTING_SHEET, BEGROTING_TAB)
@@ -139,7 +140,7 @@ def kosten_boekhoudkundig_tm_maand(m):
 
 @cache(hours=24)
 def kosten_begroot_tm_maand(m):
-    ''' Begrote kosten t/m maand m  '''
+    """ Begrote kosten t/m maand m  """
     if m == 0:
         return 0
     tab = sheet_tab(BEGROTING_SHEET, BEGROTING_TAB)
@@ -149,7 +150,7 @@ def kosten_begroot_tm_maand(m):
 
 @cache(hours=24)
 def kosten_begroot_na_maand(m):
-    ''' Begrote kosten na maand m gerekend tot vandaag '''
+    """ Begrote kosten na maand m gerekend tot vandaag """
     h = huidige_maand()
     begroot_tm_m = kosten_begroot_tm_maand(m)
     begroot_tm_h = kosten_begroot_tm_maand(h)
@@ -159,23 +160,23 @@ def kosten_begroot_na_maand(m):
 
 
 def kosten_begroot():
-    ''' Het begrote aantal kosten t/m nu '''
+    """ Het begrote aantal kosten t/m nu """
     res = kosten_begroot_na_maand(0)
     return res
 
 
 def kosten_verschil_percentage():
-    ''' Hoeveel de kosten percentueel hoger is dan begroot '''
+    """ Hoeveel de kosten percentueel hoger is dan begroot """
     return 100 * kosten_verschil() / kosten_begroot()
 
 
 def kosten_verschil():
-    ''' Hoeveel de omzet boven de begrote kosten ligt. '''
+    """ Hoeveel de omzet boven de begrote kosten ligt. """
     return kosten_werkelijk() - kosten_begroot()
 
 
 def kosten_werkelijk():
-    ''' De daadwerkelijk gerealiseerde kosten tot nu toe '''
+    """ De daadwerkelijk gerealiseerde kosten tot nu toe """
     laatste_maand = laatste_geboekte_maand()
     return kosten_boekhoudkundig_tm_maand(laatste_maand) + kosten_begroot_na_maand(laatste_maand)
 
@@ -193,7 +194,7 @@ def laatste_geboekte_maand():
     return 12
 
 
-# @reportz(hours=24)
+@cache(hours=24)
 def bijgewerkt():
     """Checkt in de Resultaat tab van het Keycijfers sheet of de boekhouding van afgelopen
     maand al is ingevuld."""
@@ -204,17 +205,17 @@ def bijgewerkt():
 
 
 def vorige_maand():
-    ''' Nummer van de vorige maand. '''
+    """ Nummer van de vorige maand. """
     return datetime.today().month - 1
 
 
 def huidige_maand():
-    ''' Nummer van de huidige maand. '''
+    """ Nummer van de huidige maand. """
     return datetime.today().month
 
 
 def volgende_maand():
-    ''' Nummer van de volgende maand. '''
+    """ Nummer van de volgende maand. """
     return datetime.today().month + 1
 
 
@@ -232,7 +233,7 @@ def last_day_of_month(m):
 
 
 def update_omzet_per_week():
-    ''' Tabel van dag, omzet waarbij dag steeds de maandag is van de week waar het om gaat '''
+    """ Tabel van dag, omzet waarbij dag steeds de maandag is van de week waar het om gaat """
     trend_name = 'omzet_per_week'
     last_day = trends.second_last_registered_day(trend_name)  # Always recalculate the last since hours may have changed
     y, m, d = last_day.split('-')
@@ -240,19 +241,20 @@ def update_omzet_per_week():
     last_sunday = D.today() - SU
     for monday in drange(last_day, last_sunday, 7 * days):
         sunday = monday + 6 * days
-        week_turnover = get_turnover_from_simplicate(monday, sunday)
+        period = Period(monday, monday + 7 * days)
+        week_turnover = get_turnover_from_simplicate(period)
         # if monday < BeautifulDate(2021, 1, 1):
         #    week_turnover += get_turnover_from_extranet(monday, sunday)
         trends.update(trend_name, week_turnover, monday)
 
 
 @cache(hours=24)
-def get_turnover_from_simplicate(fromday, untilday):
+def get_turnover_from_simplicate(period):
     # Including untilday
     # turnover = simplicate().turnover(
     #     {'start_date': fromday.strftime('%Y-%m-%d'), 'end_date': untilday.strftime('%Y-%m-%d')}
     # )
-    df = hours_dataframe().query(f'day >= "{fromday}" and day<="{untilday}" and project_number !="TOR-3"')
+    df = hours_dataframe(period).query('project_number !="TOR-3"')
     turnover = df['turnover'].sum()
     return int(turnover)
 
@@ -338,7 +340,7 @@ def top_x_klanten_laatste_zes_maanden(number=3):
 
 @cache(hours=24)
 def omzet_per_klant_laatste_zes_maanden():
-    ''' DataFrame van klant, omzet, percentage '''
+    """ DataFrame van klant, omzet, percentage """
 
     result = winst_per_klant(datetime.now() + timedelta(days=-183))
 

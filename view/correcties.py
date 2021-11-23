@@ -5,18 +5,17 @@ from layout.basic_layout import HEADER_SIZE
 from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
 from model.productiviteit import corrections_list, corrections_count
-from model.utilities import Day
+from model.utilities import Day, Period
 from settings import get_output_folder, GRAY
 
 
 def render_correcties_page(output_folder: Path):
-    untilday = Day().plus_weeks(-1)
-    fromday = untilday.plus_weeks(-5)
+    period = Period(Day().plus_weeks(-5), Day().plus_weeks(-1))
     page = Page(
         [
             TextBlock('Correcties', HEADER_SIZE),
             TextBlock('correcties op uren tussen 1 week geleden en 5 weken geleden.', color=GRAY),
-            corrections_last_month_table(fromday, untilday),
+            corrections_last_month_table(period),
             TextBlock('Alle correcties dit jaar<br/>Tabel toont uren en gecorrigeerde uren.', color=GRAY),
             corrections_all_table(),
         ]
@@ -25,9 +24,9 @@ def render_correcties_page(output_folder: Path):
     page.render(output_folder / 'corrections.html')
 
 
-def corrections_last_month_table(fromday: Day, untilday: Day):
+def corrections_last_month_table(period: Period):
     return Table(
-        corrections_count(fromday, untilday),
+        corrections_count(period),
         TableConfig(
             headers=['Project', 'Correcties'],
             aligns=['left', 'right'],
@@ -40,10 +39,9 @@ def corrections_all_table():
         project_id = full_line[2]
         return f'https://oberon.simplicate.com/projects/{project_id}/hours'
 
-    untilday = Day()
-    fromday = Day('2021-1-1')
+    period = Period(Day('2021-1-1'))
     return Table(
-        corrections_list(fromday, untilday),
+        corrections_list(period),
         TableConfig(
             headers=['Klant', 'Project', 'Uren', 'Correcties'],
             aligns=['left', 'left', 'right', 'right'],

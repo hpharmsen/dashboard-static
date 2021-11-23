@@ -1,11 +1,11 @@
 import datetime
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pandas as pd
 
 from model.caching import cache
-from model.utilities import fraction_of_the_year_past, Day
+from model.utilities import fraction_of_the_year_past, Period
 from sources.googlesheet import sheet_tab, sheet_value
 from sources.simplicate import hours_dataframe, simplicate
 
@@ -35,50 +35,39 @@ def aantal_fte_begroot():
     return res
 
 
-def verzuimpercentage(days=91):
-    from_day = verzuim_from_day(days)
-    verzuim = verzuim_absence_hours(from_day)
-    normal = verzuim_normal_hours(from_day)
+def verzuimpercentage(period: Period):
+    verzuim = verzuim_absence_hours(period)
+    normal = verzuim_normal_hours(period)
     percentage = 100 * verzuim / (normal + verzuim)
     return percentage
 
 
-def verzuim_from_day(days=91):
-    DATE_FORMAT = '%Y-%m-%d'
-    from_day = max('2021-01-01', (datetime.today() + timedelta(days=-days)).strftime(DATE_FORMAT))
-    return from_day
-
-
-def verzuim_normal_hours(from_day):
-    result = hours_dataframe().query(f'type=="normal" and day >="{from_day}"')['hours'].sum()
+def verzuim_normal_hours(period: Period):
+    result = hours_dataframe(period).query(f'type=="normal"')['hours'].sum()
     return result
 
 
-def verzuim_absence_hours(from_day, until_day=None, employees: list = []):
-    query = f'type!="normal" and project_name=="Verzuim / Sick leave" and day >="{from_day}"'
-    if until_day:
-        query += f' and day <"{until_day}"'
+def verzuim_absence_hours(period: Period, employees: list = []):
+    query = f'type!="normal" and project_name=="Verzuim / Sick leave"'
     if employees:
         query += ' and employee in @employees'
-    result = hours_dataframe().query(query)['hours'].sum()
+    result = hours_dataframe(period).query(query)['hours'].sum()
     return result
 
 
-def leave_hours(fromday: Day = None, untilday: Day = None, employees: list = []):
-    query = f'type!="normal" and project_name=="Verlof / Leave" and day >="{fromday}"'
-    if untilday:
-        query += f' and day <"{untilday}"'
+def leave_hours(period: Period, employees: list = []):
+    query = f'type!="normal" and project_name=="Verlof / Leave"'
     if employees:
         query += ' and employee in @employees'
-    result = hours_dataframe().query(query)['hours'].sum()
+    result = hours_dataframe(period).query(query)['hours'].sum()
     return result
 
 
-def verzuim_list(fromday):
+def verzuim_list(period):
     result = (
-        hours_dataframe()
+        hours_dataframe(period)
             .query(
-            f'type=="absence" and day >="{fromday}" and label !="Feestdagenverlof / National holidays leave" and hours>0'
+            f'type=="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0'
         )
             .sort_values(['employee', 'day'])[['employee', 'day', 'label', 'hours']]
     )
@@ -88,7 +77,6 @@ def verzuim_list(fromday):
 # @reportz(hours=24)
 def vrije_dagen_overzicht():
     sim = simplicate()
-    today = datetime.today().strftime('%Y-%m-%d')
     year = datetime.today().year
     frac = fraction_of_the_year_past()
 
@@ -140,4 +128,4 @@ def vrije_dagen_pool():
 
 if __name__ == '__main__':
     os.chdir('..')
-    print(verzuim_list(verzuim_from_day(91)))
+    # print(verzuim_list(verzuim_from_day(91)))

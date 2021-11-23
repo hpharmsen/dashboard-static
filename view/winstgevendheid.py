@@ -1,9 +1,10 @@
 import os
+from pathlib import Path
+
 from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.block import HBlock, VBlock, TextBlock, Page
 from layout.table import Table, TableConfig
-from pathlib import Path
-
+from model.utilities import Period, Day
 from model.winstgevendheid import (
     winst_per_project,
     winst_per_klant,
@@ -15,8 +16,8 @@ from settings import get_output_folder, GRAY
 
 
 def render_winstgevendheid_page(output_folder: Path):
-
-    client_data = winst_per_klant()
+    period = Period(Day().plus_months(-12))  # Laatste 12 maanden
+    client_data = winst_per_klant(period)
     per_client = VBlock(
         [
             TextBlock('Per klant', MID_SIZE),
@@ -33,7 +34,7 @@ def render_winstgevendheid_page(output_folder: Path):
         ]
     )
 
-    project_data = winst_per_project()
+    project_data = winst_per_project(period)
     per_project = VBlock(
         [
             TextBlock('Per project', MID_SIZE),
@@ -50,7 +51,7 @@ def render_winstgevendheid_page(output_folder: Path):
         ]
     )
 
-    person_data = winst_per_persoon()
+    person_data = winst_per_persoon(period)
     per_person = VBlock(
         [
             TextBlock('Per persoon (voorlopig)', MID_SIZE),

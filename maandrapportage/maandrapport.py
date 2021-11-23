@@ -12,7 +12,7 @@ from maandrapportage.financials import profit_and_loss_block, balance_block, cas
 from maandrapportage.yuki_results import YukiResult
 from model.caching import load_cache
 from model.productiviteit import geboekte_uren_users, geboekte_omzet_users, beschikbare_uren_volgens_rooster
-from model.utilities import Day
+from model.utilities import Day, Period
 from settings import (
     get_output_folder,
     MAANDEN,
@@ -42,17 +42,16 @@ class HoursData:
     # billable: float
     # omzet: float
 
-    def __init__(self, fromday: Day, untilday: Day, employees: list = []):
-        self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(fromday, untilday, employees)
-        self.op_klant_geboekt = geboekte_uren_users(fromday, untilday, users=employees, only_clients=1, only_billable=0)
+    def __init__(self, period: Period, employees: list = []):
+        self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(period, employees)
+        self.op_klant_geboekt = geboekte_uren_users(period, users=employees, only_clients=1, only_billable=0)
         self.billable = geboekte_uren_users(
-            fromday,
-            untilday,
+            period,
             users=employees,
             only_clients=1,
             only_billable=1,
         )
-        self.omzet = geboekte_omzet_users(fromday, untilday, users=employees, only_clients=1, only_billable=0)
+        self.omzet = geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
 
     def beschikbaar(self):
         return self.rooster - self.verlof - self.verzuim
@@ -142,7 +141,8 @@ def hours_block(year, month):
         month_names += [TextBlock(MAANDEN[m])]
         fromday = Day(year, m + 1, 1)
         untilday = Day(year, m + 2, 1) if m < 11 else Day(year + 1, m + 1, 1)
-        data += [HoursData(fromday, untilday)]
+        period = Period(fromday, untilday)
+        data += [HoursData(period)]
     grid = KPIgrid(month_names, data)
 
     chart = None

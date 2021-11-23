@@ -3,10 +3,13 @@
 # TODO: The list below is my backlog
 
 # Afspraken met Gert;
-# - Uitrekenen van beschikbare uren toch op basis vabn rooster. Evt rooster/verzuim/verlof apart.
+# √ Uitrekenen van beschikbare uren toch op basis vabn rooster. Evt rooster/verzuim/verlof apart.
 # √ Billable percentage erbij in maandrapportage
-# - Op de homepage de maandrapportagecijfers per week
+# √ Op de homepage de maandrapportagecijfers per week
 # - Met staafgrafiek per week met % effectief en % billable
+
+# Winstgevendheid: uitgaande van een productiviteit van 85%?
+# Padding left/right/top/bottom mogelijk maken
 
 # === DDA Talk over kengetallen ==================
 # KPI's
@@ -63,10 +66,10 @@
 # - Begroot aantal mensen
 
 
-import sys
-import os
 import datetime
+import os
 import shutil
+import sys
 from pathlib import Path
 
 from model.caching import load_cache, clear_cache, cache_created_time_stamp
@@ -77,13 +80,10 @@ from view.billable import render_billable_page
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
-from view.klanten import render_klant_page
-from view.sales import render_sales_page
-from view.travelbase import render_travelbase_page
-from view.verzuim import render_verzuim_page
-from view.vrije_dagen import render_vrije_dagen_page
 from view.onderhanden_werk import render_onderhanden_werk_page
 from view.resultaat_berekening import render_resultaat_berekening
+from view.sales import render_sales_page
+from view.travelbase import render_travelbase_page
 from view.winstgevendheid import render_winstgevendheid_page
 
 
@@ -136,8 +136,8 @@ def copy_resources(output_folder):
 
 def render_all_pages(output_folder):
     # render the html pages
-    print('..vrije dagen')
-    render_vrije_dagen_page(output_folder)
+    # print('..vrije dagen')
+    # render_vrije_dagen_page(output_folder)
     print('..sales')
     render_sales_page(output_folder)
     print('..onderhanden')
@@ -148,14 +148,12 @@ def render_all_pages(output_folder):
     render_billable_page(output_folder)
     print('..winstgevendheid')
     render_winstgevendheid_page(output_folder)
-    print('..klanten')
-    render_klant_page(output_folder)
     print('..resultaatberekening')
     render_resultaat_berekening(output_folder)
     print('..correcties')
     render_correcties_page(output_folder)
-    print('..verzuim')
-    render_verzuim_page(output_folder)
+    # print('..verzuim')
+    # render_verzuim_page(output_folder)
     print('..travelbase')
     render_travelbase_page(output_folder)
 

@@ -1,4 +1,3 @@
-import datetime
 import os
 from pathlib import Path
 
@@ -8,26 +7,27 @@ from layout.table import Table, TableConfig
 from model.organisatie import (
     verzuim_normal_hours,
     verzuim_absence_hours,
-    verzuimpercentage,
+    verzuimpercentage, verzuim_list,
 )
+from model.utilities import Period, Day
 from settings import get_output_folder, GRAY, dependent_color
 
 
 def render_verzuim_page(output_folder: Path):
-    start = verzuim_from_day()
-    today = datetime.datetime.today().strftime('%Y-%m-%d')
+    MONTHS = 3
+    period = Period(Day().plus_months(-MONTHS))
     table = VBlock(
         [
             Table(
-                verzuim_list(start),
+                verzuim_list(period),
                 TableConfig(
-                    headers=['Naam', 'Dag', 'soort', 'Uren'],
-                    aligns=['left', 'left', 'left', 'right'],
+                    headers=["Naam", "Dag", "soort", "Uren"],
+                    aligns=["left", "left", "left", "right"],
                     formats=[
-                        '',
-                        '',
-                        '',
-                        '.0',
+                        "",
+                        "",
+                        "",
+                        ".0",
                     ],
                     totals=[0, 0, 0, 1],
                 ),
@@ -35,26 +35,35 @@ def render_verzuim_page(output_folder: Path):
         ]
     )
 
-    verzuim = verzuimpercentage()
+    verzuim = verzuimpercentage(period)
     verzuim_color = dependent_color(verzuim, 3, 1.5)
     page = Page(
         [
-            TextBlock('Vrije dagen', HEADER_SIZE),
-            TextBlock(f'Van {start} tot {today}', color=GRAY),
+            TextBlock("Verzuim", HEADER_SIZE),
+            TextBlock(f"De afgelopen {MONTHS} maanden", color=GRAY),
             HBlock(
                 [
                     VBlock(
                         [
-                            TextBlock('Geboekte uren', DEF_SIZE, color='gray', padding=5),
-                            TextBlock('Verzuim uren', DEF_SIZE, color='gray'),
-                            TextBlock('Verzuimopercentage', DEF_SIZE, color='gray'),
+                            TextBlock(
+                                "Geboekte uren", DEF_SIZE, color="gray", padding=5
+                            ),
+                            TextBlock("Verzuim uren", DEF_SIZE, color="gray"),
+                            TextBlock("Verzuimopercentage", DEF_SIZE, color="gray"),
                         ]
                     ),
                     VBlock(
                         [
-                            TextBlock(verzuim_normal_hours(start), DEF_SIZE, text_format='.', padding=5),
-                            TextBlock(verzuim_absence_hours(start), DEF_SIZE, text_format='.'),
-                            TextBlock(verzuim, verzuim_color, text_format='%1'),
+                            TextBlock(
+                                verzuim_normal_hours(period),
+                                DEF_SIZE,
+                                text_format=".",
+                                padding=5,
+                            ),
+                            TextBlock(
+                                verzuim_absence_hours(period), DEF_SIZE, text_format="."
+                            ),
+                            TextBlock(verzuim, verzuim_color, text_format="%1"),
                         ]
                     ),
                 ]
@@ -62,9 +71,9 @@ def render_verzuim_page(output_folder: Path):
             table,
         ]
     )
-    page.render(output_folder / 'absence.html')
+    page.render(output_folder / "absence.html")
 
 
-if __name__ == '__main__':
-    os.chdir('..')
+if __name__ == "__main__":
+    os.chdir("..")
     render_verzuim_page(get_output_folder())

@@ -90,6 +90,6 @@ def open_sales():
 
 if __name__ == '__main__':
     os.chdir('..')
-    for s in top_x_sales(minimal_amount=20000):
-        print(s)
+    for s_ in top_x_sales(minimal_amount=20000):
+        print(s_)
     # print(sales_waarde())

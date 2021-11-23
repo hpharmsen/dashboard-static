@@ -6,7 +6,7 @@ import pandas as pd
 
 from model.caching import cache
 from model.log import log_error
-from model.utilities import fraction_of_the_year_past, Day
+from model.utilities import fraction_of_the_year_past, Period
 from sources.googlesheet import sheet_tab, to_int, to_float
 from sources.simplicate import hours_dataframe, simplicate, user2name, name2user
 
@@ -161,12 +161,12 @@ def calculate_turnover_fixed(projects, row):
 
 
 @cache(hours=60)
-def winst_per_project():
+def winst_per_project(period: Period):
     result = (
-        project_results()
-        .drop('customer', axis=1)
-        .query('hours >= 10')
-        .sort_values(by='margin', ascending=False)[
+        project_results(period)
+            .drop('customer', axis=1)
+            .query('hours >= 10')
+            .sort_values(by='margin', ascending=False)[
             ['number', 'name', 'hours', 'turnover hours', 'turnover fixed', 'costs of hours', 'margin']
         ]
     )
@@ -178,9 +178,9 @@ def winst_per_project():
 
 
 @cache(hours=60)
-def winst_per_klant(fromday: Day = None):
+def winst_per_klant(period: Period):
     result = (
-        project_results(fromday)
+        project_results(period)
             .replace(['QS Ventures', 'KV New B.V.'], 'Capital A')
             .replace(['T-Mobile Netherlands B.V.'], 'Ben')
             .groupby(['customer'])[['hours', 'turnover hours', 'turnover fixed', 'costs of hours', 'margin']]
@@ -195,7 +195,7 @@ def winst_per_klant(fromday: Day = None):
 
 
 @cache(hours=24)
-def project_results(fromday: Day = None):
+def project_results(period: Period = None):
     simplicate_projects = simplicate().project()
     projects = {
         p['id']: {
@@ -207,7 +207,7 @@ def project_results(fromday: Day = None):
         for p in simplicate_projects
     }
 
-    df = hours_filtered(fromday)
+    df = worked_oberon_hours(period)
     uurkosten = uurkosten_per_persoon()
     pd.options.mode.chained_assignment = (
         None  # Ignore 'A value is trying to be set on a copy of a slice from a DataFrame' error
@@ -234,11 +234,11 @@ def project_results(fromday: Day = None):
 
 
 @cache(hours=24)
-def winst_per_persoon(fromday: Day = None):  # Get hours and hours turnover per person
+def winst_per_persoon(period):  # Get hours and hours turnover per person
 
     # Get hours and hours turnover per person
     result = (
-        hours_filtered(fromday)
+        worked_oberon_hours(period)
             .groupby(['employee'])[['hours', 'turnover']]
             .sum()
             .rename(columns={'turnover': 'turnover hours'})
@@ -250,7 +250,7 @@ def winst_per_persoon(fromday: Day = None):  # Get hours and hours turnover per 
 
     # Add results from fixed price projects
     result['turnover fixed'] = 0
-    for index, project in fixed_projects(fromday).iterrows():
+    for index, project in fixed_projects(period).iterrows():
         person_hours = hours_per_person(index)
         for _, ph in person_hours.iterrows():
             turnover = project['turnover fixed'] / project['hours'] * ph['hours']
@@ -285,8 +285,8 @@ def calculate_employee_costs(row):
     return costs
 
 
-def fixed_projects(fromday: Day = None):
-    return project_results(fromday).query('`turnover fixed` > 0')[['number', 'name', 'hours', 'turnover fixed']]
+def fixed_projects(period):
+    return project_results(period).query('`turnover fixed` > 0')[['number', 'name', 'hours', 'turnover fixed']]
 
 
 def hours_per_person(project_id):
@@ -295,11 +295,9 @@ def hours_per_person(project_id):
 
 
 @cache(hours=24)
-def hours_filtered(fromday: Day = None):
+def worked_oberon_hours(period: Period = None):
     filter = 'type=="normal" and employee != "Freelancer" and organization != "Oberon"'
-    if fromday:
-        filter += f' and day>="{fromday}"'
-    df = hours_dataframe().query(filter)
+    df = hours_dataframe(period).query(filter)
     return df
 
 

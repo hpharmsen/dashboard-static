@@ -45,12 +45,16 @@ def active_services():
     return {(s['project_id'], s.get('name', 'x')) for s in status_list}
 
 
+@cache(hours=24)
 def hours_dataframe(period: Period = None):
     global _simplicate_hours_dataframe
     if _simplicate_hours_dataframe.empty:
         _simplicate_hours_dataframe = update_hours()
     if period:
-        return _simplicate_hours_dataframe.query(f'day>="{period.fromday}" and day<"{period.untilday}"')
+        query = f'day>="{period.fromday}"'
+        if period.untilday:
+            query += f' and day<"{period.untilday}"'
+        return _simplicate_hours_dataframe.query(query)
     return _simplicate_hours_dataframe
 
 
