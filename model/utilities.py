@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime, date, timedelta
 
 from dateutil.relativedelta import relativedelta
@@ -58,10 +57,19 @@ class Day:
         return self.as_datetime().strftime(date_format)
 
 
-@dataclass
-class Period():
-    fromday: Day
-    untilday: Day
+class Period:
+    ''' Utility class bundling a startdate and optionally an end date '''
+
+    def __init__(self, fromday, untilday=None):
+        if not isinstance(fromday, Day):
+            fromday = Day(fromday)
+        self.fromday = fromday
+        if untilday and not isinstance(untilday, Day):
+            untilday = Day(untilday)
+        self.untilday = untilday
+
+    def __str__(self):
+        return f'{self.fromday} --> {self.untilday if self.untilday else ""}'
 
 
 @cache(hours=24)
