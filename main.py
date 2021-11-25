@@ -6,7 +6,7 @@
 # √ Uitrekenen van beschikbare uren toch op basis vabn rooster. Evt rooster/verzuim/verlof apart.
 # √ Billable percentage erbij in maandrapportage
 # √ Op de homepage de maandrapportagecijfers per week
-# - Met staafgrafiek per week met % effectief en % billable
+# √ Met staafgrafiek per week met % effectief en % billable
 
 # Winstgevendheid: uitgaande van een productiviteit van 85%?
 # Padding left/right/top/bottom mogelijk maken

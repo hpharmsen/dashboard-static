@@ -28,7 +28,7 @@ from model.travelbase import get_bookings_per_week, BRANDS
 from model.trendline import trends
 from model.utilities import Day, Period
 from settings import get_output_folder, GREEN, YELLOW, ORANGE, RED, BLACK, GRAY, dependent_color
-from view.operations import kpi_grid
+from view.operations import kpi_grid, operations_data
 from view.travelbase import scatterchart as travelbase_scatterchart
 
 
@@ -114,11 +114,34 @@ def operations_block():
             TextBlock("KPI's", MID_SIZE),
             HBlock([kpi_grid(verbose=False)], link="operations.html", padding=40),
             TextBlock(''),  # !! Tijdeijke fix
-            billable_chart(),
+            operations_chart(),
+            TextBlock(''),  # !! Tijdeijke fix
+            # billable_chart(),
             corrections_block(),
             planning_chart(),
         ]
     )
+
+
+def operations_chart():
+    width = 300
+    height = 200
+    week_numbers, hours_data = operations_data(10)
+    billable = [h.billable_perc() for h in hours_data]
+    effective_delta = [h.effectivity() - h.billable_perc() for h in hours_data]
+    chartdata = [billable, effective_delta]
+    chart_config = ChartConfig(
+        width=width,
+        height=height,
+        colors=[GREEN, RED],
+        min_y_axis=0,
+        max_y_axis=100,
+        # y_axis_max_ticks=10,
+        labels=['Billlable', 'Effectief maar niet billable'],
+        bottom_labels=week_numbers,
+    )
+    return StackedBarChart(chartdata, chart_config)
+
 
 def months_ago(number):
     return Day().plus_months(-number).str

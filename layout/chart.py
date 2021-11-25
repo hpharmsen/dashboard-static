@@ -1,5 +1,5 @@
-import re
 import random
+import re
 import string
 from typing import NamedTuple, List
 
@@ -189,6 +189,18 @@ class BarChart(Chart):
 
 
 class StackedBarChart(Chart):
+    ''' Creates a stacked bar chart with JSChart.
+        values parameter is a list with one row of values per legend item.
+        e.g.
+        values = [[12000, 12500, 13000], # Salaries
+                  [800,800,800]]         # Housing
+        chart_config = ChartConfig(
+            width=300, height=200,
+            colors=['#66cc66','#cc6666'],
+            min_y_axis=0, max_y_axis=100, y_axis_max_ticks=10,
+            labels=['Salaries', 'Housing'], bottom_labels=month_names)
+    '''
+
     def __init__(self, values, config):
         super().__init__(values, config)
 
