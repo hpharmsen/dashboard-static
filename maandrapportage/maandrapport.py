@@ -10,16 +10,15 @@ from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.chart import BarChart, ChartConfig
 from maandrapportage.financials import profit_and_loss_block, balance_block, cashflow_analysis_block
 from maandrapportage.yuki_results import YukiResult
+from middleware.timesheet import Timesheet
 from model.caching import load_cache
-from model.productiviteit import geboekte_uren_users, geboekte_omzet_users, beschikbare_uren_volgens_rooster
+from model.productiviteit import geboekte_uren_users, beschikbare_uren_volgens_rooster
 from model.utilities import Day, Period
 from settings import (
     get_output_folder,
     MAANDEN,
     GRAY,
     get_monthly_folder,
-    EFFECTIVITY_GREEN,
-    EFFECTIVITY_RED,
     CORRECTIONS_RED,
     CORRECTIONS_GREEN,
 )
@@ -44,32 +43,41 @@ class HoursData:
 
     def __init__(self, period: Period, employees: list = []):
         self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(period, employees)
-        self.op_klant_geboekt = geboekte_uren_users(period, users=employees, only_clients=1, only_billable=0)
-        self.billable = geboekte_uren_users(
+        self.op_klant_geboekt_old = geboekte_uren_users(period, users=employees, only_clients=1, only_billable=0)
+        ts = Timesheet()
+        self.op_klant_geboekt = ts.geboekte_uren_users(period, users=employees, only_clients=1, only_billable=0)
+        self.billable_old = geboekte_uren_users(
             period,
             users=employees,
             only_clients=1,
             only_billable=1,
         )
-        self.omzet = geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
+        self.billable = ts.geboekte_uren_users(
+            period,
+            users=employees,
+            only_clients=1,
+            only_billable=1,
+        )
+        # self.omzet_old = geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
+        self.omzet = ts.geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
 
-    def beschikbaar(self):
+    def beschikbaar(self) -> float:
         return self.rooster - self.verlof - self.verzuim
 
     def effectivity(self):
-        return 100 * self.op_klant_geboekt / self.beschikbaar()
+        return 100 * self.op_klant_geboekt / self.beschikbaar() if self.beschikbaar() else 0
 
     def billable_perc(self):
-        return 100 * self.billable / self.beschikbaar()
+        return 100 * self.billable / self.beschikbaar() if self.beschikbaar() else 0
 
     def correcties(self):
         return self.op_klant_geboekt - self.billable
 
     def correcties_perc(self):
-        return (self.op_klant_geboekt - self.billable) / self.op_klant_geboekt
+        return (self.op_klant_geboekt - self.billable) / self.op_klant_geboekt if self.op_klant_geboekt else 0
 
     def uurloon(self):
-        return self.omzet / self.billable
+        return self.omzet / self.billable if self.billable else 0
 
 
 def render_maandrapportage(output_folder, year, month):
@@ -100,37 +108,67 @@ def render_maandrapportage(output_folder, year, month):
 NO_FUNC = lambda a: None  # Create empty function
 
 
-def KPIgrid(headers, data, effectivity_coloring=NO_FUNC, corrections_coloring=NO_FUNC, verbose=True):
-    grid = Grid(cols=len(data) + 1, has_header=False, line_height=0)  # +1 is for the header column
-    grid.add_row([None] + headers)
+def KPIgrid(columns_headers, data, effectivity_coloring=NO_FUNC, corrections_coloring=NO_FUNC, verbose=True):
+    assert len(columns_headers) == len(data)
+    num_of_cols = len(data) + 1
+    aligns = ['left'] + ['right'] * len(data)  # First column left, the rest right aligned
+    grid = Grid(cols=num_of_cols, has_header=False, line_height=0, aligns=aligns)  # +1 is for the header column
+
+    def add_row(title, row_data, text_format, coloring=NO_FUNC):
+        row = [TextBlock(title)]
+        for d in row_data:
+            # color=coloring(d)# if coloring else None
+            row += [TextBlock(d, text_format=text_format)]
+        grid.add_row(row)
+
+    grid.add_row([None] + columns_headers)
+
+    def attr_list(attr, minus=1):
+        # a =  getattr(data,attr)
+        # if callable(a):
+        #     a = a()
+        # return [minus * a if d else '' for d in data]
+        for d in data:
+            if not d:
+                yield ''
+            else:
+                a = getattr(d, attr)
+                if callable(a):
+                    yield minus * a()
+                else:
+                    yield minus * a
 
     if verbose:
-        grid.add_row([TextBlock('Rooster uren')] + [TextBlock(d.rooster, text_format='.') for d in data])
-        grid.add_row([TextBlock('Verlof')] + [TextBlock(-d.verlof, text_format='.') for d in data])
-        grid.add_row([TextBlock('Verzuim')] + [TextBlock(-d.verzuim, text_format='.') for d in data])
-        grid.add_row([TextBlock('Beschikbare uren')] + [TextBlock(d.beschikbaar(), text_format='.') for d in data])
+        # grid.add_row([TextBlock('Rooster uren')] + [TextBlock(d.rooster, text_format='.') for d in data])
+        add_row('Rooster uren', attr_list('rooster'), text_format='.')
+        add_row('Verlof', attr_list('verlof', -1), text_format='.')
+        add_row('Verzuim', attr_list('verzuim', -1), text_format='.')
+        add_row('Beschikbare uren', attr_list('beschikbaar'), text_format='.')
 
-    tooltip = f'Groen bij {EFFECTIVITY_GREEN}, Rood onder de {EFFECTIVITY_RED}'
-    grid.add_row(
-        [TextBlock('Effectiviteit', tooltip=tooltip)]
-        + [TextBlock(d.effectivity(), color=effectivity_coloring(d), text_format='%') for d in data]
-    )
-
-    if verbose:
-        grid.add_row([TextBlock('Klant uren')] + [TextBlock(d.op_klant_geboekt, text_format='.') for d in data])
-
-    tooltip = f'Groen onder de {CORRECTIONS_GREEN*100:.0f}%, Rood boven de {CORRECTIONS_RED*100:.0f}%'
-    grid.add_row(
-        [TextBlock('Correcties', tooltip=tooltip)]
-        + [TextBlock(-d.correcties(), color=corrections_coloring(d), text_format='.') for d in data]
-    )
+    # tooltip = f'Groen bij {EFFECTIVITY_GREEN}, Rood onder de {EFFECTIVITY_RED}'
+    # add_row('Verzuim', attr_list('verzuim', -1), text_format='.')
+    add_row('Effectiviteit', attr_list('effectivity'), text_format='%')
 
     if verbose:
-        grid.add_row([TextBlock('Billable uren')] + [TextBlock(d.billable, text_format='.') for d in data])
-        grid.add_row([TextBlock('Billable %')] + [TextBlock(d.billable_perc(), text_format='%') for d in data])
-        grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(d.uurloon(), text_format='€') for d in data])
+        add_row('Klant uren', attr_list('op_klant_geboekt'), text_format='.')
 
-    grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(d.omzet, text_format='K') for d in data])
+    tooltip = f'Groen onder de {CORRECTIONS_GREEN * 100:.0f}%, Rood boven de {CORRECTIONS_RED * 100:.0f}%'
+    add_row('Correcties', attr_list('correcties', -1), coloring=corrections_coloring, text_format='.')
+    # grid.add_row(
+    #     [TextBlock('Correcties', tooltip=tooltip)]
+    #     + [TextBlock(-d.correcties(), color=corrections_coloring(d), text_format='.') for d in data]
+    # )
+
+    if verbose:
+        add_row('Billable uren', attr_list('billable'), text_format='.')
+        # grid.add_row([TextBlock('Billable uren')] + [TextBlock(d.billable, text_format='.') for d in data])
+        # grid.add_row([TextBlock('Billable %')] + [TextBlock(d.billable_perc(), text_format='%') for d in data])
+        # grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(d.uurloon(), text_format='€') for d in data])
+        add_row('Billable %', attr_list('billable_perc'), text_format='%')
+        add_row('Gemiddeld uurloon', attr_list('uurloon'), text_format='€')
+
+    add_row('Omzet op uren', attr_list('omzet'), text_format='K')
+    # grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(d.omzet, text_format='K') for d in data])
     return grid
 
 
@@ -143,14 +181,18 @@ def hours_block(year, month):
         untilday = Day(year, m + 2, 1) if m < 11 else Day(year + 1, m + 1, 1)
         period = Period(fromday, untilday)
         data += [HoursData(period)]
-    grid = KPIgrid(month_names, data)
+    headers = month_names + ['', 'YTD']
+    curyear = datetime.datetime.today().strftime('%Y')
+    total_period = Period(curyear + '-01-01')
+    data += [None, HoursData(total_period)]
+    grid = KPIgrid(headers, data)
 
     chart = None
     if month >= 3:  # Voor maart heeft een grafiekje niet veel zin
         chart = BarChart(
-            [d.omzet for d in data],
+            [d.omzet for d in data[:-2]],  # -2 is lelijk maar haalt de total col eraf
             ChartConfig(
-                width=54 * month,
+                width=60 * month,
                 height=150,
                 colors=['#ddeeff'],
                 bottom_labels=[MAANDEN[m] for m in range(month)],

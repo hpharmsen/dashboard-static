@@ -68,13 +68,7 @@ def update_hours():
 
     # Als pandas file van vandaag is, is het goed voor nu
     if not df.empty and datetime.datetime.fromtimestamp(os.path.getmtime(PANDAS_FILE)).date() == datetime.date.today():
-        return df
-    # Uitgecommentarieerd zolang ik niet weet of we met indienen van uren gaan werken
-    # if df.empty:
-    #     first_simplicate_nonconfirmed_day = datetime.date(2021, 1, 1)
-    # else:
-    #     non_approved = df.query( 'hours > 0 & tariff > 0 and (status=="to_forward" | status=="forwarded") ')
-    #     first_simplicate_nonconfirmed_day = datetime.datetime.strptime( non_approved['day'].min(), DATE_FORMAT).date()
+        return df.drop(['billable', 'status'], axis=1)  # !! Drop is tijdelijk
 
     # day = first_simplicate_nonconfirmed_day
     today = datetime.date.today()
@@ -102,13 +96,13 @@ def update_hours():
 
     df = df.reset_index(drop=True)
     df.to_pickle(PANDAS_FILE)
-    return df
+    return df.drop(['billable', 'status'], axis=1)  #!! Drop is tijdelijk
 
 
 def calculate_turnover(row):
     if row['project_number'] == 'TOR-3' and not row['service'].count('ase 2'):  # For TOR only count fase 2 services
         return 0
-    tariff = row['tariff'] or row['service_tariff']  # If not tariff per user then take the tariff per service
+    tariff = row['tariff'] or row.get('service_tariff', 0)  # If not tariff per user then take the tariff per service
     return (row['hours'] + row['corrections']) * tariff
 
 
@@ -131,6 +125,7 @@ def flatten_hours_data(data):
             log(f"{d['project']['name']} has no tariff for {d['employee']['name']}")
             tariff = 0
         return {
+            'hours_id': d['id'],
             'employee': d['employee']['name'],
             'organization': d['project']['organization']['name'],
             'project_id': d['project']['id'],

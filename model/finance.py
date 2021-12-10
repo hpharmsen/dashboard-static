@@ -14,7 +14,7 @@ from sources.yuki import yuki
 
 def debiteuren_leeftijd_analyse():
     df = debiteuren_leeftijd_analyse_extranet()
-    if type(df) != pd.DataFrame:
+    if not isinstance(df, pd.DataFrame):
         return  # Error occurred, no use to proceed
     yuki_result = debiteuren_leeftijd_analyse_yuki()
     df = df.append(yuki_result, ignore_index=True)

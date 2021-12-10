@@ -2,44 +2,12 @@
 
 # TODO: The list below is my backlog
 
-# Afspraken met Gert;
-# √ Uitrekenen van beschikbare uren toch op basis vabn rooster. Evt rooster/verzuim/verlof apart.
-# √ Billable percentage erbij in maandrapportage
-# √ Op de homepage de maandrapportagecijfers per week
-# √ Met staafgrafiek per week met % effectief en % billable
-
 # Winstgevendheid: uitgaande van een productiviteit van 85%?
 # Padding left/right/top/bottom mogelijk maken
 
-# === DDA Talk over kengetallen ==================
-# KPI's
-# Omzet is uren x tarief - kosten Dus als KPI's: BILLABLE UREN en GEMIDDELD TARIEF
-
-# EFFECTIVITEIT = hoeveel heb je de mensen werkelijk op klantwerk.
-# Normaal werken mensen 1832 uur
-# Hoeveel daarvan op klantwerk? 50% is echt te weinig. 65% is aan de lage kant maar kan.
-# Als het niet minimaal 60% a 65% is staat je winstgevendheid onder druk.
-# Als je groeit: directe mensen 70%/75%/80%
-# PM/lead eerder 40%/50%/60%
-
-# efficiency = Hoe goed je bent om projecten binnen de gestelde tijd af te ronden = het gemiddelde
-# daadwerkelijke uurtarief (effective rate). = BBI / UREN OP DE KLANT
-# Efficiëncy maandelijks uitrekenen. Ook op type werk.
-# Daadwerkelijke uurtarief t.o.v. geoffreerd uurtarief is een maatstaf van je kwaliteit
-
-# Dus:
-# uren op de klant / Beschikbare uren = effectiviteit
-# BBI / billable uren = Gemiddeld tarief
-# Dit alles liever alleen voor de uren-kant van de business.
-
-# 3x5 = Magic: 5% meer uren op de klant boeken, 5% hoger gemiddeld uurtarief, 5% hogere prijs
-
-# Labour Efficiency Ratio (dLER) = BBI / loonkosten van directe mensen. 1,9 is te laag, 2,0 is ondergrens, 2,2 is goed.
-
-# Met al deze dingen: het probleem helder krijgen en daarmee bepalen wat de next steps zijn
-# Het volgende is dan: 6 tot 12 maanden vooruit kijken
-# ================================================
-
+# OPERATIONS
+# - Wensen van Gert: https://www.notion.so/teamoberon/Dashboard-wensen-5305f0b45827460ba6b0d1c5a408dffd
+# Service Team wordt volgens mij nu niet meegerekend als 'gepland', of ik kijk verkeerd. Zou wel moeten.
 
 # FINANCE
 # - Vergelijking met begroting
@@ -48,19 +16,7 @@
 # COMMERCE
 # - Percentage Herhaalopdrachten (churn)
 
-# OPERATIONS
-# - Effective rate = Bruto marge / alle declarabele uren (DDA: 96 bij een listprice van 103)
-# - Gemiddeld uurtarief op billable uren en totaal (omzet/uren)
-# - Billable uren vs geplande uren?
-# Uit de teamleader whitepaper
-# - 1. Gemiddelde opbrengst per uur (%) = Factureerbare waarde per uur / kosten per uur
-# - Factureerbare waarde per uur (€) = beschikbare budget te delen door het aantal gepresteerde uren op projecten.
-# - Kosten per uur (€) = Loon + onkosten + (algemene kosten / #werkn).
-#   en dat deel je door de netto capaciteit (billable en intern maar zonder ziek en vakantiedagen)
-# - 2. Performance  (%)  = Efficiëntie x Billability
-# - Efficiëntie (%) = gefactureerde waarde delen door intrinsieke waarde (budget) van diezelfde periode.
-# - Billability  (%) = factureerbare uren / nettocapaciteit (= het aantal uren dat iemand effectief werkt)
-# - Wensen van Gert: https://www.notion.so/teamoberon/Dashboard-wensen-5305f0b45827460ba6b0d1c5a408dffd
+
 
 # HR
 # - Begroot aantal mensen
@@ -81,6 +37,7 @@ from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
 from view.onderhanden_werk import render_onderhanden_werk_page
+from view.operations import render_operations_page
 from view.resultaat_berekening import render_resultaat_berekening
 from view.sales import render_sales_page
 from view.travelbase import render_travelbase_page
@@ -144,6 +101,8 @@ def render_all_pages(output_folder):
     render_onderhanden_werk_page(output_folder)
     print('..debiteuren')
     render_debiteuren_page(output_folder)
+    print('..operations')
+    render_operations_page(output_folder)
     print('..billable')
     render_billable_page(output_folder)
     print('..winstgevendheid')

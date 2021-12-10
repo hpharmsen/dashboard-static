@@ -52,7 +52,7 @@ def get_bookings_per_week(booking_type: str, only_complete_weeks=False):
                   group by year, week 
                   order by year, week'''
         df = dataframe(sql, db)
-        if type(df) != pd.DataFrame:
+        if not isinstance(df, pd.DataFrame):
             return []  # Error occurred, no use to continue
         df = df.set_index(['year', 'week'])
         if only_complete_weeks:
@@ -89,7 +89,7 @@ def update_bookings_per_day(booking_type: str):
                   group by day 
                   order by day'''
         df = dataframe(sql, db)
-        if type(df) != pd.DataFrame:
+        if not isinstance(df, pd.DataFrame):
             return  # Error occurred, no use to proceed
         for index, row in df.iterrows():
             if row['day'] != day or row['value'] != value:

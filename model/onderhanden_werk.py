@@ -45,7 +45,7 @@ def project_status_data(date_str=None):
 @cache(hours=72)
 def simplicate_onderhanden_werk(date_str: str = ''):
     list = ohw_list(simplicate(), date_str)
-    if type(list) != pd.DataFrame:
+    if not isinstance(list, pd.DataFrame):
         return 0
     return Decimal(list['ohw'].sum().item())  # Itemw converts numpy.uint64 to Python scalar
 
@@ -168,7 +168,7 @@ def ohw_list(sim, date_str='', minimum_amount=0):
     ]
 
     project_status_dataframe = get_project_status_dataframe(date_str)
-    if type(project_status_dataframe) != pd.DataFrame:
+    if not isinstance(project_status_dataframe, pd.DataFrame):
         return  # Error occurred, no use to go on
     projects_and_services = simplicate_projects_and_services(sim)
     merged = pd.merge(project_status_dataframe, projects_and_services, on=['project_number', 'service']).rename(

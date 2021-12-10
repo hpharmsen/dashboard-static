@@ -101,7 +101,7 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
         styles=['width:160px;', '', '', '', 'width:80px;'],
     )
     # Omzet
-    add_normal_row('Omzet totaal', yuki_result.omzet())
+    add_normal_row('Omzet', yuki_result.omzet())
     add_normal_row('Projectkosten', yuki_result.projectkosten())
     add_normal_row('Uitbesteed werk', yuki_result.uitbesteed_werk())
     add_normal_row('Hostingkosten', yuki_result.month_ytd('hosting_expenses'))

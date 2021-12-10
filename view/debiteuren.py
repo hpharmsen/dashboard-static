@@ -1,18 +1,18 @@
 import os
+from pathlib import Path
 
 import pandas as pd
 
+from layout.basic_layout import HEADER_SIZE
 from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
-from layout.basic_layout import HEADER_SIZE
 from model.finance import debiteuren_leeftijd_analyse
-from pathlib import Path
-from settings import get_output_folder, RED
+from settings import get_output_folder
 
 
 def render_debiteuren_page(output_folder: Path):
     debiteuren = debiteuren_leeftijd_analyse()
-    if type(debiteuren) != pd.DataFrame:
+    if not isinstance(debiteuren, pd.DataFrame):
         return  # Error occurred, no use to proceed
     page = Page(
         [
@@ -34,6 +34,5 @@ def render_debiteuren_page(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
-    from main import output_folder
 
     render_debiteuren_page(get_output_folder())

@@ -1,7 +1,7 @@
-import logging
 from pathlib import Path
-from hplib.dbclass import dbClass  # pip3 install git+https://github.com/hpharmsen/hplib
+
 import pandas as pd
+from hplib.dbclass import dbClass  # pip3 install git+https://github.com/hpharmsen/hplib
 from pymysql import OperationalError
 
 from model.log import log_error
@@ -53,6 +53,6 @@ def dataframe(query, database=None):
 
 def table(query):
     df = dataframe(query)
-    if type(df) != pd.DataFrame:
+    if not isinstance(df, pd.DataFrame):
         return []
     return df.to_dict(orient='records')

@@ -199,7 +199,7 @@ class TextBlock(Block):
             pagebreak=False,
     ):
         super().__init__([], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding)
-        self.text = do_format(text, text_format)
+        self.text = do_format(text, text_format) if text else ''
         self.font_size = font_size
         self.font_family = font_family
         self.style = style

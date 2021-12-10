@@ -63,7 +63,6 @@ def loonkosten_per_persoon():
         users[k]['kosten_jaar'] = (MT_SALARIS * users[k]['uren'] / 40,)
         users[k]['jaar_kosten_pt'] = 12 * users[k]['maand_kosten_ft'] * users[k]['uren'] / 40
         users[k]['fraction_of_the_year_worked'] = fraction_of_the_year_past()
-    sum_directie = sum([users[k]['jaar_kosten_pt'] for k in users.keys()]) * fraction_of_the_year_past()
 
     # Werknemers en ex werknemers
     id_col = contracten[0].index('Id')

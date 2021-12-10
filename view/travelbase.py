@@ -1,13 +1,12 @@
 import math
 import os
-from pathlib import Path
 
 import pandas as pd
 
 from layout.basic_layout import HEADER_SIZE
 from layout.block import TextBlock, Page
-from layout.table import Table, TableConfig
 from layout.chart import StackedBarChart, ChartConfig, MultiScatterChart
+from layout.table import Table, TableConfig
 from model.travelbase import BRANDS, get_bookings_per_week, update_bookings_per_day
 from settings import get_output_folder
 
@@ -19,7 +18,7 @@ def render_travelbase_page(output_folder):
     update_bookings_per_day('bookings')
     update_bookings_per_day('tickets')
     bookings = get_bookings_per_week(booking_type='bookings')
-    if type(bookings) != pd.DataFrame:
+    if not isinstance(bookings, pd.DataFrame):
         return  # An error occurred, no use to proceed
     totals = [(brand, bookings[brand].sum()) for brand in BRANDS]
     totals_table = Table(totals, TableConfig(aligns=['left', 'right'], formats=['', '0'], totals=[0, 1]))

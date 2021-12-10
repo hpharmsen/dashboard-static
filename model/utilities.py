@@ -26,6 +26,21 @@ class Day:
     def __str__(self):
         return self.str
 
+    def __l__(self, other):
+        return self.str < other.str
+
+    def __gt__(self, other):
+        return self.str > other.str
+
+    def __le__(self, other):
+        return self.str <= other.str
+
+    def __ge__(self, other):
+        return self.str >= other.str
+
+    def __eq__(self, other):
+        return self.str == other.str
+
     def as_datetime(self):
         return datetime(self.y, self.m, self.d)
 

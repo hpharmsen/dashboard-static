@@ -278,7 +278,7 @@ def vulling_van_de_planning():
     order by day
     limit 16'''
     table = db.dataframe(query)
-    if type(table) != pd.DataFrame:
+    if not isinstance(table, pd.DataFrame):
         return  # Error occured, no use to proceed
 
     # Roster

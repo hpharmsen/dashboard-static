@@ -28,7 +28,7 @@ def tuple_of_productie_users():
     return users
 
 
-@cache(hours=2)
+# @cache(hours=2)
 def geboekte_uren_users(period: Period, users, only_clients=0, only_billable=0):
     querystring = create_querystring(
         users, only_clients=only_clients, only_billable=only_billable
@@ -60,7 +60,7 @@ def create_querystring(users, only_clients=0, only_billable=0):
         query += [f"employee in {users}"]
     else:
         interns = get_interns(simplicate())
-        query += [f"""employee not in ("{'","'.join(interns)}")"""]
+        #!! TIJDELIJK ALS TEST query += [f"""employee not in ("{'","'.join(interns)}")"""]
     if only_billable:
         query += ["(tariff > 0 or service_tariff>0)"]
 
@@ -231,13 +231,14 @@ def beschikbare_uren_volgens_rooster(period: Period, employees=None):
     # Ziek
     absence = verzuim_absence_hours(period, employees)
 
-    return tot, leave, absence
+    return float(tot), float(leave), float(absence)
 
 
 if __name__ == "__main__":
     os.chdir("..")
     load_cache()
 
+    h = hours_dataframe()
     period_ = Period("2021-06-01", "2021-10-01")
     # Get the list of current employees
     employees_ = set(hours_dataframe(period_).employee.unique())
