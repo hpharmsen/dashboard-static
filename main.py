@@ -41,6 +41,7 @@ from view.operations import render_operations_page
 from view.resultaat_berekening import render_resultaat_berekening
 from view.sales import render_sales_page
 from view.travelbase import render_travelbase_page
+from view.verzuim import render_verzuim_page
 from view.winstgevendheid import render_winstgevendheid_page
 
 
@@ -111,8 +112,8 @@ def render_all_pages(output_folder):
     render_resultaat_berekening(output_folder)
     print('..correcties')
     render_correcties_page(output_folder)
-    # print('..verzuim')
-    # render_verzuim_page(output_folder)
+    print('..verzuim')
+    render_verzuim_page(output_folder)
     print('..travelbase')
     render_travelbase_page(output_folder)
 

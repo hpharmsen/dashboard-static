@@ -16,7 +16,7 @@ class Timesheet():
     def __init__(self):
         self.db = get_middleware_db()
         self._create_timesheet_table()
-        self.update()
+        # self.update()
 
     def _create_timesheet_table(self):
         ''' Creates the table to store timesheet data plus it's indexes '''
@@ -132,6 +132,17 @@ class Timesheet():
         query_result = self.db.execute(query)
         result = float(query_result[0]['result'] or 0)
         return result
+
+    def query(self, period: Period, where='', sort=None):
+        query_string = f'SELECT * from timesheet WHERE day>="{period.fromday}"'
+        if period.untilday:
+            query_string += f' AND day<"{period.untilday}"'
+        if where:
+            query_string += ' AND ' + where
+        if sort:
+            query_string += ' ORDER BY ' + ','.join(sort)
+        query_result = self.db.execute(query_string)
+        return query_result
 
 
 def group_by_daypersonservice(list_of_dicts):

@@ -21,13 +21,13 @@ def render_verzuim_page(output_folder: Path):
             Table(
                 verzuim_list(period),
                 TableConfig(
-                    headers=["Naam", "Dag", "soort", "Uren"],
+                    headers=["Naam", "Dag", "soort", "Dagen"],
                     aligns=["left", "left", "left", "right"],
                     formats=[
                         "",
                         "",
                         "",
-                        ".0",
+                        ".5",
                     ],
                     totals=[0, 0, 0, 1],
                 ),

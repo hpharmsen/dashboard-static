@@ -4,8 +4,9 @@ from datetime import datetime
 
 import pandas as pd
 
+from middleware.timesheet import Timesheet
 from model.caching import cache
-from model.utilities import fraction_of_the_year_past, Period
+from model.utilities import fraction_of_the_year_past, Period, Day
 from sources.googlesheet import sheet_tab, sheet_value
 from sources.simplicate import hours_dataframe, simplicate
 
@@ -63,14 +64,39 @@ def leave_hours(period: Period, employees: list = []):
     return result
 
 
-def verzuim_list(period):
+def verzuim_list_old(period):
     result = (
         hours_dataframe(period)
             .query(
-            f'type=="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0'
+            'type=="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0'
         )
             .sort_values(['employee', 'day'])[['employee', 'day', 'label', 'hours']]
     )
+    return result
+
+
+def verzuim_list(period):
+    timesheet = Timesheet()
+    list_of_dicts = timesheet.query(period,
+                                    'type="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0',
+                                    sort=['employee', 'day'])
+    result = []
+    last = list_of_dicts[0]
+    last_day = Day(last['day'])
+    for d in list_of_dicts[1:]:
+        if d['employee'] == last['employee'] and d['label'] == last['label'] and Day(d['day']) - last_day <= 4:
+            last['hours'] += d['hours']
+        else:
+            result += [[last['employee'], last['day'], last['label'], float(last['hours'] / 8)]]
+            last = d
+        last_day = Day(d['day'])
+    result += [[last['employee'], last['day'], last['label'], float(last['hours'] / 8)]]
+    # result = list_of_lists(list_of_dicts, ['employee', 'day', 'label', 'hours'])
+    return result
+
+
+def list_of_lists(list_of_dicts, fields):
+    result = [[dict[field] for field in fields] for dict in list_of_dicts]
     return result
 
 
@@ -128,4 +154,6 @@ def vrije_dagen_pool():
 
 if __name__ == '__main__':
     os.chdir('..')
-    # print(verzuim_list(verzuim_from_day(91)))
+    period = Period(Day().plus_days(-10))
+    print(verzuim_list(period))
+    print(verzuim_list2(period))

@@ -41,6 +41,9 @@ class Day:
     def __eq__(self, other):
         return self.str == other.str
 
+    def __sub__(self, other):
+        return (self.as_datetime() - other.as_datetime()).days
+
     def as_datetime(self):
         return datetime(self.y, self.m, self.d)
 
