@@ -7,15 +7,16 @@ from layout.table import Table, TableConfig
 from model.organisatie import (
     verzuim_normal_hours,
     verzuim_absence_hours,
-    verzuimpercentage, verzuim_list,
+    verzuimpercentage,
+    verzuim_list,
 )
 from model.utilities import Period, Day
 from settings import get_output_folder, GRAY, dependent_color
 
 
 def render_verzuim_page(output_folder: Path):
-    MONTHS = 3
-    period = Period(Day().plus_months(-MONTHS))
+    months = 3
+    period = Period(Day().plus_months(-months))
     table = VBlock(
         [
             Table(
@@ -40,7 +41,7 @@ def render_verzuim_page(output_folder: Path):
     page = Page(
         [
             TextBlock("Verzuim", HEADER_SIZE),
-            TextBlock(f"De afgelopen {MONTHS} maanden", color=GRAY),
+            TextBlock(f"De afgelopen {months} maanden", color=GRAY),
             HBlock(
                 [
                     VBlock(
