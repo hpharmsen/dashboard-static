@@ -3,6 +3,7 @@ import os
 
 import pandas as pd
 
+from middleware.timesheet import Timesheet
 from model.caching import cache, load_cache
 from model.organisatie import verzuim_absence_hours, leave_hours
 from model.utilities import Day, Period
@@ -60,7 +61,7 @@ def create_querystring(users, only_clients=0, only_billable=0):
         query += [f"employee in {users}"]
     else:
         interns = get_interns(simplicate())
-        #!! TIJDELIJK ALS TEST query += [f"""employee not in ("{'","'.join(interns)}")"""]
+        query += [f"""employee not in ("{'","'.join(interns)}")"""]
     if only_billable:
         query += ["(tariff > 0 or service_tariff>0)"]
 
@@ -70,7 +71,7 @@ def create_querystring(users, only_clients=0, only_billable=0):
 @cache(hours=24)
 def get_interns(sim):
     """ Returns a set of users with function Stagiair"""
-    return {e["name"] for e in sim.employee({"function": "Stagiair"})}
+    return {employee["name"] for employee in sim.employee({"function": "Stagiair"})}
 
 
 def percentage_directe_werknemers():
@@ -104,10 +105,10 @@ def billable_trend_person_week(user, startweek=1):
         pos = key - startweek
         if 0 <= pos < len(labels):
             hours[pos] = value["hours"]
-    return (labels, hours)
+    return labels, hours
 
 
-############### CORRECTIONS ####################
+# ############## CORRECTIONS ####################
 
 
 def format_project_name(row):
@@ -142,8 +143,7 @@ def corrections_count(period: Period):
     return result
 
 
-@cache(hours=24)
-def corrections_list(period: Period):
+def corrections_list_old(period: Period):
     # returns a dataframe of organization, project_name, project_id, corrections
     df = hours_dataframe(period)
     result = (
@@ -155,6 +155,20 @@ def corrections_list(period: Period):
     )
     result["corrections"] = result.apply(lambda a: int(a["corrections"]), axis=1)
     return result
+
+
+def corrections_list(period: Period):
+    timesheet = Timesheet()
+    query = f'''select `organization`, project_name, sum(hours) as hours, sum(corrections) as corrections
+                from timesheet
+                where day>="{period.fromday}"'''
+    if period.untilday:
+        query += f' and day<"{period.untilday}"'
+    query += ''' group by project_id
+                having sum(corrections) < -2
+                order by corrections'''
+    corrections = timesheet.full_query(query)
+    return pd.DataFrame(corrections)
 
 
 @cache(hours=24)

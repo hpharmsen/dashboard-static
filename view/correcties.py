@@ -40,14 +40,15 @@ def corrections_all_table():
         return f'https://oberon.simplicate.com/projects/{project_id}/hours'
 
     period = Period(Day('2021-1-1'))
+    # corr_old = corrections_list_old(period)
+    # corr = corrections_list(period)
     return Table(
         corrections_list(period),
         TableConfig(
             headers=['Klant', 'Project', 'Uren', 'Correcties'],
             aligns=['left', 'left', 'right', 'right'],
             totals=[0, 0, 0, 1],
-            row_linking=row_linking,
-            hide_columns=[2],  # project_id
+            row_linking=row_linking  # project_id
         ),
     )
 

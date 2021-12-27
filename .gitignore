@@ -120,3 +120,11 @@ venv.bak/
 
 experiments
 /sources/simplicate notebooks/Sanity.ipynb
+/api/.idea/.gitignore
+/api/.idea/aws.xml
+/api/.idea/fastapi.iml
+/api/.idea/misc.xml
+/api/.idea/modules.xml
+/api/.idea/inspectionProfiles/profiles_settings.xml
+/api/.idea/inspectionProfiles/Project_Default.xml
+/api/.envrc

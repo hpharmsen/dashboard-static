@@ -7,26 +7,27 @@ from settings import DATE_FORMAT
 
 
 class Day:
-    ''' In Dashboard most dates are used as yyy-mm-dd strings. This class is to facilitate that. '''
+    """ In Dashboard most dates are used as yyy-mm-dd strings. This class is to facilitate that. """
 
     def __init__(self, *args):
         if len(args) == 3:
-            self.str = datetime(*args).strftime(DATE_FORMAT)
+            dt = datetime(*args)
         elif len(args) == 0:
-            self.str = datetime.today().strftime(DATE_FORMAT)
+            dt = datetime.today()
         elif isinstance(args[0], str):
-            self.str = args[0]
+            y, m, d = args[0].split('-')
+            dt = datetime(int(y), int(m), int(d))
         elif isinstance(args[0], (date, datetime)):
-            self.str = args[0].strftime(DATE_FORMAT)
+            dt = args[0]
         else:
             raise f'Invalid type passed to Day class: {args[0]} with type {type(args[0])}'
-        y, m, d = self.str.split('-')
-        self.d, self.m, self.y = int(d), int(m), int(y)
+        self.str = dt.strftime(DATE_FORMAT)
+        self.d, self.m, self.y = dt.day, dt.month, dt.year
 
     def __str__(self):
         return self.str
 
-    def __l__(self, other):
+    def __lt__(self, other):
         return self.str < other.str
 
     def __gt__(self, other):
@@ -76,7 +77,7 @@ class Day:
 
 
 class Period:
-    ''' Utility class bundling a startdate and optionally an end date '''
+    """ Utility class bundling a startdate and optionally an end date """
 
     def __init__(self, fromday, untilday=None):
         if not isinstance(fromday, Day):

@@ -32,11 +32,15 @@ table.grid th {background-color:#393; color:white}
 
   .break-before {
         page-break-before: always;
-    }
+  }
 
   .break-after {
         page-break-after: always;
-   }
+  }
+
+  .no-print, .no-print * {
+        display: none !important;
+  }
 }
 
 
@@ -81,3 +85,4 @@ table.grid th {background-color:#393; color:white}
   visibility: visible;
   opacity: 1;
 }
+

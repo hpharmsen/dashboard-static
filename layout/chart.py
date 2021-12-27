@@ -35,7 +35,7 @@ class ChartConfig(NamedTuple):
     y_axis_max_ticks: int = 0
     y_axis_font_size: int = 0
     padding: int = 40  # distance to next object
-
+    css_class: str = ''
 
 class Chart(Block):
     def __init__(self, values, config):
@@ -48,6 +48,7 @@ class Chart(Block):
             bg_color=config.bg_color,
             link=config.link,
             padding=config.padding,
+            css_class=config.css_class
         )
 
         self.datasets = f'''[{{

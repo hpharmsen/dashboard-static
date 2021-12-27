@@ -197,8 +197,10 @@ class TextBlock(Block):
             tooltip='',
             padding=30.0,
             pagebreak=False,
+            css_class=''
     ):
-        super().__init__([], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding)
+        super().__init__([], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding,
+                         css_class=css_class)
         self.text = do_format(text, text_format) if text else ''
         self.font_size = font_size
         self.font_family = font_family

@@ -1,5 +1,6 @@
 import datetime
 import json
+import sys
 
 import numpy as np
 import pandas as pd
@@ -12,14 +13,15 @@ from sources.simplicate import simplicate, flatten_hours_data, calculate_turnove
 
 
 @singleton
-class Timesheet():
+class Timesheet:
     def __init__(self):
         self.db = get_middleware_db()
         self._create_timesheet_table()
-        # self.update()
+        if "--onceaday" in sys.argv:
+            self.update()
 
     def _create_timesheet_table(self):
-        ''' Creates the table to store timesheet data plus it's indexes '''
+        """ Creates the table to store timesheet data plus it's indexes """
 
         # middleware_db.execute('DROP TABLE IF EXISTS timesheet;')
         self.db.execute("""CREATE TABLE IF NOT EXISTS timesheet (
@@ -63,7 +65,7 @@ class Timesheet():
         sim = simplicate()
         newest_result = self.db.execute('select max(day) as day from timesheet')[0]['day']
         if newest_result:
-            day = Day(newest_result).plus_days(0)  # Hier moeten we nog iets mee. -14 bij --onceaday?
+            day = Day(newest_result).plus_days(-14)
         else:
             day = Day(2021, 1, 1)
 
@@ -90,11 +92,12 @@ class Timesheet():
                 self.db.commit()
             day = day.next()  # Move to the next day before repeating the loop
 
-    def query_string(self, period: Period, only_clients=0, only_billable=0, users=None, type="normal"):
+    @staticmethod
+    def query_string(period: Period, only_clients=0, only_billable=0, users=None, hours_type="normal"):
         query = f'where day>="{period.fromday}"'
         if period.untilday:
             query += f' and day<"{period.untilday}"'
-        query += f' and type="{type}"'
+        query += f' and type="{hours_type}"'
 
         if only_clients:
             query += ' and organization not in ("Oberon", "Qikker Online B.V.") '
@@ -133,16 +136,21 @@ class Timesheet():
         result = float(query_result[0]['result'] or 0)
         return result
 
-    def query(self, period: Period, where='', sort=None):
+    def query(self, period: Period, where: str = '', sort=None):
         query_string = f'SELECT * from timesheet WHERE day>="{period.fromday}"'
         if period.untilday:
             query_string += f' AND day<"{period.untilday}"'
         if where:
             query_string += ' AND ' + where
         if sort:
+            if not isinstance(sort, list):
+                sort = [sort]
             query_string += ' ORDER BY ' + ','.join(sort)
         query_result = self.db.execute(query_string)
         return query_result
+
+    def full_query(self, query_string):
+        return self.db.execute(query_string)
 
 
 def group_by_daypersonservice(list_of_dicts):
@@ -151,7 +159,7 @@ def group_by_daypersonservice(list_of_dicts):
     def first(x): return x.values[0]
 
     key = ['day', 'employee', 'service_id']
-    agg = {colname: first for colname in df.columns if not colname in key}
+    agg = {colname: first for colname in df.columns if colname not in key}
     agg['hours'] = np.sum
     agg['corrections'] = np.sum
     df2 = df.groupby(key).agg(agg).reset_index()

@@ -196,7 +196,7 @@ def hours_block(year, month):
                 height=150,
                 colors=['#ddeeff'],
                 bottom_labels=[MAANDEN[m] for m in range(month)],
-                y_axis_max_ticks=5,
+                y_axis_max_ticks=5
             ),
         )
 
@@ -211,8 +211,10 @@ def hours_block(year, month):
                 color=GRAY,
             ),
             grid,
-            TextBlock('Omzet op uren per maand'),
-            chart,
+            VBlock([
+                TextBlock('Omzet op uren per maand'),
+                chart],
+                css_class="no-print")
         ]
     )
 

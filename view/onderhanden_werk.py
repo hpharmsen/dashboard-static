@@ -70,7 +70,7 @@ def onderhanden_werk_list():
         ]
     )
     sim = simplicate()
-    onderhanden = ohw_list(sim, minimum_amount=1000)
+    onderhanden = ohw_list(sim, '2021-11-30', minimum_amount=1000)  # !! Datum is tijdelijk
     if not isinstance(onderhanden, pd.DataFrame):
         return TextBlock('Fout in ophalen onderhanden werk', color=RED)
     last_project_number = ''

@@ -1,6 +1,6 @@
 import calendar
 
-from model.onderhanden_werk import simplicate_onderhanden_werk
+# from model.onderhanden_werk import simplicate_onderhanden_werk
 from model.utilities import Day
 from sources.yuki import Yuki, COSTS, ASSETS, LIABILITIES
 

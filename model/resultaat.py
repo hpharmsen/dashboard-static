@@ -8,7 +8,7 @@ import pandas as pd
 from beautiful_date import *
 
 from model.caching import cache
-from model.onderhanden_werk import simplicate_onderhanden_werk
+# from model.onderhanden_werk import simplicate_onderhanden_werk
 from model.productiviteit import tuple_of_productie_users
 from model.trendline import trends
 from model.utilities import Day, Period

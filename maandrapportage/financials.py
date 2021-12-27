@@ -1,7 +1,9 @@
+from gspread import WorksheetNotFound
+
 from layout.basic_layout import MID_SIZE
 from layout.block import Grid, TextBlock, VBlock
 from maandrapportage.yuki_results import YukiResult, tuple_add, last_date_of_month
-from settings import MAANDEN, GRAY, TOPLINE, BOLD, DOUBLE_TOPLINE, RED
+from settings import MAANDEN, GRAY, TOPLINE, BOLD, DOUBLE_TOPLINE, RED, ITALIC
 from sources.googlesheet import HeaderSheet
 
 
@@ -11,6 +13,11 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
     last_date_this_month = last_date_of_month(year, month)
     begroting = HeaderSheet('Begroting 2021', 'Begroting', header_col=2, header_row=2)
     omzetplanning = HeaderSheet('Begroting 2021', 'Omzetplanning')
+    toelichtingen = []
+    try:
+        toelichting_sheet = HeaderSheet('Begroting 2021', str(month))
+    except WorksheetNotFound:
+        toelichting_sheet = None
 
     grid = Grid(
         cols=8,
@@ -37,6 +44,11 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
                 budget_ytd,
             ]
         )
+        if toelichting_sheet:
+            toelichting = toelichting_sheet[title, 'Toelichting']
+            if toelichting:
+                b = toelichtingen  # zeer merkwaardige constructie maar krijg een foutmelding als ik direct iets toevoeg aan toelichtingen
+                b += [(title, toelichting)]
 
     def add_subtotal_row(title, subtotal, budget=None, style=TOPLINE):
         if budget:
@@ -190,7 +202,8 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
         styles=['', '', 'border:2px solid gray', '', '', '', 'border:2px solid gray'],
     )
 
-    return VBlock([TextBlock(f'Winst & verliesrekening', MID_SIZE), grid])
+    contents = [TextBlock(f'Winst & verliesrekening', MID_SIZE), grid, toelichting_block(toelichtingen)]
+    return VBlock(contents, css_class="page-break-before", style="page-break-before: always;")
 
 
 # Balans
@@ -199,6 +212,11 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
     vorige_maand = MAANDEN[month - 2] if month >= 2 else f'Begin {year}'
     last_date_this_month = last_date_of_month(year, month)
     grid = Grid(cols=6, has_header=False, aligns=['left', 'right', 'right', '', 'right', 'right'])
+    toelichtingen = []
+    try:
+        toelichting_sheet = HeaderSheet('Begroting 2021', str(month))
+    except WorksheetNotFound:
+        toelichting_sheet = None  # !! Same code as above. Refactor.
 
     def add_normal_row(title, result):
         grid.add_row(
@@ -211,6 +229,11 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
                 '',
             ]
         )
+        if toelichting_sheet:
+            toelichting = toelichting_sheet[title, 'Toelichting']
+            if toelichting:
+                b = toelichtingen  # zeer merkwaardige constructie maar krijg een foutmelding als ik direct iets toevoeg aan toelichtingen
+                b += [(title, toelichting)]
 
     def add_subtotal_row(title, subtotal, style=TOPLINE):
         grid.add_row(
@@ -295,10 +318,10 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
     # )
     # undistributed_result = tuple_add(undistributed_result, yuki_result.profit()) # Add this years profit
 
-    a = yuki_result.profit()
+    # a = yuki_result.profit()
     result_until_this_month = yuki_result.profit()[1]
     last_date_last_month = last_date_of_month(year, month - 1) if month > 1 else last_date_of_month(year - 1, 12)
-    b = yuki_result.profit(last_date_last_month)
+    #b = yuki_result.profit(last_date_last_month)
     result_until_last_month = yuki_result.profit(last_date_last_month)[1]
 
     # work_in_progress_last_month = yuki_result.get_work_in_progress(last_date_last_month)
@@ -346,7 +369,7 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
         )
 
     return VBlock(
-        [TextBlock(f'Balans per einde {maand.lower()} {year}', MID_SIZE), grid],
+        [TextBlock(f'Balans per einde {maand.lower()} {year}', MID_SIZE), grid, toelichting_block(toelichtingen)],
         css_class="page-break-before",
         style="page-break-before: always;",
     )
@@ -459,3 +482,12 @@ def cashflow_analysis_block(yuki_result, year, month):
         css_class="page-break-before",
         style="page-break-before: always;",
     )
+
+
+def toelichting_block(toelichtingen):
+    if not toelichtingen:
+        return
+    toelichting_grid = Grid(cols=2)
+    for t in toelichtingen:
+        toelichting_grid.add_row([TextBlock(t[0], style=BOLD), TextBlock(t[1], style=ITALIC)])
+    return VBlock([TextBlock(f'Toelichting', style=BOLD), toelichting_grid])

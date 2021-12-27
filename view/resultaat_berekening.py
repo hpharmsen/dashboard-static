@@ -5,7 +5,9 @@ from decimal import Decimal
 from functools import partial
 from pathlib import Path
 
-from settings import get_output_folder, MAANDEN
+from layout.basic_layout import DEF_SIZE, MID_SIZE
+# from model.onderhanden_werk import simplicate_onderhanden_werk
+from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
 from model.caching import clear_cache
 from model.log import log
 from model.resultaat import (
@@ -22,9 +24,7 @@ from model.resultaat import (
     kosten_boekhoudkundig_tm_maand,
     kosten_begroot_na_maand,
 )
-from model.onderhanden_werk import simplicate_onderhanden_werk
-from layout.block import TextBlock, Block, Page, VBlock, HBlock, Grid
-from layout.basic_layout import DEF_SIZE, MID_SIZE
+from settings import get_output_folder, MAANDEN
 
 
 def add_row(grid, *args, bold=False, coloring=None):

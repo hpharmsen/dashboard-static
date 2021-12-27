@@ -80,6 +80,8 @@ def verzuim_list(period):
     list_of_dicts = timesheet.query(period,
                                     'type="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0',
                                     sort=['employee', 'day'])
+    if not list_of_dicts:
+        return []
     result = []
     last = list_of_dicts[0]
     last_day = Day(last['day'])

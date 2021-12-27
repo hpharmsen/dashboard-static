@@ -34,7 +34,12 @@ ACCOUNT_CODES = {
     "other_receivables": [1321, 1330, 1335, 1350, 13999, 233],
     "kruisposten": 23101,  # Special case, kan debet en credit zijn
     "creditors": [16000],
-    "other_debts": [15, 16100, 16999, 23000, 23010, 23020],
+    "other_debts": [15,  # Credit card
+                    16100,  # Nog te ontvangen facturen
+                    16999,  # Overige kortlopende schulden
+                    23000,  # Betalingen onderweg
+                    23010,  # Rekening onbekend
+                    23020],  # Vraagposten
     "debts_to_employees": [170, 175, 20000],
     "taxes": [171, 176, 179, 18, 24],
     "costs": 4,
@@ -72,14 +77,15 @@ class Yuki:
         body = self.call("/Authenticate", {"accessKey": api_key})
         self.session_id = body.text
 
-    def call(self, endpoint, params={}):
+    def call(self, endpoint, params=None):
         url = BASE_URL + endpoint + "?"
         if hasattr(self, "session_id"):
             url += f"sessionID={self.session_id}&"
         if hasattr(self, "administration_id"):
             url += f"administrationID={self.administration_id}&"
-        for key, value in params.items():
-            url += f"{key}={value}&"
+        if params:
+            for key, value in params.items():
+                url += f"{key}={value}&"
         response = requests.get(url)
         soup = BeautifulSoup(response.text, "lxml")
         if response.status_code == 500:
@@ -99,14 +105,13 @@ class Yuki:
         items = body.outstandingdebtoritems.find_all("item")
         result = []
         for item in items:
-            balance_type = item.type
             if item.type.text == "Beginbalans":
                 continue
             date = datetime.datetime.strptime(item.date.text, "%Y-%m-%d")
             days = (datetime.datetime.today() - date).days
             contact = item.contact.text
-            self.text = item.description.text
-            description = self.text
+            # self.text = item.description.text
+            description = item.description.text
             openamount = float(item.openamount.text)
             result += [
                 {
@@ -150,8 +155,7 @@ class Yuki:
                 "balance_type": item.attrs["balancetype"],
             }
             for item in items
-            if (not balance_type or item.attrs["balancetype"] == balance_type)
-               and valid_code(item.attrs["code"])
+            if (not balance_type or item.attrs["balancetype"] == balance_type) and valid_code(item.attrs["code"])
         ]
         return res
 
@@ -177,43 +181,20 @@ class Yuki:
     def post(self, account, account_type=None, date_str=None):
         ab = self.account_balance(date_str, account_codes=ACCOUNT_CODES[account])
         res = 0
+        negative_accounts = ("08", "09", "15", "16", "17", "18", "20", "23", "24", "49", "60", "80", "85", "86", "87",
+                             "88", "89")
         for a in ab:
             if account_type in (ASSETS, COSTS):
                 multiplier = 1
             elif account_type in (LIABILITIES, INCOME):
                 multiplier = -1
             else:
-                multiplier = (
-                    -1
-                    if a["code"][:2]
-                       in (
-                           "08",
-                           "09",
-                           "15",
-                           "16",
-                           "17",
-                           "18",
-                           "20",
-                           "23",
-                           "24",
-                           "49",
-                           "60",
-                           "80",
-                           "85",
-                           "86",
-                           "87",
-                           "88",
-                           "89",
-                       )
-                    else 1
-                )
+                multiplier = -1 if a["code"][:2] in negative_accounts else 1
             res += a["amount"] * multiplier
-        import pandas as pd
-
-        p = pd.DataFrame(ab)
         return res
 
-    def test_codes(self):
+    @staticmethod
+    def test_codes():
 
         account_codes = []
         for codes in ACCOUNT_CODES.values():

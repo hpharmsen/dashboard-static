@@ -32,13 +32,11 @@ from model.caching import load_cache, clear_cache, cache_created_time_stamp
 from model.finance import cash
 from model.log import init_log
 from settings import get_output_folder
-from view.billable import render_billable_page
+# from view.billable import render_billable_page
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
-from view.onderhanden_werk import render_onderhanden_werk_page
 from view.operations import render_operations_page
-from view.resultaat_berekening import render_resultaat_berekening
 from view.sales import render_sales_page
 from view.travelbase import render_travelbase_page
 from view.verzuim import render_verzuim_page
@@ -98,18 +96,18 @@ def render_all_pages(output_folder):
     # render_vrije_dagen_page(output_folder)
     print('..sales')
     render_sales_page(output_folder)
-    print('..onderhanden')
-    render_onderhanden_werk_page(output_folder)
+    # print('..onderhanden')
+    # render_onderhanden_werk_page(output_folder)
     print('..debiteuren')
     render_debiteuren_page(output_folder)
     print('..operations')
     render_operations_page(output_folder)
-    print('..billable')
-    render_billable_page(output_folder)
+    # print('..billable')
+    # render_billable_page(output_folder)
     print('..winstgevendheid')
     render_winstgevendheid_page(output_folder)
-    print('..resultaatberekening')
-    render_resultaat_berekening(output_folder)
+    # print('..resultaatberekening')
+    # render_resultaat_berekening(output_folder)
     print('..correcties')
     render_correcties_page(output_folder)
     print('..verzuim')
