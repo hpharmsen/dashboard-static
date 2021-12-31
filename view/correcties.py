@@ -48,7 +48,7 @@ def corrections_all_table():
             headers=['Klant', 'Project', 'Uren', 'Correcties'],
             aligns=['left', 'left', 'right', 'right'],
             totals=[0, 0, 0, 1],
-            row_linking=row_linking  # project_id
+            row_linking=row_linking,  # project_id
         ),
     )
 

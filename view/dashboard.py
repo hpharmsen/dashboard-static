@@ -17,10 +17,11 @@ from model.organisatie import (
     verzuimpercentage,
 )
 from model.productiviteit import corrections_percentage, largest_corrections
-from model.resultaat import (top_x_klanten_laatste_zes_maanden,
-                             update_omzet_per_week,
-                             vulling_van_de_planning,
-                             )
+from model.resultaat import (
+    top_x_klanten_laatste_zes_maanden,
+    update_omzet_per_week,
+    vulling_van_de_planning,
+)
 from model.sales import sales_waarde, top_x_sales
 from model.travelbase import get_bookings_per_week, BRANDS
 from model.trendline import trends
@@ -40,9 +41,7 @@ from view.travelbase import scatterchart as travelbase_scatterchart
 
 
 def render_dashboard(output_folder):
-    page = Page(
-        [HBlock([commerce_block(), operations_block(), finance_block(), hr_block()])]
-    )
+    page = Page([HBlock([commerce_block(), operations_block(), finance_block(), hr_block()])])
     page.render(output_folder / "dashboard.html")
 
 
@@ -79,9 +78,7 @@ def commerce_block():
                     ),
                     Table(
                         top_sales,
-                        TableConfig(
-                            headers=[], aligns=["left", "right"], formats=["", "€"]
-                        ),
+                        TableConfig(headers=[], aligns=["left", "right"], formats=["", "€"]),
                     ),
                 ],
                 link="sales.html",
@@ -97,9 +94,7 @@ def klanten_block():
     klanten = VBlock(
         [
             TextBlock("Klanten", MID_SIZE),
-            TextBlock(
-                "Top 3 klanten laatste 6 maanden", DEF_SIZE, padding=10, color=GRAY
-            ),
+            TextBlock("Top 3 klanten laatste 6 maanden", DEF_SIZE, padding=10, color=GRAY),
             Table(
                 top_x_klanten_laatste_zes_maanden(3),
                 TableConfig(
@@ -140,9 +135,9 @@ def operations_block():
             TextBlock("Operations", HEADER_SIZE),
             TextBlock("KPI's", MID_SIZE),
             HBlock([kpi_grid(verbose=False)], link="operations.html", padding=40),
-            TextBlock(""),  # !! Tijdeijke fix
+            TextBlock(""),  # Todo: verticale marge mogelijk maken
             operations_chart(),
-            TextBlock(""),  # !! Tijdeijke fix
+            TextBlock(""),  # Todo: verticale marge mogelijk maken
             # billable_chart(),
             corrections_block(),
             planning_chart(),
@@ -183,9 +178,7 @@ def billable_chart():
                 DEF_SIZE,
                 color=GRAY,
             ),
-            trends.chart(
-                "billable_hele_team", 250, 150, x_start=months_ago(months_back)
-            ),
+            trends.chart("billable_hele_team", 250, 150, x_start=months_ago(months_back)),
         ]
     )
 
@@ -439,7 +432,7 @@ def hr_block():
 
 def team_block():
     fte = aantal_fte()
-    #fte_begroot = aantal_fte_begroot()
+    # fte_begroot = aantal_fte_begroot()
     fte_color = BLACK  # dependent_color(fte_begroot - fte, 1, -1)
 
     return VBlock(

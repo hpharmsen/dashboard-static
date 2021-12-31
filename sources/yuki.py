@@ -6,6 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from model.caching import cache
+from model.utilities import Day
 from settings import ini
 
 BASE_URL = "https://api.yukiworks.nl/ws/Accounting.asmx"
@@ -34,12 +35,14 @@ ACCOUNT_CODES = {
     "other_receivables": [1321, 1330, 1335, 1350, 13999, 233],
     "kruisposten": 23101,  # Special case, kan debet en credit zijn
     "creditors": [16000],
-    "other_debts": [15,  # Credit card
-                    16100,  # Nog te ontvangen facturen
-                    16999,  # Overige kortlopende schulden
-                    23000,  # Betalingen onderweg
-                    23010,  # Rekening onbekend
-                    23020],  # Vraagposten
+    "other_debts": [
+        15,  # Credit card
+        16100,  # Nog te ontvangen facturen
+        16999,  # Overige kortlopende schulden
+        23000,  # Betalingen onderweg
+        23010,  # Rekening onbekend
+        23020,
+    ],  # Vraagposten
     "debts_to_employees": [170, 175, 20000],
     "taxes": [171, 176, 179, 18, 24],
     "costs": 4,
@@ -125,10 +128,10 @@ class Yuki:
         return result
 
     @cache(hours=24)
-    def account_balance(self, date_str=None, balance_type=None, account_codes=None):
+    def account_balance(self, day: Day = None, balance_type=None, account_codes=None):
         # Resultatenrekening en balans
-        if not date_str:
-            date_str = datetime.datetime.today().strftime("%Y-%m-%d")
+        if not day:
+            day = Day()
         if account_codes and type(account_codes) != list:
             account_codes = [account_codes]
 
@@ -140,7 +143,7 @@ class Yuki:
                     return True
             return False
 
-        params = {"transactionDate": date_str}
+        params = {"transactionDate": str(day)}
         body = self.call(f"/GLAccountBalance", params)
         items = body.glaccountbalance.find_all("glaccount")
         # <glaccount balancetype="B" code="02110">
@@ -163,26 +166,39 @@ class Yuki:
         return self.income(date_str) - self.costs(date_str)
 
     def income(self, date_str=None):
-        res = -sum(
-            [a["amount"] for a in self.account_balance(date_str, account_codes="8")]
-        )
+        res = -sum([a["amount"] for a in self.account_balance(date_str, account_codes="8")])
         return res
 
     def direct_costs(self, date_str=None):
-        res = sum(
-            [a["amount"] for a in self.account_balance(date_str, account_codes=["6"])]
-        )
+        res = sum([a["amount"] for a in self.account_balance(date_str, account_codes=["6"])])
         return res
 
     def costs(self, date_str=None):
         return self.post("costs", date_str)
 
     @cache(hours=24)
-    def post(self, account, account_type=None, date_str=None):
-        ab = self.account_balance(date_str, account_codes=ACCOUNT_CODES[account])
+    def post(self, account, account_type=None, day: Day = None):
+        ab = self.account_balance(day, account_codes=ACCOUNT_CODES[account])
         res = 0
-        negative_accounts = ("08", "09", "15", "16", "17", "18", "20", "23", "24", "49", "60", "80", "85", "86", "87",
-                             "88", "89")
+        negative_accounts = (
+            "08",
+            "09",
+            "15",
+            "16",
+            "17",
+            "18",
+            "20",
+            "23",
+            "24",
+            "49",
+            "60",
+            "80",
+            "85",
+            "86",
+            "87",
+            "88",
+            "89",
+        )
         for a in ab:
             if account_type in (ASSETS, COSTS):
                 multiplier = 1

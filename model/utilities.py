@@ -7,7 +7,7 @@ from settings import DATE_FORMAT
 
 
 class Day:
-    """ In Dashboard most dates are used as yyy-mm-dd strings. This class is to facilitate that. """
+    """In Dashboard most dates are used as yyy-mm-dd strings. This class is to facilitate that."""
 
     def __init__(self, *args):
         if len(args) == 3:
@@ -77,7 +77,7 @@ class Day:
 
 
 class Period:
-    """ Utility class bundling a startdate and optionally an end date """
+    """Utility class bundling a startdate and optionally an end date"""
 
     def __init__(self, fromday, untilday=None):
         if not isinstance(fromday, Day):

@@ -1,7 +1,6 @@
 ''' Module intended to use AWS RDS database as a middleware caching layer between
     Dashboard calls and the various sources like Simplicate, Yuki and Google Maps.
     Also intended for future use in more interactive Dashboard. '''
-import os
 
 from hplib import dbClass
 
@@ -17,10 +16,6 @@ def get_middleware_db():
     return middleware_db
 
 
-if __name__ == '__main__':
-    os.chdir('..')
-
-
 def singleton(class_):
     instances = {}
 
@@ -30,3 +25,7 @@ def singleton(class_):
         return instances[class_]
 
     return getinstance
+
+
+if __name__ == '__main__':
+    pass

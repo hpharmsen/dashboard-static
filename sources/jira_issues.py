@@ -148,7 +148,7 @@ def jira_issues(
     fields=DEFAULT_FIELDS,
     project_keys=None,
 ):
-    if project_keys:  #!! Is dit nog nodig?
+    if project_keys:
         issues = []
         for key in project_keys:
             project_jql = jql_add(jql, f"project='{key}'")

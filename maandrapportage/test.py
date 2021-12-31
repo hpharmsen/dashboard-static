@@ -34,7 +34,7 @@ def testqueries():
     df = hours_dataframe()
 
     def get_diff(row):
-        return (row['tariff'] or row['service_tariff']) and not (row['tariff'] > 0 or row['service_tariff'] > 0)
+        return row['tariff'] and not (row['tariff'] > 0)
 
     # diff = df.apply( get_diff, axis=1 )
     users = None  # ['Jurriaan Ruitenberg'] #['Caspar Geerlings', 'Kevin Lobine']
@@ -73,7 +73,7 @@ def grouping():
     list_of_dicts = [
         {'day': '2021-01-01', 'employee': 'joost', 'service_id': '123', 'hours': 8, 'corrections': -1},
         {'day': '2021-01-01', 'employee': 'joost', 'service_id': '123', 'hours': 8, 'corrections': -2},
-        {'day': '2021-01-02', 'employee': 'joost', 'service_id': '123', 'hours': 8, 'corrections': -3}
+        {'day': '2021-01-02', 'employee': 'joost', 'service_id': '123', 'hours': 8, 'corrections': -3},
     ]
     df = group_by_daypersonservice(list_of_dicts)
     return df

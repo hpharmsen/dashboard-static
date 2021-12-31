@@ -57,10 +57,16 @@ from settings import (
 # - Billability  (%) = factureerbare uren / nettocapaciteit (= het aantal uren dat iemand effectief werkt)
 
 
-def render_operations_page(output_folder: Path):
+def render_operations_page(output_folder: Path, year: int = None):
     weeks = 20
-    curyear = datetime.datetime.today().strftime('%Y')
-    total_period = Period(curyear + '-01-01')
+    if year:
+        # Use given year. Create page with year name in it
+        html_page = f'operations {year}.html'
+    else:
+        # Use the current year (default)
+        year = int(datetime.datetime.today().strftime('%Y'))
+        html_page = 'operations.html'
+    total_period = Period(f'{year}-01-01', f'{year + 1}-01-01')
     page = Page(
         [
             TextBlock('Operations KPI' 's', HEADER_SIZE),
@@ -71,7 +77,7 @@ def render_operations_page(output_folder: Path):
             kpi_grid(weeks=weeks, total_period=total_period, total_title='YTD'),
         ]
     )
-    page.render(output_folder / 'operations.html')
+    page.render(output_folder / html_page)
 
 
 def kpi_grid(weeks=4, verbose=True, total_period=None, total_title=''):
@@ -91,7 +97,7 @@ def operations_data(weeks, total_period=None, total_title=''):
     monday = Day().last_monday()
     hours_data = []
     headers = []
-    for _ in range(weeks):
+    for w in range(weeks):
         monday_earlier = monday.plus_days(-7)
         period = Period(monday_earlier, monday)
         hours_data = [HoursData(period)] + hours_data
@@ -101,6 +107,7 @@ def operations_data(weeks, total_period=None, total_title=''):
         headers += ['', total_title]
         hours_data += [None, HoursData(total_period)]
     return headers, hours_data
+
 
 # def kpi_grid(weeks=4, reverse=False):
 #     today = datetime.date.today()

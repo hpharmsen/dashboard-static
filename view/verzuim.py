@@ -4,9 +4,8 @@ from pathlib import Path
 from layout.basic_layout import HEADER_SIZE, DEF_SIZE
 from layout.block import VBlock, TextBlock, Page, HBlock
 from layout.table import Table, TableConfig
+from middleware.timesheet import Timesheet
 from model.organisatie import (
-    verzuim_normal_hours,
-    verzuim_absence_hours,
     verzuimpercentage,
     verzuim_list,
 )
@@ -15,6 +14,7 @@ from settings import get_output_folder, GRAY, dependent_color
 
 
 def render_verzuim_page(output_folder: Path):
+    timesheet = Timesheet()
     months = 3
     period = Period(Day().plus_months(-months))
     table = VBlock(
@@ -46,9 +46,7 @@ def render_verzuim_page(output_folder: Path):
                 [
                     VBlock(
                         [
-                            TextBlock(
-                                "Geboekte uren", DEF_SIZE, color="gray", padding=5
-                            ),
+                            TextBlock("Geboekte uren", DEF_SIZE, color="gray", padding=5),
                             TextBlock("Verzuim uren", DEF_SIZE, color="gray"),
                             TextBlock("Verzuimopercentage", DEF_SIZE, color="gray"),
                         ]
@@ -56,14 +54,12 @@ def render_verzuim_page(output_folder: Path):
                     VBlock(
                         [
                             TextBlock(
-                                verzuim_normal_hours(period),
+                                timesheet.normal_hours(period),
                                 DEF_SIZE,
                                 text_format=".",
                                 padding=5,
                             ),
-                            TextBlock(
-                                verzuim_absence_hours(period), DEF_SIZE, text_format="."
-                            ),
+                            TextBlock(timesheet.absence_hours(period), DEF_SIZE, text_format="."),
                             TextBlock(verzuim, verzuim_color, text_format="%1"),
                         ]
                     ),

@@ -2,13 +2,15 @@ import os
 from datetime import datetime
 from functools import partial
 
+import numpy as np
 import pandas as pd
 
+from middleware.timesheet import hours_dataframe
 from model.caching import cache
 from model.log import log_error
 from model.utilities import fraction_of_the_year_past, Period
 from sources.googlesheet import sheet_tab, to_int, to_float
-from sources.simplicate import hours_dataframe, simplicate, user2name, name2user
+from sources.simplicate import simplicate, user2name, name2user
 
 MT_SALARIS = 110000
 OVERIGE_KOSTEN_PER_FTE_PER_MAAND = 1000
@@ -74,9 +76,7 @@ def loonkosten_per_persoon():
     users = {"rdb": rdb, "gert": gert, "hph": hph, "joost": joost}
     for k in users.keys():
         users[k]["kosten_jaar"] = (MT_SALARIS * users[k]["uren"] / 40,)
-        users[k]["jaar_kosten_pt"] = (
-                12 * users[k]["maand_kosten_ft"] * users[k]["uren"] / 40
-        )
+        users[k]["jaar_kosten_pt"] = 12 * users[k]["maand_kosten_ft"] * users[k]["uren"] / 40
         users[k]["fraction_of_the_year_worked"] = fraction_of_the_year_past()
 
     # Werknemers en ex werknemers
@@ -125,19 +125,11 @@ def loonkosten_per_persoon():
 def uurkosten_per_persoon():
     # Vaste werknemers
     loonkosten_pp = loonkosten_per_persoon()
-    loonkosten_pp = {
-        user2name()[key]: val
-        for key, val in loonkosten_pp.items()
-        if user2name().get(key)
-    }
+    loonkosten_pp = {user2name()[key]: val for key, val in loonkosten_pp.items() if user2name().get(key)}
     res = {}
     for user, kosten in loonkosten_pp.items():
         res[user] = round(
-            (kosten["maand_kosten_ft"] + OVERIGE_KOSTEN_PER_FTE_PER_MAAND)
-            * 12
-            / 45
-            / 40
-            / PRODUCTIVITEIT,
+            (kosten["maand_kosten_ft"] + OVERIGE_KOSTEN_PER_FTE_PER_MAAND) * 12 / 45 / 40 / PRODUCTIVITEIT,
             2,
         )
 
@@ -157,8 +149,7 @@ def uurkosten_per_persoon():
             name = user2name().get(line[id_col])
             if name:
                 res[name] = round(
-                    float(line[bruto_per_uur_col].replace(",", "."))
-                    + OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR,
+                    float(line[bruto_per_uur_col].replace(",", ".")) + OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR,
                     2,
                 )
 
@@ -178,8 +169,7 @@ def uurkosten_per_persoon():
             name = user2name().get(line[id_col])
             if name:
                 res[name] = round(
-                    float(line[bruto_per_uur_col].replace(",", "."))
-                    + OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR,
+                    float(line[bruto_per_uur_col].replace(",", ".")) + OVERIGE_KOSTEN_PER_FREELANCE_FTR_PER_UUR,
                     2,
                 )
 
@@ -187,10 +177,11 @@ def uurkosten_per_persoon():
 
 
 def calculate_turnover_fixed(projects, row):
-    if (
-            row["hours"] and row["turnover hours"] <= 0
-    ):  # Fixed price. Hours booked but not on hoursturnover
-        return projects[row.name]["budget"]
+    # todo: Needs fixing since we retrieve data from AWS database. Used in Winstgevendheid.
+    # if (
+    #         row["hours"] and row["turnover hours"] <= 0
+    # ):  # Fixed price. Hours booked but not on hoursturnover
+    #     return projects[row.name]["budget"]
     return 0
 
 
@@ -216,9 +207,7 @@ def winst_per_project(period: Period):
         lambda p: round((p["turnover hours"] + p["turnover fixed"]) / p["hours"], 2),
         axis=1,
     )
-    result["margin per hour"] = result.apply(
-        lambda p: round(p["margin"] / p["hours"], 2), axis=1
-    )
+    result["margin per hour"] = result.apply(lambda p: round(p["margin"] / p["hours"], 2), axis=1)
     return result
 
 
@@ -228,9 +217,7 @@ def winst_per_klant(period: Period):
         project_results(period)
             .replace(["QS Ventures", "KV New B.V."], "Capital A")
             .replace(["T-Mobile Netherlands B.V."], "Ben")
-            .groupby(["customer"])[
-            ["hours", "turnover hours", "turnover fixed", "costs of hours", "margin"]
-        ]
+            .groupby(["customer"])[["hours", "turnover hours", "turnover fixed", "costs of hours", "margin"]]
             .sum()
             .query("hours >= 10")
             .sort_values(by="margin", ascending=False)
@@ -245,9 +232,7 @@ def winst_per_klant(period: Period):
             ]
         ]
     )
-    result["turnover per hour"] = (
-                                          result["turnover hours"] + result["turnover fixed"]
-                                  ) / result["hours"]
+    result["turnover per hour"] = (result["turnover hours"] + result["turnover fixed"]) / result["hours"]
     result["margin per hour"] = result["margin"] / result["hours"]
     return result
 
@@ -270,33 +255,27 @@ def project_results(period: Period = None):
 
     df = worked_oberon_hours(period)
     uurkosten = uurkosten_per_persoon()
-    pd.options.mode.chained_assignment = None  # Ignore 'A value is trying to be set on a copy of a slice from a DataFrame' error
-    df["costs of hours"] = df.apply(
-        lambda a: uurkosten.get(a["employee"], 0) * a["hours"], axis=1
+    pd.options.mode.chained_assignment = (
+        None  # Ignore 'A value is trying to be set on a copy of a slice from a DataFrame' error
     )
+    df["costs of hours"] = df.apply(lambda a: uurkosten.get(a["employee"], 0) * float(a["hours"]), axis=1)
 
     result = (
-        df.groupby(["project_id"])[["hours", "turnover", "costs of hours"]]
-            .sum()
+        df.groupby(["project_id"])
+            .agg({"hours": np.sum, "turnover": np.sum, "costs of hours": np.sum})
             .rename(columns={"turnover": "turnover hours"})
     )
     result["customer"] = result.apply(lambda p: projects[p.name]["customer"], axis=1)
     result["name"] = result.apply(lambda p: projects[p.name]["name"], axis=1)
     result["number"] = result.apply(lambda p: projects[p.name]["number"], axis=1)
-    result = result[~result.number.isin(["TRAV-1", "QIKK-1", "SLIM-28", "TOR-3"])]
-    result["turnover fixed"] = result.apply(
-        partial(calculate_turnover_fixed, projects), axis=1
-    )
-    result.loc[
-        result.number == "CAP-8", ["hours", "costs of hours", "turnover fixed"]
-    ] = (
+    result = result[~result.number.isin(["TRAV-1", "QIKK-1", "SLIM-28", "TOR-3"])]  # !!
+    result["turnover fixed"] = result.apply(partial(calculate_turnover_fixed, projects), axis=1)
+    result.loc[result.number == "CAP-8", ["hours", "costs of hours", "turnover fixed"]] = (
         20,
         20 * 75,
         6000,
-    )  # Fix for CAP-8 since it cannot be edited in Simplicate
-    result["margin"] = (
-            result["turnover hours"] + result["turnover fixed"] - result["costs of hours"]
-    )
+    )  # todo: remove in 2022. Fix for CAP-8 since it cannot be edited in Simplicate. Used in Winstgevendheid.
+    result["margin"] = result["turnover hours"] + result["turnover fixed"] - result["costs of hours"]
     return result
 
 
@@ -318,21 +297,18 @@ def winst_per_persoon(period):  # Get hours and hours turnover per person
         "Mel Schuurman",
         "Martijn van Klaveren",
     ]:
-        result = result.append(
-            {"employee": employee, "hours": 0, "turnover hours": 0}, ignore_index=True
-        )
+        result = result.append({"employee": employee, "hours": 0, "turnover hours": 0}, ignore_index=True)
 
     # Add results from fixed price projects
     result["turnover fixed"] = 0
     for index, project in fixed_projects(period).iterrows():
-        person_hours = hours_per_person(index)
+        person_hours = hours_per_person(period, index)
         for _, ph in person_hours.iterrows():
             turnover = project["turnover fixed"] / project["hours"] * ph["hours"]
             result.loc[result.employee == ph["employee"], "turnover fixed"] += turnover
 
     result.loc[
-        result.employee == "Paulo Nuno da Cruz Moreno", "employee"
-    ] = "Paulo Nuno Da Cruz Moreno"  # !! temporary
+        result.employee == "Paulo Nuno da Cruz Moreno", "employee"] = "Paulo Nuno Da Cruz Moreno"  # todo: !! temporary
 
     # Add the salary and office costs per person
     result["costs"] = result.apply(calculate_employee_costs, axis=1)
@@ -349,9 +325,9 @@ def calculate_employee_costs(row):
     user = name2user()[row["employee"]]
     loonkosten_user = loonkosten_per_persoon().get(user)
     if loonkosten_user:
-        costs = (
-                        loonkosten_user["jaar_kosten_pt"] + OVERIGE_KOSTEN_PER_FTE_PER_MAAND * 12
-                ) * loonkosten_user["fraction_of_the_year_worked"]
+        costs = (loonkosten_user["jaar_kosten_pt"] + OVERIGE_KOSTEN_PER_FTE_PER_MAAND * 12) * loonkosten_user[
+            "fraction_of_the_year_worked"
+        ]
     else:
         # Freelance
         uurkosten = uurkosten_per_persoon().get(row["employee"])
@@ -362,14 +338,12 @@ def calculate_employee_costs(row):
 
 
 def fixed_projects(period):
-    return project_results(period).query("`turnover fixed` > 0")[
-        ["number", "name", "hours", "turnover fixed"]
-    ]
+    return project_results(period).query("`turnover fixed` > 0")[["number", "name", "hours", "turnover fixed"]]
 
 
-def hours_per_person(project_id):
+def hours_per_person(period, project_id):
     df = (
-        hours_dataframe()
+        hours_dataframe(period)
             .query(f'project_id=="{project_id}"')
             .groupby(["employee"])[["hours"]]
             .sum()
@@ -378,7 +352,7 @@ def hours_per_person(project_id):
     return df
 
 
-@cache(hours=24)
+# @cache(hours=24)
 def worked_oberon_hours(period: Period = None):
     filter = 'type=="normal" and employee != "Freelancer" and organization != "Oberon"'
     df = hours_dataframe(period).query(filter)

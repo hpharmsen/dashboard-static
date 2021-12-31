@@ -7,19 +7,23 @@ from layout.basic_layout import HEADER_SIZE
 from layout.block import TextBlock, Page, Grid
 from model.caching import load_cache
 from model.onderhanden_werk import ohw_list
+from model.utilities import Day
 from settings import get_output_folder, BOLD, ITALIC, RED
-from sources.simplicate import simplicate
 
 
-def onderhanden_werk_list():
+def onderhanden_werk_list(day=None):
+    if not day:
+        day = Day()
+
     grid = Grid(
-        cols=5,
+        cols=7,
         has_header=False,
         line_height=0,
-        aligns=['left', 'right', 'left', 'right', 'right'],
+        aligns=['left', 'right', 'right', 'right', 'left', 'right', 'right'],
     )
 
     def explanation(row):
+        return ''  # todo: Uitleg later weer eens fixen
         if row['ohw_type'] == 'Strippenkaart':
             explainfields = ['restant_budget']
         elif row['ohw_type'] == 'Fixed':
@@ -38,12 +42,15 @@ def onderhanden_werk_list():
         return result
 
     def add_service_row(row):
-        start_date = row['start_date'] if type(row['start_date']) == str else ''
-        end_date = row['end_date'] if type(row['end_date']) == str else ''
+        # start_date = row['start_date'] if type(row['start_date']) == str else ''
+        # end_date = row['end_date'] if type(row['end_date']) == str else ''
+        start_date = end_date = ''  # todo: Re-add start date and end date to the table.
         grid.add_row(
             [
-                TextBlock(row['service'], style=ITALIC),
-                TextBlock(row['ohw'], text_format='€', tooltip=explanation(row), style=ITALIC),
+                TextBlock(row['service_name'], style=ITALIC),
+                TextBlock(row['turnover'], text_format='€', style=ITALIC),
+                TextBlock(row['invoiced'], text_format='€', style=ITALIC),
+                TextBlock(row['ohw'], text_format='€', style=ITALIC),
                 TextBlock(start_date, style=ITALIC),
                 TextBlock(end_date, style=ITALIC),
             ]
@@ -51,11 +58,15 @@ def onderhanden_werk_list():
 
     def add_project_row(service_rows):
         row = service_rows[0]
-        title = f"{row['project_number']} - {row['organization_name']} {row['project_name']}"
+        title = f"{row['project_number']} - {row['organization']} - {row['project_name']}"
+        turnover = sum([sr['turnover'] for sr in service_rows])
+        invoiced = sum([sr['invoiced'] for sr in service_rows])
         ohw = sum([sr['ohw'] for sr in service_rows])
         grid.add_row(
             [
-                TextBlock(title, style=BOLD),
+                TextBlock(title, style=BOLD, url='https://oberon.simplicate.com/projects/' + row['project_id']),
+                TextBlock(turnover, text_format='€', style=BOLD),
+                TextBlock(invoiced, text_format='€', style=BOLD),
                 TextBlock(ohw, text_format='€', style=BOLD),
                 TextBlock(row['pm'], style=BOLD),
             ]
@@ -64,13 +75,15 @@ def onderhanden_werk_list():
     grid.add_row(
         [
             TextBlock(''),
+            TextBlock('Omzet', style=BOLD),
+            TextBlock('Gefactureerd', style=BOLD),
             TextBlock('OHW', style=BOLD),
-            TextBlock('Startdatum', style=BOLD),
-            TextBlock('Einddatum', style=BOLD),
+            TextBlock('', style=BOLD),  # Was: Startdatum
+            TextBlock('', style=BOLD),  # Was: Einddatum
         ]
     )
-    sim = simplicate()
-    onderhanden = ohw_list(sim, '2021-11-30', minimum_amount=1000)  # !! Datum is tijdelijk
+    onderhanden = ohw_list(day, minimal_intesting_value=1000)
+
     if not isinstance(onderhanden, pd.DataFrame):
         return TextBlock('Fout in ophalen onderhanden werk', color=RED)
     last_project_number = ''
@@ -100,12 +113,15 @@ def onderhanden_werk_list():
 
 
 def render_onderhanden_werk_page(output_folder: Path):
-
-    page = Page([TextBlock('Onderhanden werk', HEADER_SIZE), onderhanden_werk_list()])
+    day = Day()
+    page = Page([TextBlock(f'Onderhanden werk per {day}', HEADER_SIZE), onderhanden_werk_list(day)])
     page.render(output_folder / 'onderhanden.html')
 
 
 if __name__ == '__main__':
     os.chdir('..')
     load_cache()
-    render_onderhanden_werk_page(get_output_folder())
+
+    for day in [Day('2021-12-29'), Day('2021-11-30')]:
+        page = Page([TextBlock(f'Onderhanden werk per {day}', HEADER_SIZE), onderhanden_werk_list(day)])
+        page.render(get_output_folder() / f'onderhanden {day}.html')

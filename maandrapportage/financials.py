@@ -216,7 +216,7 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
     try:
         toelichting_sheet = HeaderSheet('Begroting 2021', str(month))
     except WorksheetNotFound:
-        toelichting_sheet = None  # !! Same code as above. Refactor.
+        toelichting_sheet = None  # Todo: Same code as in profit_and_loss_block. Refactor.
 
     def add_normal_row(title, result):
         grid.add_row(
@@ -321,7 +321,7 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
     # a = yuki_result.profit()
     result_until_this_month = yuki_result.profit()[1]
     last_date_last_month = last_date_of_month(year, month - 1) if month > 1 else last_date_of_month(year - 1, 12)
-    #b = yuki_result.profit(last_date_last_month)
+    # b = yuki_result.profit(last_date_last_month)
     result_until_last_month = yuki_result.profit(last_date_last_month)[1]
 
     # work_in_progress_last_month = yuki_result.get_work_in_progress(last_date_last_month)

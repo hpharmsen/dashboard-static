@@ -1,53 +1,44 @@
 ''' Handles the Employee class and employee table '''
+import sys
 
-from middleware.middleware import singleton, get_middleware_db
+from middleware.base_table import BaseTable
+from middleware.middleware_utils import singleton
 from sources.simplicate import simplicate
 
 
 @singleton
-class Employee():
+class Employee(BaseTable):
     def __init__(self):
-        self.db = get_middleware_db()
-        self._create_employee_table()
-        # self.update()
+        self.table_name = 'employee'
+        self.table_definition = """
+            CREATE TABLE IF NOT EXISTS employee (
+               name VARCHAR(40) NOT NULL,
+               `function` VARCHAR(40) NOT NULL,
+               active TINYINT NOT NULL,
+               
+               updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-    def _create_employee_table(self):
-        ''' Creates the table to store employee data plus it's indexes '''
+               PRIMARY KEY(name) )
+            """
+        self.index_fields = ''
+        super().__init__()
 
-        # self.db.execute('DROP TABLE IF EXISTS employee;')
-        self.db.execute("""CREATE TABLE IF NOT EXISTS employee (
-                           name VARCHAR(40) NOT NULL,
-                           `function` VARCHAR(40) NOT NULL,
-                           active TINYINT NOT NULL,
-                           
-                           updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-                           PRIMARY KEY(name) )
-                   """)
-        # try:
-        #     for field in 'week employee organization project_number type updated'.split():
-        #         self.db.execute(f'CREATE INDEX timesheet_{field} ON timesheet ({field})')
-        #     self.db.execute(f'CREATE INDEX timesheet_year_week ON timesheet (year,week)')
-        # except OperationalError:
-        #     pass  # Index already existent
+        if "--onceaday" in sys.argv:
+            self.update()
 
     def update(self):
-
-        # Find newest day in database
+        self._create_project_table(force_recreate=1)
         sim = simplicate()
-        employees = sim.employee()
-        query = f'delete from employee;'
-        self.db.execute(query)
-        query = ' '
-        for employee in employees:
+        employees = []
+        for employee in sim.employee():
             name = employee.get('name')
             if not name:
                 continue
             function = employee.get('function', '')
             active = 1 if employee['employment_status'] == 'active' else 0
-            query = f'''INSERT INTO employee (name, `function`, active) VALUES ("{name}", "{function}", {active});'''
-            self.db.execute(query)
-        self.db.commit()
+            employees += [{'name': name, 'function': function, 'active': active}]
+
+        self.insert_dicts(employees)
 
     def active_employees(self, include_interns=True):
         query = 'select * from employee where active=1'
@@ -56,7 +47,7 @@ class Employee():
         result = self.db.execute(query)
         return [res['name'] for res in result]
 
-    def interns(self):
+    def interns(self) -> list:
         result = self.db.select('employee', {'function': 'Stagiair'})
         return [res['name'] for res in result]
 
@@ -69,3 +60,7 @@ class Employee():
 
     def update_salaries(self):
         pass
+
+
+if __name__ == '__main__':
+    employee_table = Employee()

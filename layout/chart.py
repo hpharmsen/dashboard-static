@@ -9,7 +9,7 @@ id_pattern = re.compile('[\W_]+')
 
 
 def randomString(stringLength=3):
-    """Generate a random string of fixed length """
+    """Generate a random string of fixed length"""
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
 
@@ -37,6 +37,7 @@ class ChartConfig(NamedTuple):
     padding: int = 40  # distance to next object
     css_class: str = ''
 
+
 class Chart(Block):
     def __init__(self, values, config):
         id = id_pattern.sub('', config.title) + '_' + randomString()
@@ -48,7 +49,7 @@ class Chart(Block):
             bg_color=config.bg_color,
             link=config.link,
             padding=config.padding,
-            css_class=config.css_class
+            css_class=config.css_class,
         )
 
         self.datasets = f'''[{{
@@ -190,16 +191,16 @@ class BarChart(Chart):
 
 
 class StackedBarChart(Chart):
-    ''' Creates a stacked bar chart with JSChart.
-        values parameter is a list with one row of values per legend item.
-        e.g.
-        values = [[12000, 12500, 13000], # Salaries
-                  [800,800,800]]         # Housing
-        chart_config = ChartConfig(
-            width=300, height=200,
-            colors=['#66cc66','#cc6666'],
-            min_y_axis=0, max_y_axis=100, y_axis_max_ticks=10,
-            labels=['Salaries', 'Housing'], bottom_labels=month_names)
+    '''Creates a stacked bar chart with JSChart.
+    values parameter is a list with one row of values per legend item.
+    e.g.
+    values = [[12000, 12500, 13000], # Salaries
+              [800,800,800]]         # Housing
+    chart_config = ChartConfig(
+        width=300, height=200,
+        colors=['#66cc66','#cc6666'],
+        min_y_axis=0, max_y_axis=100, y_axis_max_ticks=10,
+        labels=['Salaries', 'Housing'], bottom_labels=month_names)
     '''
 
     def __init__(self, values, config):

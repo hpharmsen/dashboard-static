@@ -7,7 +7,7 @@ from model.caching import cache_modified_time_stamp
 
 
 class Block:
-    ''' Block is the base object for all formatting '''
+    '''Block is the base object for all formatting'''
 
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
@@ -112,7 +112,7 @@ class Block:
 
 
 class HBlock(Block):
-    ''' Block that organizes child blocks horizontally '''
+    '''Block that organizes child blocks horizontally'''
 
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
@@ -143,7 +143,7 @@ class HBlock(Block):
 
 
 class VBlock(Block):
-    ''' Block that organizes child blocks horizontally '''
+    '''Block that organizes child blocks horizontally'''
 
     # pylint: disable=too-many-arguments
     # This is what it takes to be a UI widget
@@ -177,7 +177,7 @@ class VBlock(Block):
 
 
 class TextBlock(Block):
-    ''' Child block. Displaying text in certain formatting '''
+    '''Child block. Displaying text in certain formatting'''
 
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
@@ -197,10 +197,11 @@ class TextBlock(Block):
             tooltip='',
             padding=30.0,
             pagebreak=False,
-            css_class=''
+            css_class='',
     ):
-        super().__init__([], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding,
-                         css_class=css_class)
+        super().__init__(
+            [], width=width, height=height, bg_color=bg_color, tooltip=tooltip, padding=padding, css_class=css_class
+        )
         self.text = do_format(text, text_format) if text else ''
         self.font_size = font_size
         self.font_family = font_family
@@ -236,7 +237,7 @@ def wrap(string, width):
 
 
 class Grid(Block):
-    ''' Shows child blocks in a grid '''
+    '''Shows child blocks in a grid'''
 
     # pylint: disable=too-many-arguments
     # This is what it takes to be a UI widget
@@ -291,14 +292,14 @@ class Grid(Block):
 
 
 class Page(Block):
-    ''' High level block that renders a page '''
+    '''High level block that renders a page'''
 
     def __init__(self, children, align_children='vertical'):
         super().__init__(children=children, align_children=align_children)
         self.onloadcode = ''
 
     def add_onloadcode(self, code):
-        ''' Add extra js code to be run in window.onload'''
+        '''Add extra js code to be run in window.onload'''
         self.onloadcode += code
 
     def render(self, filename: Path, template='template.html'):

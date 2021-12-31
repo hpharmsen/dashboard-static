@@ -16,7 +16,9 @@
 # COMMERCE
 # - Percentage Herhaalopdrachten (churn)
 
-
+# CORRECTIES
+# Joost: Idee: bij deze getallen in het dashboard ook de totale geboekte uren totaan dat moment weergeven.
+# Of nog beter: een percentage van de totale uren tot aan dat moment. Zet het in perspectief.
 
 # HR
 # - Begroot aantal mensen
@@ -44,7 +46,7 @@ from view.winstgevendheid import render_winstgevendheid_page
 
 
 def main():
-    ''' What it says: the main function '''
+    '''What it says: the main function'''
     cd_to_script_path()
     output_folder = get_output_folder()
     clear_the_cache = process_command_line_params()
@@ -57,8 +59,8 @@ def main():
 
 
 def module_initialisations():
-    cash() # Update cash trend on loading of this module'''
-    init_log() # Start log entry with the current date
+    cash()  # Update cash trend on loading of this module'''
+    init_log()  # Start log entry with the current date
 
 
 def cd_to_script_path():
@@ -102,7 +104,7 @@ def render_all_pages(output_folder):
     render_debiteuren_page(output_folder)
     print('..operations')
     render_operations_page(output_folder)
-    # print('..billable')
+    print('..billable')
     # render_billable_page(output_folder)
     print('..winstgevendheid')
     render_winstgevendheid_page(output_folder)

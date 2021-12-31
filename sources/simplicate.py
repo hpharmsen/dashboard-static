@@ -1,5 +1,4 @@
 import datetime
-import json
 import os
 
 import pandas as pd
@@ -7,15 +6,19 @@ from pysimplicate import Simplicate
 
 from model.caching import cache
 from model.log import log
-from model.utilities import Period
 from settings import ini
 
 _simplicate = None  # Singleton
 _simplicate_hours_dataframe = pd.DataFrame()
 
-CACHE_FOLDER = 'sources/simplicate_cache'
-PANDAS_FILE = CACHE_FOLDER + '/hours.pd'
-DATE_FORMAT = '%Y-%m-%d'
+USER_MAPPING = {
+    "geertjan": "geert-jan",
+    "raymond": "ray",
+    "jeroen": "jeroens",
+    "robinveer": "robin",
+    "vinz.timmermans": "vinz",
+    "jordy.boelhouwer": "jordy",
+}  # Map Simplicate name to oberon id
 
 
 def simplicate():
@@ -30,79 +33,11 @@ def simplicate():
     return _simplicate
 
 
-@cache(hours=24)
-def active_projects():
-    ''' Returns a dict of project_number:project_id '''
-    sim = simplicate()
-    return {p['project_number']: p['id'] for p in sim.project({'active': True})}
-
-
-@cache(hours=24)
-def active_services():
-    ''' Returns a set of (project_id, service_name) tuples'''
-    sim = simplicate()
-    status_list = sim.service({'status': 'open'})
-    return {(s['project_id'], s.get('name', 'x')) for s in status_list}
-
-
-@cache(hours=24)
-def hours_dataframe(period: Period = None):
-    global _simplicate_hours_dataframe
-    if _simplicate_hours_dataframe.empty:
-        _simplicate_hours_dataframe = update_hours()
-    if period:
-        query = f'day>="{period.fromday}"'
-        if period.untilday:
-            query += f' and day<"{period.untilday}"'
-        return _simplicate_hours_dataframe.query(query)
-    return _simplicate_hours_dataframe
-
-
-def update_hours():
-
-    # Load or create the dataframe
-    try:
-        df = pd.read_pickle(PANDAS_FILE)
-    except Exception as e:
-        df = pd.DataFrame()
-
-    # Als pandas file van vandaag is, is het goed voor nu
-    if not df.empty and datetime.datetime.fromtimestamp(os.path.getmtime(PANDAS_FILE)).date() == datetime.date.today():
-        return df.drop(['billable', 'status'], axis=1)  # !! Drop is tijdelijk
-
-    # day = first_simplicate_nonconfirmed_day
-    today = datetime.date.today()
-    if df.empty:  # Begin bij het begin
-        day = datetime.date(2021, 1, 1)
-    else:
-        day = today + datetime.timedelta(days=-14)  # Zolang ik niet weet of we met indienen van uren gaan werken
-    while day < today:
-
-        print(day)
-        data = hours_data_from_day(day, use_cache=True)
-        # Update the dataframe with he newly loaded data
-        flat_data = flatten_hours_data(data)
-        if df.empty:
-            df = pd.DataFrame(flat_data)
-            complement_hours_dataframe(df)
-        else:
-            day_str = day.strftime(DATE_FORMAT)
-            df.drop(df[df.day == day_str].index, inplace=True)
-            new_df = pd.DataFrame(flat_data)
-            complement_hours_dataframe(new_df)
-            df = df.append(new_df, ignore_index=True)
-
-        day += datetime.timedelta(days=1)  # Move to the next day before repeating the loop
-
-    df = df.reset_index(drop=True)
-    df.to_pickle(PANDAS_FILE)
-    return df.drop(['billable', 'status'], axis=1)  #!! Drop is tijdelijk
-
-
 def calculate_turnover(row):
-    if row['project_number'] == 'TOR-3' and not row['service'].count('ase 2'):  # For TOR only count fase 2 services
+    if row['project_number'] == 'TOR-3' and not row['service'].count('ase 2'):  # !! For TOR only count fase 2 services
+        # Changed service_name to service
         return 0
-    tariff = row['tariff'] or row.get('service_tariff', 0)  # If not tariff per user then take the tariff per service
+    tariff = row.get('tariff', 0)  # If not tariff per user then take the tariff per service
     return (row['hours'] + row['corrections']) * tariff
 
 
@@ -112,10 +47,9 @@ def complement_hours_dataframe(df):
         df['week'] = ""
         df['corrections_value'] = ""
     else:
-        #
         df['turnover'] = df.apply(calculate_turnover, axis=1)
         df['week'] = df.apply(lambda a: datetime.datetime.strptime(a['day'], '%Y-%m-%d').isocalendar()[1], axis=1)
-        df['corrections_value'] = df.apply(lambda a: (a['corrections']) * (a['tariff'] or a['service_tariff']), axis=1)
+        df['corrections_value'] = df.apply(lambda a: (a['corrections']) * a['tariff'], axis=1)
 
 
 def flatten_hours_data(data):
@@ -127,9 +61,7 @@ def flatten_hours_data(data):
         return {
             'hours_id': d['id'],
             'employee': d['employee']['name'],
-            'organization': d['project']['organization']['name'],
             'project_id': d['project']['id'],
-            'project_name': d['project']['name'],
             'project_number': d['project'].get('project_number', ''),
             'service': d['projectservice']['name'],
             'service_id': d['projectservice']['id'],
@@ -150,69 +82,6 @@ def flatten_hours_data(data):
     return result
 
 
-# def hours(
-#     start_date: str,
-#     end_date: str,
-#     only_billable=False,
-# ):
-#     '''start_date is inclusive, end_date is not'''
-#     billable = non_billable = other = turnover = 0
-#     data = hours_data(start_date, end_date)
-#     for d in data:
-#         if d['status'] != 'projectmanager_approved' or d['type']['type'] == 'absence':
-#             continue
-#         hrs = d['hours']
-#         corr = d['corrections']['amount']
-#         if corr > 0:
-#             hrs += corr
-#         if d['tariff'] > 0 or d['projectservice']['name'] == 'DevOps & Servers':
-#             billable += hrs
-#             turnover += hrs * d['tariff']
-#             if corr < 0:
-#                 non_billable -= corr
-#         else:
-#             other += hrs
-#     return (billable, non_billable, other, turnover)
-
-
-# def hours_data(start_date: datetime.date, end_date: datetime.date):
-#     '''start_date is inclusive, end_date is not'''
-#     assert start_date < end_date, 'start_date should be before end_date'
-#     data = []
-#     while start_date != end_date:
-#         data += hours_data_from_day(start_date)
-#         start_date += datetime.timedelta(days=1)
-#     return data
-
-
-def hours_data_from_day(day: datetime.date, use_cache=True):
-    if not os.path.isdir(CACHE_FOLDER):
-        os.mkdir(CACHE_FOLDER)
-    cache_file = os.path.join(CACHE_FOLDER, day.strftime(DATE_FORMAT)) + '.json'
-    if use_cache and os.path.isfile(cache_file):
-        with open(cache_file) as f:
-            data = json.load(f)
-    else:
-        sim = simplicate()
-        data = sim.hours({'day': day})
-        with open(cache_file, 'w') as f:
-            json.dump(data, f)
-    return data
-
-
-if __name__ == '__main__':
-    os.chdir('..')
-    update_hours()
-USER_MAPPING = {
-    "geertjan": "geert-jan",
-    "raymond": "ray",
-    "jeroen": "jeroens",
-    "robinveer": "robin",
-    "vinz.timmermans": "vinz",
-    "jordy.boelhouwer": "jordy",
-}  # Map Simplicate name to oberon id
-
-
 @cache(hours=1)
 def name2user():
     employees = simplicate().employee()
@@ -230,3 +99,7 @@ def get_oberon_id_from_email(email):
     # Based on the e-mail address from Simplicate, get the username used in extranet planning database
     id = email.split("@")[0]
     return USER_MAPPING.get(id, id)
+
+
+if __name__ == '__main__':
+    os.chdir('..')

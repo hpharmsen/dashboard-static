@@ -12,7 +12,7 @@ from maandrapportage.financials import profit_and_loss_block, balance_block, cas
 from maandrapportage.yuki_results import YukiResult
 from middleware.timesheet import Timesheet
 from model.caching import load_cache
-from model.productiviteit import geboekte_uren_users, beschikbare_uren_volgens_rooster
+from model.productiviteit import beschikbare_uren_volgens_rooster
 from model.utilities import Day, Period
 from settings import (
     get_output_folder,
@@ -31,7 +31,7 @@ from settings import (
 
 
 class HoursData:
-    ''' Class to store and calculate the main production KPI's '''
+    '''Class to store and calculate the main production KPI's'''
 
     # rooster : float
     # verlof : float
@@ -42,24 +42,26 @@ class HoursData:
     # omzet: float
 
     def __init__(self, period: Period, employees: list = []):
+        timesheet = Timesheet()
         self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(period, employees)
-        self.op_klant_geboekt_old = geboekte_uren_users(period, users=employees, only_clients=1, only_billable=0)
-        ts = Timesheet()
-        self.op_klant_geboekt = ts.geboekte_uren_users(period, users=employees, only_clients=1, only_billable=0)
-        self.billable_old = geboekte_uren_users(
+        self.op_klant_geboekt_old = timesheet.geboekte_uren_users(
+            period, users=employees, only_clients=1, only_billable=0
+        )
+        self.op_klant_geboekt = timesheet.geboekte_uren_users(period, users=employees, only_clients=1, only_billable=0)
+        self.billable_old = timesheet.geboekte_uren_users(
             period,
             users=employees,
             only_clients=1,
             only_billable=1,
         )
-        self.billable = ts.geboekte_uren_users(
+        self.billable = timesheet.geboekte_uren_users(
             period,
             users=employees,
             only_clients=1,
             only_billable=1,
         )
         # self.omzet_old = geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
-        self.omzet = ts.geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
+        self.omzet = timesheet.geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
 
     def beschikbaar(self) -> float:
         return self.rooster - self.verlof - self.verzuim
@@ -196,7 +198,7 @@ def hours_block(year, month):
                 height=150,
                 colors=['#ddeeff'],
                 bottom_labels=[MAANDEN[m] for m in range(month)],
-                y_axis_max_ticks=5
+                y_axis_max_ticks=5,
             ),
         )
 
@@ -211,10 +213,7 @@ def hours_block(year, month):
                 color=GRAY,
             ),
             grid,
-            VBlock([
-                TextBlock('Omzet op uren per maand'),
-                chart],
-                css_class="no-print")
+            VBlock([TextBlock('Omzet op uren per maand'), chart], css_class="no-print"),
         ]
     )
 
@@ -269,7 +268,7 @@ def render_maandrapportage_page(monthly_folder, output_folder: Path, year, month
 
 
 def report(render_year, render_month):
-    print(f'Generating report for {MAANDEN[render_month-1]} {render_year}')
+    print(f'\nGenerating report for {MAANDEN[render_month - 1]} {render_year}')
     render_maandrapportage(get_monthly_folder(), render_year, render_month)
     render_maandrapportage_page(get_monthly_folder(), get_output_folder(), render_year, render_month)
 
@@ -278,7 +277,7 @@ if __name__ == '__main__':
     os.chdir('..')
     load_cache()
     if len(sys.argv) > 1 and sys.argv[1] == 'all':
-        for m in range(1, datetime.datetime.today().month):
+        for m in range(1, datetime.datetime.today().month + 1):
             report(datetime.datetime.today().year, m)
     else:
         try:

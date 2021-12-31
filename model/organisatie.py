@@ -8,7 +8,7 @@ from middleware.timesheet import Timesheet
 from model.caching import cache
 from model.utilities import fraction_of_the_year_past, Period, Day
 from sources.googlesheet import sheet_tab, sheet_value
-from sources.simplicate import hours_dataframe, simplicate
+from sources.simplicate import simplicate
 
 FTE_SHEET = 'Begroting 2020'
 FTE_TAB = 'Personeelsplanning'
@@ -37,49 +37,31 @@ def aantal_fte_begroot():
 
 
 def verzuimpercentage(period: Period):
-    verzuim = verzuim_absence_hours(period)
-    normal = verzuim_normal_hours(period)
+    timesheet = Timesheet()
+    verzuim = timesheet.absence_hours(period)
+    normal = timesheet.normal_hours(period)
     percentage = 100 * verzuim / (normal + verzuim)
     return percentage
 
 
-def verzuim_normal_hours(period: Period):
-    result = hours_dataframe(period).query(f'type=="normal"')['hours'].sum()
-    return result
-
-
-def verzuim_absence_hours(period: Period, employees: list = []):
-    query = f'type!="normal" and project_name=="Verzuim / Sick leave"'
-    if employees:
-        query += ' and employee in @employees'
-    result = hours_dataframe(period).query(query)['hours'].sum()
-    return result
-
-
-def leave_hours(period: Period, employees: list = []):
-    query = f'type!="normal" and project_name=="Verlof / Leave"'
-    if employees:
-        query += ' and employee in @employees'
-    result = hours_dataframe(period).query(query)['hours'].sum()
-    return result
-
-
-def verzuim_list_old(period):
-    result = (
-        hours_dataframe(period)
-            .query(
-            'type=="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0'
-        )
-            .sort_values(['employee', 'day'])[['employee', 'day', 'label', 'hours']]
-    )
-    return result
+# def verzuim_list_old(period):
+# result = (
+#     hours_dataframe(period)
+#         .query(
+#         'type=="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0'
+#     )
+#         .sort_values(['employee', 'day'])[['employee', 'day', 'label', 'hours']]
+# )
+# return result
 
 
 def verzuim_list(period):
     timesheet = Timesheet()
-    list_of_dicts = timesheet.query(period,
-                                    'type="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0',
-                                    sort=['employee', 'day'])
+    list_of_dicts = timesheet.query(
+        period,
+        'type="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0',
+        sort=['employee', 'day'],
+    )
     if not list_of_dicts:
         return []
     result = []

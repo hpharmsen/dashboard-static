@@ -3,11 +3,11 @@ import os
 
 import pandas as pd
 
-from middleware.timesheet import Timesheet
+from middleware.employee import Employee
+from middleware.timesheet import Timesheet, hours_dataframe
 from model.caching import cache, load_cache
-from model.organisatie import verzuim_absence_hours, leave_hours
 from model.utilities import Day, Period
-from sources.simplicate import simplicate, hours_dataframe
+from sources.simplicate import simplicate
 
 
 @cache(hours=24)
@@ -21,57 +21,53 @@ def tuple_of_productie_users():
     }
     sim = simplicate()
     users = sim.employee({"status": "active"})
-    users = [
-        u["name"]
-        for u in users
-        if set(t["name"] for t in u.get("teams", [])).intersection(productie_teams)
-    ]
+    users = [u["name"] for u in users if set(t["name"] for t in u.get("teams", [])).intersection(productie_teams)]
     return users
 
 
+# # @cache(hours=2)
+# def geboekte_uren_users(period: Period, users, only_clients=0, only_billable=0):
+#     querystring = create_querystring(
+#         users, only_clients=only_clients, only_billable=only_billable
+#     )
+#     df = hours_dataframe(period).query(querystring)
+#     hours = df["hours"].sum()
+#     if only_billable:
+#         hours += df["corrections"].sum()
+#     return hours
+
+
 # @cache(hours=2)
-def geboekte_uren_users(period: Period, users, only_clients=0, only_billable=0):
-    querystring = create_querystring(
-        users, only_clients=only_clients, only_billable=only_billable
-    )
-    df = hours_dataframe(period).query(querystring)
-    hours = df["hours"].sum()
-    if only_billable:
-        hours += df["corrections"].sum()
-    return hours
+# def geboekte_omzet_users(period: Period, users, only_clients=0, only_billable=0):
+#     querystring = create_querystring(
+#         users, only_clients=only_clients, only_billable=only_billable
+#     )
+#     df = hours_dataframe(period).query(querystring)
+#     turnover = df["turnover"].sum()
+#     return turnover
 
 
-@cache(hours=2)
-def geboekte_omzet_users(period: Period, users, only_clients=0, only_billable=0):
-    querystring = create_querystring(
-        users, only_clients=only_clients, only_billable=only_billable
-    )
-    df = hours_dataframe(period).query(querystring)
-    turnover = df["turnover"].sum()
-    return turnover
+# def create_querystring(users, only_clients=0, only_billable=0):
+#     query = ['type=="normal"']
+#     if only_clients:
+#         query += ['organization not in ("Oberon", "Qikker Online B.V.") ']
+#     if users:
+#         if isinstance(users, str):
+#             users = (users,)  # make it a tuple
+#         query += [f"employee in {users}"]
+#     else:
+#         interns = get_interns(simplicate())
+#         query += [f"""employee not in ("{'","'.join(interns)}")"""]
+#     if only_billable:
+#         query += ["tariff > 0"]
+#
+#     return " and ".join(query)
 
 
-def create_querystring(users, only_clients=0, only_billable=0):
-    query = ['type=="normal"']
-    if only_clients:
-        query += ['organization not in ("Oberon", "Qikker Online B.V.") ']
-    if users:
-        if isinstance(users, str):
-            users = (users,)  # make it a tuple
-        query += [f"employee in {users}"]
-    else:
-        interns = get_interns(simplicate())
-        query += [f"""employee not in ("{'","'.join(interns)}")"""]
-    if only_billable:
-        query += ["(tariff > 0 or service_tariff>0)"]
-
-    return " and ".join(query)
-
-
-@cache(hours=24)
-def get_interns(sim):
-    """ Returns a set of users with function Stagiair"""
-    return {employee["name"] for employee in sim.employee({"function": "Stagiair"})}
+# @cache(hours=24)
+# def get_interns(sim):
+#     """ Returns a set of users with function Stagiair"""
+#     return {employee["name"] for employee in sim.employee({"function": "Stagiair"})}
 
 
 def percentage_directe_werknemers():
@@ -94,9 +90,7 @@ def billable_trend_person_week(user, startweek=1):
 
     hours_per_week = (
         hours_dataframe()
-            .query(
-            f'type=="normal" and employee=="{user}" and (tariff>0 or service_tariff>0)'
-        )
+            .query(f'type=="normal" and employee=="{user}" and (tariff>0 or service_tariff>0)')
             .groupby(["week"])[["hours"]]
             .sum()
             .to_dict("index")
@@ -137,9 +131,7 @@ def corrections_count(period: Period):
         result["hours"] = ""
     else:
         result["project"] = hours_per_project.apply(format_project_name, axis=1)
-        result["hours"] = hours_per_project.apply(
-            lambda a: f"{-int(a['corrections'])}/{int(a['hours'])}", axis=1
-        )
+        result["hours"] = hours_per_project.apply(lambda a: f"{-int(a['corrections'])}/{int(a['hours'])}", axis=1)
     return result
 
 
@@ -160,11 +152,11 @@ def corrections_list_old(period: Period):
 def corrections_list(period: Period):
     timesheet = Timesheet()
     query = f'''select `organization`, project_name, sum(hours) as hours, sum(corrections) as corrections
-                from timesheet
+                from timesheet t join project p on t.project_id=p.project_id
                 where day>="{period.fromday}"'''
     if period.untilday:
         query += f' and day<"{period.untilday}"'
-    query += ''' group by project_id
+    query += ''' group by p.project_id
                 having sum(corrections) < -2
                 order by corrections'''
     corrections = timesheet.full_query(query)
@@ -174,7 +166,7 @@ def corrections_list(period: Period):
 @cache(hours=24)
 def corrections_percentage(period: Period):
     df = hours_dataframe(period)
-    data = df.query("(tariff>0 or service_tariff>0)")
+    data = df.query("tariff>0")
     percentage_corrected = 100 * -data["corrections"].sum() / data["hours"].sum()
     return percentage_corrected
 
@@ -201,16 +193,15 @@ def get_timetables(sim):
 
 
 def beschikbare_uren_volgens_rooster(period: Period, employees=None):
-    # todo: wat doen we met stagairs? Die tellen nu mee.
 
     if employees is None:
         employees = []
     sim = simplicate()
     # Get the list of current employees
     if not employees:
-        interns = get_interns(sim)
-        employees = set(hours_dataframe(period).employee.unique())
-        employees.difference_update(interns)
+        interns = Employee().interns()
+    else:
+        interns = []
 
     # Roosteruren
     timetables = get_timetables(sim)
@@ -218,9 +209,9 @@ def beschikbare_uren_volgens_rooster(period: Period, employees=None):
     for timetable in timetables:
         if (
                 not timetable["employee"]["name"]
-                or timetable["employee"]["name"] not in employees
-                or period.untilday
-                and timetable["start_date"] >= period.untilday.str
+                or employees and timetable["employee"]["name"] not in employees
+                or not employees and timetable["employee"]["name"] in interns
+                or period.untilday and timetable["start_date"] >= period.untilday.str
                 or timetable.get("end_date", "9999") < period.fromday.str
         ):
             continue
@@ -240,10 +231,11 @@ def beschikbare_uren_volgens_rooster(period: Period, employees=None):
             day = day.next()
 
     # Vrij
-    leave = leave_hours(period, employees)
+    timesheet = Timesheet()
+    leave = timesheet.leave_hours(period, employees)
 
     # Ziek
-    absence = verzuim_absence_hours(period, employees)
+    absence = timesheet.absence_hours(period, employees)
 
     return float(tot), float(leave), float(absence)
 
