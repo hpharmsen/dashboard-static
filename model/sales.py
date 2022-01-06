@@ -1,7 +1,7 @@
 import os
 
+from middleware.trendline import TrendLines
 from model.caching import cache
-from model.trendline import trends
 from sources.simplicate import simplicate
 
 
@@ -22,7 +22,7 @@ def is_int(s):
 @cache(hours=24)
 def sales_waarde():
     res = sum([s["value"] for s in open_sales()])
-    trends.update("sales_waarde", res)
+    TrendLines().update("sales_waarde", res)
     return res
 
 
@@ -60,31 +60,7 @@ def top_x_sales(number=99, minimal_amount=0):
 @cache(hours=24)
 def open_sales():
     sim = simplicate()
-    fl = sim.sales_flat()
-    import pandas as pd
-
-    df = pd.DataFrame(fl)
     return [s for s in sim.sales_flat() if 3 <= s["progress_position"] <= 7]
-
-
-# MOET VERVANGEN DOOR SIMPLICATE
-# @reportz(hours=24)
-# def werk_in_pijplijn():
-#     tab = sheet_tab('Sales - force', 'Kansen')
-#     res = to_int(sheet_value(tab, 2, 9))
-#     trends.update('werk_in_pijplijn', res)
-#     return res
-
-# MOET VERVANGEN DOOR SIMPLICATE
-# @reportz(hours=24)
-# def werk_in_pijplijn_details():
-#     tab = sheet_tab('Sales - force', 'Kansen')
-#     data_rows = [
-#         row[:2] + [to_int(row[7])] + [to_int(row[8])] + [row[9]]
-#         for row in tab[3:]
-#         if is_int(row[8]) and to_int(row[8]) > 0
-#     ]
-#     return data_rows
 
 
 if __name__ == "__main__":

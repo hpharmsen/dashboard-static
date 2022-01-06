@@ -31,7 +31,7 @@ from settings import (
 
 
 class HoursData:
-    '''Class to store and calculate the main production KPI's'''
+    """Class to store and calculate the main production KPI's"""
 
     # rooster : float
     # verlof : float
@@ -41,7 +41,7 @@ class HoursData:
     # billable: float
     # omzet: float
 
-    def __init__(self, period: Period, employees: list = []):
+    def __init__(self, period: Period, employees: list = None):
         timesheet = Timesheet()
         self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(period, employees)
         self.op_klant_geboekt_old = timesheet.geboekte_uren_users(
@@ -107,16 +107,17 @@ def render_maandrapportage(output_folder, year, month):
     pdfkit.from_file(str(htmlpath), str(pdfpath), options=options)
 
 
-NO_FUNC = lambda a: None  # Create empty function
+def no_func(_):
+    return  # Create empty function
 
 
-def KPIgrid(columns_headers, data, effectivity_coloring=NO_FUNC, corrections_coloring=NO_FUNC, verbose=True):
+def kpi_grid(columns_headers, data, effectivity_coloring=no_func, corrections_coloring=no_func, verbose=True):
     assert len(columns_headers) == len(data)
     num_of_cols = len(data) + 1
     aligns = ['left'] + ['right'] * len(data)  # First column left, the rest right aligned
     grid = Grid(cols=num_of_cols, has_header=False, line_height=0, aligns=aligns)  # +1 is for the header column
 
-    def add_row(title, row_data, text_format, coloring=NO_FUNC):
+    def add_row(title, row_data, text_format, coloring=no_func):
         row = [TextBlock(title)]
         for d in row_data:
             # color=coloring(d)# if coloring else None
@@ -126,10 +127,6 @@ def KPIgrid(columns_headers, data, effectivity_coloring=NO_FUNC, corrections_col
     grid.add_row([None] + columns_headers)
 
     def attr_list(attr, minus=1):
-        # a =  getattr(data,attr)
-        # if callable(a):
-        #     a = a()
-        # return [minus * a if d else '' for d in data]
         for d in data:
             if not d:
                 yield ''
@@ -187,7 +184,7 @@ def hours_block(year, month):
     curyear = datetime.datetime.today().strftime('%Y')
     total_period = Period(curyear + '-01-01')
     data += [None, HoursData(total_period)]
-    grid = KPIgrid(headers, data)
+    grid = kpi_grid(headers, data)
 
     chart = None
     if month >= 3:  # Voor maart heeft een grafiekje niet veel zin
@@ -254,7 +251,7 @@ def hours_block(year, month):
 # Grafieken kunnen handig zijn, fleuren vaak de presentatie wat op. Ik zou dit alleen doen als het zinvol is.
 
 
-def render_maandrapportage_page(monthly_folder, output_folder: Path, year, month):
+def render_maandrapportage_page(monthly_folder, output_folder: Path):
     lines = []
     files = sorted([f for f in monthly_folder.iterdir() if f.suffix == '.html'])
     for file in files:
@@ -270,10 +267,10 @@ def render_maandrapportage_page(monthly_folder, output_folder: Path, year, month
 def report(render_year, render_month):
     print(f'\nGenerating report for {MAANDEN[render_month - 1]} {render_year}')
     render_maandrapportage(get_monthly_folder(), render_year, render_month)
-    render_maandrapportage_page(get_monthly_folder(), get_output_folder(), render_year, render_month)
+    render_maandrapportage_page(get_monthly_folder(), get_output_folder())
 
 
-if __name__ == '__main__':
+def test():
     os.chdir('..')
     load_cache()
     if len(sys.argv) > 1 and sys.argv[1] == 'all':
@@ -282,9 +279,13 @@ if __name__ == '__main__':
     else:
         try:
             render_month = int(sys.argv[1])
-        except:
+        except KeyError:
             render_month = datetime.datetime.today().month - 1
             if render_month == 0:
                 render_month = 12
         render_year = datetime.datetime.today().year if render_month < 12 else datetime.datetime.today().year - 1
         report(render_year, render_month)
+
+
+if __name__ == '__main__':
+    test()

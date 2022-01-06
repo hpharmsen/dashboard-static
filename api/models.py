@@ -1,5 +1,4 @@
 from tortoise import fields
-from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.models import Model
 
 
@@ -24,6 +23,3 @@ class Employee(Model):  # Class name lowercase same as db table name
     class PydanticMeta:
         computed = ["full_name"]
         # exclude = ["password_hash"]
-
-
-Employee_Pydantic = pydantic_model_creator(Employee, name="Employee")

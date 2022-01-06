@@ -4,7 +4,7 @@ import warnings
 import pandas as pd
 
 from model.caching import cache
-from model.trendline import trends
+from model.utilities import Day
 from sources import database as db
 from sources.yuki import yuki
 
@@ -138,9 +138,9 @@ OVERIGE_VLOTTENDE_PASSIVA = (
 )
 
 
-# @reportz(hours=6)
-def balans_full(date_str=''):
-    balans = yuki().account_balance(balance_type='B', date_str=date_str)
+@cache(hours=6)
+def balans_full(day: Day = None):
+    balans = yuki().account_balance(balance_type='B', day=day)
     all_balance_accounts = (
             CASH_ACCOUNTS + DEBITEUREN + CREDITEUREN + OVERIGE_VLOTTENDE_ACTIVA + OVERIGE_VLOTTENDE_PASSIVA
     )
@@ -152,45 +152,44 @@ def balans_full(date_str=''):
     return balans
 
 
-def balans_bedrag(rekeningnummers, date_str=''):
+def balans_bedrag(rekeningnummers, day: Day = None):
     if type(rekeningnummers) == str:
         rekeningnummers = {rekeningnummers}
-    rekeningen = [rekening for rekening in balans_full(date_str) if rekening['code'] in rekeningnummers]
+    rekeningen = [rekening for rekening in balans_full(day) if rekening['code'] in rekeningnummers]
     result = sum([rekening['amount'] for rekening in rekeningen])
     return result
 
 
-def cash(date_str=''):
-    cash = balans_bedrag(CASH_ACCOUNTS, date_str=date_str)
-    trends.update('cash', int(cash))
+def cash(day: Day = None):
+    cash = balans_bedrag(CASH_ACCOUNTS, day=day)
     return cash
 
 
-def debiteuren(date_str=''):
-    debiteuren = balans_bedrag(DEBITEUREN, date_str=date_str)
+def debiteuren(day: Day = None):
+    debiteuren = balans_bedrag(DEBITEUREN, day=day)
     return debiteuren
 
 
-def crediteuren(date_str=''):
-    return -balans_bedrag(CREDITEUREN, date_str=date_str)
+def crediteuren(day: Day = None):
+    return -balans_bedrag(CREDITEUREN, day=day)
 
 
-def bruto_werkkapitaal(date_str=''):
+def bruto_werkkapitaal(day: Day = None):
     # Bruto werkkapitaal is debiteuren -/- crediteuren
-    return debiteuren(date_str) - crediteuren(date_str)
+    return debiteuren(day) - crediteuren(day)
 
 
-def netto_werkkapitaal(date_str=''):
+def netto_werkkapitaal(day: Day = None):
     # Netto werkkapitaal is vlottende activa -/- vlottende passiva
-    return vlottende_activa(date_str) - vlottende_passiva(date_str)
+    return vlottende_activa(day) - vlottende_passiva(day)
 
 
-def vlottende_activa(date_str=''):
-    return cash(date_str) + debiteuren(date_str) + balans_bedrag(OVERIGE_VLOTTENDE_ACTIVA, date_str=date_str)
+def vlottende_activa(day: Day = None):
+    return cash(day) + debiteuren(day) + balans_bedrag(OVERIGE_VLOTTENDE_ACTIVA, day=day)
 
 
-def vlottende_passiva(date_str=''):
-    return crediteuren(date_str) + balans_bedrag(OVERIGE_VLOTTENDE_PASSIVA, date_str=date_str)
+def vlottende_passiva(day: Day = None):
+    return crediteuren(day) + balans_bedrag(OVERIGE_VLOTTENDE_PASSIVA, day=day)
 
 
 if __name__ == '__main__':

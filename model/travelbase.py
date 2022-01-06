@@ -4,8 +4,8 @@ import os
 import pandas as pd
 import requests
 
+from middleware.trendline import TrendLines
 from model.caching import cache
-from model.trendline import trends
 from sources.database import get_travelbase_db, dataframe
 
 # STRUCTUUR:
@@ -41,7 +41,8 @@ GOOGLE_SHEETS_APP = (
 
 
 @cache(hours=6)
-def get_bookings_per_week(booking_type: str, only_complete_weeks=False):
+def get_bookings_per_week(booking_type: str = 'bookings', only_complete_weeks=False):
+    """Get the full list of all booking amounts per brand per week and return it as a DataFrame"""
     db = get_travelbase_db()
     dfs = []
     mysql_week_mode = 5  # Week 1 is the first week with a Monday in this year
@@ -65,7 +66,8 @@ def get_bookings_per_week(booking_type: str, only_complete_weeks=False):
         lambda a: datetime.datetime.strptime(f"{int(a['year'])}-W{int(a['week'])}-1", "%Y-W%W-%w").date(), axis=1
     )
 
-    # Save to trends
+    # Save to trends database
+    trends = TrendLines()
     if booking_type == 'tickets':
         trend_name = 'travelbase_tickets_' + brand
     else:
@@ -98,6 +100,7 @@ def update_bookings_per_day(booking_type: str):
 
 
 def get_latest(type, brand):
+    """Latest value filled in into the Google sheet for the given brand"""
     name = brand
     if type == 'tickets':
         name += '_tickets'

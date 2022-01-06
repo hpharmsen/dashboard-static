@@ -8,6 +8,7 @@ from layout.basic_layout import DEF_SIZE, MID_SIZE, HEADER_SIZE
 from layout.block import TextBlock, Page, VBlock, HBlock
 from layout.chart import StackedBarChart, ScatterChart, ChartConfig
 from layout.table import Table, TableConfig
+from middleware.trendline import TrendLines
 from model import log
 from model.caching import load_cache
 from model.finance import debiteuren_30_60_90_yuki
@@ -19,12 +20,10 @@ from model.organisatie import (
 from model.productiviteit import corrections_percentage, largest_corrections
 from model.resultaat import (
     top_x_klanten_laatste_zes_maanden,
-    update_omzet_per_week,
     vulling_van_de_planning,
 )
 from model.sales import sales_waarde, top_x_sales
 from model.travelbase import get_bookings_per_week, BRANDS
-from model.trendline import trends
 from model.utilities import Day, Period
 from settings import (
     get_output_folder,
@@ -36,7 +35,7 @@ from settings import (
     GRAY,
     dependent_color,
 )
-from view.operations import kpi_grid, operations_data
+from view.operations import kpi_block, operations_data
 from view.travelbase import scatterchart as travelbase_scatterchart
 
 
@@ -68,7 +67,7 @@ def commerce_block():
                 color=sales_waarde_color,
                 tooltip="Som van openstaande trajecten<br/>maal hun kans.",
             ),
-            trends.chart("sales_waarde", 250, 150, min_y_axis=0, x_start=months_ago(6)),
+            TrendLines().chart("sales_waarde", 250, 150, min_y_axis=0, x_start=months_ago(6)),
             VBlock(
                 [
                     TextBlock(f"Top {len(top_sales)} sales kansen", MID_SIZE),
@@ -134,7 +133,7 @@ def operations_block():
         [
             TextBlock("Operations", HEADER_SIZE),
             TextBlock("KPI's", MID_SIZE),
-            HBlock([kpi_grid(verbose=False)], link="operations.html", padding=40),
+            HBlock([kpi_block(verbose=False)], link="operations.html", padding=40),
             TextBlock(""),  # Todo: verticale marge mogelijk maken
             operations_chart(),
             TextBlock(""),  # Todo: verticale marge mogelijk maken
@@ -178,7 +177,7 @@ def billable_chart():
                 DEF_SIZE,
                 color=GRAY,
             ),
-            trends.chart("billable_hele_team", 250, 150, x_start=months_ago(months_back)),
+            TrendLines().chart("billable_hele_team", 250, 150, x_start=months_ago(months_back)),
         ]
     )
 
@@ -364,12 +363,11 @@ def finance_block():
 
 def omzet_chart():
     # Behaalde omzet per week
-    update_omzet_per_week()
     return VBlock(
         [
             TextBlock('Omzet'),
             TextBlock("per week, laatste 6 maanden...", DEF_SIZE, color=GRAY),
-            trends.chart(
+            TrendLines().chart(
                 "omzet_per_week",
                 250,
                 150,
@@ -409,7 +407,7 @@ def cash_block():
     return VBlock(
         [
             TextBlock("Cash", MID_SIZE),
-            trends.chart("cash", 250, 150, min_y_axis=0, x_start=months_ago(6)),
+            TrendLines().chart("cash", 250, 150, min_y_axis=0, x_start=months_ago(6)),
         ]
     )
 

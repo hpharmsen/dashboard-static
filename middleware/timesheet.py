@@ -1,5 +1,4 @@
 import datetime
-import sys
 
 import numpy as np
 import pandas as pd
@@ -47,24 +46,25 @@ class Timesheet(BaseTable):
             """
         self.index_fields = 'day employee project_number type updated'
         super().__init__()
+        try:
+            self.db.execute(f'CREATE INDEX timesheet_year_week ON timesheet (year,week)')
+        except OperationalError:
+            pass  # index already existent
 
-        if "--onceaday" in sys.argv:
-            self.update()
-            try:
-                self.db.execute(f'CREATE INDEX timesheet_year_week ON timesheet (year,week)')
-            except OperationalError:
-                pass  # index already existent
-
-    def update(self):
+    def update(self, day=None):
+        """Updates all timesheet entries starting with day if provided,
+        14 days before the latest entry if day is not provided
+        or 1-1-2021 if there was no last entry."""
 
         sim = simplicate()
 
-        # Find newest day in database
-        newest_result = self.db.execute('select max(day) as day from timesheet')[0]['day']
-        if newest_result:
-            day = Day(newest_result).plus_days(-14)
-        else:
-            day = Day(2021, 1, 1)
+        if not day:
+            # Find newest day in database
+            newest_result = self.db.execute('select max(day) as day from timesheet')[0]['day']
+            if newest_result:
+                day = Day(newest_result).plus_days(-14)
+            else:
+                day = Day(2021, 1, 1)
         today = Day()
         if day >= today:
             return

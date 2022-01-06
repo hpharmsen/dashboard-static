@@ -5,7 +5,8 @@ from middleware.middleware_utils import get_middleware_db
 
 class BaseTable:
     def __init__(self):
-        self.db = get_middleware_db()
+        if not hasattr(self, 'db'):
+            self.db = get_middleware_db()
         self._create_project_table()
 
     def _create_project_table(self, force_recreate=0):

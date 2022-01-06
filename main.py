@@ -23,6 +23,18 @@
 # HR
 # - Begroot aantal mensen
 
+# Nieuwe opzet
+#
+#       Simplicate/Yuki/Google sheets
+#                      |
+#                  Sources
+#                      |        Model --> Static views
+# Cron jobs -> Updater |         ^
+#                      v         |
+#                      Middleware
+#                        v    ^
+#                     RWS Database --> Tortoise --> API --> Live views
+
 
 import datetime
 import os
@@ -38,6 +50,7 @@ from settings import get_output_folder
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
+from view.onderhanden_werk import render_onderhanden_werk_page
 from view.operations import render_operations_page
 from view.sales import render_sales_page
 from view.travelbase import render_travelbase_page
@@ -98,8 +111,8 @@ def render_all_pages(output_folder):
     # render_vrije_dagen_page(output_folder)
     print('..sales')
     render_sales_page(output_folder)
-    # print('..onderhanden')
-    # render_onderhanden_werk_page(output_folder)
+    print('..onderhanden')
+    render_onderhanden_werk_page(output_folder)
     print('..debiteuren')
     render_debiteuren_page(output_folder)
     print('..operations')

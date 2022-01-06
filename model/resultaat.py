@@ -8,16 +8,17 @@ import pandas as pd
 from beautiful_date import *
 
 from middleware.timesheet import hours_dataframe
+from middleware.trendline import TrendLines
 from model.caching import cache
 # from model.onderhanden_werk import simplicate_onderhanden_werk
-from model.onderhanden_werk import ohw
+from model.onderhanden_werk import ohw_sum
 from model.productiviteit import tuple_of_productie_users
-from model.trendline import trends
 from model.utilities import Day, Period
 from model.winstgevendheid import winst_per_klant
+from settings import DATE_FORMAT
 from sources import database as db
 from sources.googlesheet import sheet_tab, sheet_value
-from sources.simplicate import simplicate, DATE_FORMAT
+from sources.simplicate import simplicate
 from sources.yuki import yuki
 
 BEGROTING_SHEET = 'Begroting 2021'
@@ -109,7 +110,7 @@ def omzet_begroot_tm_maand(m):
 
 @cache
 def bruto_marge_werkelijk():
-    res = omzet_tm_nu() - projectkosten_tm_nu() + ohw()
+    res = omzet_tm_nu() - projectkosten_tm_nu() + ohw_sum()
     return res
 
 
@@ -209,13 +210,13 @@ def bijgewerkt():
 
 
 def vorige_maand():
-    """Nummer van de vorige maand. 1..11 """
+    """Nummer van de vorige maand. 1..11"""
     # todo: in januari retourneert dit 0. Dat is gek.
     return datetime.today().month - 1
 
 
 def huidige_maand():
-    """ Nummer van de huidige maand. 1..12 """
+    """Nummer van de huidige maand. 1..12"""
     return datetime.today().month
 
 
@@ -238,9 +239,10 @@ def last_day_of_month(y, m):
 
 def update_omzet_per_week():
     """Tabel van dag, omzet waarbij dag steeds de maandag is van de week waar het om gaat"""
+    trends = TrendLines()
     trend_name = 'omzet_per_week'
     last_day = trends.second_last_registered_day(trend_name)  # Always recalculate the last since hours may have changed
-    y, m, d = last_day.split('-')
+    y, m, d = str(last_day).split('-')
     last_day = BeautifulDate(int(y), int(m), int(d)) - MO  # Last Monday on or before the last calculated day
     last_sunday = D.today() - SU
     for monday in drange(last_day, last_sunday, 7 * days):

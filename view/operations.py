@@ -4,7 +4,7 @@ from pathlib import Path
 
 from layout.basic_layout import HEADER_SIZE
 from layout.block import Page, TextBlock
-from maandrapportage.maandrapport import HoursData, KPIgrid
+from maandrapportage.maandrapport import HoursData, kpi_grid
 from model.utilities import Day, Period
 from settings import (
     dependent_color,
@@ -74,17 +74,17 @@ def render_operations_page(output_folder: Path, year: int = None):
                 f"Belangrijkste KPI's per week de afgelopen {weeks} weken",
                 color="gray",
             ),
-            kpi_grid(weeks=weeks, total_period=total_period, total_title='YTD'),
+            kpi_block(weeks=weeks, total_period=total_period, total_title='YTD'),
         ]
     )
     page.render(output_folder / html_page)
 
 
-def kpi_grid(weeks=4, verbose=True, total_period=None, total_title=''):
+def kpi_block(weeks=4, verbose=True, total_period=None, total_title=''):
     week_numbers, hours_data = operations_data(weeks, total_period, total_title)
     effectivity_coloring = lambda value: dependent_color(value.effectivity(), EFFECTIVITY_RED, EFFECTIVITY_GREEN)
     corrections_coloring = lambda value: dependent_color(value.correcties_perc(), CORRECTIONS_RED, CORRECTIONS_GREEN)
-    return KPIgrid(
+    return kpi_grid(
         week_numbers,
         hours_data,
         verbose=verbose,
@@ -107,31 +107,6 @@ def operations_data(weeks, total_period=None, total_title=''):
         headers += ['', total_title]
         hours_data += [None, HoursData(total_period)]
     return headers, hours_data
-
-
-# def kpi_grid(weeks=4, reverse=False):
-#     today = datetime.date.today()
-#     monday = today - datetime.timedelta(days=today.weekday())
-#     data = []
-#     week_numbers = []
-#     for _ in range(weeks):
-#         monday_earlier = monday - datetime.timedelta(days=7)
-#         if reverse:
-#             data += [HoursData(monday_earlier, monday)]
-#             week_numbers += [monday_earlier.strftime('wk %W')]
-#         else:
-#             data = [HoursData(monday_earlier, monday)] + data
-#             week_numbers = [monday_earlier.strftime('wk %W')] + week_numbers
-#         monday = monday_earlier
-#     effectivity_coloring = lambda value: dependent_color(value.effectivity(), EFFECTIVITY_RED, EFFECTIVITY_GREEN)
-#     corrections_coloring = lambda value: dependent_color(value.correcties_perc(), CORRECTIONS_RED, CORRECTIONS_GREEN)
-#     return KPIgrid(
-#         week_numbers,
-#         data,
-#         verbose=False,
-#         effectivity_coloring=effectivity_coloring,
-#         corrections_coloring=corrections_coloring,
-#     )
 
 
 if __name__ == '__main__':

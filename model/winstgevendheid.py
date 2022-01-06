@@ -308,7 +308,8 @@ def winst_per_persoon(period):  # Get hours and hours turnover per person
             result.loc[result.employee == ph["employee"], "turnover fixed"] += turnover
 
     result.loc[
-        result.employee == "Paulo Nuno da Cruz Moreno", "employee"] = "Paulo Nuno Da Cruz Moreno"  # todo: !! temporary
+        result.employee == "Paulo Nuno da Cruz Moreno", "employee"
+    ] = "Paulo Nuno Da Cruz Moreno"  # todo: !! temporary
 
     # Add the salary and office costs per person
     result["costs"] = result.apply(calculate_employee_costs, axis=1)

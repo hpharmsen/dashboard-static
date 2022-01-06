@@ -209,9 +209,12 @@ def beschikbare_uren_volgens_rooster(period: Period, employees=None):
     for timetable in timetables:
         if (
                 not timetable["employee"]["name"]
-                or employees and timetable["employee"]["name"] not in employees
-                or not employees and timetable["employee"]["name"] in interns
-                or period.untilday and timetable["start_date"] >= period.untilday.str
+                or employees
+                and timetable["employee"]["name"] not in employees
+                or not employees
+                and timetable["employee"]["name"] in interns
+                or period.untilday
+                and timetable["start_date"] >= period.untilday.str
                 or timetable.get("end_date", "9999") < period.fromday.str
         ):
             continue

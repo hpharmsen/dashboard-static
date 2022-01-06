@@ -5,15 +5,17 @@ from typing import List, Optional
 
 from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
+from tortoise.contrib.pydantic import pydantic_model_creator
 from tortoise.expressions import Q
 
-from models import Employee_Pydantic, Employee
+from models import Employee
 
 app = FastAPI(title="Tortoise ORM FastAPI example")
+Employee_Pydantic = pydantic_model_creator(Employee, name="Employee")
 
 
-@app.get("/users", response_model=List[Employee_Pydantic])
-async def get_users(active: Optional[bool] = None, intern: Optional[bool] = None):
+@app.get("/employee", response_model=List[Employee_Pydantic])
+async def get_employees(active: Optional[bool] = None, intern: Optional[bool] = None):
     q_object = Q()
 
     if active is not None:

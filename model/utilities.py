@@ -28,19 +28,19 @@ class Day:
         return self.str
 
     def __lt__(self, other):
-        return self.str < other.str
+        return str(self) < str(other)
 
     def __gt__(self, other):
-        return self.str > other.str
+        return str(self) > str(other)
 
     def __le__(self, other):
-        return self.str <= other.str
+        return str(self) <= str(other)
 
     def __ge__(self, other):
-        return self.str >= other.str
+        return str(self) >= str(other)
 
     def __eq__(self, other):
-        return self.str == other.str
+        return str(self) == str(other)
 
     def __sub__(self, other):
         return (self.as_datetime() - other.as_datetime()).days

@@ -1,7 +1,7 @@
 import calendar
 
 # from model.onderhanden_werk import simplicate_onderhanden_werk
-from model.onderhanden_werk import ohw
+from model.onderhanden_werk import ohw_sum
 from model.utilities import Day
 from sources.yuki import Yuki, COSTS, ASSETS, LIABILITIES
 
@@ -54,7 +54,7 @@ class YukiResult:
         if not day:
             day = Day()
         year_start = Day(day.y, 1, 1)
-        wip_year_start = ohw(year_start)
+        wip_year_start = ohw_sum(year_start)
         return (
             wip_now - wip_last_month,
             wip_now - wip_year_start,
@@ -112,9 +112,7 @@ class YukiResult:
         return self.month_ytd('service', day)
 
     def hosting(self, day: Day = None):
-        return tuple_add(
-            self.month_ytd('hosting', day), self.month_ytd('hosting_expenses', day)
-        )
+        return tuple_add(self.month_ytd('hosting', day), self.month_ytd('hosting_expenses', day))
 
     def travelbase(self, day: Day = None):
         return 0, 0  # self.month_ytd('travelbase', day ) # todo: Hier aparte post in Yuki van maken?
@@ -135,9 +133,7 @@ class YukiResult:
         return tuple_add(self.people(day), self.wbso(day))
 
     def company_costs(self, day: Day = None):
-        return tuple_add(
-            self.housing(day), self.marketing(day), self.other_expenses(day)
-        )
+        return tuple_add(self.housing(day), self.marketing(day), self.other_expenses(day))
 
     def marketing(self, day: Day = None):
         return self.month_ytd('marketing', day)
@@ -192,7 +188,9 @@ class YukiResult:
 
     def get_work_in_progress(self, day: Day = None):
         day, prev_day = self.day_couple(day)
-        return ohw(day), ohw(prev_day)
+        return ohw_sum(day.next()), ohw_sum(
+            prev_day.next()
+        )  # Next omdat je OHW altijd moet tellen op de 1e van de maand
 
 
 def last_date_of_month(year: int, month: int):

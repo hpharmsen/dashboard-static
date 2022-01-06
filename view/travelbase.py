@@ -7,7 +7,7 @@ from layout.basic_layout import HEADER_SIZE
 from layout.block import TextBlock, Page
 from layout.chart import StackedBarChart, ChartConfig, MultiScatterChart
 from layout.table import Table, TableConfig
-from model.travelbase import BRANDS, get_bookings_per_week, update_bookings_per_day
+from model.travelbase import BRANDS, get_bookings_per_week
 from settings import get_output_folder
 
 CHART_COLORS = [['#6666cc', '#ddeeff'], ['#66cc66', '#eeffdd'], ['#cc6666', '#ffddee'], ['#ccc66', '#ffffdd']]
@@ -15,8 +15,6 @@ BAR_COLORS = ['#6666cc', '#66cc66', '#cc6666', '#cccc66']
 
 
 def render_travelbase_page(output_folder):
-    update_bookings_per_day('bookings')
-    update_bookings_per_day('tickets')
     bookings = get_bookings_per_week(booking_type='bookings')
     if not isinstance(bookings, pd.DataFrame):
         return  # An error occurred, no use to proceed

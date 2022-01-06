@@ -1,5 +1,4 @@
 ''' Handles the Employee class and employee table '''
-import sys
 
 from middleware.base_table import BaseTable
 from middleware.middleware_utils import singleton
@@ -22,9 +21,6 @@ class Employee(BaseTable):
             """
         self.index_fields = ''
         super().__init__()
-
-        if "--onceaday" in sys.argv:
-            self.update()
 
     def update(self):
         self._create_project_table(force_recreate=1)
@@ -59,7 +55,7 @@ class Employee(BaseTable):
         return result[0]
 
     def update_salaries(self):
-        pass
+        pass  # todo: invullen
 
 
 if __name__ == '__main__':
