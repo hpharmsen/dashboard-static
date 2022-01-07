@@ -25,7 +25,7 @@ class TrendLines(BaseTable):
         self.index_fields = ''
         super().__init__()
         self.trends = defaultdict(list)
-        # self.load()
+        self.load()
 
     def update(self, trendname, value, day: Day = None):
         if not self.db:
