@@ -81,16 +81,20 @@ def percentage_directe_werknemers():
     )
 
 
-@cache(hours=8)
-def billable_trend_person_week(user, startweek=1):
+# @cache(hours=8)
+def billable_trend_person_week(user, period):
     # Returns a list of labels and a list of hours
-    thisweek = Day().week_number()
-    labels = list(range(startweek, thisweek))
+    startweek = period.fromday.week_number()
+    untilweek = period.untilday.week_number() if period.untilday else Day().week_number()
+    if untilweek > startweek:
+        labels = list(range(startweek, untilweek))
+    else:
+        labels = list(range(startweek, 53)) + list(range(1, untilweek))
     hours = [0] * len(labels)
 
     hours_per_week = (
-        hours_dataframe()
-            .query(f'type=="normal" and employee=="{user}" and (tariff>0 or service_tariff>0)')
+        hours_dataframe(period)
+            .query(f'type=="normal" and employee=="{user}" and tariff>0')
             .groupby(["week"])[["hours"]]
             .sum()
             .to_dict("index")

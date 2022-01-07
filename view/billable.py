@@ -20,7 +20,7 @@ def render_billable_page(output_folder: Path):
     row = 0
     col = 0
     for user in users:
-        labels, hours = billable_trend_person_week(user, startweek=0)  # {weekno: hours} dict
+        labels, hours = billable_trend_person_week(user, period)  # {weekno: hours} dict
         hours_data = HoursData(period, [user])
         chart = BarChart(
             hours,

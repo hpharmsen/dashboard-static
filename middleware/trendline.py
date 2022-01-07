@@ -12,7 +12,7 @@ from sources.database import get_db
 class TrendLines(BaseTable):
     def __init__(self):
         self.db = get_db()  # Nog uit extranet
-        self.table_name = 'trends'
+        self.table_name = "trends"
         self.table_definition = """
             CREATE TABLE IF NOT EXISTS trends (
                trendline VARCHAR(30) NOT NULL,
@@ -22,7 +22,7 @@ class TrendLines(BaseTable):
 
                PRIMARY KEY(trendline, date) )
             """
-        self.index_fields = ''
+        self.index_fields = ""
         super().__init__()
         self.trends = defaultdict(list)
         self.load()
@@ -33,9 +33,9 @@ class TrendLines(BaseTable):
         if not day:
             day = Day()
         self.db.updateinsert(
-            'trends',
-            {'trendline': trendname, 'date': str(day)},
-            {'trendline': trendname, 'date': str(day), 'value': value},
+            "trends",
+            {"trendline": trendname, "date": str(day)},
+            {"trendline": trendname, "date": str(day), "value": value},
         )
 
         # Try to update the trend
@@ -51,7 +51,7 @@ class TrendLines(BaseTable):
         trend = self.trends.get(trendname)
         if not trend:
             y = datetime.datetime.today().year
-            return Day(f'{y - 1}-12-31')
+            return Day(f"{y - 1}-12-31")
         return trend[-1][0]
         # return max([t[0] for t in trend])
 
@@ -59,7 +59,7 @@ class TrendLines(BaseTable):
         trend = self.trends.get(trendname)
         if not trend:
             y = datetime.datetime.today().year
-            return Day(f'{y - 1}-12-31')
+            return Day(f"{y - 1}-12-31")
         if len(trend) >= 2:
             return trend[-2][0]
         else:
@@ -68,12 +68,12 @@ class TrendLines(BaseTable):
     def load(self):
         if not self.db:
             return []  # An error occurred. No use to continue
-        trenddata = self.db.execute('select * from trends order by date')
+        trenddata = self.db.execute("select * from trends order by date")
         for d in trenddata:
-            trendname = d['trendline']
+            trendname = d["trendline"]
             if not self.trends.get(trendname):
                 self.trends[trendname] = []
-            self.trends[trendname] += [[Day(d['date']), d['value']]]
+            self.trends[trendname] += [[Day(d["date"]), d["value"]]]
 
     # def save(self):
     #     # with open(self.trendfile, 'w') as f:
@@ -89,13 +89,13 @@ class TrendLines(BaseTable):
     #                 {'trendline': trendname, 'date': date, 'value': value},
     #             )
 
-    def chart(self, trendname, width, height, x_start='', min_y_axis=None, max_y_axis=None):
-        xy = [{'x': a[0], 'y': a[1]} for a in self.trends[trendname] if a[0] >= x_start]
+    def chart(self, trendname, width, height, x_start="", min_y_axis=None, max_y_axis=None):
+        xy = [{"x": a[0], "y": a[1]} for a in self.trends[trendname] if a[0] >= x_start]
         chart_config = ChartConfig(
             width=width,
             height=height,
-            colors=['#6666cc', '#ddeeff'],
-            x_type='date',
+            colors=["#6666cc", "#ddeeff"],
+            x_type="date",
             min_y_axis=min_y_axis,
             max_y_axis=max_y_axis,
             y_axis_max_ticks=5,
@@ -103,5 +103,5 @@ class TrendLines(BaseTable):
         return ScatterChart(xy, chart_config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
