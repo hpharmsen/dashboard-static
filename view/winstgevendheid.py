@@ -15,8 +15,12 @@ from model.winstgevendheid import (
 from settings import get_output_folder, GRAY
 
 
-def render_winstgevendheid_page(output_folder: Path):
-    period = Period(Day().plus_months(-12))  # Laatste 12 maanden
+def render_winstgevendheid_page(output_folder: Path, period=None):
+    if period:
+        period_description = f'Van {period.fromday} tot {period.untilday}'
+    if not period:
+        period = Period(Day().plus_months(-12))  # Laatste 12 maanden
+        period_description = 'De laatste 12 maanden.'
     client_data = winst_per_klant(period)
     per_client = VBlock(
         [
@@ -72,7 +76,7 @@ def render_winstgevendheid_page(output_folder: Path):
         [
             TextBlock('Winstgevendheid', HEADER_SIZE),
             TextBlock(
-                f'''Uitgaande van een productiviteit van {PRODUCTIVITEIT*100:.0f}% 
+                f'''{period_description} Uitgaande van een productiviteit van {PRODUCTIVITEIT * 100:.0f}% 
                                en €{OVERIGE_KOSTEN_PER_FTE_PER_MAAND} per persoon per maand bureaukosten.''',
                 color=GRAY,
             ),
@@ -84,4 +88,5 @@ def render_winstgevendheid_page(output_folder: Path):
 
 if __name__ == '__main__':
     os.chdir('..')
-    render_winstgevendheid_page(get_output_folder())
+    period = Period('2021-01-01', '2022-01-01')
+    render_winstgevendheid_page(get_output_folder(), period)
