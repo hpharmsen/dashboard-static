@@ -130,8 +130,10 @@ if __name__ == '__main__':
     days = [Day('2022-1-1'), Day()]
     for test_day in days:
         test_page = Page(
-            [TextBlock(f'Onderhanden werk per {test_day.strftime("%d/%m")}', HEADER_SIZE),
-             onderhanden_werk_list(test_day)]
+            [
+                TextBlock(f'Onderhanden werk per {test_day.strftime("%d/%m")}', HEADER_SIZE),
+                onderhanden_werk_list(test_day),
+            ]
         )
         if test_day == Day():
             test_page.render(get_output_folder() / 'onderhanden.html')

@@ -114,7 +114,7 @@ class Timesheet(BaseTable):
     def count(self):
         return self.db.execute('select count(*) as aantal from timesheet')[0]['aantal']
 
-    def geboekte_uren_users(self, period, users=None, only_clients=0, only_billable=0) -> float:
+    def geboekte_uren(self, period, users=None, only_clients=0, only_billable=0) -> float:
 
         query = self.where_clause(
             period, users=users, only_clients=only_clients, only_billable=only_billable, hours_type='normal'
@@ -126,7 +126,7 @@ class Timesheet(BaseTable):
         result = float(self.db.execute(query)[0]['result'] or 0)
         return result
 
-    def geboekte_omzet_users(self, period, users=None, only_clients=0, only_billable=0) -> float:
+    def geboekte_omzet(self, period, users=None, only_clients=0, only_billable=0) -> float:
         query = self.where_clause(
             period, users=users, only_clients=only_clients, only_billable=only_billable, hours_type='normal'
         )
@@ -176,6 +176,17 @@ class Timesheet(BaseTable):
 
     def full_query(self, query_string):
         return self.db.execute(query_string)
+
+    def services_with_their_turnover(self, service_ids: list, day: Day, ) -> dict[str, int]:
+        """ Dict with the given service_ids as keys and their their turnovers up to the given day as values """
+        services_string = '("' + '","'.join(service_ids) + '")'
+        query = f"""select service_id, sum(turnover) as turnover 
+                    from timesheet 
+                      where service_id in {services_string}
+                      and day<"{day}"
+                   group by service_id"""
+        result = {r["service_id"]: int(r["turnover"]) for r in self.full_query(query)}
+        return result
 
 
 def group_by_daypersonservice(list_of_dicts):

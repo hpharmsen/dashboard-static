@@ -44,24 +44,24 @@ class HoursData:
     def __init__(self, period: Period, employees: list = None):
         timesheet = Timesheet()
         self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(period, employees)
-        self.op_klant_geboekt_old = timesheet.geboekte_uren_users(
+        self.op_klant_geboekt_old = timesheet.geboekte_uren(
             period, users=employees, only_clients=1, only_billable=0
         )
-        self.op_klant_geboekt = timesheet.geboekte_uren_users(period, users=employees, only_clients=1, only_billable=0)
-        self.billable_old = timesheet.geboekte_uren_users(
+        self.op_klant_geboekt = timesheet.geboekte_uren(period, users=employees, only_clients=1, only_billable=0)
+        self.billable_old = timesheet.geboekte_uren(
             period,
             users=employees,
             only_clients=1,
             only_billable=1,
         )
-        self.billable = timesheet.geboekte_uren_users(
+        self.billable = timesheet.geboekte_uren(
             period,
             users=employees,
             only_clients=1,
             only_billable=1,
         )
         # self.omzet_old = geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
-        self.omzet = timesheet.geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
+        self.omzet = timesheet.geboekte_omzet(period, users=employees, only_clients=1, only_billable=0)
 
     def beschikbaar(self) -> float:
         return self.rooster - self.verlof - self.verzuim
@@ -177,7 +177,7 @@ def hours_block(year, month):
     for m in range(month):
         month_names += [TextBlock(MAANDEN[m])]
         fromday = Day(year, m + 1, 1)
-        untilday = Day(year, m + 2, 1) if m < 11 else Day(year + 1, m + 1, 1)
+        untilday = fromday.plus_months(1)
         period = Period(fromday, untilday)
         data += [HoursData(period)]
     headers = month_names + ['', 'YTD']

@@ -160,9 +160,9 @@ def corrections_list(period: Period):
                 where day>="{period.fromday}"'''
     if period.untilday:
         query += f' and day<"{period.untilday}"'
-    query += ''' group by p.project_id
+    query += """ group by p.project_id
                 having sum(corrections) < -2
-                order by corrections'''
+                order by corrections"""
     corrections = timesheet.full_query(query)
     return pd.DataFrame(corrections)
 

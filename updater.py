@@ -1,14 +1,16 @@
 import sys
 
+from main import cd_to_script_path
 from middleware.employee import Employee
 from middleware.project import Project
 from middleware.timesheet import Timesheet
 from middleware.trendline import TrendLines
 from model import finance
-from model.caching import cache_created_time_stamp, clear_cache
+from model.caching import clear_cache
 from model.resultaat import update_omzet_per_week
 from model.travelbase import update_bookings_per_day
 from model.utilities import Day
+from settings import get_output_folder
 
 
 def update_employee():
@@ -41,13 +43,23 @@ def update_finance():
     update_omzet_per_week()
 
 
+def check_if_has_run_today():
+    output_folder = get_output_folder()
+    updater_file = output_folder / 'last_updated.txt'
+    if updater_file.is_file():
+        with open(updater_file) as f:
+            last_updated = Day(f.read())
+            if last_updated == Day():
+                print('Script has already run today: exiting')
+                sys.exit()
+    with open(updater_file, 'w') as f:
+        f.write(str(Day()))
+
+
 if __name__ == '__main__':
+    cd_to_script_path()
     if '--onceaday' in sys.argv:
-        cache_created = cache_created_time_stamp()  # todo: deze lijkt te resetten als dashboard heeft gedraaid
-        yesterday = Day().prev()
-        if cache_created and Day(cache_created) > yesterday:
-            print('Script has already run today: exiting')
-            sys.exit()
+        check_if_has_run_today()
         clear_cache()
     if '--nocache' in sys.argv:
         clear_cache()
