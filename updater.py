@@ -2,7 +2,9 @@ import sys
 
 from main import cd_to_script_path
 from middleware.employee import Employee
+from middleware.invoice import Invoice
 from middleware.project import Project
+from middleware.service import Service
 from middleware.timesheet import Timesheet
 from middleware.trendline import TrendLines
 from model import finance
@@ -25,6 +27,12 @@ def update_project():
     project.update()
 
 
+def update_service():
+    print('Updating services')
+    service = Service()
+    service.update()
+
+
 def update_timesheet(day=None):
     print('Updating timesheet')
     timesheet = Timesheet()
@@ -41,6 +49,11 @@ def update_finance():
     cash = finance.cash()
     TrendLines().update('cash', int(cash))
     update_omzet_per_week()
+
+
+def update_invoices(day=None):
+    invoice = Invoice()
+    invoice.update(day)
 
 
 def check_if_has_run_today():
@@ -66,6 +79,7 @@ if __name__ == '__main__':
 
     update_employee()
     update_project()
+    update_service()
     update_timesheet()
     update_travelbase()
     update_finance()

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from pymysql import OperationalError
 
-from middleware.base_table import BaseTable
+from middleware.base_table import BaseTable, EMPLOYEE_NAME, PROJECT_NUMBER, SIMPLICATE_ID, MONEY, HOURS
 from middleware.employee import Employee
 from middleware.middleware_utils import singleton
 from model.caching import cache
@@ -16,38 +16,31 @@ from sources.simplicate import simplicate, flatten_hours_data, calculate_turnove
 class Timesheet(BaseTable):
     def __init__(self):
         self.table_name = 'timesheet'
-        self.table_definition = """
-            CREATE TABLE IF NOT EXISTS timesheet (
+        self.table_definition = f"""
                day VARCHAR(10) NOT NULL,
                week INTEGER NOT NULL,
                year INTEGER NOT NULL,
-               employee VARCHAR(40) NOT NULL,
+               employee {EMPLOYEE_NAME} NOT NULL,
 
-               project_id VARCHAR(50) NOT NULL,
-               project_number VARCHAR(10) NOT NULL,
+               project_number {PROJECT_NUMBER} NOT NULL,
 
-               service_id VARCHAR(50) NOT NULL,
-               service_name VARCHAR(80) NOT NULL,
+               service_id {SIMPLICATE_ID} NOT NULL,
 
-               tariff DECIMAL(6,2) NOT NULL,
+               tariff {MONEY} NOT NULL,
 
                type VARCHAR(10) NOT NULL,
                label VARCHAR(100) NOT NULL,
 
-               hours DECIMAL(6,2) NOT NULL,
-               turnover DECIMAL(9,2) NOT NULL,
-               corrections DECIMAL(6,2) NOT NULL,
-               corrections_value DECIMAL(9,2) NOT NULL,
-
-               updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-               PRIMARY KEY(day, employee, service_id) )
-               CHARACTER SET utf8
+               hours {HOURS} NOT NULL,
+               turnover {MONEY} NOT NULL,
+               corrections {HOURS} NOT NULL,
+               corrections_value {MONEY} NOT NULL,
             """
-        self.index_fields = 'day employee project_number type updated'
+        self.primary_key = 'day, employee, service_id'
+        self.index_fields = "day employee project_number type updated"
         super().__init__()
         try:
-            self.db.execute(f'CREATE INDEX timesheet_year_week ON timesheet (year,week)')
+            self.db.execute(f"CREATE INDEX timesheet_year_week ON timesheet (year,week)")
         except OperationalError:
             pass  # index already existent
 
@@ -60,7 +53,7 @@ class Timesheet(BaseTable):
 
         if not day:
             # Find newest day in database
-            newest_result = self.db.execute('select max(day) as day from timesheet')[0]['day']
+            newest_result = self.db.execute("select max(day) as day from timesheet")[0]["day"]
             if newest_result:
                 day = Day(newest_result).plus_days(-14)
             else:
@@ -70,15 +63,12 @@ class Timesheet(BaseTable):
             return
 
         while day < today:
-            print('updating', day)
-            data = sim.hours({'day': day})
+            print("updating", day)
+            data = sim.hours({"day": day})
             if data:
                 flat_data = flatten_hours_data(data)
-                flat_df = pd.DataFrame(flat_data)
                 grouped_data = group_by_daypersonservice(flat_data)
-                grouped_df = pd.DataFrame(grouped_data)
                 complemented_data = [complement_timesheet_data(te) for te in grouped_data]  # %(name)s
-                comp_df = pd.DataFrame(complemented_data)
                 self.db.execute(f'delete from timesheet where day = "{day}"')
                 self.insert_dicts(complemented_data)
             day = day.next()  # Move to the next day before repeating the loop
@@ -93,7 +83,7 @@ class Timesheet(BaseTable):
 
         if only_clients:
             query = (
-                    ' join project on project.project_id=timesheet.project_id '
+                    " join project on project.project_number=timesheet.project_number "
                     + query
                     + ' and organization not in ("Oberon", "Qikker Online B.V.") '
             )
@@ -112,80 +102,82 @@ class Timesheet(BaseTable):
         return query
 
     def count(self):
-        return self.db.execute('select count(*) as aantal from timesheet')[0]['aantal']
+        return self.db.execute("select count(*) as aantal from timesheet")[0]["aantal"]
 
     def geboekte_uren(self, period, users=None, only_clients=0, only_billable=0) -> float:
 
         query = self.where_clause(
-            period, users=users, only_clients=only_clients, only_billable=only_billable, hours_type='normal'
+            period, users=users, only_clients=only_clients, only_billable=only_billable, hours_type="normal"
         )
         if only_billable:
-            query = 'select sum(hours+corrections) as result from timesheet ' + query
+            query = "select sum(hours+corrections) as result from timesheet " + query
         else:
-            query = 'select sum(hours) as result from timesheet ' + query
-        result = float(self.db.execute(query)[0]['result'] or 0)
+            query = "select sum(hours) as result from timesheet " + query
+        result = float(self.db.execute(query)[0]["result"] or 0)
         return result
 
     def geboekte_omzet(self, period, users=None, only_clients=0, only_billable=0) -> float:
         query = self.where_clause(
-            period, users=users, only_clients=only_clients, only_billable=only_billable, hours_type='normal'
+            period, users=users, only_clients=only_clients, only_billable=only_billable, hours_type="normal"
         )
-        query = 'select sum(turnover) as result from timesheet ' + query
+        query = "select sum(turnover) as result from timesheet " + query
         query_result = self.db.execute(query)
-        result = float(query_result[0]['result'] or 0)
+        result = float(query_result[0]["result"] or 0)
         return result
 
     def normal_hours(self, period: Period, employees: list = []):
         """Number of hours with the type normal in Period. Filtering on employees is optional."""
-        return self.hours_with_type(period, 'normal', employees)
+        return self.hours_with_type(period, "normal", employees)
 
     def leave_hours(self, period: Period, employees: list = []):
         """Number of hours with the type leave in Period. Filtering on employees is optional."""
-        return self.hours_with_type(period, 'leave', employees)
+        return self.hours_with_type(period, "leave", employees)
 
     def absence_hours(self, period: Period, employees: list = []):
         """Number of hours with the type absence in Period. Filtering on employees is optional."""
-        return self.hours_with_type(period, 'absence', employees)
+        return self.hours_with_type(period, "absence", employees)
 
     def hours_with_type(self, period: Period, type: str, employees: list = []):
         """Number of hours with the given type (normal, absence, leave) in Period. Filtering on employees is optional."""
-        query = 'select sum(hours) as result from timesheet ' + self.where_clause(
+        query = "select sum(hours) as result from timesheet " + self.where_clause(
             period, users=employees, hours_type=type
         )
         query_result = self.db.execute(query)
-        result = float(query_result[0]['result'] or 0)
+        result = float(query_result[0]["result"] or 0)
         return result
 
-    def query(self, period: Period, where: str = '', sort=None, with_project_data=False):
+    def query(self, period: Period, where: str = "", sort=None, with_project_data=False):
         if with_project_data:
-            query_string = f'''SELECT t.*, p.organization, p.project_name, p.pm, p.status as project_status 
-                               FROM timesheet t JOIN project p ON p.project_id=t.project_id'''
+            query_string = f"""SELECT t.*, p.organization, p.project_name, p.pm, p.status as project_status 
+                               FROM timesheet t JOIN project p ON p.project_number=t.project_number"""
         else:
-            query_string = 'SELECT * from timesheet'
+            query_string = "SELECT * from timesheet"
         query_string += f' WHERE day>="{period.fromday}"'
         if period.untilday:
             query_string += f' AND day<"{period.untilday}"'
         if where:
-            query_string += ' AND ' + where
+            query_string += " AND " + where
         if sort:
             if not isinstance(sort, list):
                 sort = [sort]
-            query_string += ' ORDER BY ' + ','.join(sort)
+            query_string += " ORDER BY " + ",".join(sort)
         query_result = self.db.execute(query_string)
         return query_result
 
     def full_query(self, query_string):
         return self.db.execute(query_string)
 
-    def services_with_their_turnover(self, service_ids: list, day: Day, ) -> dict[str, int]:
-        """ Dict with the given service_ids as keys and their their turnovers up to the given day as values """
+    def services_with_their_hours_and_turnover(
+            self,
+            service_ids: list,
+            day: Day,
+    ) -> dict[str, tuple[float, int]]:
+        """Dict with the given service_ids as keys and their their turnovers up to the given day as values"""
         services_string = '("' + '","'.join(service_ids) + '")'
-        query = f"""select service_id, sum(turnover) as turnover 
-                    from timesheet 
-                      where service_id in {services_string}
-                      and day<"{day}"
-                   group by service_id"""
-        result = {r["service_id"]: int(r["turnover"]) for r in self.full_query(query)}
+        query = f"""select service_id, sum(hours) as hours, sum(turnover) as turnover from timesheet 
+                    where service_id in {services_string} and day<"{day}"
+                    group by service_id"""
+        result = {r["service_id"]: (float(r["hours"]), int(r["turnover"])) for r in self.full_query(query)}
         return result
 
 
@@ -195,34 +187,35 @@ def group_by_daypersonservice(list_of_dicts):
     def first(x):
         return x.values[0]
 
-    key = ['day', 'employee', 'service_id']
+    key = ["day", "employee", "service_id"]
     agg = {colname: first for colname in df.columns if colname not in key}
-    agg['hours'] = np.sum
-    agg['corrections'] = np.sum
+    agg["hours"] = np.sum
+    agg["corrections"] = np.sum
     df2 = df.groupby(key).agg(agg).reset_index()
-    return df2.to_dict('records')
+    return df2.to_dict("records")
 
 
 def complement_timesheet_data(timesheet_entry):
     def week_and_year(day_str):
-        week = datetime.datetime.strptime(day_str, '%Y-%m-%d').isocalendar()[1]
+        week = datetime.datetime.strptime(day_str, "%Y-%m-%d").isocalendar()[1]
         year = int(day_str[:4])
-        if day_str[5] < '1' and week > 50:
+        if day_str[5] < "1" and week > 50:
             year -= 1
         return week, year
 
-    timesheet_entry['tariff'] = timesheet_entry['tariff'] or timesheet_entry['service_tariff']
-    del timesheet_entry['hours_id']
-    del timesheet_entry['billable']
-    del timesheet_entry['status']
-    del timesheet_entry['service_tariff']
-    timesheet_entry['turnover'] = calculate_turnover(timesheet_entry)
-    timesheet_entry['service_name'] = timesheet_entry.pop('service')  # Renaming
-    timesheet_entry['week'], timesheet_entry['year'] = week_and_year(timesheet_entry['day'])
-    timesheet_entry['corrections_value'] = timesheet_entry['corrections'] * timesheet_entry['tariff']
+    timesheet_entry["tariff"] = timesheet_entry["tariff"] or timesheet_entry["service_tariff"]
+    del timesheet_entry["hours_id"]
+    del timesheet_entry["billable"]
+    del timesheet_entry["status"]
+    del timesheet_entry["service_tariff"]
+    del timesheet_entry["service"]
+    timesheet_entry["turnover"] = calculate_turnover(timesheet_entry)
+    # timesheet_entry["service_name"] = timesheet_entry.pop("service")  # Renaming
+    timesheet_entry["week"], timesheet_entry["year"] = week_and_year(timesheet_entry["day"])
+    timesheet_entry["corrections_value"] = timesheet_entry["corrections"] * timesheet_entry["tariff"]
     # Feestdagenverlof / National holidays leave -> leave
-    if timesheet_entry['label'] == 'Feestdagenverlof / National holidays leave':
-        timesheet_entry['type'] = 'leave'
+    if timesheet_entry["label"] == "Feestdagenverlof / National holidays leave":
+        timesheet_entry["type"] = "leave"
     return timesheet_entry
 
 
@@ -239,7 +232,7 @@ def hours_dataframe(period: Period):
     return df
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     timesheet_table = Timesheet()
     timesheet_table._create_project_table(force_recreate=0)
     timesheet_table.update()

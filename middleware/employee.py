@@ -1,6 +1,6 @@
 ''' Handles the Employee class and employee table '''
 
-from middleware.base_table import BaseTable
+from middleware.base_table import BaseTable, EMPLOYEE_NAME
 from middleware.middleware_utils import singleton
 from sources.simplicate import simplicate
 
@@ -9,16 +9,12 @@ from sources.simplicate import simplicate
 class Employee(BaseTable):
     def __init__(self):
         self.table_name = 'employee'
-        self.table_definition = """
-            CREATE TABLE IF NOT EXISTS employee (
-               name VARCHAR(40) NOT NULL,
+        self.table_definition = f"""
+               name {EMPLOYEE_NAME} NOT NULL,
                `function` VARCHAR(40) NOT NULL,
                active TINYINT NOT NULL,
-               
-               updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-               PRIMARY KEY(name) )
             """
+        self.primary_key = 'name'
         self.index_fields = ''
         super().__init__()
 

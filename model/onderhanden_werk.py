@@ -1,10 +1,10 @@
 import os
-from collections import defaultdict
 
 import pandas as pd
 from pandas import DataFrame
 from pysimplicate import Simplicate
 
+from middleware.invoice import Invoice
 from middleware.timesheet import Timesheet
 from model.caching import cache, load_cache
 from model.utilities import Day, Period
@@ -24,7 +24,6 @@ def ohw_sum(day: Day, minimal_intesting_value=0):
         if row["project_id"] != last_project__id:
             if abs(row["project_ohw"]) >= minimal_intesting_value:
                 total_ohw += row["project_ohw"]
-                print(">", row["project_ohw"])
             last_project__id = row["project_id"]
 
     return total_ohw
@@ -36,25 +35,19 @@ def ohw_list(day: Day, minimal_intesting_value=0, group_by_project=0) -> DataFra
 
     # Nieuwe methode:
     # 1. Alle active projecten en de diensten daarvan
-    service_df = simplicate_projects_and_services(sim, day)
+    service_df = simplicate_projects_and_services(sim, day)  # todo: kan dit niet uit middleware?
     # service_df = service_df.query('project_number=="THIE-27"')
-
-    # todo: OWH berekenen voor FixedFee services
-    # Gaat mis bij projecten zoals CAP-13. Andere zoals strippenkaarten, ODC-1 gaan wel goed.
-    # Het beste zou zijn: min(fixedfee, hours*tariff - invoiced)
-    # Waarbij fixedfee het afgesproken bedrag is en tariff meestal niet bekend zal zijn dus dan maar 100.
-    # Voor nu houden we fixedfee ook niet bij in de service. Sterker nog, we hebben helemaal geen service-object
-    # want de service-gegevens staan in timesheet erbij. Dat moet eigenlijk eerst gefixt met een eigen tabel.
-    # Tot die tijd is OHW van alle fixedfee projecten gewoon altijd 0.
 
     # 2. Omzet -/- correcties berekenen
     service_ids = service_df["service_id"].tolist()
-    service_turnovers = Timesheet().services_with_their_turnover(service_ids, day)
+    service_turnovers = Timesheet().services_with_their_hours_and_turnover(service_ids, day)
 
     def calculate_turover(row):
-        turnover = service_turnovers.get(row["service_id"], 0)
-        if row["invoice_method"] == "FixedFee":  # Gerealiseerde omzet kan nooit meer zijn dan de afgesproken prijs
-            turnover = min(int(float(row.get("price"))), turnover)
+        hours, turnover = service_turnovers.get(row["service_id"], (0, 0))
+        if row["invoice_method"] == "FixedFee":
+            # Fixed fee: tel als onderhanden werk een gemiddeld uurloon van 100 maal het aantal gemaakte uren.
+            # Gerealiseerde omzet kan nooit meer zijn dan de afgesproken prijs
+            turnover = min(int(float(row.get("price"))), hours * 100.0)  # 100 als gemiddeld uurlopon
         return turnover
 
     service_df["turnover"] = service_df.apply(calculate_turover, axis=1).astype(int)
@@ -72,7 +65,7 @@ def ohw_list(day: Day, minimal_intesting_value=0, group_by_project=0) -> DataFra
     service_df["project_costs"] = service_df["project_costs"].astype(int)
 
     # 4. Facturatie
-    service_invoiced = invoiced_by_date(sim, day)
+    service_invoiced = invoiced_by_date(day)
 
     def get_invoiced(row):
         invoiced = service_invoiced.get(row["service_id"])
@@ -113,7 +106,7 @@ def ohw_list(day: Day, minimal_intesting_value=0, group_by_project=0) -> DataFra
     return project_df
 
 
-@cache(hours=8)
+# @cache(hours=8)
 def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     """Returns a dataframe with all active projects and services at a given date"""
 
@@ -140,12 +133,11 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     services = (
         sim.to_pandas(services_json)
             .query(status_query)[
-            ["project_id", "status", "id", "name", "start_date", "end_date", "invoice_method", "service_costs", "price"]
-        ]
+            ["project_id", "status", "id", "name", "start_date", "end_date", "invoice_method", "service_costs", "price"]]
             .rename(columns={"id": "service_id", "name": "service_name"})
     )  # end_date > "{date}" &
 
-    # services = services.query('project_id=="project:99bec48587324a42feaad60b7a7437df"')
+    #services = services.query('project_id=="project:180a369cd2662fcbfeaad60b7a7437df"')
 
     # Same with the list of projects
     projects_json = sim.project({"status": "tab_pactive"})
@@ -162,8 +154,7 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     projects = (
         sim.to_pandas(projects_json)
             .query(project_query)[
-            ["id", "project_number", "name", "organization_name", "project_manager_name", "budget_costs_value_spent"]
-        ]
+            ["id", "project_number", "name", "organization_name", "project_manager_name", "budget_costs_value_spent"]]
             .rename(columns=project_renames)
     )
 
@@ -173,67 +164,25 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
 
 
 @cache(hours=4)
-def invoiced_by_date(sim: Simplicate, day: Day):
-    invoices = sim.invoice({"from_date": "2021-01-01", "until_date": day})
-    result = defaultdict(float)
-    for inv in invoices:
-        if not inv.get("invoice_number"):
-            continue  # conceptfactuur
-        for line in inv["invoice_lines"]:
-            line_json = flatten_json(line)
-            service_id = line_json.get("service_id")  # We gaan uit van de service_id
-            if not service_id:
-                projects = inv.get("projects")  # Als die er niet is, kijk in projects
-                if projects:  # en gebruik het nummer van het eerste project
-                    service_id = projects[0].get("project_number")
-                else:
-                    continue  # Ook niet? Ok, ik geef het op
-
-            result[service_id] += float(line_json["price"]) * float(line_json["amount"])
-    return result
+def invoiced_by_date(day: Day):
+    period = Period('2021-01-01', day)
+    invoice = Invoice()
+    invoiced = invoice.invoiced_per_service(period)
+    return {i['service_id']: i['invoiced'] for i in invoiced}
 
 
-def invoiced_per_customer(sim: Simplicate, period: Period):
-    invoices = sim.invoice({"from_date": period.fromday, "until_date": period.untilday})
-    result = []
-    for inv in invoices:
-        if not inv.get("invoice_number"):
-            continue  # conceptfactuur
-        for line in inv["invoice_lines"]:
-            line_json = flatten_json(line)
-            line_json["turnover"] = float(line_json["price"]) * float(line_json["amount"])
-            line_json["organization"] = inv["organization"]["name"]
-            result += [line_json]
-    df = DataFrame(result).groupby("organization")[["turnover"]].sum()
-    return df
-
-
-def flatten_json(y):
-    out = {}
-
-    def flatten(x, name=""):
-        if type(x) is dict:
-            for a in x:
-                flatten(x[a], name + a + "_")
-        elif type(x) is list:
-            i = 0
-            for a in x:
-                flatten(a, name + str(i) + "_")
-                i += 1
-        else:
-            out[name[:-1]] = x
-
-    flatten(y)
-    return out
+# @cache(hours=4)
+# def invoiced_per_customer(period: Period):
+#     invoice = Invoice()
+#     invoices = invoice.invoiced_per_customer(period)
+#     df = DataFrame(invoices)
+#     return df
 
 
 if __name__ == "__main__":
     os.chdir("..")
     load_cache()
-    day = Day("2022-01-01")
-    sim = simplicate()
-    invoiced = invoiced_per_customer(sim, Period("2021-01-01", "2022-01-01"))
-    pass
-    # ohw = ohw_list(date)
-    # print(ohw)
+    test_day = Day("2021-12-01")
+    ohw = ohw_list(test_day)
+    print(ohw)
     # print(ohw['ohw'].sum())

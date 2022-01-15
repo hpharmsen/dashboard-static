@@ -8,6 +8,8 @@ from sources.googlesheet import HeaderSheet
 
 
 # Winst-en-verliesrekening
+
+
 def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
     maand = MAANDEN[month - 1]
     last_date_this_month = last_date_of_month(year, month)
@@ -491,3 +493,4 @@ def toelichting_block(toelichtingen):
     for t in toelichtingen:
         toelichting_grid.add_row([TextBlock(t[0], style=BOLD), TextBlock(t[1], style=ITALIC)])
     return VBlock([TextBlock(f'Toelichting', style=BOLD), toelichting_grid])
+

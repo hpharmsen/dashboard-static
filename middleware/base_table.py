@@ -2,6 +2,12 @@ from pymysql import OperationalError
 
 from middleware.middleware_utils import get_middleware_db
 
+SIMPLICATE_ID = 'VARCHAR(50)'
+PROJECT_NUMBER = 'VARCHAR(10)'
+EMPLOYEE_NAME = 'VARCHAR(40)'
+HOURS = 'DECIMAL(6,2)'
+MONEY = 'DECIMAL(9,2)'
+
 
 class BaseTable:
     def __init__(self):
@@ -20,16 +26,23 @@ class BaseTable:
                     pass
 
             self.db.execute(f'DROP TABLE IF EXISTS {self.table_name}')
-
-        self.db.execute(self.table_definition)
+        primary_key_definition = f'PRIMARY KEY({self.primary_key})' if self.primary_key else ''
+        sql = f'''CREATE TABLE IF NOT EXISTS {self.table_name} (
+              {self.table_definition}
+              updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+              {primary_key_definition} )
+              CHARACTER SET utf8'''
+        self.db.execute(sql)
+        self.db.commit()
 
         for field in self.index_fields.split():
             try:
                 self.db.execute(f'CREATE INDEX {self.table_name}_{field} ON {self.table_name} ({field})')
             except OperationalError:
                 pass  # Index already existent
+        self.db.commit()
 
-    def insert_dicts(self, dicts):
+    def insert_dicts(self, dicts: list[dict]):
         for dict in dicts:
             fields = []
             value_strings = []

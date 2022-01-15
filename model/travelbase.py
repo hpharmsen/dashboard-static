@@ -124,11 +124,11 @@ def save_value(type: str, brand: str, day, value):
 
 if __name__ == '__main__':
     os.chdir('..')
-    sql = f'''select count(*) as aantal 
-                  from bookings 
-                  where brand="texel" and month(created_at)=8 and status in ('accepted', 'cancelled-guest', 'cancelled-partner')'''
-    db = get_travelbase_db()
-    print(db.execute(sql))
-    # update_bookings_per_day(type='tickets')
-    # update_bookings_per_day(type='bookings')
+    # sql = f'''select count(*) as aantal
+    #               from bookings
+    #               where brand="texel" and month(created_at)=8 and status in ('accepted', 'cancelled-guest', 'cancelled-partner')'''
+    # db = get_travelbase_db()
+    # print(db.execute(sql))
+    update_bookings_per_day(booking_type='tickets')
+    update_bookings_per_day(booking_type='bookings')
     # get_bookings_per_week(type='tickets')

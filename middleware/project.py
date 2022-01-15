@@ -1,4 +1,4 @@
-from middleware.base_table import BaseTable
+from middleware.base_table import BaseTable, PROJECT_NUMBER, SIMPLICATE_ID, EMPLOYEE_NAME
 from middleware.middleware_utils import singleton
 from sources.simplicate import simplicate
 
@@ -7,20 +7,18 @@ from sources.simplicate import simplicate
 class Project(BaseTable):
     def __init__(self):
         self.table_name = 'project'
-        self.table_definition = """
-            CREATE TABLE IF NOT EXISTS project (
-               project_id VARCHAR(50) NOT NULL,
-               organization VARCHAR(255) NOT NULL,
+        self.table_definition = f"""
+               project_id {SIMPLICATE_ID} NOT NULL,
+               organization VARCHAR(80) NOT NULL,
                my_organization_profile VARCHAR(40) NOT NULL,
-               project_name VARCHAR(255) NOT NULL,
-               project_number VARCHAR(10) NOT NULL,
-               pm varchar(40) NOT NULL,
+               project_name VARCHAR(80) NOT NULL,
+               project_number {PROJECT_NUMBER} NOT NULL,
+               pm {EMPLOYEE_NAME} NOT NULL,
                status varchar(20) NOT NULL,
                start_date DATETIME,
                end_date DATETIME,
-               updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-               PRIMARY KEY(project_id) 
-            )"""
+            """
+        self.primary_key = 'project_id'
         self.index_fields = 'organization project_number start_date end_date status'
         super().__init__()
 

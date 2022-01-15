@@ -103,6 +103,26 @@ def fraction_of_the_year_past(start_day=None):
     return days_in_the_year / 365
 
 
+def flatten_json(y):
+    """ What it says: turns a json structure into a flat list of dicts """
+    out = {}
+
+    def flatten(x, name=""):
+        if type(x) is dict:
+            for a in x:
+                flatten(x[a], name + a + "_")
+        elif type(x) is list:
+            i = 0
+            for a in x:
+                flatten(a, name + str(i) + "_")
+                i += 1
+        else:
+            out[name[:-1]] = x
+
+    flatten(y)
+    return out
+
+
 if __name__ == '__main__':
     day = Day(datetime.now())
     print(f'today is {day}')

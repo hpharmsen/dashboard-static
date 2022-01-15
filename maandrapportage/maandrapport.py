@@ -22,12 +22,11 @@ from settings import (
     CORRECTIONS_RED,
     CORRECTIONS_GREEN,
 )
-
-
 # TODO:
 # - Omzet Travelbase is nog nul
 # - Investeringen is nog nul
 # - Mutaties eigen vermogen is nog nul
+from view.onderhanden_werk import onderhanden_werk_list
 
 
 class HoursData:
@@ -94,6 +93,7 @@ def render_maandrapportage(output_folder, year, month):
                     balance_block(yuki_result, year, month),
                     # HBlock([cash_block(), debiteuren_block()]),
                     cashflow_analysis_block(yuki_result, year, month),
+                    ohw_block(year, month)
                 ]
             )
         ]
@@ -270,12 +270,24 @@ def report(render_year, render_month):
     render_maandrapportage_page(get_monthly_folder(), get_output_folder())
 
 
-def test():
+def ohw_block(year, month):
+    day = Day(year, month + 1, 1) if month < 12 else Day(year + 1, 1, 1)
+    return VBlock(
+        [TextBlock(f'Onderhanden werk', MID_SIZE), onderhanden_werk_list(day)],
+        css_class="page-break-before",
+        style="page-break-before: always;",
+    )
+
+
+def main():
     os.chdir('..')
     load_cache()
+    today = datetime.datetime.today()
     if len(sys.argv) > 1 and sys.argv[1] == 'all':
-        for m in range(1, datetime.datetime.today().month + 1):
-            report(datetime.datetime.today().year, m)
+        for y in range(2021, today.year + 1):
+            months = today.month if y == today.year else 12
+            for m in range(1, months + 1):
+                report(y, m)
     else:
         try:
             render_month = int(sys.argv[1])
@@ -288,4 +300,4 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    main()

@@ -14,14 +14,11 @@ class TrendLines(BaseTable):
         self.db = get_db()  # Nog uit extranet
         self.table_name = "trends"
         self.table_definition = """
-            CREATE TABLE IF NOT EXISTS trends (
                trendline VARCHAR(30) NOT NULL,
                `date` DATE NOT NULL,
                value FLOAT NOT NULL,
-               updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-               PRIMARY KEY(trendline, date) )
             """
+        self.primary_key = 'trendline, date'
         self.index_fields = ""
         super().__init__()
         self.trends = defaultdict(list)
