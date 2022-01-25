@@ -1,6 +1,7 @@
 import calendar
 
 # from model.onderhanden_werk import simplicate_onderhanden_werk
+from middleware.account import Account
 from model.onderhanden_werk import ohw_sum
 from model.utilities import Day
 from sources.yuki import Yuki, COSTS, ASSETS, LIABILITIES
@@ -13,27 +14,28 @@ class YukiResult:
         self.date = last_date_of_month(year, month)
         self.prev_day = last_date_of_month(year, month - 1) if month > 1 else last_date_of_month(year - 1, 12)
         self.yuki = Yuki()
+        self.account = Account()
 
     def month(self, name, day: Day, account_type: int = None):
         assert day is None or isinstance(day, Day)
         assert account_type is None or isinstance(account_type, int)
         day, prev_day = self.day_couple(day)
-        return self.yuki.post(name, account_type, day) - self.yuki.post(name, account_type, prev_day)
+        return self.post(name, account_type, day) - self.post(name, account_type, prev_day)
 
     def month_ytd(self, name, day: Day = None, account_type: int = None):
         assert day is None or isinstance(day, Day)
         assert account_type is None or isinstance(account_type, int)
         day, prev_day = self.day_couple(day)
-        ytd = self.yuki.post(name, account_type, day)
-        monthly = ytd - self.yuki.post(name, account_type, prev_day)
+        ytd = self.post(name, account_type, day)
+        monthly = ytd - self.post(name, account_type, prev_day)
         return monthly, ytd
 
     def month_prev(self, name, day: Day = None, account_type: int = None):
         assert day is None or isinstance(day, Day)
         assert account_type is None or isinstance(account_type, int)
         day, prev_day = self.day_couple(day)
-        current_value = self.yuki.post(name, account_type, day)
-        previous_value = self.yuki.post(name, account_type, prev_day)
+        current_value = self.post(name, account_type, day)
+        previous_value = self.post(name, account_type, prev_day)
         return current_value, previous_value
 
     def day_couple(self, day: Day = None):
@@ -46,13 +48,25 @@ class YukiResult:
             prev_day = self.prev_day
         return day, prev_day
 
+    def post(self, name, account_type, day):
+        # yuki_value = self.yuki.post(name, account_type, day)
+        account_value = self.account.post(name, account_type, day)
+        # diff = yuki_value-account_value
+        # if round(yuki_value)!=round(account_value):
+        #    print(f"{name} returned a different value for {day} from Yuki ({yuki_value} then from Account {account_value})")
+        #    yuki_value = self.yuki.post(name, account_type, day)
+        #    account_value = self.account.post(name, account_type, day)
+        return account_value
+
     def total_profit(self, day: Day = None):
+        p = self.profit(day)
+        m = self.mutation_wip(day)
         return tuple_add(self.profit(day), self.mutation_wip(day))
 
     def mutation_wip(self, day: Day):
         wip_now, wip_last_month = self.get_work_in_progress(day)
         if not day:
-            day = Day()
+            day = self.date
         year_start = Day(day.y, 1, 1)
         wip_year_start = ohw_sum(year_start)
         return (

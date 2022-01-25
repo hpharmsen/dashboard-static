@@ -29,7 +29,7 @@ def ohw_sum(day: Day, minimal_intesting_value=0):
     return total_ohw
 
 
-@cache(hours=1)
+# @cache(hours=1)
 def ohw_list(day: Day, minimal_intesting_value=0, group_by_project=0) -> DataFrame:
     sim = simplicate()
 
@@ -94,6 +94,8 @@ def ohw_list(day: Day, minimal_intesting_value=0, group_by_project=0) -> DataFra
             project_df = project_df.query(f"ohw>{minimal_intesting_value} | ohw<-{minimal_intesting_value}").copy()
         project_df = project_df.sort_values(by="ohw", ascending=False)
     else:
+        if service_df.empty:
+            return project_df
         # Sort services by the total owh of their project
         project_ohws = {p["project_number"]: p["project_ohw"] for _, p in project_df.iterrows()}
         service_df["project_ohw"] = service_df.apply(lambda row: project_ohws.get(row["project_number"], 0), axis=1)
@@ -126,8 +128,10 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     # Add up expenses per service and save them in service_costs field in the json
     for service in services_json:
         service_costs = 0
-        for cost_type in service.get("cost_types", []):
-            service_costs += cost_type["purchase_tariff"]
+        # Onderstaande twee regels uitgecommentarieerd want het lijkt erop dat de kosten in de diensten
+        # alleen budgetten zijn en geen daadwerkeljke kosten
+        # for cost_type in service.get("cost_types", []):
+        #    service_costs += cost_type["tariff"]
         service["service_costs"] = service_costs
 
     services = (

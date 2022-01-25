@@ -18,19 +18,19 @@ from settings import get_output_folder
 def update_employee():
     print('Updating employees')
     employee = Employee()
-    employee.update()
+    employee.repopulate()
 
 
 def update_project():
     print('Updating projects')
     project = Project()
-    project.update()
+    project.repopulate()
 
 
 def update_service():
     print('Updating services')
     service = Service()
-    service.update()
+    service.repopulate()
 
 
 def update_timesheet(day=None):

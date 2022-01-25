@@ -127,7 +127,7 @@ if __name__ == '__main__':
     os.chdir('..')
     load_cache()
 
-    days = [Day('2022-1-1'), Day()]
+    days = [Day('2022-01-01'), Day()]
     for test_day in days:
         test_page = Page(
             [

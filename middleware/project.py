@@ -22,35 +22,28 @@ class Project(BaseTable):
         self.index_fields = 'organization project_number start_date end_date status'
         super().__init__()
 
-    def update(self):
-        self._create_project_table(force_recreate=1)
+    def get_data(self):
         sim = simplicate()
-        projects = [
-            flatten_project_data(project)
-            for project in sim.project()
-            if project['my_organization_profile'] != 'Qikker Online B.V.'
-        ]
-        self.insert_dicts(projects)
-
-
-def flatten_project_data(project):
-    try:
-        pm = project['project_manager']['name']
-    except KeyError:
-        pm = ''
-    return {
-        'project_id': project['id'],
-        'organization': project['organization']['name'],
-        'my_organization_profile': project['my_organization_profile']['organization']['name'],
-        'project_name': project['name'],
-        'project_number': project['project_number'],
-        'pm': pm,
-        'status': project['project_status']['label'][5:],  # tab_pactive -> active
-        'start_date': project.get('start_date'),
-        'end_date': project.get('end_date'),
-    }
+        for project in sim.project():
+            if project['my_organization_profile'] == 'Qikker Online B.V.':
+                continue
+            try:
+                pm = project['project_manager']['name']
+            except KeyError:
+                pm = ''
+            yield {
+                'project_id': project['id'],
+                'organization': project['organization']['name'],
+                'my_organization_profile': project['my_organization_profile']['organization']['name'],
+                'project_name': project['name'],
+                'project_number': project['project_number'],
+                'pm': pm,
+                'status': project['project_status']['label'][5:],  # tab_pactive -> active
+                'start_date': project.get('start_date'),
+                'end_date': project.get('end_date'),
+            }
 
 
 if __name__ == '__main__':
     project_table = Project()
-    project_table.update()
+    project_table.repopulate()

@@ -1,8 +1,8 @@
 import datetime
+from functools import partial
 
 import numpy as np
 import pandas as pd
-from pymysql import OperationalError
 
 from middleware.base_table import BaseTable, EMPLOYEE_NAME, PROJECT_NUMBER, SIMPLICATE_ID, MONEY, HOURS
 from middleware.employee import Employee
@@ -37,41 +37,50 @@ class Timesheet(BaseTable):
                corrections_value {MONEY} NOT NULL,
             """
         self.primary_key = 'day, employee, service_id'
-        self.index_fields = "day employee project_number type updated"
+        self.index_fields = "day employee project_number type updated year__week"
         super().__init__()
-        try:
-            self.db.execute(f"CREATE INDEX timesheet_year_week ON timesheet (year,week)")
-        except OperationalError:
-            pass  # index already existent
+        # try:
+        #     self.db.execute(f"CREATE INDEX timesheet_year_week ON timesheet (year,week)")
+        # except OperationalError:
+        #     pass  # index already existent
 
     def update(self, day=None):
         """Updates all timesheet entries starting with day if provided,
         14 days before the latest entry if day is not provided
         or 1-1-2021 if there was no last entry."""
 
-        sim = simplicate()
-
+        # Find newest day in database
+        newest_result = self.db.execute("select max(day) as day from timesheet")[0]["day"]
         if not day:
-            # Find newest day in database
-            newest_result = self.db.execute("select max(day) as day from timesheet")[0]["day"]
             if newest_result:
                 day = Day(newest_result).plus_days(-14)
             else:
                 day = Day(2021, 1, 1)
         today = Day()
-        if day >= today:
-            return
-
         while day < today:
-            print("updating", day)
-            data = sim.hours({"day": day})
-            if data:
-                flat_data = flatten_hours_data(data)
-                grouped_data = group_by_daypersonservice(flat_data)
-                complemented_data = [complement_timesheet_data(te) for te in grouped_data]  # %(name)s
-                self.db.execute(f'delete from timesheet where day = "{day}"')
-                self.insert_dicts(complemented_data)
+            self.db.execute(f'delete from timesheet where day = "{day}"')
+            data_func = partial(self.get_day_data, day)
+            self.insert_dicts(data_func)
+            day = day.next()
+
+    def get_data(self):
+        day = Day(2021, 1, 1)
+        today = Day()
+        while day < today:
+            for data in self.get_day_data(day):
+                yield data
             day = day.next()  # Move to the next day before repeating the loop
+
+    def get_day_data(self, day: Day):
+        sim = simplicate()
+
+        print("retrieving", day)
+        data = sim.hours({"day": day})
+        if data:
+            flat_data = flatten_hours_data(data)
+            grouped_data = group_by_daypersonservice(flat_data)
+            for te in grouped_data:
+                yield complement_timesheet_data(te)  # %(name)s
 
     @staticmethod
     def where_clause(period: Period, only_clients=0, only_billable=0, users=None, hours_type=None):
@@ -208,9 +217,8 @@ def complement_timesheet_data(timesheet_entry):
     del timesheet_entry["billable"]
     del timesheet_entry["status"]
     del timesheet_entry["service_tariff"]
-    del timesheet_entry["service"]
     timesheet_entry["turnover"] = calculate_turnover(timesheet_entry)
-    # timesheet_entry["service_name"] = timesheet_entry.pop("service")  # Renaming
+    del timesheet_entry["service"]  # Wordt nog gebruikt in calculate_turnover maar mag nu weg
     timesheet_entry["week"], timesheet_entry["year"] = week_and_year(timesheet_entry["day"])
     timesheet_entry["corrections_value"] = timesheet_entry["corrections"] * timesheet_entry["tariff"]
     # Feestdagenverlof / National holidays leave -> leave
@@ -234,5 +242,5 @@ def hours_dataframe(period: Period):
 
 if __name__ == "__main__":
     timesheet_table = Timesheet()
-    timesheet_table._create_project_table(force_recreate=0)
-    timesheet_table.update()
+    # timesheet_table.create_table(force_recreate=0)
+    timesheet_table.update(Day('2021-12-01'))

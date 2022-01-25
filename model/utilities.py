@@ -45,6 +45,9 @@ class Day:
     def __sub__(self, other):
         return (self.as_datetime() - other.as_datetime()).days
 
+    def __hash__(self):
+        return hash(str(self))
+
     def as_datetime(self):
         return datetime(self.y, self.m, self.d)
 

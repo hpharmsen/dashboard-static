@@ -1,13 +1,13 @@
-''' Handles the Invoice class and invoice table '''
+""" Handles the Invoice class and invoice table """
+from functools import partial
 
 from middleware.base_table import BaseTable, PROJECT_NUMBER, SIMPLICATE_ID, HOURS, MONEY
 from middleware.middleware_utils import singleton
-from model.caching import cache
 from model.utilities import flatten_json, Period, Day
 from sources.simplicate import simplicate
 
 
-@cache(hours=1)
+# @cache(hours=1)
 def sim_invoices(day: Day):
     sim = simplicate()
     invoices = sim.invoice({"from_date": day})
@@ -18,7 +18,7 @@ def sim_invoices(day: Day):
 class Invoice(BaseTable):
     def __init__(self):
         self.table_name = 'invoice'
-        self.table_definition = f"""
+        self.table_definition = f'''
                invoice_number VARCHAR(20) NOT NULL,
                invoice_date DATETIME NOT NULL,
                organization VARCHAR(80) NOT NULL,
@@ -27,20 +27,21 @@ class Invoice(BaseTable):
                description VARCHAR(120) NULL,
                amount {HOURS} DEFAULT 1.0,
                price {MONEY} NOT NULL,
-            """
-        self.primary_key = 'invoice_number'
+            '''
+        self.primary_key = ''
         self.index_fields = 'invoice_number invoice_date organization project_number'
         super().__init__()
 
-    def update(self, day: Day = None):
-        if not day:
-            self._create_project_table(force_recreate=1)
-            day = Day('2021-01-01')
-        else:
-            self.db.execute(f'delete from invoice where invoice_date >= "{day}"')
+    def update(self, day: Day):
+        get_day_data = partial(self.get_data, day)
+        self.db.execute(f'delete from invoice where invoice_date >= "{day}"')
+        self.db.commit()
+        self.insert_dicts(get_day_data)
 
-        invoices = sim_invoices(day)
-        result = []
+    def get_data(self, day=None):
+        if not day:
+            day = Day('2021-01-01')  # For repopulate
+        invoices = sim_invoices(day=day)
         for invoice in invoices:
             invoice_number = invoice.get("invoice_number")
             if not invoice_number:
@@ -60,7 +61,7 @@ class Invoice(BaseTable):
                 # We gaan uit van de service_id is die er niet, neem project_number
                 service_id = line.get("service_id", project_number)
 
-                result += [{
+                yield {
                     'invoice_number': invoice_number,
                     'invoice_date': invoice['date'],
                     'organization': invoice["organization"]["name"],
@@ -68,9 +69,8 @@ class Invoice(BaseTable):
                     'service_id': service_id,
                     'description': line['description'],
                     'amount': line['amount'],
-                    'price': line['price']}]
+                    'price': line['price']}
 
-        self.insert_dicts(result)
 
     def lines(self, period: Period):
         query = f'''select * from invoice 
@@ -78,6 +78,7 @@ class Invoice(BaseTable):
                     group by invoice_number order by invoice date'''
         result = self.db.execute(query)
         return result
+
 
     def invoices(self, period: Period):
         query = f'''select invoice_number, invoice_date, organization, project_number, sum(amount*price) as invoice_amount 
@@ -106,7 +107,9 @@ class Invoice(BaseTable):
 
 if __name__ == '__main__':
     invoice = Invoice()
-    invoice.update()
+    # day = Day('2021-12-31')
+    # invoice.update(day)
+    invoice.repopulate()
     # invoice.update(Day().plus_days(-7))
     # period = Period( Day().plus_days(-7), Day())
     # invoices = invoice.invoices(period)

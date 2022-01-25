@@ -1,13 +1,16 @@
 import datetime
+import locale
 import sys
 from decimal import Decimal
+from functools import lru_cache
 
 import requests
 from bs4 import BeautifulSoup
 
-from model.caching import cache
 from model.utilities import Day
 from settings import ini
+
+locale.setlocale(locale.LC_ALL, '')
 
 BASE_URL = "https://api.yukiworks.nl/ws/Accounting.asmx"
 
@@ -25,23 +28,29 @@ ACCOUNT_CODES = {
     "financial_fixed_assets": "03",
     "share_capital": "0800",
     "reserves": [
-        "0840",
-        "0805",
-        "0890",
-    ],  # Algemene reserve, Agio reserve, Overige reserve
+        "0840",  # Algemene reserve
+        "0805",  # Agio reserve
+        "0890",  # Overige reserve
+    ],
     "undistributed_result": ["0900"],
     "liquid_assets": [11, 12],
     "debtors": 1300,
-    "other_receivables": [1321, 1330, 1335, 1350, 13999, 233],
+    "other_receivables": [13200,  # Nog te factureren
+                          13210,  # Te ontvangen creditnota's
+                          13300,  # Nog te ontvangen goederen en diensten (staat niet in Yuki rekeningschema?!)
+                          13350,  # Vooruitbetalingen
+                          13999,  # Overige kortlopende vorderingen
+                          23310],  # Tussenrekening creditcard betalingen
     "kruisposten": 23101,  # Special case, kan debet en credit zijn
     "creditors": [16000],
     "other_debts": [
         15,  # Credit card
         16100,  # Nog te ontvangen facturen
+        16150,  # Nog te leveren goederen en diensten
         16999,  # Overige kortlopende schulden
         23000,  # Betalingen onderweg
         23010,  # Rekening onbekend
-        23020,
+        23020,  # Vraagposten
     ],  # Vraagposten
     "debts_to_employees": [170, 175, 20000],
     "taxes": [171, 176, 179, 18, 24],
@@ -55,7 +64,7 @@ ACCOUNT_CODES = {
     "productproposition": [80001, 80050],
     "service": 80004,
     "hosting": 80003,
-    "turnover": [8000, 8005, 8006, 80999],  # Alles behalve onderhuur
+    "turnover": [8000, 8001, 8005, 8006, 80999],  # Alles behalve onderhuur
     "other_income": [80070],  # Onderhuur
     "subsidy": 40105,
     "income": 8,
@@ -71,6 +80,11 @@ def yuki():
     if not _yuki:
         _yuki = Yuki()
     return _yuki
+
+
+@lru_cache()
+def cached_get_url(url):
+    return requests.get(url)
 
 
 class Yuki:
@@ -89,7 +103,7 @@ class Yuki:
         if params:
             for key, value in params.items():
                 url += f"{key}={value}&"
-        response = requests.get(url)
+        response = cached_get_url(url)
         soup = BeautifulSoup(response.text, "lxml")
         if response.status_code == 500:
             print("Yuki:", response.text)
@@ -127,7 +141,7 @@ class Yuki:
             ]
         return result
 
-    @cache(hours=24)
+
     def account_balance(self, day: Day = None, balance_type=None, account_codes=None):
         # Resultatenrekening en balans
         if not day:
@@ -143,6 +157,16 @@ class Yuki:
                     return True
             return False
 
+        res = [item
+               for item in self.day_balance(day)
+               if (not balance_type or item["balance_type"] == balance_type) and valid_code(item["code"])
+               ]
+        return res
+
+        # if (not balance_type or item.attrs["balancetype"] == balance_type) and valid_code(item.attrs["code"])
+
+    @lru_cache()
+    def day_balance(self, day: Day):
         params = {"transactionDate": str(day)}
         body = self.call(f"/GLAccountBalance", params)
         items = body.glaccountbalance.find_all("glaccount")
@@ -157,9 +181,7 @@ class Yuki:
                 "code": item.attrs["code"],
                 "balance_type": item.attrs["balancetype"],
             }
-            for item in items
-            if (not balance_type or item.attrs["balancetype"] == balance_type) and valid_code(item.attrs["code"])
-        ]
+            for item in items]
         return res
 
     def profit(self, date_str=None):
@@ -176,10 +198,14 @@ class Yuki:
     def costs(self, date_str=None):
         return self.post("costs", date_str)
 
-    @cache(hours=24)
+    @lru_cache
     def post(self, account, account_type=None, day: Day = None):
         ab = self.account_balance(day, account_codes=ACCOUNT_CODES[account])
-        res = 0
+        res = sum([a["amount"] * self.multiplier(a["code"], account_type) for a in ab])
+        return res
+
+    @staticmethod
+    def multiplier(code, account_type):
         negative_accounts = (
             "08",
             "09",
@@ -199,15 +225,44 @@ class Yuki:
             "88",
             "89",
         )
-        for a in ab:
-            if account_type in (ASSETS, COSTS):
-                multiplier = 1
-            elif account_type in (LIABILITIES, INCOME):
-                multiplier = -1
-            else:
-                multiplier = -1 if a["code"][:2] in negative_accounts else 1
-            res += a["amount"] * multiplier
-        return res
+        if account_type in (ASSETS, COSTS):
+            return 1
+        elif account_type in (LIABILITIES, INCOME):
+            return -1
+        else:
+            return -1 if code[:2] in negative_accounts else 1
+
+    def full_balance(self, day: Day = None):
+        if not day:
+            day = Day()
+
+        day_balance = self.day_balance(day)
+
+        #   "description": item.description.text,
+        #   "amount": Decimal(item.amount.text),
+        #   "code": item.attrs["code"],
+        #   "balance_type"
+
+        def find_posts(codes: list):
+            res = []
+            for code in codes:
+                for item in day_balance:
+                    if item['code'].startswith(str(code)):
+                        res += [item]
+            return res
+
+        for name, codes in ACCOUNT_CODES.items():
+            if isinstance(codes, (str, int)):
+                codes = [str(codes)]
+            items = find_posts(codes)
+            print()
+            total = 0
+            for item in items:
+                amount = item['amount'] * self.multiplier(item["code"], item['balance_type'])
+                total += amount
+                if len(items) > 1:
+                    print(f'{item["code"]:8}{item["description"][:36]:40}{amount:>10,.0f}')
+            print(f'{str(codes[0]):8}{name:54}{total:>10,.0f}')
 
     @staticmethod
     def test_codes():
@@ -233,17 +288,19 @@ class Yuki:
 if __name__ == "__main__":
     yuki = Yuki()
     yuki.test_codes()
-    j = yuki.account_balance("2021-01-31")
-    s = yuki.account_balance("2021-09-30")
-    import pandas as pd
-
-    dj = pd.DataFrame(j)
-    ds = pd.DataFrame(s)
-    print(yuki.profit("2021-01-31"))
-
-    print(yuki.profit())
-    print(yuki.income())
-    print(yuki.costs())
-    print(yuki.income() - yuki.costs())
-    # print(yuki.administrations())
-    # print(yuki.debtors())
+    day = Day('2021-12-31')
+    yuki.full_balance(day)
+    # j = yuki.account_balance("2021-01-31")
+    # s = yuki.account_balance("2021-09-30")
+    # import pandas as pd
+    #
+    # dj = pd.DataFrame(j)
+    # ds = pd.DataFrame(s)
+    # print(yuki.profit("2021-01-31"))
+    #
+    # print(yuki.profit())
+    # print(yuki.income())
+    # print(yuki.costs())
+    # print(yuki.income() - yuki.costs())
+    # # print(yuki.administrations())
+    # # print(yuki.debtors())

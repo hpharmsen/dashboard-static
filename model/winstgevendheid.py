@@ -265,9 +265,22 @@ def project_results(period: Period = None):
             .agg({"hours": np.sum, "turnover": np.sum, "costs of hours": np.sum})
             .rename(columns={"turnover": "turnover hours"})
     )
-    result["customer"] = result.apply(lambda p: projects[p.name]["customer"], axis=1)
-    result["name"] = result.apply(lambda p: projects[p.name]["name"], axis=1)
-    result["number"] = result.apply(lambda p: projects[p.name]["number"], axis=1)
+
+    def get_customer(row):
+        project = projects.get(row.name)
+        if not project:
+            return 'UNKNOWN'
+        return project["customer"]
+
+    def get_project_field(field, row):
+        project = projects.get(row.name)
+        if not project:
+            return 'UNKNOWN'
+        return project[field]
+
+    result["customer"] = result.apply(partial(get_project_field, 'customer'), axis=1)
+    result["name"] = result.apply(partial(get_project_field, 'name'), axis=1)
+    result["number"] = result.apply(partial(get_project_field, 'number'), axis=1)
     result = result[~result.number.isin(["TRAV-1", "QIKK-1", "SLIM-28", "TOR-3"])]  # !!
     result["turnover fixed"] = result.apply(partial(calculate_turnover_fixed, projects), axis=1)
     result.loc[result.number == "CAP-8", ["hours", "costs of hours", "turnover fixed"]] = (

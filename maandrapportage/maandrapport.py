@@ -180,16 +180,22 @@ def hours_block(year, month):
         untilday = fromday.plus_months(1)
         period = Period(fromday, untilday)
         data += [HoursData(period)]
-    headers = month_names + ['', 'YTD']
-    curyear = datetime.datetime.today().strftime('%Y')
-    total_period = Period(curyear + '-01-01')
-    data += [None, HoursData(total_period)]
+    headers = month_names
+    curyear = int(datetime.datetime.today().strftime('%Y'))
+    if month > 1:  # Januari heeft geen YTD kolom
+        headers += ['', str(year) if month == 12 else 'YTD']
+        if year == curyear:
+            total_period = Period(str(curyear) + '-01-01')
+        else:
+            total_period = Period(str(year) + '-01-01', str(year) + '-12-31')
+        data += [None, HoursData(total_period)]
     grid = kpi_grid(headers, data)
 
     chart = None
     if month >= 3:  # Voor maart heeft een grafiekje niet veel zin
+        chart_data = data[:-2] if month > 1 else data  # -2 is haalt de total col eraf
         chart = BarChart(
-            [d.omzet for d in data[:-2]],  # -2 is lelijk maar haalt de total col eraf
+            [d.omzet for d in chart_data],
             ChartConfig(
                 width=60 * month,
                 height=150,
@@ -255,11 +261,12 @@ def render_maandrapportage_page(monthly_folder, output_folder: Path):
     lines = []
     files = sorted([f for f in monthly_folder.iterdir() if f.suffix == '.html'])
     for file in files:
-        month_num = int(file.stem.split('_')[1])
+        year, month = file.stem.split('_')
         htmlpath = monthly_folder / file
         pdfpath = os.path.relpath(htmlpath.with_suffix('.pdf'), start=output_folder)
         htmlpath = os.path.relpath(htmlpath, start=output_folder)
-        lines += [HBlock([TextBlock(MAANDEN[month_num - 1], url=htmlpath), TextBlock('pdf', url=pdfpath)])]
+        lines += [
+            HBlock([TextBlock(MAANDEN[int(month) - 1] + ' ' + year, url=htmlpath), TextBlock('pdf', url=pdfpath)])]
     page = Page([TextBlock('Maandrapportages', HEADER_SIZE)] + lines)
     page.render(output_folder / 'maandrapportages.html')
 
@@ -284,18 +291,23 @@ def main():
     load_cache()
     today = datetime.datetime.today()
     if len(sys.argv) > 1 and sys.argv[1] == 'all':
+        # Generate all reports for all months starting Januari 2021
         for y in range(2021, today.year + 1):
             months = today.month if y == today.year else 12
             for m in range(1, months + 1):
                 report(y, m)
     else:
+        # Generate report for the month specified in the parameter
         try:
             render_month = int(sys.argv[1])
         except KeyError:
             render_month = datetime.datetime.today().month - 1
             if render_month == 0:
                 render_month = 12
-        render_year = datetime.datetime.today().year if render_month < 12 else datetime.datetime.today().year - 1
+        if len(sys.argv) > 2:
+            render_year = int(sys.argv[2])
+        else:
+            render_year = datetime.datetime.today().year if render_month < 12 else datetime.datetime.today().year - 1
         report(render_year, render_month)
 
 

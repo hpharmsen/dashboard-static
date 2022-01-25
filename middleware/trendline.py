@@ -18,7 +18,7 @@ class TrendLines(BaseTable):
                `date` DATE NOT NULL,
                value FLOAT NOT NULL,
             """
-        self.primary_key = 'trendline, date'
+        self.primary_key = 'trendline__date'
         self.index_fields = ""
         super().__init__()
         self.trends = defaultdict(list)

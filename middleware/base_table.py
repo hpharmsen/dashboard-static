@@ -1,3 +1,5 @@
+from collections import Generator
+
 from pymysql import OperationalError
 
 from middleware.middleware_utils import get_middleware_db
@@ -13,9 +15,8 @@ class BaseTable:
     def __init__(self):
         if not hasattr(self, 'db'):
             self.db = get_middleware_db()
-        self._create_project_table()
 
-    def _create_project_table(self, force_recreate=0):
+    def create_table(self, force_recreate=0):
         """Creates the table to store timesheet data plus it's indexes"""
 
         if force_recreate:
@@ -24,26 +25,28 @@ class BaseTable:
                     self.db.execute(f'DROP INDEX {self.table_name}_{field} ON {self.table_name}')
                 except:
                     pass
-
             self.db.execute(f'DROP TABLE IF EXISTS {self.table_name}')
-        primary_key_definition = f'PRIMARY KEY({self.primary_key})' if self.primary_key else ''
+
+        primary_key_definition = f', PRIMARY KEY({self.primary_key.replace("__", ",")})' if self.primary_key else ''
         sql = f'''CREATE TABLE IF NOT EXISTS {self.table_name} (
               {self.table_definition}
-              updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+              updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
               {primary_key_definition} )
               CHARACTER SET utf8'''
         self.db.execute(sql)
         self.db.commit()
 
+    def create_indexes(self):
         for field in self.index_fields.split():
             try:
-                self.db.execute(f'CREATE INDEX {self.table_name}_{field} ON {self.table_name} ({field})')
+                self.db.execute(
+                    f"CREATE INDEX {self.table_name}_{field} ON {self.table_name} ({field.replace('__', ',')})")
             except OperationalError:
                 pass  # Index already existent
         self.db.commit()
 
-    def insert_dicts(self, dicts: list[dict]):
-        for dict in dicts:
+    def insert_dicts(self, data: Generator[dict, None, None]):
+        for dict in data():
             fields = []
             value_strings = []
             for field, value in dict.items():
@@ -60,3 +63,8 @@ class BaseTable:
             query = f'INSERT INTO {self.table_name} (`{"`, `".join(fields)}`) values ({values});'
             self.db.execute(query)
         self.db.commit()
+
+    def repopulate(self):
+        self.create_table(force_recreate=1)
+        self.insert_dicts(self.get_data)
+        self.create_indexes()
