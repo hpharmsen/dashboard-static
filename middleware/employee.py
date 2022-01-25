@@ -1,4 +1,4 @@
-''' Handles the Employee class and employee table '''
+""" Handles the Employee class and employee table """
 
 from middleware.base_table import BaseTable, EMPLOYEE_NAME
 from middleware.middleware_utils import singleton
@@ -18,29 +18,25 @@ class Employee(BaseTable):
         self.index_fields = ''
         super().__init__()
 
-    def update(self):
-        self._create_project_table(force_recreate=1)
+    def get_data(self):
         sim = simplicate()
-        employees = []
         for employee in sim.employee():
             name = employee.get('name')
             if not name:
                 continue
             function = employee.get('function', '')
             active = 1 if employee['employment_status'] == 'active' else 0
-            employees += [{'name': name, 'function': function, 'active': active}]
-
-        self.insert_dicts(employees)
+            yield {'name': name, 'function': function, 'active': active}
 
     def active_employees(self, include_interns=True):
         query = 'select * from employee where active=1'
         if not include_interns:
-            query += ' and function != "intern"'
+            query += ' and function != "Stagiair"'
         result = self.db.execute(query)
         return [res['name'] for res in result]
 
     def interns(self) -> list:
-        result = self.db.select('employee', {'function': 'Stagiair'})
+        result = self.db.select(self.table_name, {'function': 'Stagiair'})
         return [res['name'] for res in result]
 
     def __getitem__(self, employee_name):
@@ -51,7 +47,7 @@ class Employee(BaseTable):
         return result[0]
 
     def update_salaries(self):
-        pass  # todo: invullen
+        pass  # todo: invullen, read from salary Google sheet
 
 
 if __name__ == '__main__':
