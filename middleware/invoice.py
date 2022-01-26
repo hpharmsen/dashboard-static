@@ -99,7 +99,7 @@ class Invoice(BaseTable):
     def invoiced_per_service(self, period: Period):
         query = f'''select service_id, sum(amount*price) as invoiced 
                     from invoice
-                    where invoice_date >= "{period.fromday}" and invoice_date < "{period.untilday}"
+                    where invoice_date >= "{period.fromday}" and invoice_date <= "{period.untilday}"
                     group by service_id'''
         result = self.db.execute(query)
         return result

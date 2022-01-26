@@ -11,7 +11,7 @@ from model.utilities import Day
 from settings import get_output_folder, BOLD, ITALIC, RED
 
 
-def onderhanden_werk_list(day=None):
+def onderhanden_werk_list(day=None, minimal_intesting_ohw_value: int = 0):
     if not day:
         day = Day()
 
@@ -87,7 +87,7 @@ def onderhanden_werk_list(day=None):
             TextBlock('', style=BOLD),  # Was: Einddatum
         ]
     )
-    onderhanden = ohw_list(day, minimal_intesting_value=1000)
+    onderhanden = ohw_list(day, minimal_intesting_value=minimal_intesting_ohw_value)
 
     if not isinstance(onderhanden, pd.DataFrame):
         return TextBlock('Fout in ophalen onderhanden werk', color=RED)

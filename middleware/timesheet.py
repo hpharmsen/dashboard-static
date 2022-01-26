@@ -184,7 +184,7 @@ class Timesheet(BaseTable):
         """Dict with the given service_ids as keys and their their turnovers up to the given day as values"""
         services_string = '("' + '","'.join(service_ids) + '")'
         query = f"""select service_id, sum(hours) as hours, sum(turnover) as turnover from timesheet 
-                    where service_id in {services_string} and day<"{day}"
+                    where service_id in {services_string} and day<="{day}"
                     group by service_id"""
         result = {r["service_id"]: (float(r["hours"]), int(r["turnover"])) for r in self.full_query(query)}
         return result
@@ -213,6 +213,7 @@ def complement_timesheet_data(timesheet_entry):
         return week, year
 
     timesheet_entry["tariff"] = timesheet_entry["tariff"] or timesheet_entry["service_tariff"]
+    del timesheet_entry["project_id"]
     del timesheet_entry["hours_id"]
     del timesheet_entry["billable"]
     del timesheet_entry["status"]
@@ -221,8 +222,10 @@ def complement_timesheet_data(timesheet_entry):
     del timesheet_entry["service"]  # Wordt nog gebruikt in calculate_turnover maar mag nu weg
     timesheet_entry["week"], timesheet_entry["year"] = week_and_year(timesheet_entry["day"])
     timesheet_entry["corrections_value"] = timesheet_entry["corrections"] * timesheet_entry["tariff"]
-    # Feestdagenverlof / National holidays leave -> leave
-    if timesheet_entry["label"] == "Feestdagenverlof / National holidays leave":
+
+    # De volgende is omdat in 2021 de indeling nog niet goed was
+    if timesheet_entry["type"] == "absence" and timesheet_entry[
+        "label"] == "Feestdagenverlof / National holidays leave":
         timesheet_entry["type"] = "leave"
     return timesheet_entry
 
@@ -243,4 +246,5 @@ def hours_dataframe(period: Period):
 if __name__ == "__main__":
     timesheet_table = Timesheet()
     # timesheet_table.create_table(force_recreate=0)
-    timesheet_table.update(Day('2021-12-01'))
+    # timesheet_table.update(Day('2021-12-01'))
+    timesheet_table.repopulate()

@@ -14,7 +14,7 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
     maand = MAANDEN[month - 1]
     last_date_this_month = last_date_of_month(year, month)
     begroting = HeaderSheet('Begroting 2021', 'Begroting', header_col=2, header_row=2)
-    omzetplanning = HeaderSheet('Begroting 2021', 'Omzetplanning')
+    # omzetplanning = HeaderSheet('Begroting 2021', 'Omzetplanning')
     toelichtingen = []
     try:
         toelichting_sheet = HeaderSheet('Begroting 2021', str(month))
@@ -72,21 +72,24 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
             styles=['', style, style, '', '', style, style, ''],
         )
 
-    def turnover_planning(begroting_posts):
-        def budget_ytd(sheet, post):
-            return sum([get_int(sheet[post, MAANDEN[m - 1]]) for m in range(1, month + 1)])
-
-        if type(begroting_posts) != list:
-            begroting_posts = [begroting_posts]
-        planned_month = sum([budget_column(omzetplanning, post) for post in begroting_posts])
-        planned_ytd = sum([budget_ytd(omzetplanning, post) for post in begroting_posts])
-        return (planned_month, planned_ytd)
+    # def turnover_planning(begroting_posts):
+    #     def budget_ytd(sheet, post):
+    #         return sum([get_int(sheet[post, MAANDEN[m - 1]]) for m in range(1, month + 1)])
+    #
+    #     if type(begroting_posts) != list:
+    #         begroting_posts = [begroting_posts]
+    #     planned_month = sum([budget_column(omzetplanning, post) for post in begroting_posts])
+    #     planned_ytd = sum([budget_ytd(omzetplanning, post) for post in begroting_posts])
+    #     return (planned_month, planned_ytd)
 
     def budgeted(begroting_posts):
         def budget_month(sheet, post):
-            return (
-                get_int(sheet[post, maand]) - get_int(sheet[post, MAANDEN[month - 2]]) if month else budget_column(post)
-            )
+            if month:
+                res = get_int(sheet[post, maand])
+                if month > 1:
+                    res -= get_int(sheet[post, MAANDEN[month - 2]])
+                return res
+            return budget_column(post)
 
         if type(begroting_posts) != list:
             begroting_posts = [begroting_posts]
@@ -186,10 +189,10 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
     profit_budgeted = [m - c for m, c in zip(margin_budgeted, total_costs_budgeted)]
     add_subtotal_row('Winst volgens de boekhouding', yuki_result.profit(), None, style=DOUBLE_TOPLINE)
 
-    add_subtotal_row('Mutatie onderhanden werk', yuki_result.mutation_wip(last_date_this_month), style='')
+    add_subtotal_row('Mutatie onderhanden werk', yuki_result.mutation_wip(), style='')
     # total_profit = tuple_add(profit, mutation_wip)
     # gtotal_profit = total_profit  # save for balance
-    total_profit_month, total_profit_ytd = yuki_result.total_profit()
+    total_profit_month, total_profit_ytd = yuki_result.total_profit(last_date_this_month)
     grid.add_row(
         [
             TextBlock('TOTAAL WINST', style=BOLD),
@@ -209,7 +212,7 @@ def profit_and_loss_block(yuki_result: YukiResult, year: int, month: int):
 
 
 # Balans
-def balance_block(yuki_result: YukiResult, year: int, month: int):
+def balance_block(yuki_result: YukiResult, year: int, month: int, minimal_intesting_ohw_value: int):
     maand = MAANDEN[month - 1]
     vorige_maand = MAANDEN[month - 2] if month >= 2 else f'Begin {year}'
     last_date_this_month = last_date_of_month(year, month)
@@ -286,7 +289,7 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
     add_normal_row('Overige vorderingen', other_receivables)
 
     # Onderhanden werk
-    work_in_progress = yuki_result.get_work_in_progress(last_date_this_month)
+    work_in_progress = yuki_result.get_work_in_progress()
     add_normal_row('Onderhanden werk', work_in_progress)
 
     # Liquide middelen
@@ -379,7 +382,7 @@ def balance_block(yuki_result: YukiResult, year: int, month: int):
 
 # Kasstroomoverzicht
 # Deze dan ook in vergelijking met de vastgestelde begroting.
-def cashflow_analysis_block(yuki_result, year, month):
+def cashflow_analysis_block(yuki_result):
     grid = Grid(cols=3, has_header=False, aligns=['left', 'right', 'right'])
 
     def add_normal_row(title, value, shift=False, value_color=None):
@@ -410,7 +413,7 @@ def cashflow_analysis_block(yuki_result, year, month):
     #     return monthly
 
     # Winst
-    profit = yuki_result.total_profit()[0]
+    profit = yuki_result.total_profit(last_date_of_month)[0]
     add_normal_row('Nettowinst', profit)
 
     # Afschrijvingen

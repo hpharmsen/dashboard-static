@@ -1,4 +1,5 @@
 import os
+from functools import lru_cache
 
 import pandas as pd
 from pandas import DataFrame
@@ -11,9 +12,9 @@ from model.utilities import Day, Period
 from sources.simplicate import simplicate
 
 
-@cache(hours=1)
-def ohw_sum(day: Day, minimal_intesting_value=0):
-    df = ohw_list(day)
+# @cache(hours=1)
+def ohw_sum(day: Day, minimal_intesting_value: int):
+    df = ohw_list(day, minimal_intesting_value)
     if df.empty:
         return 0
 
@@ -30,7 +31,9 @@ def ohw_sum(day: Day, minimal_intesting_value=0):
 
 
 # @cache(hours=1)
-def ohw_list(day: Day, minimal_intesting_value=0, group_by_project=0) -> DataFrame:
+@lru_cache()
+def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> DataFrame:
+    ''' OHW is calculated including work and invoices of the specified day '''
     sim = simplicate()
 
     # Nieuwe methode:

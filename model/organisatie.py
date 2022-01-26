@@ -44,22 +44,11 @@ def verzuimpercentage(period: Period):
     return percentage
 
 
-# def verzuim_list_old(period):
-# result = (
-#     hours_dataframe(period)
-#         .query(
-#         'type=="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0'
-#     )
-#         .sort_values(['employee', 'day'])[['employee', 'day', 'label', 'hours']]
-# )
-# return result
-
-
 def verzuim_list(period):
     timesheet = Timesheet()
     list_of_dicts = timesheet.query(
         period,
-        'type="absence" and label !="Feestdagenverlof / National holidays leave" and hours>0',
+        'type="absence" and hours>0',
         sort=['employee', 'day'],
     )
     if not list_of_dicts:

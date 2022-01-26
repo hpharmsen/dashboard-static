@@ -9,7 +9,7 @@ from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.chart import BarChart, ChartConfig
 from maandrapportage.financials import profit_and_loss_block, balance_block, cashflow_analysis_block
-from maandrapportage.yuki_results import YukiResult
+from maandrapportage.yuki_results import YukiResult, last_date_of_month
 from middleware.timesheet import Timesheet
 from model.caching import load_cache
 from model.productiviteit import beschikbare_uren_volgens_rooster
@@ -26,6 +26,7 @@ from settings import (
 # - Omzet Travelbase is nog nul
 # - Investeringen is nog nul
 # - Mutaties eigen vermogen is nog nul
+from sources.googlesheet import panic
 from view.onderhanden_werk import onderhanden_werk_list
 
 
@@ -43,9 +44,7 @@ class HoursData:
     def __init__(self, period: Period, employees: list = None):
         timesheet = Timesheet()
         self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(period, employees)
-        self.op_klant_geboekt_old = timesheet.geboekte_uren(
-            period, users=employees, only_clients=1, only_billable=0
-        )
+        self.op_klant_geboekt_old = timesheet.geboekte_uren(period, users=employees, only_clients=1, only_billable=0)
         self.op_klant_geboekt = timesheet.geboekte_uren(period, users=employees, only_clients=1, only_billable=0)
         self.billable_old = timesheet.geboekte_uren(
             period,
@@ -82,27 +81,29 @@ class HoursData:
 
 
 def render_maandrapportage(output_folder, year, month):
+    minimal_intesting_ohw_value = 1000
     yuki_result = YukiResult(year, month)
     page = Page(
         [
             VBlock(
                 [
-                    TextBlock(f'Maandrapportage {MAANDEN[month - 1].lower()}, {year}', HEADER_SIZE),
+                    TextBlock(f"Maandrapportage {MAANDEN[month - 1].lower()}, {year}", HEADER_SIZE),
                     hours_block(year, month),
-                    profit_and_loss_block(yuki_result, year, month),
-                    balance_block(yuki_result, year, month),
+                    profit_and_loss_block(yuki_result, year, month,
+                                          minimal_intesting_ohw_value=minimal_intesting_ohw_value),
+                    balance_block(yuki_result, year, month, minimal_intesting_ohw_value=minimal_intesting_ohw_value),
                     # HBlock([cash_block(), debiteuren_block()]),
-                    cashflow_analysis_block(yuki_result, year, month),
-                    ohw_block(year, month)
+                    cashflow_analysis_block(yuki_result),
+                    ohw_block(year, month, minimal_intesting_ohw_value=minimal_intesting_ohw_value),
                 ]
             )
         ]
     )
-    htmlpath = output_folder / f'{year}_{month:02}.html'
-    page.render(htmlpath, template='maandrapportage.html')
+    htmlpath = output_folder / f"{year}_{month:02}.html"
+    page.render(htmlpath, template="maandrapportage.html")
 
     # Generate PDF
-    pdfpath = htmlpath.with_suffix('.pdf')
+    pdfpath = htmlpath.with_suffix(".pdf")
     options = {"enable-local-file-access": None}
     pdfkit.from_file(str(htmlpath), str(pdfpath), options=options)
 
@@ -114,7 +115,7 @@ def no_func(_):
 def kpi_grid(columns_headers, data, effectivity_coloring=no_func, corrections_coloring=no_func, verbose=True):
     assert len(columns_headers) == len(data)
     num_of_cols = len(data) + 1
-    aligns = ['left'] + ['right'] * len(data)  # First column left, the rest right aligned
+    aligns = ["left"] + ["right"] * len(data)  # First column left, the rest right aligned
     grid = Grid(cols=num_of_cols, has_header=False, line_height=0, aligns=aligns)  # +1 is for the header column
 
     def add_row(title, row_data, text_format, coloring=no_func):
@@ -129,7 +130,7 @@ def kpi_grid(columns_headers, data, effectivity_coloring=no_func, corrections_co
     def attr_list(attr, minus=1):
         for d in data:
             if not d:
-                yield ''
+                yield ""
             else:
                 a = getattr(d, attr)
                 if callable(a):
@@ -139,34 +140,34 @@ def kpi_grid(columns_headers, data, effectivity_coloring=no_func, corrections_co
 
     if verbose:
         # grid.add_row([TextBlock('Rooster uren')] + [TextBlock(d.rooster, text_format='.') for d in data])
-        add_row('Rooster uren', attr_list('rooster'), text_format='.')
-        add_row('Verlof', attr_list('verlof', -1), text_format='.')
-        add_row('Verzuim', attr_list('verzuim', -1), text_format='.')
-        add_row('Beschikbare uren', attr_list('beschikbaar'), text_format='.')
+        add_row("Rooster uren", attr_list("rooster"), text_format=".")
+        add_row("Verlof", attr_list("verlof", -1), text_format=".")
+        add_row("Verzuim", attr_list("verzuim", -1), text_format=".")
+        add_row("Beschikbare uren", attr_list("beschikbaar"), text_format=".")
 
     # tooltip = f'Groen bij {EFFECTIVITY_GREEN}, Rood onder de {EFFECTIVITY_RED}'
     # add_row('Verzuim', attr_list('verzuim', -1), text_format='.')
-    add_row('Effectiviteit', attr_list('effectivity'), text_format='%')
+    add_row("Effectiviteit", attr_list("effectivity"), text_format="%")
 
     if verbose:
-        add_row('Klant uren', attr_list('op_klant_geboekt'), text_format='.')
+        add_row("Klant uren", attr_list("op_klant_geboekt"), text_format=".")
 
-    tooltip = f'Groen onder de {CORRECTIONS_GREEN * 100:.0f}%, Rood boven de {CORRECTIONS_RED * 100:.0f}%'
-    add_row('Correcties', attr_list('correcties', -1), coloring=corrections_coloring, text_format='.')
+    tooltip = f"Groen onder de {CORRECTIONS_GREEN * 100:.0f}%, Rood boven de {CORRECTIONS_RED * 100:.0f}%"
+    add_row("Correcties", attr_list("correcties", -1), coloring=corrections_coloring, text_format=".")
     # grid.add_row(
     #     [TextBlock('Correcties', tooltip=tooltip)]
     #     + [TextBlock(-d.correcties(), color=corrections_coloring(d), text_format='.') for d in data]
     # )
 
     if verbose:
-        add_row('Billable uren', attr_list('billable'), text_format='.')
+        add_row("Billable uren", attr_list("billable"), text_format=".")
         # grid.add_row([TextBlock('Billable uren')] + [TextBlock(d.billable, text_format='.') for d in data])
         # grid.add_row([TextBlock('Billable %')] + [TextBlock(d.billable_perc(), text_format='%') for d in data])
         # grid.add_row([TextBlock('Gemiddeld uurloon')] + [TextBlock(d.uurloon(), text_format='€') for d in data])
-        add_row('Billable %', attr_list('billable_perc'), text_format='%')
-        add_row('Gemiddeld uurloon', attr_list('uurloon'), text_format='€')
+        add_row("Billable %", attr_list("billable_perc"), text_format="%")
+        add_row("Gemiddeld uurloon", attr_list("uurloon"), text_format="€")
 
-    add_row('Omzet op uren', attr_list('omzet'), text_format='K')
+    add_row("Omzet op uren", attr_list("omzet"), text_format="K")
     # grid.add_row([TextBlock('Omzet op uren')] + [TextBlock(d.omzet, text_format='K') for d in data])
     return grid
 
@@ -181,13 +182,13 @@ def hours_block(year, month):
         period = Period(fromday, untilday)
         data += [HoursData(period)]
     headers = month_names
-    curyear = int(datetime.datetime.today().strftime('%Y'))
+    curyear = int(datetime.datetime.today().strftime("%Y"))
     if month > 1:  # Januari heeft geen YTD kolom
-        headers += ['', str(year) if month == 12 else 'YTD']
+        headers += ["", str(year) if month == 12 else "YTD"]
         if year == curyear:
-            total_period = Period(str(curyear) + '-01-01')
+            total_period = Period(str(curyear) + "-01-01")
         else:
-            total_period = Period(str(year) + '-01-01', str(year) + '-12-31')
+            total_period = Period(str(year) + "-01-01", str(year) + "-12-31")
         data += [None, HoursData(total_period)]
     grid = kpi_grid(headers, data)
 
@@ -199,7 +200,7 @@ def hours_block(year, month):
             ChartConfig(
                 width=60 * month,
                 height=150,
-                colors=['#ddeeff'],
+                colors=["#ddeeff"],
                 bottom_labels=[MAANDEN[m] for m in range(month)],
                 y_axis_max_ticks=5,
             ),
@@ -207,16 +208,16 @@ def hours_block(year, month):
 
     return VBlock(
         [
-            TextBlock('Billable uren', MID_SIZE),
+            TextBlock("Billable uren", MID_SIZE),
             TextBlock(
-                '''Beschikbare uren zijn alle uren die we hebben na afrek van vrije dagen en verzuim.<br/>
+                """Beschikbare uren zijn alle uren die we hebben na afrek van vrije dagen en verzuim.<br/>
                    Klant uren zijn alle uren besteed aan werk voor klanten. <br/>
                    Billable uren is wat er over is na correcties. <br/>
-                   Omzet is de omzet gemaakt in die uren.''',
+                   Omzet is de omzet gemaakt in die uren.""",
                 color=GRAY,
             ),
             grid,
-            VBlock([TextBlock('Omzet op uren per maand'), chart], css_class="no-print"),
+            VBlock([TextBlock("Omzet op uren per maand"), chart], css_class="no-print"),
         ]
     )
 
@@ -259,38 +260,41 @@ def hours_block(year, month):
 
 def render_maandrapportage_page(monthly_folder, output_folder: Path):
     lines = []
-    files = sorted([f for f in monthly_folder.iterdir() if f.suffix == '.html'])
+    files = sorted([f for f in monthly_folder.iterdir() if f.suffix == ".html"])
     for file in files:
-        year, month = file.stem.split('_')
+        year, month = file.stem.split("_")
         htmlpath = monthly_folder / file
-        pdfpath = os.path.relpath(htmlpath.with_suffix('.pdf'), start=output_folder)
+        pdfpath = os.path.relpath(htmlpath.with_suffix(".pdf"), start=output_folder)
         htmlpath = os.path.relpath(htmlpath, start=output_folder)
         lines += [
-            HBlock([TextBlock(MAANDEN[int(month) - 1] + ' ' + year, url=htmlpath), TextBlock('pdf', url=pdfpath)])]
-    page = Page([TextBlock('Maandrapportages', HEADER_SIZE)] + lines)
-    page.render(output_folder / 'maandrapportages.html')
+            HBlock([TextBlock(MAANDEN[int(month) - 1] + " " + year, url=htmlpath), TextBlock("pdf", url=pdfpath)])
+        ]
+    page = Page([TextBlock("Maandrapportages", HEADER_SIZE)] + lines)
+    page.render(output_folder / "maandrapportages.html")
 
 
 def report(render_year, render_month):
-    print(f'\nGenerating report for {MAANDEN[render_month - 1]} {render_year}')
+    print(f"\nGenerating report for {MAANDEN[render_month - 1]} {render_year}")
     render_maandrapportage(get_monthly_folder(), render_year, render_month)
     render_maandrapportage_page(get_monthly_folder(), get_output_folder())
 
 
-def ohw_block(year, month):
-    day = Day(year, month + 1, 1) if month < 12 else Day(year + 1, 1, 1)
+def ohw_block(year, month, minimal_intesting_ohw_value: int):
+    day = last_date_of_month(year, month)
+    # day = Day(year, month + 1, 1) if month < 12 else Day(year + 1, 1, 1)
     return VBlock(
-        [TextBlock(f'Onderhanden werk', MID_SIZE), onderhanden_werk_list(day)],
+        [TextBlock(f"Onderhanden werk", MID_SIZE),
+         onderhanden_werk_list(day, minimal_intesting_ohw_value=minimal_intesting_ohw_value)],
         css_class="page-break-before",
         style="page-break-before: always;",
     )
 
 
 def main():
-    os.chdir('..')
+    os.chdir("..")
     load_cache()
     today = datetime.datetime.today()
-    if len(sys.argv) > 1 and sys.argv[1] == 'all':
+    if len(sys.argv) > 1 and sys.argv[1] == "all":
         # Generate all reports for all months starting Januari 2021
         for y in range(2021, today.year + 1):
             months = today.month if y == today.year else 12
@@ -300,6 +304,8 @@ def main():
         # Generate report for the month specified in the parameter
         try:
             render_month = int(sys.argv[1])
+            if render_month > 12:
+                panic(f'Invalid parameter {render_month} for month. Usage: python maandrapport.py 5 2022')
         except KeyError:
             render_month = datetime.datetime.today().month - 1
             if render_month == 0:
@@ -311,5 +317,5 @@ def main():
         report(render_year, render_month)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

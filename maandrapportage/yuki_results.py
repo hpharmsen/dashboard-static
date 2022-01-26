@@ -8,13 +8,14 @@ from sources.yuki import Yuki, COSTS, ASSETS, LIABILITIES
 
 
 class YukiResult:
-    def __init__(self, year, month):
+    def __init__(self, year, month, minimal_interesting_owh_value):
         self.year = year
         self.month = month
         self.date = last_date_of_month(year, month)
         self.prev_day = last_date_of_month(year, month - 1) if month > 1 else last_date_of_month(year - 1, 12)
         self.yuki = Yuki()
         self.account = Account()
+        self.minimal_interesting_owh_value = minimal_interesting_owh_value
 
     def month(self, name, day: Day, account_type: int = None):
         assert day is None or isinstance(day, Day)
@@ -58,17 +59,15 @@ class YukiResult:
         #    account_value = self.account.post(name, account_type, day)
         return account_value
 
-    def total_profit(self, day: Day = None):
-        p = self.profit(day)
-        m = self.mutation_wip(day)
-        return tuple_add(self.profit(day), self.mutation_wip(day))
+    def total_profit(self):
+        return tuple_add(self.profit(), self.mutation_wip())
 
     def mutation_wip(self, day: Day):
-        wip_now, wip_last_month = self.get_work_in_progress(day)
+        wip_now, wip_last_month = self.get_work_in_progress()
         if not day:
             day = self.date
         year_start = Day(day.y, 1, 1)
-        wip_year_start = ohw_sum(year_start)
+        wip_year_start = ohw_sum(year_start, self.minimal_intesting_ohw_value)
         return (
             wip_now - wip_last_month,
             wip_now - wip_year_start,
@@ -200,17 +199,15 @@ class YukiResult:
             result = (result[0], result[1] - kruisposten[1])
         return result
 
-    def get_work_in_progress(self, day: Day = None):
-        day, prev_day = self.day_couple(day)
-        return ohw_sum(day.next()), ohw_sum(
-            prev_day.next()
-        )  # Next omdat je OHW altijd moet tellen op de 1e van de maand
+    def get_work_in_progress(self):
+        day, prev_day = self.day_couple(self.date)
+        return ohw_sum(day.next(), self.minimal_intesting_ohw_value), \
+               ohw_sum(prev_day.next(),
+                       self.minimal_intesting_ohw_value)  # Next omdat je OHW altijd moet tellen op de 1e van de maand
 
 
 def last_date_of_month(year: int, month: int):
     return Day(year, month, calendar.monthrange(year, month)[1])
-    # was :return f'{year}-{month:02}-{calendar.monthrange(year, month)[1]:02}'
-
 
 def tuple_add(*args):  # 135965+115941+40046+5395+1880
     return [sum(value) for value in list(zip(*args))]
