@@ -90,7 +90,7 @@ def process_command_line_params():
         if param == '--onceaday':
             cache_created = cache_created_time_stamp()
             yesterday = datetime.datetime.today().date() + datetime.timedelta(days=-1)
-            if cache_created and cache_created.date() > yesterday:
+            if cache_created and cache_created.day() > yesterday:
                 print('Script has already run today: exiting')
                 sys.exit()
             clear_the_cache = True

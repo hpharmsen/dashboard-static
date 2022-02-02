@@ -13,6 +13,7 @@ from sources.simplicate import simplicate
 
 
 # @cache(hours=1)
+@lru_cache()
 def ohw_sum(day: Day, minimal_intesting_value: int):
     df = ohw_list(day, minimal_intesting_value)
     if df.empty:
@@ -33,7 +34,7 @@ def ohw_sum(day: Day, minimal_intesting_value: int):
 # @cache(hours=1)
 @lru_cache()
 def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> DataFrame:
-    ''' OHW is calculated including work and invoices of the specified day '''
+    """ OHW is calculated including work and invoices of the specified day """
     sim = simplicate()
 
     # Nieuwe methode:
@@ -50,7 +51,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
         if row["invoice_method"] == "FixedFee":
             # Fixed fee: tel als onderhanden werk een gemiddeld uurloon van 100 maal het aantal gemaakte uren.
             # Gerealiseerde omzet kan nooit meer zijn dan de afgesproken prijs
-            turnover = min(int(float(row.get("price"))), hours * 100.0)  # 100 als gemiddeld uurlopon
+            turnover = min(float(row.get("price")), hours * 100.0)  # 100 als gemiddeld uurlopon
         return turnover
 
     service_df["turnover"] = service_df.apply(calculate_turover, axis=1).astype(int)
@@ -144,7 +145,7 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
             .rename(columns={"id": "service_id", "name": "service_name"})
     )  # end_date > "{date}" &
 
-    #services = services.query('project_id=="project:180a369cd2662fcbfeaad60b7a7437df"')
+    #services = services.query('project_id=="project:d0a9e6f705c4629dfeaad60b7a7437df"')
 
     # Same with the list of projects
     projects_json = sim.project({"status": "tab_pactive"})
@@ -156,7 +157,7 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
         "organization_name": "organization",
     }
     project_query = (
-        'organization_name not in ["Oberon","Travelbase"] & my_organization_profile_organization_name=="Oberon"'
+        'organization_name not in ["Oberon","Travelbase"] & my_organization_profile_organization_name in["Oberon","Travelbase"]'
     )
     projects = (
         sim.to_pandas(projects_json)
@@ -189,7 +190,7 @@ def invoiced_by_date(day: Day):
 if __name__ == "__main__":
     os.chdir("..")
     load_cache()
-    test_day = Day("2021-12-01")
-    ohw = ohw_list(test_day)
+    test_day = Day("2021-12-31")
+    ohw = ohw_list(test_day, minimal_intesting_value=1000)
     print(ohw)
     # print(ohw['ohw'].sum())

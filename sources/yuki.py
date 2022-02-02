@@ -41,7 +41,7 @@ ACCOUNT_CODES = {
                           13350,  # Vooruitbetalingen
                           13999,  # Overige kortlopende vorderingen
                           23310],  # Tussenrekening creditcard betalingen
-    "kruisposten": 23101,  # Special case, kan debet en credit zijn
+    "crossposts": 23101,  # Special case, kan debet en credit zijn
     "creditors": [16000],
     "other_debts": [
         15,  # Credit card

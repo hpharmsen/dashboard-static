@@ -261,7 +261,7 @@ def project_results(period: Period = None):
     df["costs of hours"] = df.apply(lambda a: uurkosten.get(a["employee"], 0) * float(a["hours"]), axis=1)
 
     result = (
-        df.groupby(["project_id"])
+        df.groupby(["project_number"])
             .agg({"hours": np.sum, "turnover": np.sum, "costs of hours": np.sum})
             .rename(columns={"turnover": "turnover hours"})
     )

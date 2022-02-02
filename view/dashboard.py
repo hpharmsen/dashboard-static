@@ -215,7 +215,9 @@ def planning_chart():
 def corrections_block():
     weeks_back = 4
     interesting_correction = 8
-    period = Period(Day().plus_weeks(-weeks_back))
+    end_day = Day().last_monday()
+    start_day = end_day.plus_weeks(-weeks_back)
+    period = Period(start_day, end_day)
 
     def corrections_percentage_coloring(value):
         return dependent_color(value, red_treshold=5, green_treshold=3)
@@ -236,7 +238,7 @@ def corrections_block():
                     ),
                     TextBlock(
                         f"correcties op uren van<br/> week {period.fromday.week_number()} "
-                        + f"tot en met week {period.fromday.week_number() + weeks_back - 1}.",
+                        + f"tot en met week {period.untilday.plus_days(-1).week_number()}.",
                         color=GRAY,
                     ),
                 ],

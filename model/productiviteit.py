@@ -156,11 +156,11 @@ def corrections_list_old(period: Period):
 def corrections_list(period: Period):
     timesheet = Timesheet()
     query = f'''select `organization`, project_name, sum(hours) as hours, sum(corrections) as corrections
-                from timesheet t join project p on t.project_id=p.project_id
+                from timesheet t join project p on t.project_number=p.project_number
                 where day>="{period.fromday}"'''
     if period.untilday:
         query += f' and day<"{period.untilday}"'
-    query += """ group by p.project_id
+    query += """ group by p.project_number
                 having sum(corrections) < -2
                 order by corrections"""
     corrections = timesheet.full_query(query)
@@ -180,7 +180,7 @@ def largest_corrections(minimum, period: Period):
     query = "corrections < 0"
     top_corrections = (
         df.query(query)
-            .groupby(["project_id", "project_number", "project_name"])[["corrections"]]
+            .groupby(["project_number", "project_name"])[["corrections"]]
             .sum()
             .query(f"corrections<-{minimum}")
             .sort_values(by="corrections")

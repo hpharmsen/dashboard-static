@@ -39,14 +39,14 @@ class Account(BaseTable):
         for account, codes in ACCOUNT_CODES.items():
             if account == 'other_receivables':
                 amount = self.yuki.post(account, account_type=ASSETS, day=day)
-                kruisposten = self.yuki.post('kruisposten', day)
-                if kruisposten < 0:
-                    amount -= kruisposten
+                crossposts = self.yuki.post('crossposts', day)
+                if crossposts < 0:
+                    amount -= crossposts
             elif account == 'other_debts':
                 amount = self.yuki.post(account, account_type=LIABILITIES, day=day)
-                kruisposten = self.yuki.post('kruisposten', day)
-                if kruisposten > 0:
-                    amount += kruisposten
+                crossposts = self.yuki.post('crossposts', day)
+                if crossposts > 0:
+                    amount += crossposts
             else:
                 amount = self.yuki.post(account, None, day)
             yield {'day': day, 'account': account, 'amount': amount}

@@ -8,7 +8,7 @@ import pdfkit
 from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.block import TextBlock, Page, VBlock, HBlock, Grid
 from layout.chart import BarChart, ChartConfig
-from maandrapportage.financials import profit_and_loss_block, balance_block, cashflow_analysis_block
+from maandrapportage.financials import profit_and_loss_block, balance_block
 from maandrapportage.yuki_results import YukiResult, last_date_of_month
 from middleware.timesheet import Timesheet
 from model.caching import load_cache
@@ -81,20 +81,19 @@ class HoursData:
 
 
 def render_maandrapportage(output_folder, year, month):
-    minimal_intesting_ohw_value = 1000
-    yuki_result = YukiResult(year, month)
+    minimal_interesting_owh_value = 1000
+    yuki_result = YukiResult(year, month, minimal_interesting_owh_value=minimal_interesting_owh_value)
     page = Page(
         [
             VBlock(
                 [
                     TextBlock(f"Maandrapportage {MAANDEN[month - 1].lower()}, {year}", HEADER_SIZE),
                     hours_block(year, month),
-                    profit_and_loss_block(yuki_result, year, month,
-                                          minimal_intesting_ohw_value=minimal_intesting_ohw_value),
-                    balance_block(yuki_result, year, month, minimal_intesting_ohw_value=minimal_intesting_ohw_value),
-                    # HBlock([cash_block(), debiteuren_block()]),
-                    cashflow_analysis_block(yuki_result),
-                    ohw_block(year, month, minimal_intesting_ohw_value=minimal_intesting_ohw_value),
+                    profit_and_loss_block(yuki_result),
+                    balance_block(yuki_result),
+                    # ...HBlock([cash_block(), debiteuren_block()]),
+                    # cashflow_analysis_block(yuki_result),
+                    ohw_block(year, month, minimal_interesting_owh_value)
                 ]
             )
         ]
