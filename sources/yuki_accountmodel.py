@@ -241,11 +241,16 @@ def balans_en_wv(year, month):
     model.fill(day)
     model.add_ohw(ohw_sum(day, 1000))
 
-    month -= 1
-    if month == 0:
-        month = 12
-        year -= 1
-    last_day = Day(last_day_of_month(year, month))
+    afschrijvingen, _ = model.post('-WAfs')
+    if not afschrijvingen:
+        print('DE BOEKHOUDING VAN DEZE MAAND IS NOG NIET COMPLEET\n')
+
+    last_m = month - 1
+    last_y = year
+    if last_m == 0:
+        last_m = 12
+        last_y -= 1
+    last_day = Day(last_day_of_month(last_y, last_m))
     last_month = YukiAccountModel()
     last_month.fill(last_day)
     last_month.add_ohw(ohw_sum(last_day, 1000))
@@ -259,7 +264,10 @@ def balans_en_wv(year, month):
 
     def wv(code: str):
         amount, descr = model.post(code)
-        amount2, _ = last_month.post(code)
+        if month == 1:
+            amount2 = 0
+        else:
+            amount2, _ = last_month.post(code)
         print(f'{descr:40} {amount - amount2:>10.2f} {amount:>10.2f}')
 
     def cash(code: str):
@@ -370,5 +378,5 @@ def balans_en_wv(year, month):
 
 if __name__ == '__main__':
     load_cache()
-    balans_en_wv(2021, 12)
+    balans_en_wv(2022, 1)
     # model.walk( print_with_subs)

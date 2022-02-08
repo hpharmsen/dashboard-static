@@ -20,7 +20,7 @@ from settings import (
     GRAY,
     get_monthly_folder,
     CORRECTIONS_RED,
-    CORRECTIONS_GREEN,
+    CORRECTIONS_GREEN, RED,
 )
 # TODO:
 # - Omzet Travelbase is nog nul
@@ -83,11 +83,17 @@ class HoursData:
 def render_maandrapportage(output_folder, year, month):
     minimal_interesting_owh_value = 1000
     yuki_result = YukiResult(year, month, minimal_interesting_owh_value=minimal_interesting_owh_value)
+
+    afschrijvingen = yuki_result.post('-WAfs')
+    warning = None if afschrijvingen else TextBlock(
+        'Dit is een voorlopig overzicht. De boekhouding van deze maand is nog niet compleet.\n', color=RED)
+
     page = Page(
         [
             VBlock(
                 [
                     TextBlock(f"Maandrapportage {MAANDEN[month - 1].lower()}, {year}", HEADER_SIZE),
+                    warning,
                     hours_block(year, month),
                     profit_and_loss_block(yuki_result),
                     balance_block(yuki_result),

@@ -9,15 +9,14 @@ from sources.googlesheet import HeaderSheet
 
 # Winst-en-verliesrekening
 
-
 def profit_and_loss_block(yuki_result: YukiResult):
     month = yuki_result.month
     maand = MAANDEN[month - 1]
-    begroting = HeaderSheet('Begroting 2021', 'Begroting', header_col=2, header_row=2)
+    begroting = HeaderSheet(f'Begroting {yuki_result.year}', 'Begroting', header_col=2, header_row=2)
     # omzetplanning = HeaderSheet('Begroting 2021', 'Omzetplanning')
     toelichtingen = []
     try:
-        toelichting_sheet = HeaderSheet('Begroting 2021', str(month))
+        toelichting_sheet = HeaderSheet(f'Begroting {yuki_result.year}', str(month))
     except WorksheetNotFound:
         toelichting_sheet = None
 
@@ -86,6 +85,9 @@ def profit_and_loss_block(yuki_result: YukiResult):
     #     return (planned_month, planned_ytd)
 
     def budgeted(begroting_posts):
+        if yuki_result.year == 2022:
+            return 0, 0  # TODO: Verwijderen zodra de 2022 begroting af is
+
         def budget_month(sheet, post):
             if month:
                 res = get_int(sheet[post, maand])

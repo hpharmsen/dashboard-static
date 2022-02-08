@@ -21,7 +21,8 @@ class YukiResult:
 
     def month_ytd(self, name):
         ytd = self.yuki_now.post(name)[0]
-        month = ytd - self.yuki_last.post(name)[0]
+        last_month = 0 if self.month == 1 else self.yuki_last.post(name)[0]
+        month = ytd - last_month
         return month, ytd
 
     def month_prev(self, name):

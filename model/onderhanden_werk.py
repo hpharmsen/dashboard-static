@@ -31,8 +31,7 @@ def ohw_sum(day: Day, minimal_intesting_value: int):
     return total_ohw
 
 
-# @cache(hours=1)
-@lru_cache()
+@cache(hours=1)
 def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> DataFrame:
     """ OHW is calculated including work and invoices of the specified day """
     sim = simplicate()
