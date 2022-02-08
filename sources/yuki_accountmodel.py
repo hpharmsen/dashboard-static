@@ -1,11 +1,14 @@
 """ Class to represent the Yuki account model """
 
 import csv
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+from model.caching import load_cache
 from model.onderhanden_werk import ohw_sum
+from model.resultaat import last_day_of_month
 from model.utilities import Day
 from sources.yuki import Yuki
 
@@ -20,7 +23,7 @@ class Item:
         self.sub_codes.update(codes)
 
 
-class YukiAccountModel():
+class YukiAccountModel:
     def __init__(self, day: Day = None):
 
         self.yuki = Yuki()
@@ -33,7 +36,7 @@ class YukiAccountModel():
             self.fill(day)
 
     def load_schema(self):
-
+        # todo: Kan dit ook via de API ingelezen worden?
         with open(Path(__file__).parent / 'yuki rekeningschema.csv') as f:
             reader = csv.DictReader(f, skipinitialspace=True, delimiter=";")
             for row in reader:
@@ -45,7 +48,7 @@ class YukiAccountModel():
                 if not category_code:
                     continue
 
-                # Split in main categories and add them if needed
+                # Split in main categories like 'WPerLesLoo' and add them if needed
                 main_categories = split_on_caps(category_code)
                 for index in range(len(main_categories)):
                     sub_categories = [main_categories[index + 1]] if index < len(main_categories) - 1 else []
@@ -58,21 +61,27 @@ class YukiAccountModel():
                 self.add_post(code, row['Omschrijving'])
 
         # W&V
-        self.describe('WOmz', 'Omzet')
+        self.describe('WOmz', 'Omzet volgens de boekhouding')
+        self.alias('turnover', 'Omzet!', ['WOmz', '-80070'])  # Onderverhuur eruit
         self.describe('60351', 'Projectkosten')
         self.describe('60350', 'Uitbesteed werk')
         self.describe('60352', 'Hostingkosten')
-        self.alias('bbi', 'BBI', ['WOmz', 'WKprKuw', '-80070'])
-        self.alias('other_income', 'Overige inkomsten', ['WKprBtk', '80070'])
+        self.alias('bbi', 'BBI', ['turnover', '60350', '60351', '60352'])
+        self.alias('other_income', 'Overige inkomsten', ['80070'])  # Onderverhuur er weer bij
         self.alias('total_income', 'Totaal bruto marge', ['bbi', 'other_income'])
 
-        self.alias('people', 'Mensen', ['WPer', '-WPerLesLoo', 'WBedOvp'])  # Personeel -/- WBSO + Overig personeel
+        self.alias('people', 'Mensen', ['WPer', '-WPerLesLoo', '-WPerWkg', 'WPerWkgOsc', 'WBedOvp'])
+        # Personeel -/- Reis- en verblijfskosten algemeen -/- WBSO + Overig personeel
+
         self.describe('WPerLesLoo', 'WBSO')
         self.alias('personell', 'Personeelskosten', ['people', 'WPerLesLoo'])
-        self.describe('WBedHui', 'Huisvesting')
+        self.alias('housing', 'Huisvesting', ['WBedHui', 'WBedEemRoi'])
         self.describe('WBedVkk', 'Sales/marketing')
-        self.alias('other_expenses', 'Overige kosten', ['WBed', '-WBedHui', '-WBedVkk', '-WBedOvp'])
-        self.alias('company_costs', 'Bedrijfkosten', ['WBed', '-WBedOvp'])
+        self.alias('other_expenses', 'Overige kosten', ['WBed', 'WPerWkg', '-WPerWkgOsc', '-WBedHui', '-WBedVkk',
+                                                        '-WBedOvp', '-WBedEemRoi', 'WKprBtkBed'])
+        # WKprBtkBed = Ontvangen betalingskortingen
+
+        self.alias('company_costs', 'Bedrijfkosten', ['housing', 'WBedVkk', 'other_expenses'])
         self.alias('operating_expenses', 'TOTAAL BEDRIJFSLASTEN', ['company_costs', 'personell'])
 
         self.describe('WAfs', 'Afschrijvingen')
@@ -120,7 +129,7 @@ class YukiAccountModel():
         self.alias('net_cashflow', 'Netto kasstroom', ['operational_cash', 'investments'])
 
     def add_post(self, code, description, amount=None):
-        self.items[code] = Item(description, {}, amount)
+        self.items[code] = Item(description, set(), amount)
 
     def add_category(self, category_code: str, description: str, subcodes: list[str]):
         category_item = self.items.get(category_code)
@@ -136,9 +145,9 @@ class YukiAccountModel():
         self.aliases[alias_code] = Item(description, set(subcodes), None)
 
     def fill(self, day):
-        balance = {db['code']: db['amount'] for db in self.yuki.day_balance(day)}
+        balance = {d['code']: d['amount'] for d in self.yuki.day_balance(day)}
 
-        def fill_value(code: str, item: Item, level: int = 0):
+        def fill_value(code: str, item: Item):
             if item.sub_codes:
                 amount = None
                 for sub_code in item.sub_codes:
@@ -152,7 +161,7 @@ class YukiAccountModel():
             item.amount = amount
             # return amount
 
-        self.walk(fill_value, depth_first=1)
+        self.walk(fill_value, depth_first=True)
 
     def add_ohw(self, amount):
         """ Voegt onderhanden werk toe aan de structuur zoals die uit Yuki komt """
@@ -167,7 +176,7 @@ class YukiAccountModel():
                 self.items[post].amount = 0
             self.items[post].amount -= amount
 
-    def post(self, code: str) -> float:
+    def post(self, code: str) -> (float, str):
         """ Returns the value of the specified post
             code can either be an alias or an item code
         """
@@ -180,7 +189,14 @@ class YukiAccountModel():
             amount = sum([self.post(sub_code)[0] for sub_code in alias.sub_codes])
             description = alias.description
         else:
-            amount = self.items[code].amount
+            try:
+                amount = self.items[code].amount
+            except KeyError:
+                print(f'Code {code} niet gevonden. Staat die wel in sources/yuki_rekeningschema.csv?\n' +
+                      'Doe anders een download op ' +
+                      'https://oberon.yukiworks.nl/domain/financial/aspx/finglaccounts.aspx?__subframe=1\n' +
+                      'Open daarna met Textmate en save als UTF-8.')
+                sys.exit(1)
             description = self.items[code].description
         if not amount:
             amount = 0
@@ -188,27 +204,24 @@ class YukiAccountModel():
             amount = -amount
         return amount, description
 
-    def walk(self, function, code: str = '', level=0, depth_first=False):
+    def walk(self, function, code: str = '', depth_first=False):
         if not code:
             self.walk(function, 'B', depth_first=depth_first)
             self.walk(function, 'W', depth_first=depth_first)
         else:
             item = self.items[code]
             if not depth_first:
-                function(code, item, level)
+                function(code, item)
             for subcode in list(item.sub_codes):
-                self.walk(function, subcode, level + 1, depth_first=depth_first)
+                self.walk(function, subcode, depth_first=depth_first)
             if depth_first:
-                function(code, item, level)
-
-    # def company_costs(self):
-    #    return tuple_add(self.housing(), self.marketing(), self.other_expenses())
+                function(code, item)
 
 
-def split_on_caps(str):
+def split_on_caps(category_name):
     """ Splits WFbeOrlOrl to ['W','WFbe','WFbeOrl','WFbeOrlOrl'] """
-    res = str[0]
-    for letter in str[1:]:
+    res = category_name[0]
+    for letter in category_name[1:]:
         if letter.isupper():
             res += '|'
         res += letter
@@ -222,36 +235,41 @@ def print_with_subs(code: str, item: Item, level: int = 0):
     print('  ' * level, code, item.description, amount)
 
 
-def balans_en_wv():
-    day = Day('2021-11-30')
+def balans_en_wv(year, month):
+    day = Day(last_day_of_month(year, month))
     model = YukiAccountModel()
     model.fill(day)
     model.add_ohw(ohw_sum(day, 1000))
 
-    last_day = Day('2021-10-31')
+    month -= 1
+    if month == 0:
+        month = 12
+        year -= 1
+    last_day = Day(last_day_of_month(year, month))
     last_month = YukiAccountModel()
     last_month.fill(last_day)
     last_month.add_ohw(ohw_sum(last_day, 1000))
 
     def balans(code: str):
         amount, descr = model.post(code)
-        if not descr: descr = code
+        if not descr:
+            descr = code
         amount2, _ = last_month.post(code)
-        print(f'{descr:40} {amount:>10.0f} {amount2:>10.0f}')
+        print(f'{descr:40} {amount:>10.2f} {amount2:>10.2f}')
 
     def wv(code: str):
         amount, descr = model.post(code)
         amount2, _ = last_month.post(code)
-        print(f'{descr:40} {amount - amount2:>10.0f} {amount:>10.0f}')
+        print(f'{descr:40} {amount - amount2:>10.2f} {amount:>10.2f}')
 
     def cash(code: str):
         amount, descr = model.post(code)
         amount2, _ = last_month.post(code)
-        print(f'{descr:40} {amount - amount2:>10.0f}')
+        print(f'{descr:40} {amount - amount2:>10.2f}')
 
     print('WINST EN VERLIESREKENING                      maand        YTD')
     print('                                              -----      -----')
-    wv('-WOmz')  # Omzewt
+    wv('-turnover')  # Omzet
     wv('-60351')  # Projectkosten
     wv('-60350')  # Uitbesteed werk
     wv('-60352')  # Hostingkosten
@@ -268,7 +286,7 @@ def balans_en_wv():
     print('---------------------')
     wv('personell')
     print()
-    wv('WBedHui')
+    wv('housing')
     wv('WBedVkk')
     wv('other_expenses')
     print('---------------------')
@@ -341,7 +359,16 @@ def balans_en_wv():
     cash('net_cashflow')
     cash('liquid_assets')
 
+    # Checks
+    total_assets, _ = model.post('total_assets')
+    total_liabilities, _ = model.post('total_liabilities')
+    if total_assets != -total_liabilities:
+        print()
+        print(f'Total assets {total_assets} != total liabilities {-total_liabilities}.' +
+              'Difference of {abs(total_assets + total_liabilities)}')
+
 
 if __name__ == '__main__':
-    balans_en_wv()
+    load_cache()
+    balans_en_wv(2021, 12)
     # model.walk( print_with_subs)

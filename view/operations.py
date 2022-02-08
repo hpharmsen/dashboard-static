@@ -4,7 +4,7 @@ from pathlib import Path
 
 from layout.basic_layout import HEADER_SIZE
 from layout.block import Page, TextBlock
-from maandrapportage.maandrapport import HoursData, kpi_grid
+from maandrapport import HoursData, kpi_grid
 from model.utilities import Day, Period
 from settings import (
     dependent_color,

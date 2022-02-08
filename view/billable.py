@@ -4,7 +4,7 @@ from pathlib import Path
 from layout.basic_layout import HEADER_SIZE, MID_SIZE
 from layout.block import TextBlock, Page, Grid, VBlock
 from layout.chart import ChartConfig, BarChart
-from maandrapportage.maandrapport import HoursData
+from maandrapport import HoursData
 from model.productiviteit import tuple_of_productie_users, billable_trend_person_week
 from model.utilities import Day, Period
 from settings import get_output_folder

@@ -1,4 +1,4 @@
-''' Generates the dashboard.html file '''
+""" Generates the dashboard.html file """
 import os
 
 import pandas as pd
@@ -367,7 +367,7 @@ def omzet_chart():
     # Behaalde omzet per week
     return VBlock(
         [
-            TextBlock('Omzet'),
+            TextBlock("Omzet"),
             TextBlock("per week, laatste 6 maanden...", DEF_SIZE, color=GRAY),
             TrendLines().chart(
                 "omzet_per_week",

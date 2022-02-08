@@ -187,23 +187,24 @@ def hours_block(year, month):
         if year == curyear:
             total_period = Period(str(curyear) + "-01-01")
         else:
-            total_period = Period(str(year) + "-01-01", str(year) + "-12-31")
+            total_period = Period(Day(year, 1, 1), Day(year, month, 1).plus_months(1))
         data += [None, HoursData(total_period)]
     grid = kpi_grid(headers, data)
 
     chart = None
     if month >= 3:  # Voor maart heeft een grafiekje niet veel zin
         chart_data = data[:-2] if month > 1 else data  # -2 is haalt de total col eraf
-        chart = BarChart(
-            [d.omzet for d in chart_data],
-            ChartConfig(
-                width=60 * month,
-                height=150,
-                colors=["#ddeeff"],
-                bottom_labels=[MAANDEN[m] for m in range(month)],
-                y_axis_max_ticks=5,
-            ),
-        )
+        chart = VBlock(
+            [TextBlock("Omzet op uren per maand"),
+             BarChart([d.omzet for d in chart_data],
+                      ChartConfig(
+                          width=60 * month,
+                          height=150,
+                          colors=["#ddeeff"],
+                          bottom_labels=[MAANDEN[m] for m in range(month)],
+                          y_axis_max_ticks=5,
+                      ),
+                      )], css_class="no-print")
 
     return VBlock(
         [
@@ -216,12 +217,12 @@ def hours_block(year, month):
                 color=GRAY,
             ),
             grid,
-            VBlock([TextBlock("Omzet op uren per maand"), chart], css_class="no-print"),
+            chart
         ]
     )
 
 
-# In de maandrapportage zou ik dan geschreven toelichtingen verwachten omtrent afwijkingen van de begroting en
+# Deloitte: In de maandrapportage zou ik dan geschreven toelichtingen verwachten omtrent afwijkingen van de begroting en
 # belangrijke ontwikkelingen.
 #
 # Vervolgens aangevuld met voor jullie belangrijke KPI’s.
@@ -259,7 +260,7 @@ def hours_block(year, month):
 
 def render_maandrapportage_page(monthly_folder, output_folder: Path):
     lines = []
-    files = sorted([f for f in monthly_folder.iterdir() if f.suffix == ".html"])
+    files = sorted([f for f in monthly_folder.iterdir() if f.suffix == ".html"], reverse=True)
     for file in files:
         year, month = file.stem.split("_")
         htmlpath = monthly_folder / file
@@ -289,32 +290,45 @@ def ohw_block(year, month, minimal_intesting_ohw_value: int):
     )
 
 
-def main():
-    os.chdir("..")
-    load_cache()
+def process_params():
     today = datetime.datetime.today()
-    if len(sys.argv) > 1 and sys.argv[1] == "all":
-        # Generate all reports for all months starting Januari 2021
-        for y in range(2021, today.year + 1):
-            months = today.month if y == today.year else 12
-            for m in range(1, months + 1):
-                report(y, m)
-    else:
-        # Generate report for the month specified in the parameter
-        try:
-            render_month = int(sys.argv[1])
-            if render_month > 12:
-                panic(f'Invalid parameter {render_month} for month. Usage: python maandrapport.py 5 2022')
-        except KeyError:
-            render_month = datetime.datetime.today().month - 1
-            if render_month == 0:
-                render_month = 12
-        if len(sys.argv) > 2:
-            render_year = int(sys.argv[2])
-        else:
-            render_year = datetime.datetime.today().year if render_month < 12 else datetime.datetime.today().year - 1
-        report(render_year, render_month)
+    if len(sys.argv) == 1:
+        year = today.year
+        month = today.month - 1
+        if month == 0:
+            month = 12
+            year -= 1
+        return [(year, month)]  # Last month
+
+    if len(sys.argv) == 2:
+        # Generate report for the month or year specified in the parameter
+        if sys.argv[1] == 'all':
+            # Generate all reports for all months starting Januari 2021
+            result = []
+            for year in range(2021, today.year + 1):
+                months = today.month - 1 if year == today.year else 12
+                for month in range(1, months + 1):
+                    result += [(year, month)]
+            return result  # Alle voorbije maanden vanaf 2021
+
+        param = int(sys.argv[1])
+        if param <= 12:
+            return [(today.year, param)]  # This year, specified month
+
+        year = param
+        months = today.month - 1 if year == today.year else 12
+        return [(year, month) for month in range(1, months + 1)]  # This year, all finished months so far
+
+    # Twee parameters
+    month = int(sys.argv[1])
+    year = int(sys.argv[2])
+    if month > 12:
+        panic(f'Invalid parameter {month} for month. Usage: python maandrapport.py 5 2022')
+    return [(year, month)]
 
 
 if __name__ == "__main__":
-    main()
+    load_cache()
+    to_render = process_params()
+    for r in to_render:
+        report(*r)
