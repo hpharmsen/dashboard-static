@@ -93,7 +93,7 @@ def render_maandrapportage(output_folder, year, month):
                     balance_block(yuki_result),
                     # ...HBlock([cash_block(), debiteuren_block()]),
                     # cashflow_analysis_block(yuki_result),
-                    ohw_block(year, month, minimal_interesting_owh_value)
+                    ohw_block(year, month, minimal_interesting_owh_value),
                 ]
             )
         ]
@@ -195,16 +195,21 @@ def hours_block(year, month):
     if month >= 3:  # Voor maart heeft een grafiekje niet veel zin
         chart_data = data[:-2] if month > 1 else data  # -2 is haalt de total col eraf
         chart = VBlock(
-            [TextBlock("Omzet op uren per maand"),
-             BarChart([d.omzet for d in chart_data],
-                      ChartConfig(
-                          width=60 * month,
-                          height=150,
-                          colors=["#ddeeff"],
-                          bottom_labels=[MAANDEN[m] for m in range(month)],
-                          y_axis_max_ticks=5,
-                      ),
-                      )], css_class="no-print")
+            [
+                TextBlock("Omzet op uren per maand"),
+                BarChart(
+                    [d.omzet for d in chart_data],
+                    ChartConfig(
+                        width=60 * month,
+                        height=150,
+                        colors=["#ddeeff"],
+                        bottom_labels=[MAANDEN[m] for m in range(month)],
+                        y_axis_max_ticks=5,
+                    ),
+                ),
+            ],
+            css_class="no-print",
+        )
 
     return VBlock(
         [
@@ -217,7 +222,7 @@ def hours_block(year, month):
                 color=GRAY,
             ),
             grid,
-            chart
+            chart,
         ]
     )
 
@@ -283,8 +288,10 @@ def ohw_block(year, month, minimal_intesting_ohw_value: int):
     day = last_date_of_month(year, month)
     # day = Day(year, month + 1, 1) if month < 12 else Day(year + 1, 1, 1)
     return VBlock(
-        [TextBlock(f"Onderhanden werk", MID_SIZE),
-         onderhanden_werk_list(day, minimal_intesting_ohw_value=minimal_intesting_ohw_value)],
+        [
+            TextBlock(f"Onderhanden werk", MID_SIZE),
+            onderhanden_werk_list(day, minimal_intesting_ohw_value=minimal_intesting_ohw_value),
+        ],
         css_class="page-break-before",
         style="page-break-before: always;",
     )
@@ -302,7 +309,7 @@ def process_params():
 
     if len(sys.argv) == 2:
         # Generate report for the month or year specified in the parameter
-        if sys.argv[1] == 'all':
+        if sys.argv[1] == "all":
             # Generate all reports for all months starting Januari 2021
             result = []
             for year in range(2021, today.year + 1):
@@ -323,7 +330,7 @@ def process_params():
     month = int(sys.argv[1])
     year = int(sys.argv[2])
     if month > 12:
-        panic(f'Invalid parameter {month} for month. Usage: python maandrapport.py 5 2022')
+        panic(f"Invalid parameter {month} for month. Usage: python maandrapport.py 5 2022")
     return [(year, month)]
 
 
