@@ -94,7 +94,7 @@ def kpi_block(weeks=4, verbose=True, total_period=None, total_title=''):
 
 
 def operations_data(weeks, total_period=None, total_title=''):
-    monday = Day().last_monday()
+    monday = Day().plus_days(-2).last_monday()  # Wednesday gives the last monday, Monday and Tuesday the week before
     hours_data = []
     headers = []
     for w in range(weeks):

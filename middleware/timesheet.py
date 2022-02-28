@@ -4,7 +4,7 @@ from functools import partial
 import numpy as np
 import pandas as pd
 
-from middleware.base_table import BaseTable, EMPLOYEE_NAME, PROJECT_NUMBER, SIMPLICATE_ID, MONEY, HOURS
+from middleware.base_table import BaseTable, EMPLOYEE_NAME, PROJECT_NUMBER, SIMPLICATE_ID, MONEY, HOURS, panic
 from middleware.employee import Employee
 from middleware.middleware_utils import singleton
 from model.caching import cache
@@ -234,6 +234,8 @@ def complement_timesheet_data(timesheet_entry):
 def hours_dataframe(period: Period):
     timesheet = Timesheet()
     list_of_dicts = timesheet.query(period, with_project_data=True)
+    if not list_of_dicts:
+        panic('hours_dataframe is empty for period', period)
     df = pd.DataFrame(list_of_dicts)
     df.tariff = df.tariff.astype(float)
     df.hours = df.hours.astype(float)

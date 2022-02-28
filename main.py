@@ -22,6 +22,7 @@
 
 # HR
 # - Begroot aantal mensen
+# - Absence.html grafisch met 13 weken op de hor as en mensen op de ver as. Totaal eronder per week.
 
 # Nieuwe opzet
 #

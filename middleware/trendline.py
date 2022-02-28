@@ -86,8 +86,8 @@ class TrendLines(BaseTable):
     #                 {'trendline': trendname, 'date': date, 'value': value},
     #             )
 
-    def chart(self, trendname, width, height, x_start="", min_y_axis=None, max_y_axis=None):
-        xy = [{"x": a[0], "y": a[1]} for a in self.trends[trendname] if a[0] >= x_start]
+    def chart(self, trendname, width, height, x_start="", x_end=None, min_y_axis=None, max_y_axis=None):
+        xy = [{"x": a[0], "y": a[1]} for a in self.trends[trendname] if a[0] >= x_start and (not x_end or a[0] < x_end)]
         chart_config = ChartConfig(
             width=width,
             height=height,

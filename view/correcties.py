@@ -10,11 +10,13 @@ from settings import get_output_folder, GRAY
 
 
 def render_correcties_page(output_folder: Path):
-    period = Period(Day().plus_weeks(-5), Day().plus_weeks(-1))
+    end_day = Day().plus_days(-2).last_monday()
+    start_day = end_day.plus_weeks(-4)
+    period = Period(start_day, end_day)
     page = Page(
         [
             TextBlock('Correcties', HEADER_SIZE),
-            TextBlock('correcties op uren tussen 1 week geleden en 5 weken geleden.', color=GRAY),
+            TextBlock(f'correcties op uren van {start_day} tot en met {end_day.plus_days(-1)}.', color=GRAY),
             corrections_last_month_table(period),
             TextBlock('Alle correcties dit jaar<br/>Tabel toont uren en gecorrigeerde uren.', color=GRAY),
             corrections_all_table(),
@@ -39,7 +41,7 @@ def corrections_all_table():
         project_id = full_line[2]
         return f'https://oberon.simplicate.com/projects/{project_id}/hours'
 
-    period = Period(Day('2021-1-1'))
+    period = Period(Day('2022-1-1'))
     # corr_old = corrections_list_old(period)
     # corr = corrections_list(period)
     return Table(

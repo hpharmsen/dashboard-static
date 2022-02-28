@@ -215,7 +215,7 @@ def planning_chart():
 def corrections_block():
     weeks_back = 4
     interesting_correction = 8
-    end_day = Day().last_monday()
+    end_day = Day().plus_days(-2).last_monday()  # Wednesday gives the last monday, Monday and Tuesday the week before
     start_day = end_day.plus_weeks(-weeks_back)
     period = Period(start_day, end_day)
 
@@ -237,7 +237,7 @@ def corrections_block():
                         color=corrections_percentage_coloring,
                     ),
                     TextBlock(
-                        f"correcties op uren van<br/> week {period.fromday.week_number()} "
+                        f"correcties op productieve uren van<br/> week {period.fromday.week_number()} "
                         + f"tot en met week {period.untilday.plus_days(-1).week_number()}.",
                         color=GRAY,
                     ),
@@ -365,6 +365,8 @@ def finance_block():
 
 def omzet_chart():
     # Behaalde omzet per week
+    x_end = Day().plus_days(-2).last_monday()
+    x_start = x_end.plus_months(-6)
     return VBlock(
         [
             TextBlock("Omzet"),
@@ -373,9 +375,10 @@ def omzet_chart():
                 "omzet_per_week",
                 250,
                 150,
-                x_start=months_ago(6),
+                x_start=x_start,
+                x_end=x_end,
                 min_y_axis=0,
-                max_y_axis=80000,
+                max_y_axis=90000,
             ),
         ],
         link="billable.html",

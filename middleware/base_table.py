@@ -1,3 +1,4 @@
+import sys
 from collections import Generator
 
 from pymysql import OperationalError
@@ -68,3 +69,8 @@ class BaseTable:
         self.create_table(force_recreate=1)
         self.insert_dicts(self.get_data)
         self.create_indexes()
+
+
+def panic(message: str):
+    print(message)
+    sys.exit(1)

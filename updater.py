@@ -57,14 +57,17 @@ def update_invoices(day=None):
 
 
 def check_if_has_run_today():
-    output_folder = get_output_folder()
-    updater_file = output_folder / 'last_updated.txt'
+    updater_file = get_output_folder() / 'last_updated.txt'
     if updater_file.is_file():
         with open(updater_file) as f:
             last_updated = Day(f.read())
             if last_updated == Day():
                 print('Script has already run today: exiting')
                 sys.exit()
+
+
+def mark_as_has_run_today():
+    updater_file = get_output_folder() / 'last_updated.txt'
     with open(updater_file, 'w') as f:
         f.write(str(Day()))
 
@@ -83,3 +86,5 @@ if __name__ == '__main__':
     update_timesheet()
     update_travelbase()
     update_finance()
+
+    mark_as_has_run_today()

@@ -1,4 +1,4 @@
-from middleware.base_table import BaseTable, PROJECT_NUMBER, SIMPLICATE_ID, EMPLOYEE_NAME
+from middleware.base_table import BaseTable, PROJECT_NUMBER, SIMPLICATE_ID, EMPLOYEE_NAME, panic
 from middleware.middleware_utils import singleton
 from sources.simplicate import simplicate
 
@@ -24,7 +24,10 @@ class Project(BaseTable):
 
     def get_data(self):
         sim = simplicate()
-        for project in sim.project():
+        projects = sim.project()
+        if not projects:
+            panic('Could not get projects from Simplicate')
+        for project in projects:
             if project['my_organization_profile'] == 'Qikker Online B.V.':
                 continue
             try:
