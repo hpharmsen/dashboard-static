@@ -1,5 +1,5 @@
-from middleware.base_table import BaseTable, PROJECT_NUMBER, SIMPLICATE_ID, EMPLOYEE_NAME, panic
-from middleware.middleware_utils import singleton
+from middleware.base_table import BaseTable, PROJECT_NUMBER, SIMPLICATE_ID, EMPLOYEE_NAME
+from middleware.middleware_utils import singleton, panic
 from sources.simplicate import simplicate
 
 

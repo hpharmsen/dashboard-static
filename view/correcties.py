@@ -42,7 +42,6 @@ def corrections_all_table():
         return f'https://oberon.simplicate.com/projects/{project_id}/hours'
 
     period = Period(Day('2022-1-1'))
-    # corr_old = corrections_list_old(period)
     # corr = corrections_list(period)
     return Table(
         corrections_list(period),

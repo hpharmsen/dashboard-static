@@ -1,9 +1,8 @@
-import sys
 from collections import Generator
 
 from pymysql import OperationalError
 
-from middleware.middleware_utils import get_middleware_db
+from middleware.middleware_utils import get_middleware_db, panic
 
 SIMPLICATE_ID = 'VARCHAR(50)'
 PROJECT_NUMBER = 'VARCHAR(10)'
@@ -62,7 +61,10 @@ class BaseTable:
                 value_strings += [value_str]
             values = ",".join(value_strings)
             query = f'INSERT INTO {self.table_name} (`{"`, `".join(fields)}`) values ({values});'
-            self.db.execute(query)
+            try:
+                self.db.execute(query)
+            except ConnectionResetError:
+                panic('Connnection reset by peer in base_tabel.py insert_dicts() while trying to execute query', query)
         self.db.commit()
 
     def repopulate(self):
@@ -70,7 +72,3 @@ class BaseTable:
         self.insert_dicts(self.get_data)
         self.create_indexes()
 
-
-def panic(message: str):
-    print(message)
-    sys.exit(1)

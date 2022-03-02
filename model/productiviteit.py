@@ -139,20 +139,6 @@ def corrections_count(period: Period):
     return result
 
 
-def corrections_list_old(period: Period):
-    # returns a dataframe of organization, project_name, project_id, corrections
-    df = hours_dataframe(period)
-    result = (
-        df.groupby(["organization", "project_name", "project_id"])
-            .agg({"hours": "sum", "corrections": "sum"})
-            .query("corrections < 0")
-            .sort_values("corrections")
-            .reset_index()
-    )
-    result["corrections"] = result.apply(lambda a: int(a["corrections"]), axis=1)
-    return result
-
-
 def corrections_list(period: Period):
     timesheet = Timesheet()
     query = f'''select `organization`, project_name, sum(hours) as hours, sum(corrections) as corrections

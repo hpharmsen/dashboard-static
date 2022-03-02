@@ -46,12 +46,6 @@ class HoursData:
         self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(period, employees)
         self.op_klant_geboekt_old = timesheet.geboekte_uren(period, users=employees, only_clients=1, only_billable=0)
         self.op_klant_geboekt = timesheet.geboekte_uren(period, users=employees, only_clients=1, only_billable=0)
-        self.billable_old = timesheet.geboekte_uren(
-            period,
-            users=employees,
-            only_clients=1,
-            only_billable=1,
-        )
         self.billable = timesheet.geboekte_uren(
             period,
             users=employees,

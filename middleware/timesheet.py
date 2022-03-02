@@ -4,9 +4,9 @@ from functools import partial
 import numpy as np
 import pandas as pd
 
-from middleware.base_table import BaseTable, EMPLOYEE_NAME, PROJECT_NUMBER, SIMPLICATE_ID, MONEY, HOURS, panic
+from middleware.base_table import BaseTable, EMPLOYEE_NAME, PROJECT_NUMBER, SIMPLICATE_ID, MONEY, HOURS
 from middleware.employee import Employee
-from middleware.middleware_utils import singleton
+from middleware.middleware_utils import singleton, panic
 from model.caching import cache
 from model.utilities import Period, Day
 from sources.simplicate import simplicate, flatten_hours_data, calculate_turnover
@@ -25,6 +25,7 @@ class Timesheet(BaseTable):
                project_number {PROJECT_NUMBER} NOT NULL,
 
                service_id {SIMPLICATE_ID} NOT NULL,
+               revenue_group VARCHAR(40) NOT NULL,
 
                tariff {MONEY} NOT NULL,
 
@@ -39,10 +40,18 @@ class Timesheet(BaseTable):
         self.primary_key = 'day, employee, service_id'
         self.index_fields = "day employee project_number type updated year__week"
         super().__init__()
+        self.service_dict = None  # Hash table of all services. Used to lookup extra service data
         # try:
         #     self.db.execute(f"CREATE INDEX timesheet_year_week ON timesheet (year,week)")
         # except OperationalError:
         #     pass  # index already existent
+
+    def get_service_dict(self):
+        if not self.service_dict:
+            sim = simplicate()
+            services = sim.service()
+            self.service_dict = {s['id']: s for s in services}
+        return self.service_dict
 
     def update(self, day=None):
         """Updates all timesheet entries starting with day if provided,
@@ -59,19 +68,34 @@ class Timesheet(BaseTable):
         today = Day()
         while day < today:
             self.db.execute(f'delete from timesheet where day = "{day}"')
-            data_func = partial(self.get_day_data, day)
+            data_func = partial(self.get_day_data, day, self.get_service_dict())
             self.insert_dicts(data_func)
             day = day.next()
+        self.correct_revenue_groups()
+
+    def correct_revenue_groups(self):
+        self.db.execute('''
+        update timesheet set revenue_group="Omzet teampropositie" where project_number in ("BEN-1","VHC-1");
+        update timesheet set revenue_group="Omzet productpropositie" where revenue_group in ("Omzet development","Omzet app development");
+        update timesheet set revenue_group='Omzet Travelbase' where project_number like 'TRAV-%' or project_number='TOR-3';
+        update timesheet set revenue_group="Omzet productpropositie" where project_number in ("SLIM-30","THIE-17");
+        update timesheet set revenue_group='Omzet teampropositie' where project_number like 'COL-%';
+        update timesheet set revenue_group='' where project_number like 'OBE-%' or project_number like 'QIKK-%' or label='Internal';
+        update timesheet set revenue_group='Omzet productpropositie' where revenue_group='' and project_number not like 'OBE-%';
+        update timesheet set revenue_group='Omzet overig' where project_number like 'CAP-%';
+        update timesheet set revenue_group='' where type in ('leave','absence');
+        ''')
+        self.db.commit()
 
     def get_data(self):
         day = Day(2021, 1, 1)
         today = Day()
         while day < today:
-            for data in self.get_day_data(day):
+            for data in self.get_day_data(day, self.get_service_dict()):
                 yield data
             day = day.next()  # Move to the next day before repeating the loop
 
-    def get_day_data(self, day: Day):
+    def get_day_data(self, day: Day, services: dict):
         sim = simplicate()
 
         print("retrieving", day)
@@ -80,7 +104,7 @@ class Timesheet(BaseTable):
             flat_data = flatten_hours_data(data)
             grouped_data = group_by_daypersonservice(flat_data)
             for te in grouped_data:
-                yield complement_timesheet_data(te)  # %(name)s
+                yield complement_timesheet_data(te, services)  # %(name)s
 
     @staticmethod
     def where_clause(period: Period, only_clients=0, only_billable=0, users=None, hours_type=None):
@@ -204,7 +228,7 @@ def group_by_daypersonservice(list_of_dicts):
     return df2.to_dict("records")
 
 
-def complement_timesheet_data(timesheet_entry):
+def complement_timesheet_data(timesheet_entry, services_dict):
     def week_and_year(day_str):
         week = datetime.datetime.strptime(day_str, "%Y-%m-%d").isocalendar()[1]
         year = int(day_str[:4])
@@ -222,6 +246,14 @@ def complement_timesheet_data(timesheet_entry):
     del timesheet_entry["service"]  # Wordt nog gebruikt in calculate_turnover maar mag nu weg
     timesheet_entry["week"], timesheet_entry["year"] = week_and_year(timesheet_entry["day"])
     timesheet_entry["corrections_value"] = timesheet_entry["corrections"] * timesheet_entry["tariff"]
+
+    # Find the revenue group
+    timesheet_entry["revenue_group"] = ''
+    service = services_dict.get(timesheet_entry["service_id"])
+    if service:
+        revenue_group = service.get('revenue_group')
+        if revenue_group:
+            timesheet_entry["revenue_group"] = revenue_group['label']
 
     # De volgende is omdat in 2021 de indeling nog niet goed was
     if timesheet_entry["type"] == "absence" and timesheet_entry[
@@ -247,6 +279,5 @@ def hours_dataframe(period: Period):
 
 if __name__ == "__main__":
     timesheet_table = Timesheet()
-    # timesheet_table.create_table(force_recreate=0)
-    # timesheet_table.update(Day('2021-12-01'))
     timesheet_table.repopulate()
+    timesheet_table.correct_revenue_groups()

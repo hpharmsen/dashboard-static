@@ -55,7 +55,7 @@ def complement_hours_dataframe(df):
 def flatten_hours_data(data):
     def convert(d):
         tariff = d.get('tariff')
-        if tariff == None:
+        if tariff is None:
             log(f"{d['project']['name']} has no tariff for {d['employee']['name']}")
             tariff = 0
         return {
@@ -97,8 +97,8 @@ def user2name():
 
 def get_oberon_id_from_email(email):
     # Based on the e-mail address from Simplicate, get the username used in extranet planning database
-    id = email.split("@")[0]
-    return USER_MAPPING.get(id, id)
+    oberon_id = email.split("@")[0]
+    return USER_MAPPING.get(oberon_id, oberon_id)
 
 
 if __name__ == '__main__':
