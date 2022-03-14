@@ -42,7 +42,7 @@ class Timesheet(BaseTable):
         super().__init__()
         self.service_dict = None  # Hash table of all services. Used to lookup extra service data
         # try:
-        #     self.db.execute(f"CREATE INDEX timesheet_year_week ON timesheet (year,week)")
+        #     self.execute(f"CREATE INDEX timesheet_year_week ON timesheet (year,week)")
         # except OperationalError:
         #     pass  # index already existent
 
@@ -59,7 +59,7 @@ class Timesheet(BaseTable):
         or 1-1-2021 if there was no last entry."""
 
         # Find newest day in database
-        newest_result = self.db.execute("select max(day) as day from timesheet")[0]["day"]
+        newest_result = self.db.first("select max(day) as day from timesheet")["day"]
         if not day:
             if newest_result:
                 day = Day(newest_result).plus_days(-14)
@@ -67,14 +67,14 @@ class Timesheet(BaseTable):
                 day = Day(2021, 1, 1)
         today = Day()
         while day < today:
-            self.db.execute(f'delete from timesheet where day = "{day}"')
+            self.execute(f'delete from timesheet where day = "{day}"')
             data_func = partial(self.get_day_data, day, self.get_service_dict())
             self.insert_dicts(data_func)
             day = day.next()
         self.correct_revenue_groups()
 
     def correct_revenue_groups(self):
-        self.db.execute('''
+        self.execute('''
         update timesheet set revenue_group="Omzet teampropositie" where project_number in ("BEN-1","VHC-1");
         update timesheet set revenue_group="Omzet productpropositie" where revenue_group in ("Omzet development","Omzet app development");
         update timesheet set revenue_group='Omzet Travelbase' where project_number like 'TRAV-%' or project_number='TOR-3';
@@ -85,7 +85,7 @@ class Timesheet(BaseTable):
         update timesheet set revenue_group='Omzet overig' where project_number like 'CAP-%';
         update timesheet set revenue_group='' where type in ('leave','absence');
         ''')
-        self.db.commit()
+        self.commit()
 
     def get_data(self):
         day = Day(2021, 1, 1)
@@ -135,7 +135,7 @@ class Timesheet(BaseTable):
         return query
 
     def count(self):
-        return self.db.execute("select count(*) as aantal from timesheet")[0]["aantal"]
+        return self.execute("select count(*) as aantal from timesheet")[0]["aantal"]
 
     def geboekte_uren(self, period, users=None, only_clients=0, only_billable=0) -> float:
 
@@ -146,7 +146,7 @@ class Timesheet(BaseTable):
             query = "select sum(hours+corrections) as result from timesheet " + query
         else:
             query = "select sum(hours) as result from timesheet " + query
-        result = float(self.db.execute(query)[0]["result"] or 0)
+        result = float(self.first(query)["result"] or 0)
         return result
 
     def geboekte_omzet(self, period, users=None, only_clients=0, only_billable=0) -> float:
@@ -154,8 +154,8 @@ class Timesheet(BaseTable):
             period, users=users, only_clients=only_clients, only_billable=only_billable, hours_type="normal"
         )
         query = "select sum(turnover) as result from timesheet " + query
-        query_result = self.db.execute(query)
-        result = float(query_result[0]["result"] or 0)
+        query_result = self.first(query)
+        result = float(query_result["result"] or 0)
         return result
 
     def normal_hours(self, period: Period, employees: list = []):
@@ -175,8 +175,8 @@ class Timesheet(BaseTable):
         query = "select sum(hours) as result from timesheet " + self.where_clause(
             period, users=employees, hours_type=type
         )
-        query_result = self.db.execute(query)
-        result = float(query_result[0]["result"] or 0)
+        query_result = self.first(query)
+        result = float(query_result["result"] or 0)
         return result
 
     def query(self, period: Period, where: str = "", sort=None, with_project_data=False):
@@ -194,11 +194,11 @@ class Timesheet(BaseTable):
             if not isinstance(sort, list):
                 sort = [sort]
             query_string += " ORDER BY " + ",".join(sort)
-        query_result = self.db.execute(query_string)
+        query_result = self.execute(query_string)
         return query_result
 
     def full_query(self, query_string):
-        return self.db.execute(query_string)
+        return self.execute(query_string)
 
     def services_with_their_hours_and_turnover(
             self,

@@ -46,11 +46,11 @@ def verzuimpercentage(period: Period):
 
 def verzuim_list(period):
     timesheet = Timesheet()
-    list_of_dicts = timesheet.query(
+    list_of_dicts = list(timesheet.query(
         period,
         'type="absence" and hours>0',
         sort=['employee', 'day'],
-    )
+    ))
     if not list_of_dicts:
         return []
     result = []
@@ -64,16 +64,10 @@ def verzuim_list(period):
             last = d
         last_day = Day(d['day'])
     result += [[last['employee'], last['day'], last['label'], float(last['hours'] / 8)]]
-    # result = list_of_lists(list_of_dicts, ['employee', 'day', 'label', 'hours'])
     return result
 
 
-def list_of_lists(list_of_dicts, fields):
-    result = [[dict[field] for field in fields] for dict in list_of_dicts]
-    return result
-
-
-# @reportz(hours=24)
+@reportz(hours=24)
 def vrije_dagen_overzicht():
     sim = simplicate()
     year = datetime.today().year

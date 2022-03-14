@@ -7,6 +7,7 @@ from functools import lru_cache
 import requests
 from bs4 import BeautifulSoup
 
+from middleware.middleware_utils import panic
 from model.caching import cache
 from model.utilities import Day
 from settings import ini
@@ -85,7 +86,11 @@ def yuki():
 
 @lru_cache()
 def cached_get_url(url):
-    return requests.get(url)
+    try:
+        return requests.get(url)
+    except requests.exceptions.ConnectionError:
+        # Todo: vervangen door een algemene get die een retry doet
+        panic('ConnectionError while trying to access Yuki')
 
 
 class Yuki:

@@ -211,8 +211,9 @@ def winst_per_project(period: Period):
     return result
 
 
-@cache(hours=60)
+# @cache(hours=60)
 def winst_per_klant(period: Period):
+    p = project_results(period)
     result = (
         project_results(period)
             .replace(["QS Ventures", "KV New B.V."], "Capital A")
@@ -237,7 +238,7 @@ def winst_per_klant(period: Period):
     return result
 
 
-@cache(hours=24)
+#@cache(hours=24)
 def project_results(period: Period = None):
     simplicate_projects = simplicate().project()
     projects = {
@@ -303,14 +304,12 @@ def winst_per_persoon(period):  # Get hours and hours turnover per person
             .rename(columns={"turnover": "turnover hours"})
             .reset_index()
     )
+
     # Voeg mensen toe die geen uren boeken
-    for employee in [
-        "Angela Duijs",
-        "Lunah Smits",
-        "Mel Schuurman",
-        "Martijn van Klaveren",
-    ]:
-        result = result.append({"employee": employee, "hours": 0, "turnover hours": 0}, ignore_index=True)
+    # todo: Dit moet anders, geen specifieke mensen in de code
+    employee_names = ["Angela Duijs", "Lunah Smits", "Mel Schuurman", "Martijn van Klaveren"]
+    employees = [{"employee": employee, "hours": 0, "turnover hours": 0} for employee in employee_names]
+    result = pd.concat([result, pd.DataFrame(employees)])
 
     # Add results from fixed price projects
     result["turnover fixed"] = 0
@@ -376,5 +375,8 @@ def worked_oberon_hours(period: Period = None):
 if __name__ == "__main__":
     os.chdir("..")
     use_cache = False
-    pp = winst_per_persoon().sort_values(by="employee")
-    print(pp)
+    period = Period('2022-01-01')
+    pk = winst_per_klant(period)
+    print(pk)
+    # pp = winst_per_persoon(period).sort_values(by="employee")
+    #print(pp)

@@ -52,17 +52,17 @@ class Account(BaseTable):
             yield {'day': day, 'account': account, 'amount': amount}
 
     def update(self, day):
-        self.db.execute(f'delete from account where day="{day}"')
-        self.db.commit()
+        self.execute(f'delete from account where day="{day}"')
+        self.commit()
         data_func = partial(self.get_day_data, day)
         self.insert_dicts(data_func)
 
     @lru_cache
     def day_balance(self, day: Day):
-        accounts = self.db.select(self.table_name, {'day': day})
+        accounts = self.select(self.table_name, {'day': day})
         if not accounts:
             self.update(day)
-            accounts = self.db.select(self.table_name, {'day': day})
+            accounts = self.select(self.table_name, {'day': day})
         return {acc['account']: acc['amount'] for acc in accounts}
 
     def post(self, name: str, account_type: str, day: Day):

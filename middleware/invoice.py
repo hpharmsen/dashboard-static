@@ -34,8 +34,8 @@ class Invoice(BaseTable):
 
     def update(self, day: Day):
         get_day_data = partial(self.get_data, day)
-        self.db.execute(f'delete from invoice where invoice_date >= "{day}"')
-        self.db.commit()
+        self.execute(f'delete from invoice where invoice_date >= "{day}"')
+        self.commit()
         self.insert_dicts(get_day_data)
 
     def get_data(self, day=None):
@@ -76,7 +76,7 @@ class Invoice(BaseTable):
         query = f'''select * from invoice 
                     where invoice_date >= "{period.fromday}" and invoice_date < "{period.untilday}"
                     group by invoice_number order by invoice date'''
-        result = self.db.execute(query)
+        result = self.execute(query)
         return result
 
 
@@ -85,7 +85,7 @@ class Invoice(BaseTable):
                     from invoice
                     where invoice_date >= "{period.fromday}" and invoice_date < "{period.untilday}"
                     group by invoice_number order by invoice_date'''
-        result = self.db.execute(query)
+        result = self.execute(query)
         return result
 
     def invoiced_per_customer(self, period: Period):
@@ -93,7 +93,7 @@ class Invoice(BaseTable):
                     from invoice
                     where invoice_date >= "{period.fromday}" and invoice_date < "{period.untilday}"
                     group by organization order by organization'''
-        result = self.db.execute(query)
+        result = self.execute(query)
         return result
 
     def invoiced_per_service(self, period: Period):
@@ -101,7 +101,7 @@ class Invoice(BaseTable):
                     from invoice
                     where invoice_date >= "{period.fromday}" and invoice_date <= "{period.untilday}"
                     group by service_id'''
-        result = self.db.execute(query)
+        result = self.execute(query)
         return result
 
 

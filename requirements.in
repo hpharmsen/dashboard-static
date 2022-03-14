@@ -3,6 +3,7 @@ numpy
 oauth2client
 pandas
 PyMySQL
+sqlalchemy
 jira
 pytest
 googleanalytics

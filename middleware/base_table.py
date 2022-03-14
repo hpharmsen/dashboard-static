@@ -1,5 +1,6 @@
 from collections import Generator
 
+import pymysql
 from pymysql import OperationalError
 
 from middleware.middleware_utils import get_middleware_db, panic
@@ -22,10 +23,10 @@ class BaseTable:
         if force_recreate:
             for field in self.index_fields.split():
                 try:
-                    self.db.execute(f'DROP INDEX {self.table_name}_{field} ON {self.table_name}')
+                    self.execute(f'DROP INDEX {self.table_name}_{field} ON {self.table_name}')
                 except:
                     pass
-            self.db.execute(f'DROP TABLE IF EXISTS {self.table_name}')
+            self.execute(f'DROP TABLE IF EXISTS {self.table_name}')
 
         primary_key_definition = f', PRIMARY KEY({self.primary_key.replace("__", ",")})' if self.primary_key else ''
         sql = f'''CREATE TABLE IF NOT EXISTS {self.table_name} (
@@ -33,17 +34,17 @@ class BaseTable:
               updated DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
               {primary_key_definition} )
               CHARACTER SET utf8'''
-        self.db.execute(sql)
-        self.db.commit()
+        self.execute(sql)
+        self.commit()
 
     def create_indexes(self):
         for field in self.index_fields.split():
             try:
-                self.db.execute(
+                self.execute(
                     f"CREATE INDEX {self.table_name}_{field} ON {self.table_name} ({field.replace('__', ',')})")
             except OperationalError:
                 pass  # Index already existent
-        self.db.commit()
+        self.commit()
 
     def insert_dicts(self, data: Generator[dict, None, None]):
         for dict in data():
@@ -61,14 +62,31 @@ class BaseTable:
                 value_strings += [value_str]
             values = ",".join(value_strings)
             query = f'INSERT INTO {self.table_name} (`{"`, `".join(fields)}`) values ({values});'
-            try:
-                self.db.execute(query)
-            except ConnectionResetError:
-                panic('Connnection reset by peer in base_tabel.py insert_dicts() while trying to execute query', query)
-        self.db.commit()
+            self.execute(query)
+        self.commit()
 
     def repopulate(self):
         self.create_table(force_recreate=1)
         self.insert_dicts(self.get_data)
         self.create_indexes()
 
+    def first(self, query):
+        try:
+            return self.db.first(query)
+        except pymysql.err.OperationalError:
+            panic('Lost connection to MySQL while executing query ' + query)
+
+    def execute(self, query):
+        try:
+            return self.db.execute(query)
+        except pymysql.err.OperationalError:
+            panic('Lost connection to MySQL while executing query ' + query)
+
+    def select(self, table, conditions):
+        try:
+            return self.db.select(table, conditions)
+        except pymysql.err.OperationalError:
+            panic('Lost connection to MySQL while executing select')
+
+    def commit(self):
+        self.db.commit()

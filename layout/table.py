@@ -104,10 +104,13 @@ class Table(Block):
                 if self.config.cell_hovering:
                     tooltip = self.config.cell_hovering(row_index, col_index, fullline)
                     tooltip_class = 'class="tooltip" style="position:relative;"' if tooltip else ''
-                    tooltip_text = f'<span class="tooltiptext">{wrap(tooltip,42)}</span>' if tooltip else ''
+                    tooltip_text = f'<span class="tooltiptext">{wrap(tooltip, 42)}</span>' if tooltip else ''
                 res += f'<td style="text-align:{align}"><div {tooltip_class} style="text-align:{align}">{tooltip_text}<span style="{coloring}">{formatted_field}</span></div></td>'
-                if self.config.totals and add_total:
-                    totals[col_index] += field
+                try:
+                    if self.config.totals and add_total:
+                        totals[col_index] += field
+                except TypeError:
+                    pass  # Is kennelijk niet hbj het totaal op te tellen. Negeer maar
                 col_index += 1
             res += '</tr>'
 

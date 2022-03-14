@@ -1,7 +1,8 @@
 """ Handles the Employee class and employee table """
+import pymysql
 
 from middleware.base_table import BaseTable, EMPLOYEE_NAME
-from middleware.middleware_utils import singleton
+from middleware.middleware_utils import singleton, panic
 from sources.simplicate import simplicate
 
 
@@ -32,16 +33,20 @@ class Employee(BaseTable):
         query = 'select * from employee where active=1'
         if not include_interns:
             query += ' and function != "Stagiair"'
-        result = self.db.execute(query)
+        result = self.execute(query)
         return [res['name'] for res in result]
 
     def interns(self) -> list:
-        result = self.db.select(self.table_name, {'function': 'Stagiair'})
+        try:
+            result = self.select(self.table_name, {'function': 'Stagiair'})
+        except pymysql.err.OperationalError:
+            # Todo: Retry en panic op een lager niveau implementeren. Bijvoorbeeld self.select en self.execute in base_table
+            panic('Lost connection to MySQL server during select in function employee.py interns()')
         return [res['name'] for res in result]
 
     def __getitem__(self, employee_name):
         query = f'select * from employee where name="{employee_name}"'
-        result = self.db.execute(query)
+        result = self.execute(query)
         if not result:
             raise KeyError(f'{employee_name} not found in employee database')
         return result[0]
@@ -52,3 +57,4 @@ class Employee(BaseTable):
 
 if __name__ == '__main__':
     employee_table = Employee()
+    print(employee_table.db.execute('select * from employee'))

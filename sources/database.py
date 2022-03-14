@@ -39,16 +39,12 @@ def value(query, database=None):
         return 0
 
 
-def dataframe(query, database=None):
+def dataframe(query, database: dbClass = None):
     if not database:
         database = get_db()
     if not database:
         return None
-    try:
-        return pd.read_sql_query(query, database.db)
-    except ConnectionResetError:
-        log_error('database.py', 'dataframe', 'Database connection reset')
-        return None
+    return pd.read_sql_query(query, database.engine)
 
 
 def table(query):
