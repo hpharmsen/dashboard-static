@@ -1,7 +1,7 @@
-from collections import Generator
+from typing import Generator
 
 import pymysql
-from pymysql import OperationalError
+import sqlalchemy
 
 from middleware.middleware_utils import get_middleware_db, panic
 
@@ -42,7 +42,7 @@ class BaseTable:
             try:
                 self.execute(
                     f"CREATE INDEX {self.table_name}_{field} ON {self.table_name} ({field.replace('__', ',')})")
-            except OperationalError:
+            except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
                 pass  # Index already existent
         self.commit()
 
@@ -73,19 +73,27 @@ class BaseTable:
     def first(self, query):
         try:
             return self.db.first(query)
-        except pymysql.err.OperationalError:
+        except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
+            panic('Lost connection to MySQL while executing query ' + query)
+
+    def query(self, query) -> Generator:
+        """ For running a select query """
+        try:
+            yield from self.db.query(query)
+        except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
             panic('Lost connection to MySQL while executing query ' + query)
 
     def execute(self, query):
+        """ For executing a sql command """
         try:
             return self.db.execute(query)
-        except pymysql.err.OperationalError:
+        except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
             panic('Lost connection to MySQL while executing query ' + query)
 
-    def select(self, table, conditions):
+    def select(self, table, conditions) -> Generator:
         try:
-            return self.db.select(table, conditions)
-        except pymysql.err.OperationalError:
+            yield from self.db.select(table, conditions)
+        except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
             panic('Lost connection to MySQL while executing select')
 
     def commit(self):

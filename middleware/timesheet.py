@@ -77,13 +77,13 @@ class Timesheet(BaseTable):
         self.execute('''
         update timesheet set revenue_group="Omzet teampropositie" where project_number in ("BEN-1","VHC-1");
         update timesheet set revenue_group="Omzet productpropositie" where revenue_group in ("Omzet development","Omzet app development");
-        update timesheet set revenue_group='Omzet Travelbase' where project_number like 'TRAV-%' or project_number='TOR-3';
+        update timesheet set revenue_group="Omzet Travelbase" where project_number like "TRAV-%" or project_number="TOR-3";
         update timesheet set revenue_group="Omzet productpropositie" where project_number in ("SLIM-30","THIE-17");
-        update timesheet set revenue_group='Omzet teampropositie' where project_number like 'COL-%';
-        update timesheet set revenue_group='' where project_number like 'OBE-%' or project_number like 'QIKK-%' or label='Internal';
-        update timesheet set revenue_group='Omzet productpropositie' where revenue_group='' and project_number not like 'OBE-%';
-        update timesheet set revenue_group='Omzet overig' where project_number like 'CAP-%';
-        update timesheet set revenue_group='' where type in ('leave','absence');
+        update timesheet set revenue_group='Omzet teampropositie' where project_number like "COL-%";
+        update timesheet set revenue_group="" where project_number like "OBE-%" or project_number like "QIKK-%" or label="Internal";
+        update timesheet set revenue_group="Omzet productpropositie" where revenue_group="" and project_number not like "OBE-%";
+        update timesheet set revenue_group="Omzet overig" where project_number like "CAP-%";
+        update timesheet set revenue_group="" where type in ("leave","absence");
         ''')
         self.commit()
 
@@ -179,7 +179,7 @@ class Timesheet(BaseTable):
         result = float(query_result["result"] or 0)
         return result
 
-    def query(self, period: Period, where: str = "", sort=None, with_project_data=False):
+    def parameterized_query(self, period: Period, where: str = "", sort=None, with_project_data=False):
         if with_project_data:
             query_string = f"""SELECT t.*, p.organization, p.project_name, p.pm, p.status as project_status 
                                FROM timesheet t JOIN project p ON p.project_number=t.project_number"""
@@ -194,11 +194,10 @@ class Timesheet(BaseTable):
             if not isinstance(sort, list):
                 sort = [sort]
             query_string += " ORDER BY " + ",".join(sort)
-        query_result = self.execute(query_string)
-        return query_result
+        yield from self.query(query_string)
 
     def full_query(self, query_string):
-        return self.execute(query_string)
+        yield from self.query(query_string)
 
     def services_with_their_hours_and_turnover(
             self,
@@ -265,7 +264,7 @@ def complement_timesheet_data(timesheet_entry, services_dict):
 @cache(hours=4)
 def hours_dataframe(period: Period):
     timesheet = Timesheet()
-    list_of_dicts = timesheet.query(period, with_project_data=True)
+    list_of_dicts = timesheet.parameterized_query(period, with_project_data=True)
     if not list_of_dicts:
         panic('hours_dataframe is empty for period', period)
     df = pd.DataFrame(list_of_dicts)

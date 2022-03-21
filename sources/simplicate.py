@@ -82,7 +82,7 @@ def flatten_hours_data(data):
     return result
 
 
-@cache(hours=1)
+# @cache(hours=1)
 def name2user():
     employees = simplicate().employee()
     return {

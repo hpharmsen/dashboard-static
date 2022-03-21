@@ -7,7 +7,7 @@ from pysimplicate import Simplicate
 
 from middleware.invoice import Invoice
 from middleware.timesheet import Timesheet
-from model.caching import cache, load_cache
+from model.caching import load_cache
 from model.utilities import Day, Period
 from sources.simplicate import simplicate
 
@@ -31,7 +31,7 @@ def ohw_sum(day: Day, minimal_intesting_value: int):
     return total_ohw
 
 
-@cache(hours=1)
+# @cache(hours=1)
 def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> DataFrame:
     """ OHW is calculated including work and invoices of the specified day """
     sim = simplicate()
@@ -170,7 +170,7 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     return project_service
 
 
-@cache(hours=4)
+#@cache(hours=4)
 def invoiced_by_date(day: Day):
     period = Period('2021-01-01', day)
     invoice = Invoice()
@@ -189,7 +189,7 @@ def invoiced_by_date(day: Day):
 if __name__ == "__main__":
     os.chdir("..")
     load_cache()
-    test_day = Day("2021-12-31")
+    test_day = Day()
     ohw = ohw_list(test_day, minimal_intesting_value=1000)
     print(ohw)
     # print(ohw['ohw'].sum())

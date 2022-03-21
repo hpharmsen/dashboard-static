@@ -8,9 +8,10 @@ from sources.simplicate import simplicate
 
 
 # @cache(hours=1)
-def sim_invoices(day: Day):
+def sim_invoices(from_day: Day):
     sim = simplicate()
-    invoices = sim.invoice({"from_date": day})
+    invoices = sim.invoice({"from_date": from_day})
+    invoices2 = [i for i in invoices if i.get('project') and i['project']['project_number'] == "EASY-6"]
     return invoices
 
 
@@ -33,6 +34,7 @@ class Invoice(BaseTable):
         super().__init__()
 
     def update(self, day: Day):
+        assert day, "invoice.py, class Invoice, method update, day should not be None"
         get_day_data = partial(self.get_data, day)
         self.execute(f'delete from invoice where invoice_date >= "{day}"')
         self.commit()
@@ -40,8 +42,8 @@ class Invoice(BaseTable):
 
     def get_data(self, day=None):
         if not day:
-            day = Day('2021-01-01')  # For repopulate
-        invoices = sim_invoices(day=day)
+            day = Day('2021-1-1')  # For repopulate
+        invoices = sim_invoices(from_day=day)
         for invoice in invoices:
             invoice_number = invoice.get("invoice_number")
             if not invoice_number:
@@ -76,7 +78,7 @@ class Invoice(BaseTable):
         query = f'''select * from invoice 
                     where invoice_date >= "{period.fromday}" and invoice_date < "{period.untilday}"
                     group by invoice_number order by invoice date'''
-        result = self.execute(query)
+        result = self.query(query)
         return result
 
 
@@ -85,7 +87,7 @@ class Invoice(BaseTable):
                     from invoice
                     where invoice_date >= "{period.fromday}" and invoice_date < "{period.untilday}"
                     group by invoice_number order by invoice_date'''
-        result = self.execute(query)
+        result = self.query(query)
         return result
 
     def invoiced_per_customer(self, period: Period):
@@ -93,7 +95,7 @@ class Invoice(BaseTable):
                     from invoice
                     where invoice_date >= "{period.fromday}" and invoice_date < "{period.untilday}"
                     group by organization order by organization'''
-        result = self.execute(query)
+        result = self.query(query)
         return result
 
     def invoiced_per_service(self, period: Period):
@@ -101,7 +103,7 @@ class Invoice(BaseTable):
                     from invoice
                     where invoice_date >= "{period.fromday}" and invoice_date <= "{period.untilday}"
                     group by service_id'''
-        result = self.execute(query)
+        result = self.query(query)
         return result
 
 

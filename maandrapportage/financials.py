@@ -46,7 +46,7 @@ def profit_and_loss_block(yuki_result: YukiResult):
                 budget_ytd,
             ]
         )
-        if toelichting_sheet:
+        if toelichting_sheet.data:
             toelichting = toelichting_sheet[title, 'Toelichting']
             if toelichting:
                 b = toelichtingen  # zeer merkwaardige constructie maar krijg een foutmelding
@@ -90,7 +90,7 @@ def profit_and_loss_block(yuki_result: YukiResult):
 
         def budget_month(sheet, post):
             if month:
-                res = get_int(sheet[post, maand])
+                res = get_int(sheet[post, MAANDEN[month - 1]])
                 if month > 1:
                     res -= get_int(sheet[post, MAANDEN[month - 2]])
                 return res
@@ -237,7 +237,7 @@ def balance_block(yuki_result: YukiResult):
                 '',
             ]
         )
-        if toelichting_sheet:
+        if toelichting_sheet.data:
             toelichting = toelichting_sheet[title, 'Toelichting']
             if toelichting:
                 b = toelichtingen  # zeer merkwaardige constructie maar krijg een foutmelding

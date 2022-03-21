@@ -40,7 +40,7 @@ GOOGLE_SHEETS_APP = (
 )
 
 
-@cache(hours=6)
+# @cache(hours=6)
 def get_bookings_per_week(booking_type: str = 'bookings', only_complete_weeks=False):
     """Get the full list of all booking amounts per brand per week and return it as a DataFrame"""
     # Todo: Uit Middleware halen
@@ -66,6 +66,7 @@ def get_bookings_per_week(booking_type: str = 'bookings', only_complete_weeks=Fa
     all['day'] = all.apply(
         lambda a: datetime.datetime.strptime(f"{int(a['year'])}-W{int(a['week'])}-1", "%Y-W%W-%w").date(), axis=1
     )
+    all = all.sort_values(by=['year', 'week'], ascending=[True, True])
 
     # Save to trends database
     trends = TrendLines()
@@ -76,7 +77,6 @@ def get_bookings_per_week(booking_type: str = 'bookings', only_complete_weeks=Fa
     for index, row in all.iterrows():
         for brand in BRANDS:
             trends.update(trend_name, int(row[brand]), row['day'])
-
     return all
 
 

@@ -4,6 +4,7 @@ oauth2client
 pandas
 PyMySQL
 sqlalchemy
+sqlparse
 jira
 pytest
 googleanalytics

@@ -304,17 +304,23 @@ def vulling_van_de_planning():
     table['roster'] = table.apply(lambda a: even_tot if a['weekno'] % 2 == 0 else odd_tot, axis=1)
 
     # Leaves
-    leaves = pd.DataFrame(
-        [
-            {
-                'day': l['start_date'].split()[0],
-                'week': int(datetime.strptime(l['start_date'].split()[0], DATE_FORMAT).strftime('%W')),
-                'hours': -l['hours'],
-                'employee': l['employee']['name'],
-            }
-            for l in simplicate().leave({'start_date': '2021-01-01'})
-        ]
-    )
+    simplicate_leaves = simplicate().leave({'start_date': str(last_week)})
+    leave_list = []
+
+    for leave in simplicate_leaves:
+        start_day = leave['start_date'].split()[0]
+        hours = -leave['hours']
+        while hours:
+            to_add = min(hours, 8)  # Technisch niet 100% correct maar we smeren langer verlof uit als 8 uur per werkdag
+            leave_list += [{
+                'day': start_day,
+                'week': int(datetime.strptime(start_day, DATE_FORMAT).strftime('%W')),
+                'hours': to_add,
+                'employee': leave['employee']['name']
+            }]
+            start_day = str(Day(start_day).next_weekday())
+            hours -= to_add
+    leaves = pd.DataFrame(leave_list)
     leave_hours_per_week = leaves.groupby(['week']).sum(['hours'])
 
     def get_leave_hours_for_week(row):
@@ -372,6 +378,8 @@ def simplicate_gefactureerd(tm_maand=12):
 
 if __name__ == '__main__':
     os.chdir('..')
+
+    vulling_van_de_planning()
     print(simplicate_gefactureerd())
     print(yuki().income())
     print(simplicate_gefactureerd() - yuki().income())

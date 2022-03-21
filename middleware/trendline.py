@@ -65,7 +65,9 @@ class TrendLines(BaseTable):
     def load(self):
         if not self.db:
             return []  # An error occurred. No use to continue
-        trenddata = self.db.execute("select * from trends order by date")
+        trenddata = self.db.query("select * from trends order by date")
+        if not trenddata:
+            return
         for d in trenddata:
             trendname = d["trendline"]
             if not self.trends.get(trendname):

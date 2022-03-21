@@ -120,6 +120,8 @@ class HeaderSheet:
         except IndexError:
             return None
 
+    def rows(self):
+        return self.data
 
 if __name__ == "__main__":
     os.chdir("..")

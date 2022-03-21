@@ -1,12 +1,9 @@
-from pathlib import Path
-
 import pandas as pd
 from hplib.dbclass import dbClass  # pip3 install git+https://github.com/hpharmsen/hplib
 from pymysql import OperationalError
 
+from middleware.middleware_utils import panic, scriptpath
 from model.log import log_error
-
-scriptpath = Path(__file__).resolve().parent
 
 db = None
 travelbase_db = None
@@ -15,7 +12,7 @@ travelbase_db = None
 def get_db():
     global db
     try:
-        return db or dbClass.from_inifile(scriptpath / 'credentials.ini')
+        return db or dbClass.from_inifile(scriptpath / '..' / 'sources' / 'credentials.ini')
     except OperationalError:
         log_error('database.py', 'get_db()', 'Could not connect to database')
         return
@@ -23,7 +20,8 @@ def get_db():
 
 def get_travelbase_db():
     global travelbase_db
-    return travelbase_db or dbClass.from_inifile(scriptpath / 'credentials.ini', section='travelbase')
+    return travelbase_db or dbClass.from_inifile(scriptpath / '..' / 'sources' / 'credentials.ini',
+                                                 section='travelbase')
 
 
 def value(query, database=None):
@@ -39,12 +37,15 @@ def value(query, database=None):
         return 0
 
 
-def dataframe(query, database: dbClass = None):
+def dataframe(query: str, database: dbClass = None) -> pd.DataFrame:
     if not database:
         database = get_db()
     if not database:
-        return None
-    return pd.read_sql_query(query, database.engine)
+        panic(f'dataframe function could not connect to database')
+    try:
+        return pd.read_sql_query(query.replace('%', '%%'), database.engine)
+    except OperationalError:
+        panic(f'dataframe function connection reset with query ' + query)
 
 
 def table(query):

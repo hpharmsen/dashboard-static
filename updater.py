@@ -52,6 +52,8 @@ def update_finance():
 
 
 def update_invoices(day=None):
+    if not day:
+        day = Day('2021-01-01')
     invoice = Invoice()
     invoice.update(day)
 
@@ -86,5 +88,6 @@ if __name__ == '__main__':
     update_timesheet()
     update_travelbase()
     update_finance()
+    update_invoices()
 
     mark_as_has_run_today()

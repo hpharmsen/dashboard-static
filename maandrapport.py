@@ -185,7 +185,7 @@ def hours_block(year, month):
     if month > 1:  # Januari heeft geen YTD kolom
         headers += ["", str(year) if month == 12 else "YTD"]
         if year == curyear:
-            total_period = Period(str(curyear) + "-01-01")
+            total_period = Period(str(curyear) + "-01-01", Day(year, month, 1).plus_months(1))
         else:
             total_period = Period(Day(year, 1, 1), Day(year, month, 1).plus_months(1))
         data += [None, HoursData(total_period)]

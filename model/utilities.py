@@ -63,6 +63,12 @@ class Day:
     def next(self):
         return self.plus_days(1)
 
+    def next_weekday(self):
+        day = self.plus_days(1)
+        while day.day_of_week() >= 5:
+            day = day.plus_days(1)
+        return day
+
     def prev(self):
         return self.plus_days(-1)
 
