@@ -8,11 +8,10 @@ from pysimplicate import Simplicate
 from middleware.invoice import Invoice
 from middleware.timesheet import Timesheet
 from model.caching import load_cache
-from model.utilities import Day, Period
+from model.utilities import Day, Period, cache
 from sources.simplicate import simplicate
 
 
-# @cache(hours=1)
 @lru_cache()
 def ohw_sum(day: Day, minimal_intesting_value: int):
     df = ohw_list(day, minimal_intesting_value)
@@ -31,7 +30,7 @@ def ohw_sum(day: Day, minimal_intesting_value: int):
     return total_ohw
 
 
-# @cache(hours=1)
+@cache(hours=1)
 def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> DataFrame:
     """ OHW is calculated including work and invoices of the specified day """
     sim = simplicate()
@@ -39,7 +38,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
     # Nieuwe methode:
     # 1. Alle active projecten en de diensten daarvan
     service_df = simplicate_projects_and_services(sim, day)  # todo: kan dit niet uit middleware?
-    # service_df = service_df.query('project_number=="THIE-27"')
+    # service_df = service_df.query('project_number=="VHC-1"')
 
     # 2. Omzet -/- correcties berekenen
     service_ids = service_df["service_id"].tolist()
@@ -111,7 +110,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
     return project_df
 
 
-# @cache(hours=8)
+@cache(hours=8)
 def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     """Returns a dataframe with all active projects and services at a given date"""
 
@@ -170,7 +169,7 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     return project_service
 
 
-#@cache(hours=4)
+@cache(hours=4)
 def invoiced_by_date(day: Day):
     period = Period('2021-01-01', day)
     invoice = Invoice()

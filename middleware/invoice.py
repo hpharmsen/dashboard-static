@@ -3,15 +3,16 @@ from functools import partial
 
 from middleware.base_table import BaseTable, PROJECT_NUMBER, SIMPLICATE_ID, HOURS, MONEY
 from middleware.middleware_utils import singleton
+from model.caching import cache
 from model.utilities import flatten_json, Period, Day
 from sources.simplicate import simplicate
 
 
-# @cache(hours=1)
+@cache(hours=1)
 def sim_invoices(from_day: Day):
     sim = simplicate()
     invoices = sim.invoice({"from_date": from_day})
-    invoices2 = [i for i in invoices if i.get('project') and i['project']['project_number'] == "EASY-6"]
+    # invoices2 = [i for i in invoices if "EASY-6" in [p['project_number'] for p in i['projects']]]
     return invoices
 
 
@@ -49,16 +50,17 @@ class Invoice(BaseTable):
             if not invoice_number:
                 continue  # conceptfactuur
             print('Updating', invoice_number, invoice["organization"]["name"])
+
+            # Probeer project en project_number op te halen
+            project = invoice.get('project')
+            if not project:
+                projects = invoice.get('projects')
+                if projects:
+                    project = projects[0]
+            project_number = project['project_number'] if project else None
+
             for invoice_line in invoice["invoice_lines"]:
                 line = flatten_json(invoice_line)
-
-                # Probeer project en project_number op te halen
-                project = invoice.get('project')
-                if not project:
-                    projects = invoice.get('projects')
-                    if projects:
-                        project = projects[0]
-                project_number = project['project_number'] if project else None
 
                 # We gaan uit van de service_id is die er niet, neem project_number
                 service_id = line.get("service_id", project_number)

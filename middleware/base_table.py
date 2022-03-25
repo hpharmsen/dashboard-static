@@ -22,10 +22,7 @@ class BaseTable:
 
         if force_recreate:
             for field in self.index_fields.split():
-                try:
-                    self.execute(f'DROP INDEX {self.table_name}_{field} ON {self.table_name}')
-                except:
-                    pass
+                self.execute(f'DROP INDEX {self.table_name}_{field} ON {self.table_name}', continue_on_error=True)
             self.execute(f'DROP TABLE IF EXISTS {self.table_name}')
 
         primary_key_definition = f', PRIMARY KEY({self.primary_key.replace("__", ",")})' if self.primary_key else ''
@@ -83,11 +80,13 @@ class BaseTable:
         except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
             panic('Lost connection to MySQL while executing query ' + query)
 
-    def execute(self, query):
+    def execute(self, query, continue_on_error=False):
         """ For executing a sql command """
         try:
             return self.db.execute(query)
         except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
+            if continue_on_error:
+                return
             panic('Lost connection to MySQL while executing query ' + query)
 
     def select(self, table, conditions) -> Generator:

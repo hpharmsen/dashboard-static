@@ -235,11 +235,12 @@ def complement_timesheet_data(timesheet_entry, services_dict):
             year -= 1
         return week, year
 
-    timesheet_entry["tariff"] = timesheet_entry["tariff"] or timesheet_entry["service_tariff"]
     del timesheet_entry["project_id"]
     del timesheet_entry["hours_id"]
     del timesheet_entry["billable"]
     del timesheet_entry["status"]
+    if not timesheet_entry["tariff"] and (timesheet_entry["employee"] not in Employee().interns()):
+        timesheet_entry["tariff"] = timesheet_entry["service_tariff"]
     del timesheet_entry["service_tariff"]
     timesheet_entry["turnover"] = calculate_turnover(timesheet_entry)
     del timesheet_entry["service"]  # Wordt nog gebruikt in calculate_turnover maar mag nu weg
@@ -278,5 +279,5 @@ def hours_dataframe(period: Period):
 
 if __name__ == "__main__":
     timesheet_table = Timesheet()
-    timesheet_table.repopulate()
+    timesheet_table.update(Day('2022-02-14'))
     timesheet_table.correct_revenue_groups()

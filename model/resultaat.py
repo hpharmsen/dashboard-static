@@ -21,15 +21,15 @@ from sources.googlesheet import sheet_tab, sheet_value
 from sources.simplicate import simplicate
 from sources.yuki import yuki
 
-BEGROTING_SHEET = 'Begroting 2021'
-BEGROTING_TAB = 'Begroting'
+BEGROTING_SHEET = "Begroting 2021"
+BEGROTING_TAB = "Begroting"
 BEGROTING_KOSTEN_ROW = 23
 BEGROTING_INKOMSTEN_ROW = 32
 BEGROTING_INKOMSTEN_VORIG_JAAR_ROW = BEGROTING_INKOMSTEN_ROW + 1
 BEGROTING_WINST_ROW = 35
 BEGROTING_WINST_VORIG_JAAR_ROW = BEGROTING_WINST_ROW + 1
 
-RESULTAAT_TAB = 'Resultaat'
+RESULTAAT_TAB = "Resultaat"
 RESULTAAT_KOSTEN_ROW = BEGROTING_KOSTEN_ROW
 RESULTAAT_BIJGEWERKT_ROW = 51
 
@@ -240,28 +240,22 @@ def last_day_of_month(y, m):
 def update_omzet_per_week():
     """Tabel van dag, omzet waarbij dag steeds de maandag is van de week waar het om gaat"""
     trends = TrendLines()
-    trend_name = 'omzet_per_week'
+    trend_name = "omzet_per_week"
     last_day = trends.second_last_registered_day(trend_name)  # Always recalculate the last since hours may have changed
-    y, m, d = str(last_day).split('-')
+    y, m, d = str(last_day).split("-")
     last_day = BeautifulDate(int(y), int(m), int(d)) - MO  # Last Monday on or before the last calculated day
     last_sunday = D.today() - SU
     for monday in drange(last_day, last_sunday, 7 * days):
         sunday = monday + 6 * days
         period = Period(monday, monday + 7 * days)
         week_turnover = get_turnover_from_simplicate(period)
-        # if monday < BeautifulDate(2021, 1, 1):
-        #    week_turnover += get_turnover_from_extranet(monday, sunday)
         trends.update(trend_name, week_turnover, monday)
 
 
 @cache(hours=24)
 def get_turnover_from_simplicate(period):
-    # Including untilday
-    # turnover = simplicate().turnover(
-    #     {'start_date': fromday.strftime('%Y-%m-%d'), 'end_date': untilday.strftime('%Y-%m-%d')}
-    # )
     df = hours_dataframe(period).query('project_number !="TOR-3"')  # !!
-    turnover = df['turnover'].sum()
+    turnover = df["turnover"].sum()
     return int(turnover)
 
 
@@ -270,7 +264,7 @@ def vulling_van_de_planning():
     # Planned hours
     last_week = (datetime.today() + timedelta(weeks=-1)).strftime(DATE_FORMAT)
     # last_day = trends.last_registered_day('omzet_per_week')
-    query = f'''select year(day) as year, week(day,5) as weekno, ifnull(round(sum(dayhours)),0) as plannedhours from
+    query = f"""select year(day) as year, week(day,5) as weekno, ifnull(round(sum(dayhours)),0) as plannedhours from
         (select day, sum(hours) as dayhours from
             (select date(startDate) as day,
                     sum(least((enddate - startDate)/10000,8)) as hours
@@ -282,7 +276,7 @@ def vulling_van_de_planning():
         group by day) q2
     group by year(day), weekno
     order by day
-    limit 16'''
+    limit 16"""
     table = db.dataframe(query)
     if not isinstance(table, pd.DataFrame):
         return  # Error occured, no use to proceed
@@ -291,53 +285,55 @@ def vulling_van_de_planning():
     timetable = [
         t
         for t in simplicate().timetable()
-        if not t.get('end_date') and t['employee']['name'] in tuple_of_productie_users()
+        if not t.get("end_date") and t["employee"]["name"] in tuple_of_productie_users()
     ]
     odd = {
-        table['employee']['name']: [table['odd_week'][f'day_{i}']['hours'] for i in range(1, 6)] for table in timetable
+        table["employee"]["name"]: [table["odd_week"][f"day_{i}"]["hours"] for i in range(1, 6)] for table in timetable
     }
     even = {
-        table['employee']['name']: [table['even_week'][f'day_{i}']['hours'] for i in range(1, 6)] for table in timetable
+        table["employee"]["name"]: [table["even_week"][f"day_{i}"]["hours"] for i in range(1, 6)] for table in timetable
     }
     odd_tot = sum([sum(week) for week in odd.values()])
     even_tot = sum([sum(week) for week in even.values()])
-    table['roster'] = table.apply(lambda a: even_tot if a['weekno'] % 2 == 0 else odd_tot, axis=1)
+    table["roster"] = table.apply(lambda a: even_tot if a["weekno"] % 2 == 0 else odd_tot, axis=1)
 
     # Leaves
-    simplicate_leaves = simplicate().leave({'start_date': str(last_week)})
+    simplicate_leaves = simplicate().leave({"start_date": str(last_week)})
     leave_list = []
 
     for leave in simplicate_leaves:
-        start_day = leave['start_date'].split()[0]
-        hours = -leave['hours']
+        start_day = leave["start_date"].split()[0]
+        hours = -leave["hours"]
         while hours:
             to_add = min(hours, 8)  # Technisch niet 100% correct maar we smeren langer verlof uit als 8 uur per werkdag
-            leave_list += [{
-                'day': start_day,
-                'week': int(datetime.strptime(start_day, DATE_FORMAT).strftime('%W')),
-                'hours': to_add,
-                'employee': leave['employee']['name']
-            }]
+            leave_list += [
+                {
+                    "day": start_day,
+                    "week": int(datetime.strptime(start_day, DATE_FORMAT).strftime("%W")),
+                    "hours": to_add,
+                    "employee": leave["employee"]["name"],
+                }
+            ]
             start_day = str(Day(start_day).next_weekday())
             hours -= to_add
     leaves = pd.DataFrame(leave_list)
-    leave_hours_per_week = leaves.groupby(['week']).sum(['hours'])
+    leave_hours_per_week = leaves.groupby(["week"]).sum(["hours"])
 
     def get_leave_hours_for_week(row):
-        weekno = int(row['weekno'])
+        weekno = int(row["weekno"])
         if weekno in leave_hours_per_week.index:
-            return leave_hours_per_week.at[weekno, 'hours']
+            return leave_hours_per_week.at[weekno, "hours"]
         return 0
 
-    table['leaves'] = table.apply(get_leave_hours_for_week, axis=1)
+    table["leaves"] = table.apply(get_leave_hours_for_week, axis=1)
 
     # Filled
-    table['filled'] = table.apply(lambda row: int(100 * row['plannedhours'] / (row['roster'] - row['leaves'])), axis=1)
-    table['monday'] = table.apply(
+    table["filled"] = table.apply(lambda row: int(100 * row["plannedhours"] / (row["roster"] - row["leaves"])), axis=1)
+    table["monday"] = table.apply(
         lambda row: datetime.strptime(f'{int(row["year"])}-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT),
         axis=1,
     )
-    res = table[['monday', 'filled']].to_dict('records')
+    res = table[["monday", "filled"]].to_dict("records")
     return res
 
 
@@ -357,27 +353,27 @@ def omzet_per_klant_laatste_zes_maanden():
     result = winst_per_klant(datetime.now() + timedelta(days=-183))
 
     # Nieuw dataframe met alleen de juiste kolommen
-    data = [result['customer'], result['turnover hours'] + result['turnover fixed']]
-    headers = ['klant', 'omzet']
+    data = [result["customer"], result["turnover hours"] + result["turnover fixed"]]
+    headers = ["klant", "omzet"]
     df = pd.concat(data, axis=1, keys=headers)
 
     # Percentages per klant
-    totaal = df['omzet'].sum()
-    df['percentage'] = df['omzet'] * 100.0 / totaal
+    totaal = df["omzet"].sum()
+    df["percentage"] = df["omzet"] * 100.0 / totaal
     return df.sort_values(by="omzet", ascending=False)
 
 
 def simplicate_gefactureerd(tm_maand=12):
     sim = simplicate()
-    params = {'from_date': Day('2021-01-01').str, 'until_date': Day().str}
+    params = {"from_date": Day("2021-01-01").str, "until_date": Day().str}
     inv = sim.invoice(params)
     inv_df = sim.to_pandas(inv)
-    invs = inv_df[['invoice_number', 'total_excluding_vat', 'status_name', 'organization_name', 'project_name', 'date']]
-    return decimal.Decimal(invs['total_excluding_vat'].sum())
+    invs = inv_df[["invoice_number", "total_excluding_vat", "status_name", "organization_name", "project_name", "date"]]
+    return decimal.Decimal(invs["total_excluding_vat"].sum())
 
 
-if __name__ == '__main__':
-    os.chdir('..')
+if __name__ == "__main__":
+    os.chdir("..")
 
     vulling_van_de_planning()
     print(simplicate_gefactureerd())
