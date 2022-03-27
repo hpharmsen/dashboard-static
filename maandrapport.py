@@ -203,7 +203,7 @@ def hours_block(year, month):
                         width=60 * month,
                         height=150,
                         colors=["#ddeeff"],
-                        bottom_labels=[MAANDEN[m] for m in range(month)],
+                        series_labels=[MAANDEN[m] for m in range(month)],
                         y_axis_max_ticks=5,
                     ),
                 ),

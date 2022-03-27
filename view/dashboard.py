@@ -6,12 +6,13 @@ from numpy import ceil
 
 from layout.basic_layout import DEF_SIZE, MID_SIZE, HEADER_SIZE
 from layout.block import TextBlock, Page, VBlock, HBlock
-from layout.chart import StackedBarChart, ScatterChart, ChartConfig
+from layout.chart import StackedBarChart, ScatterChart, ChartConfig, LineChart
 from layout.table import Table, TableConfig
 from middleware.trendline import TrendLines
 from model import log
 from model.caching import load_cache
 from model.finance import debiteuren_30_60_90_yuki
+from model.marketing import Marketing
 from model.organisatie import (
     aantal_mensen,
     aantal_fte,
@@ -33,28 +34,101 @@ from settings import (
     RED,
     BLACK,
     GRAY,
-    dependent_color,
+    dependent_color, BLUE
 )
 from view.operations import kpi_block, operations_data
 from view.travelbase import scatterchart as travelbase_scatterchart
 
 
 def render_dashboard(output_folder):
-    page = Page([HBlock([commerce_block(), operations_block(), finance_block(), hr_block()])])
+    page = Page([HBlock([sales_block(), marketing_block(), operations_block(), finance_block(), hr_block()])])
     page.render(output_folder / "dashboard.html")
 
 
-######### Kolom 1: Commerce ###########
+######### Kolom 1: Marketing ###########
 
 
-def commerce_block():
-    minimal_interesting_amount = 20000
+def marketing_block():
+    sheet = Marketing("Oberon - Budget + KPI's", "KPIs voor MT", 1, 1)
+    marketing_link = 'https://docs.google.com/spreadsheets/d/1eKR3Ez1SYOt_wAlTXGcxcVyH_d4GHTq76CKJM3Dyxqc/edit#gid=1965783742'
+    new_business_link = 'https://docs.google.com/spreadsheets/d/1eKR3Ez1SYOt_wAlTXGcxcVyH_d4GHTq76CKJM3Dyxqc/edit#gid=1979554936'
+    marketing = VBlock(
+        [
+            TextBlock("Marketing", HEADER_SIZE),
+            TextBlock("Resultaten", MID_SIZE, padding=10),
+            TextBlock(f'Bijgewerkt t/m {sheet.column_headers[-1]}', color=GRAY),
+            marketing_results_chart(sheet),
+            TextBlock("Investering", MID_SIZE, padding=10),
+            marketing_expenses_chart(sheet),
+            TextBlock("KPI's", MID_SIZE, padding=10),
+            HBlock(
+                [
+                    VBlock(
+                        [
+                            TextBlock(kpi, DEF_SIZE, padding=5, color=GRAY),
+                            HBlock([
+                                TextBlock(sheet.total(kpi), MID_SIZE, padding=8),
+                                TextBlock(f'  (+{sheet.last(kpi)})', DEF_SIZE, padding=15)
+                            ]),
+                        ], link=new_business_link
+                    ) for kpi in ['MQL', 'SQL', 'RFP']
+                ]
+            ),
+            TextBlock(""),  # Todo: verticale marge mogelijk maken
+        ], link=marketing_link)
+    return marketing
+
+
+def marketing_results_chart(sheet):
+    width = 300
+    height = 200
+    series_labels = ['Bereik', 'Traffic']
+    series = [sheet.kpi_row(label) for label in series_labels]
+    config = ChartConfig(
+        width=width,
+        height=height,
+        colors=[BLUE, GREEN],
+        labels=[h.split('.')[0] for h in sheet.column_headers],
+        series_labels=series_labels,
+        y_axis_max_ticks=5,
+        y_axes_placement=['left', 'right'],
+        tension=0
+    )
+    chart = LineChart(series, config)
+    chart.canvas_height_difference = 50
+    return chart
+
+
+def marketing_expenses_chart(sheet):
+    width = 300
+    height = 200
+    series_labels = ['€ Totaal', 'Uren marketing intern']
+    series = [sheet.kpi_row(label) for label in series_labels]
+    config = ChartConfig(
+        width=width,
+        height=height,
+        colors=[RED, ORANGE],
+        labels=[h.split('.')[0] for h in sheet.column_headers],
+        series_labels=['Uitgaven', 'Uren'],
+        y_axis_max_ticks=5,
+        y_axes_placement=['left', 'right'],
+        tension=0
+    )
+    chart = LineChart(series, config)
+    chart.canvas_height_difference = 50
+    return chart
+
+
+######### Column 2: Sales
+
+def sales_block():
+    minimal_interesting_amount = 25000
     sales_waarde_value = sales_waarde()
     top_sales = top_x_sales(minimal_amount=minimal_interesting_amount)
     sales_waarde_color = dependent_color(sales_waarde_value, 250000, 350000)
-    commerce = VBlock(
+    sales = VBlock(
         [
-            TextBlock("Commerce", HEADER_SIZE),
+            TextBlock("Sales", HEADER_SIZE),
             TextBlock("Saleswaarde", MID_SIZE, padding=10),
             TextBlock(
                 "Verwachte omzet maal kans van alle actieve<br/>salestrajecten.",
@@ -81,12 +155,10 @@ def commerce_block():
                     ),
                 ],
                 link="sales.html",
-            ),
-            # klanten_block()
-            travelbase_block(),
+            )
         ]
     )
-    return commerce
+    return sales
 
 
 def klanten_block():
@@ -125,7 +197,7 @@ def travelbase_block():
     )
 
 
-######### Kolom 2: Operations ###########
+######### Kolom 3: Operations ###########
 
 
 def operations_block():
@@ -159,7 +231,7 @@ def operations_chart():
         max_y_axis=100,
         # y_axis_max_ticks=10,
         labels=["% billlable", "% effectief maar niet billable"],
-        bottom_labels=week_numbers,
+        series_labels=week_numbers,
     )
     return StackedBarChart(chartdata, chart_config)
 
@@ -259,7 +331,7 @@ def corrections_block():
     return result
 
 
-######### Kolom 3: Finance ###########
+######### Kolom 4: Finance ###########
 
 
 def finance_block():
@@ -369,7 +441,7 @@ def omzet_chart():
     x_start = x_end.plus_months(-6)
     return VBlock(
         [
-            TextBlock("Omzet"),
+            TextBlock("Omzet", MID_SIZE),
             TextBlock("per week, laatste 6 maanden...", DEF_SIZE, color=GRAY),
             TrendLines().chart(
                 "omzet_per_week",
@@ -417,7 +489,7 @@ def cash_block():
     )
 
 
-######### Kolom 4: HR ###########
+######### Kolom 5: HR ###########
 
 
 def hr_block():
@@ -428,6 +500,7 @@ def hr_block():
             tevredenheid_block(),
             verzuim_block(),
             # vakantiedagen_block(),
+            travelbase_block(),
             error_block(),
         ]
     )
@@ -458,7 +531,7 @@ def team_block():
                         ]
                     ),
                 ]
-            ),
+            )
         ]
     )
 

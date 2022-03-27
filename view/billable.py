@@ -28,7 +28,7 @@ def render_billable_page(output_folder: Path):
                 width=400,
                 height=220,
                 colors=['#ddeeff'],
-                bottom_labels=labels,
+                series_labels=labels,
                 max_y_axis=40,
                 y_axis_max_ticks=5,
             ),

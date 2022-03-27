@@ -1,7 +1,8 @@
 import os
-from settings import get_output_folder
+
 from layout.basic_layout import MID_SIZE, HEADER_SIZE
 from layout.block import VBlock, TextBlock, Page
+from layout.chart import LineChart, ChartConfig
 from model.resultaat_vergelijking import (
     omzet_per_maand,
     omzet_begroot_per_maand,
@@ -11,7 +12,7 @@ from model.resultaat_vergelijking import (
     winst_vorig_jaar_per_maand,
     MAANDEN,
 )
-from layout.chart import LineChart, ChartConfig
+from settings import get_output_folder
 
 
 def render_resultaat_vergelijking_page():
@@ -26,7 +27,7 @@ def render_resultaat_vergelijking_page():
                     height=600,
                     labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                     colors=['#4285f4', '#f4b400', '#db4437'],
-                    bottom_labels=['Omzet', 'Omzet begroot', 'Omzet vorig jaar'],
+                    series_labels=['Omzet', 'Omzet begroot', 'Omzet vorig jaar'],
                 ),
             ),
         ]
@@ -42,7 +43,7 @@ def render_resultaat_vergelijking_page():
                     height=600,
                     labels=MAANDEN,
                     colors=['#4285f4', '#f4b400', '#db4437'],
-                    bottom_labels=['Winst', 'Winst begroot', 'Winst vorig jaar'],
+                    series_labels=['Winst', 'Winst begroot', 'Winst vorig jaar'],
                 ),
             ),
         ]

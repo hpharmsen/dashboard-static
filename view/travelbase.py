@@ -74,7 +74,7 @@ def bar_chart(data, width, height):
         max_y_axis=max_value,
         y_axis_max_ticks=5,
         labels=BRANDS,
-        bottom_labels=data['week'].tolist(),
+        series_labels=data['week'].tolist(),
     )
     return StackedBarChart(chartdata, chart_config)
 

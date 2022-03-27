@@ -1,3 +1,4 @@
+import math
 import os
 from functools import lru_cache
 
@@ -30,15 +31,16 @@ def ohw_sum(day: Day, minimal_intesting_value: int):
     return total_ohw
 
 
-@cache(hours=1)
+# @cache(hours=1)
 def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> DataFrame:
-    """ OHW is calculated including work and invoices of the specified day """
+    """OHW is calculated including work and invoices of the specified day"""
     sim = simplicate()
+    pd.options.mode.chained_assignment = None
 
     # Nieuwe methode:
     # 1. Alle active projecten en de diensten daarvan
     service_df = simplicate_projects_and_services(sim, day)  # todo: kan dit niet uit middleware?
-    # service_df = service_df.query('project_number=="VHC-1"')
+    #service_df = service_df.query('project_number=="TEX-2" | project_number=="TUI-4"')
 
     # 2. Omzet -/- correcties berekenen
     service_ids = service_df["service_id"].tolist()
@@ -69,13 +71,10 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
     # 4. Facturatie
     service_invoiced = invoiced_by_date(day)
 
-    def get_invoiced(row):
-        invoiced = service_invoiced.get(row["service_id"])
-        if not invoiced:
-            invoiced = service_invoiced.get(row["project_number"], 0)
-        return invoiced
+    def get_service_invoiced(row):
+        return service_invoiced.get(row["service_id"], 0)
 
-    service_df["invoiced"] = service_df.apply(get_invoiced, axis=1).astype(int)
+    service_df["invoiced"] = service_df.apply(get_service_invoiced, axis=1).astype(int)
 
     # 5. Onderhanden werk berekenen
     service_df["service_ohw"] = service_df["turnover"] + service_df["service_costs"] - service_df["invoiced"]
@@ -83,12 +82,22 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
 
     # Group by project either to return projects or to be able to sort the services by project OHW
     project_df = (
-        service_df.groupby(["organization", "pm", "project_number", "project_name", "project_costs"])
+        service_df.groupby(["organization", "pm", "project_number", "project_name", "project_costs", "project_id"])
             .agg({"turnover": "sum", "invoiced": "sum", "service_costs": "sum"})
             .reset_index()
     )
+
+    def get_project_invoiced(row):
+        res = service_invoiced.get(row["project_number"], 0)
+        if math.isnan(res):
+            res = 0
+        return res
+
+    project_df["project_invoiced"] = project_df.apply(get_project_invoiced, axis=1).astype(int)
+
     project_df["project_ohw"] = (
-            project_df["turnover"] + project_df["service_costs"] + project_df["project_costs"] - project_df["invoiced"]
+            project_df["turnover"] + project_df["service_costs"] - project_df["invoiced"] + project_df[
+        'project_costs'] - project_df['project_invoiced']
     )
 
     if group_by_project:
@@ -98,6 +107,28 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
     else:
         if service_df.empty:
             return project_df
+
+        # Als er kosten direct op het project zijn geboekt of facturen direct op het project, voeg dan een extra 'service' toe
+        for index, project in project_df.iterrows():
+            invoiced = project['project_invoiced']
+            if math.isnan(invoiced):
+                invoiced = 0
+            costs = project.get('project_costs', 0)
+            if math.isnan(costs):
+                costs = 0
+            if project['project_number'] == 'SM2022':
+                project_df.at[index, 'project_invoiced'] -= 17575  # Hack, dit zijn uren die zijn meegenomen uit 2021
+                project_df.at[index, "project_ohw"] -= 17575
+            if invoiced or costs:
+                new_row = {'project_id': project['project_id'], 'project_number': project['project_number'],
+                           'project_name': project['project_name'], 'turnover': 0, 'invoiced': 0, 'project_costs': 0,
+                           'service_name': 'Kosten/facturen direct op het project', 'service_costs': costs,
+                           'invoiced': invoiced, 'service_ohw': costs - invoiced,
+                           'organization': project['organization'],
+                           'pm': project['pm'], 'project_costs': project['project_costs']}
+                new_row = {key: [value] for key, value in new_row.items()}  # Make values into lists instead of scalars
+                service_df = pd.concat([service_df, pd.DataFrame(new_row)], ignore_index=True)
+
         # Sort services by the total owh of their project
         project_ohws = {p["project_number"]: p["project_ohw"] for _, p in project_df.iterrows()}
         service_df["project_ohw"] = service_df.apply(lambda row: project_ohws.get(row["project_number"], 0), axis=1)
@@ -107,6 +138,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
             )
         project_df = service_df.sort_values(by="project_ohw", ascending=False)
 
+    pd.options.mode.chained_assignment = 'warn'
     return project_df
 
 
@@ -139,11 +171,12 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     services = (
         sim.to_pandas(services_json)
             .query(status_query)[
-            ["project_id", "status", "id", "name", "start_date", "end_date", "invoice_method", "service_costs", "price"]]
+            ["project_id", "status", "id", "name", "start_date", "end_date", "invoice_method", "service_costs", "price"]
+        ]
             .rename(columns={"id": "service_id", "name": "service_name"})
     )  # end_date > "{date}" &
 
-    #services = services.query('project_id=="project:d0a9e6f705c4629dfeaad60b7a7437df"')
+    # services = services.query('project_id=="project:d0a9e6f705c4629dfeaad60b7a7437df"')
 
     # Same with the list of projects
     projects_json = sim.project({"status": "tab_pactive"})
@@ -154,13 +187,12 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
         "project_manager_name": "pm",
         "organization_name": "organization",
     }
-    project_query = (
-        'organization_name not in ["Oberon","Travelbase"] & my_organization_profile_organization_name in["Oberon","Travelbase"]'
-    )
+    project_query = 'organization_name not in ["Oberon","Travelbase"] & my_organization_profile_organization_name in["Oberon","Travelbase"]'
     projects = (
         sim.to_pandas(projects_json)
             .query(project_query)[
-            ["id", "project_number", "name", "organization_name", "project_manager_name", "budget_costs_value_spent"]]
+            ["id", "project_number", "name", "organization_name", "project_manager_name", "budget_costs_value_spent"]
+        ]
             .rename(columns=project_renames)
     )
 
@@ -171,10 +203,10 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
 
 @cache(hours=4)
 def invoiced_by_date(day: Day):
-    period = Period('2021-01-01', day)
+    period = Period("2021-01-01", day)
     invoice = Invoice()
     invoiced = invoice.invoiced_per_service(period)
-    return {i['service_id']: i['invoiced'] for i in invoiced}
+    return {i["service_id"]: i["invoiced"] for i in invoiced}
 
 
 # @cache(hours=4)

@@ -22,7 +22,7 @@ class ChartConfig(NamedTuple):
     colors: List = []
     bg_color: str = '#ffffff'
     link: str = None
-    bottom_labels: List = []  # for Bar, StackedBar and Line
+    series_labels: List = []  # for Bar, StackedBar and Line
     data_labels: List = []  # Labels for in the chart itself. Currently only implemented for StackedBarChart
     max_x_axis: float = None  # Currently only for StackedBarChart and ScatterChart
     min_x_axis: float = None  # Currently only for ScatterChart
@@ -34,6 +34,8 @@ class ChartConfig(NamedTuple):
     x_axis_font_size: int = 0
     y_axis_max_ticks: int = 0
     y_axis_font_size: int = 0
+    y_axes_placement: list = ['left']  # For each series either the left or the right y_axes is used
+    tension: float = 0  # How smooth the (line) chart is 1 is very (extremely) smooth
     padding: int = 40  # distance to next object
     css_class: str = ''
 
@@ -145,14 +147,14 @@ class BarChart(Chart):
 
         colors = config.colors * len(values) if len(config.colors) == 1 else config.colors
         # self.datasets = '['
-        # for label, value, color in zip(config.bottom_labels, values, config.colors):
+        # for label, value, color in zip(config.series_labels, values, config.colors):
         self.datasets = f'''[{{
                                 label: "",
                                 data: {values},
                                 backgroundColor: {colors}
                               }}]'''
         # self.datasets = self.datasets[:-1] + ']'
-        self.labels = config.bottom_labels
+        self.labels = config.series_labels
         self.options = f'''{{
             title: {{
                 display: false
@@ -200,7 +202,7 @@ class StackedBarChart(Chart):
         width=300, height=200,
         colors=['#66cc66','#cc6666'],
         min_y_axis=0, max_y_axis=100, y_axis_max_ticks=10,
-        labels=['Salaries', 'Housing'], bottom_labels=month_names)
+        labels=['Salaries', 'Housing'], series_labels=month_names)
     '''
 
     def __init__(self, values, config):
@@ -226,9 +228,9 @@ class StackedBarChart(Chart):
                                     datalabels: {dls} 
                                   }},'''
         self.datasets = self.datasets[:-1] + ']'
-        bottom_labels = config.bottom_labels if config.bottom_labels else [config.title]
-        bottom_label_string = "', '".join([str(bl) for bl in bottom_labels])
-        self.labels = f"['{bottom_label_string}']"
+        series_labels = config.series_labels if config.series_labels else [config.title]
+        series_label_string = "', '".join([str(bl) for bl in series_labels])
+        self.labels = f"['{series_label_string}']"
         ticks = f',ticks: {{max: {config.max_y_axis}}}' if config.max_y_axis else ''
         self.options = f'''{{
                 title: {{
@@ -266,16 +268,37 @@ class LineChart(Chart):
 
         self.type = 'line'
         self.datasets = '['
-        for label, value, color in zip(config.bottom_labels, values, config.colors):
+        for label, value, color in zip(config.series_labels, values, config.colors):
             self.datasets += f'''{{
                                     label: '{label}',
+                                    yAxisID: '{label}',
                                     data: {value},
+                                    tension: {config.tension},
+                                    pointRadius: 0,
                                     backgroundColor: '{color}', 
                                     borderColor: '{color}',
+                                    borderWidth: 2,
                                     fill: false, 
                                   }},'''
         self.datasets = self.datasets[:-1] + ']'
-        # self.labels = config.labels
+
+        y_axes_placement = config.y_axes_placement + ['left'] * (len(values) - len(config.y_axes_placement))
+        y_axes_config = '['
+        for index, label in enumerate(config.series_labels):
+            y_axes_config += f'''
+                {{
+                    id: '{label}',
+                    type: 'linear',
+                    position: '{y_axes_placement[index]}',
+                    min: 0,
+                    ticks: {{
+                        {self.y_axis_max_ticks}
+                        {self.y_axis_font_size}
+                        {self.ymin}
+                        {self.ymax}
+                    }}
+                }},'''
+        y_axes_config = y_axes_config[:-1] + ']'
 
         self.options = f'''{{
                 title: {{
@@ -292,14 +315,7 @@ class LineChart(Chart):
                     categoryPercentage: 0.9,
                     barPercentage: 0.9
                 }}],
-                yAxes: [{{
-                    ticks: {{
-                        {self.y_axis_max_ticks}
-                        {self.y_axis_font_size}
-                        {self.ymin}
-                        {self.ymax}
-                    }}
-                }}]
+                yAxes: {y_axes_config}
             }}
         }}'''
 
