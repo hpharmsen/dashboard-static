@@ -101,13 +101,13 @@ class HeaderSheet:
         self.data = defaultdict(dict)
         column_headers = self.raw_data[header_row - 1]
         for row in self.raw_data[header_row:]:
-            row_header = row[header_col - 1]
+            row_header = row[header_col - 1].strip()
             if not row_header:
                 continue
             for idx, value in enumerate(row):
                 if idx < header_col:
                     continue  # Header, hadden we al
-                column_header = column_headers[idx]
+                column_header = column_headers[idx].strip()
                 if not column_header:
                     continue
                 self.data[row_header][column_header] = value
@@ -116,7 +116,7 @@ class HeaderSheet:
     def __getitem__(self, key):
         row, col = key
         try:
-            return self.data[row][col]
+            return self.data[row.strip()][col.strip()]
         except IndexError:
             return None
 

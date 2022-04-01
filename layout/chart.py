@@ -37,6 +37,7 @@ class ChartConfig(NamedTuple):
     y_axes_placement: list = ['left']  # For each series either the left or the right y_axes is used
     tension: float = 0  # How smooth the (line) chart is 1 is very (extremely) smooth
     padding: int = 40  # distance to next object
+    show_legend: bool = True  # Set to False to hide legend in pie charts or line charts
     css_class: str = ''
 
 
@@ -126,6 +127,7 @@ class PieChart(Chart):
                 responsive: true,
                 legend: {{
                     position: 'top',
+                    display: '{str(config.show_legend).lower()}'
                 }},
                 title: {{
                     display: false
@@ -301,9 +303,13 @@ class LineChart(Chart):
         y_axes_config = y_axes_config[:-1] + ']'
 
         self.options = f'''{{
-                title: {{
-                    display: false
-                }},
+            title: {{
+                display: false
+            }},
+            legend: {{
+                position: 'top',
+                display: {str(config.show_legend).lower()}
+            }},
             scales: {{
                 xAxes: [{{
                     ticks: {{

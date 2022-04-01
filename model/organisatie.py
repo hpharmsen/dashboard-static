@@ -4,10 +4,11 @@ from datetime import datetime
 
 import pandas as pd
 
+import middleware.middleware_utils
 from middleware.timesheet import Timesheet
 from model.caching import cache
 from model.utilities import fraction_of_the_year_past, Period, Day
-from sources.googlesheet import sheet_tab, sheet_value
+from sources.googlesheet import sheet_tab, sheet_value, HeaderSheet
 from sources.simplicate import simplicate
 
 FTE_SHEET = 'Begroting 2020'
@@ -16,16 +17,16 @@ FTE_ROW = 30
 FTE_START_COL = 4
 
 
-@cache(hours=168)
+# @cache(hours=168)
 def aantal_mensen(hours=168):
-    tab = sheet_tab('Contracten werknemers', 'stats')
-    return sheet_value(tab, 2, 6)
+    tab = HeaderSheet('Contracten werknemers', 'stats')
+    return tab['Mensen', 'Totaal']
 
 
-@cache(hours=168)
+#@cache(hours=168)
 def aantal_fte():
-    tab = sheet_tab('Contracten werknemers', 'stats')
-    return sheet_value(tab, 3, 6)
+    tab = HeaderSheet('Contracten werknemers', 'stats')
+    return tab['FTE', 'Totaal'], tab['Direct FTE', 'Totaal']
 
 
 @cache(hours=168)
@@ -119,8 +120,28 @@ def vrije_dagen_pool():
     return vrije_dagen_overschot / FTEs
 
 
+# @cache(hours=24)
+def booked_days_before_noon(period: Period):
+    db = middleware.middleware_utils.get_middleware_db()
+    fromday = period.fromday.last_monday()
+    untilday = period.untilday.last_monday() if period.untilday else Day().last_monday()
+    query = f'''
+        select year, week, count(*) as aantal from (
+            select `day`, `week`, `year`, employee, sum(hours) as tot_hours
+            from timesheet
+            where day>='{fromday}' and day < '{untilday}' and
+                  (DATEDIFF(DATE(created_at), DATE(`day`)) = 0 or 
+                  (DATEDIFF(DATE(created_at), DATE(`day`)) = 1 and TIME(created_at) <= '12:00:00'))
+            group by `day`, employee
+            having tot_hours>=7
+            order by employee) q1
+        group by year, week
+        order by year, week'''
+    results = db.query(query)
+    return results
+
+
 if __name__ == '__main__':
     os.chdir('..')
-    period = Period(Day().plus_days(-10))
-    print(verzuim_list(period))
-    # print(verzuim_list2(period))
+    m = Day().last_monday()
+    b = booked_days_before_noon(Period('2022-01-01'))

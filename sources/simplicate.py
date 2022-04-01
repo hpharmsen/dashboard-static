@@ -76,6 +76,7 @@ def flatten_hours_data(data):
                 "status", "projectmanager_approved"
             ),  # Dat status niet ingevuld is, kan waarschijnlijk alleen bij mijn eigen uren
             "corrections": d["corrections"]["amount"],
+            "created_at": d["created_at"]
         }
 
     result = [convert(d) for d in data]

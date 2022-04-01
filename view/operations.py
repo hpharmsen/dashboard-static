@@ -2,9 +2,14 @@ import datetime
 import os
 from pathlib import Path
 
-from layout.basic_layout import HEADER_SIZE
-from layout.block import Page, TextBlock
+from layout.basic_layout import HEADER_SIZE, DEF_SIZE, MID_SIZE
+from layout.block import Page, TextBlock, VBlock, HBlock
+from layout.chart import ChartConfig, StackedBarChart, ScatterChart
+from layout.table import Table, TableConfig
 from maandrapport import HoursData, kpi_grid
+from middleware.trendline import TrendLines
+from model.productiviteit import corrections_percentage, largest_corrections
+from model.resultaat import vulling_van_de_planning
 from model.utilities import Day, Period
 from settings import (
     dependent_color,
@@ -12,7 +17,7 @@ from settings import (
     EFFECTIVITY_GREEN,
     get_output_folder,
     CORRECTIONS_RED,
-    CORRECTIONS_GREEN,
+    CORRECTIONS_GREEN, GREEN, RED, GRAY,
 )
 
 
@@ -58,20 +63,24 @@ from settings import (
 
 
 def render_operations_page(output_folder: Path, year: int = None):
-    weeks = 20
     if year:
         # Use given year. Create page with year name in it
         html_page = f'operations {year}.html'
+        weeks = 52
+        description = f"Belangrijkste KPI's over {year}"
+        total_period = Period(f'{year}-01-01', f'{year + 1}-01-01')
     else:
         # Use the current year (default)
         year = int(datetime.datetime.today().strftime('%Y'))
         html_page = 'operations.html'
-    total_period = Period(f'{year}-01-01', f'{year + 1}-01-01')
+        weeks = min(Day().week_number(), 20)
+        description = f"Belangrijkste KPI's per week de afgelopen {weeks} weken"
+        total_period = Period(f'{year}-01-01', Day())
     page = Page(
         [
             TextBlock('Operations KPI' 's', HEADER_SIZE),
             TextBlock(
-                f"Belangrijkste KPI's per week de afgelopen {weeks} weken",
+                description,
                 color="gray",
             ),
             kpi_block(weeks=weeks, total_period=total_period, total_title='YTD'),
@@ -107,6 +116,121 @@ def operations_data(weeks, total_period=None, total_title=''):
         headers += ['', total_title]
         hours_data += [None, HoursData(total_period)]
     return headers, hours_data
+
+
+def operations_chart():
+    width = 300
+    height = 200
+    week_numbers, hours_data = operations_data(10)
+    billable = [round(h.billable_perc(), 1) for h in hours_data]
+    effective_delta = [round(h.effectivity() - h.billable_perc(), 1) for h in hours_data]
+    chartdata = [billable, effective_delta]
+    chart_config = ChartConfig(
+        width=width,
+        height=height,
+        colors=[GREEN, RED],
+        min_y_axis=0,
+        max_y_axis=100,
+        # y_axis_max_ticks=10,
+        labels=["% billlable", "% effectief maar niet billable"],
+        series_labels=week_numbers,
+    )
+    return StackedBarChart(chartdata, chart_config)
+
+
+def months_ago(number):
+    return Day().plus_months(-number).str
+
+
+def billable_chart():
+    months_back = 3
+    return VBlock(
+        [
+            TextBlock(
+                f"Billable, hele team, laatste {months_back} maanden",
+                DEF_SIZE,
+                color=GRAY,
+            ),
+            TrendLines().chart("billable_hele_team", 250, 150, x_start=months_ago(months_back)),
+        ]
+    )
+
+
+def planning_chart():
+    # Vulling van de planning uit de planning database
+    vulling = vulling_van_de_planning()
+    if not vulling:
+        return TextBlock("Kon de planning niet ophalen", color=RED)
+    xy_values = [{"x": a["monday"], "y": a["filled"]} for a in vulling]
+    return VBlock(
+        [
+            TextBlock("Planning", MID_SIZE),
+            TextBlock(
+                f"Percentage gevuld met niet interne projecten<br/>de komende {len(xy_values)} weken.",
+                color=GRAY,
+            ),
+            ScatterChart(
+                xy_values,
+                ChartConfig(
+                    width=250,
+                    height=150,
+                    colors=["#6666cc", "#ddeeff"],
+                    x_type="int",
+                    min_x_axis=xy_values[0]["x"],
+                    max_x_axis=xy_values[-2]["x"],
+                    min_y_axis=0,
+                    max_y_axis=100,
+                ),
+            ),
+        ]
+    )
+
+
+def corrections_block():
+    weeks_back = 4
+    interesting_correction = 8
+    end_day = Day().plus_days(-2).last_monday()  # Wednesday gives the last monday, Monday and Tuesday the week before
+    start_day = end_day.plus_weeks(-weeks_back)
+    period = Period(start_day, end_day)
+
+    def corrections_percentage_coloring(value):
+        return dependent_color(value, red_treshold=5, green_treshold=3)
+
+    def project_link(_, fullline):
+        return f"https://oberon.simplicate.com/projects/{fullline[0]}/hours"
+
+    result = VBlock(
+        [
+            TextBlock("Correcties", MID_SIZE),
+            HBlock(
+                [
+                    TextBlock(
+                        corrections_percentage(period),
+                        MID_SIZE,
+                        text_format="%",
+                        color=corrections_percentage_coloring,
+                    ),
+                    TextBlock(
+                        f"correcties op productieve uren van<br/> week {period.fromday.week_number()} "
+                        + f"tot en met week {period.untilday.plus_days(-1).week_number()}.",
+                        color=GRAY,
+                    ),
+                ],
+                padding=70,
+            ),
+            Table(
+                largest_corrections(interesting_correction, period),
+                TableConfig(
+                    headers=[],
+                    aligns=["left", "left", "right"],
+                    hide_columns=[0],
+                    row_linking=project_link,
+                ),
+            ),
+        ],
+        link="corrections.html",
+    )
+    return result
 
 
 if __name__ == '__main__':

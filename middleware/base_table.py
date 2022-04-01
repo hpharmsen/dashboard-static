@@ -1,7 +1,7 @@
 from typing import Generator
 
-import pymysql
-import sqlalchemy
+from pymysql.err import OperationalError as PymysqlOperationalerror
+from sqlalchemy.exc import OperationalError as SqlalchemyOperationalerror, ProgrammingError
 
 from middleware.middleware_utils import get_middleware_db, panic
 
@@ -10,6 +10,7 @@ PROJECT_NUMBER = 'VARCHAR(10)'
 EMPLOYEE_NAME = 'VARCHAR(40)'
 HOURS = 'DECIMAL(6,2)'
 MONEY = 'DECIMAL(9,2)'
+SQL_ERRORS = (PymysqlOperationalerror, SqlalchemyOperationalerror, ProgrammingError)
 
 
 class BaseTable:
@@ -39,7 +40,7 @@ class BaseTable:
             try:
                 self.execute(
                     f"CREATE INDEX {self.table_name}_{field} ON {self.table_name} ({field.replace('__', ',')})")
-            except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
+            except SQL_ERRORS:
                 pass  # Index already existent
         self.commit()
 
@@ -70,21 +71,21 @@ class BaseTable:
     def first(self, query):
         try:
             return self.db.first(query)
-        except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
+        except SQL_ERRORS:
             panic('Lost connection to MySQL while executing query ' + query)
 
     def query(self, query) -> Generator:
         """ For running a select query """
         try:
             yield from self.db.query(query)
-        except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
+        except SQL_ERRORS:
             panic('Lost connection to MySQL while executing query ' + query)
 
     def execute(self, query, continue_on_error=False):
         """ For executing a sql command """
         try:
             return self.db.execute(query)
-        except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
+        except SQL_ERRORS:
             if continue_on_error:
                 return
             panic('Lost connection to MySQL while executing query ' + query)
@@ -92,7 +93,7 @@ class BaseTable:
     def select(self, table, conditions) -> Generator:
         try:
             yield from self.db.select(table, conditions)
-        except (pymysql.err.OperationalError, sqlalchemy.exc.OperationalError):
+        except SQL_ERRORS:
             panic('Lost connection to MySQL while executing select')
 
     def commit(self):

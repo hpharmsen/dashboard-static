@@ -5,7 +5,6 @@ import pandas as pd
 import requests
 
 from middleware.trendline import TrendLines
-from model.caching import cache
 from sources.database import get_travelbase_db, dataframe
 
 # STRUCTUUR:
@@ -34,7 +33,7 @@ from sources.database import get_travelbase_db, dataframe
 #
 # Boekingen in de view 'tickets' hebben alleen 'accepted' en 'waived' als mogelijke status.
 
-BRANDS = ['waterland', 'ameland', 'schier', 'texel']
+BRANDS = ['waterland', 'ameland', 'schier', 'texel', 'terschelling']
 GOOGLE_SHEETS_APP = (
     'https://script.google.com/macros/s/AKfycbyFjOJY2OaCHouEuPRtOYMzwv1vnoIaP1iEKWY27PNDuakt5IIrKoyCGlvbMUn16N0MmQ/exec'
 )
@@ -80,7 +79,7 @@ def get_bookings_per_week(booking_type: str = 'bookings', only_complete_weeks=Fa
     return all
 
 
-@cache(hours=6)
+# @cache(hours=6)
 def update_bookings_per_day(booking_type: str):
     db = get_travelbase_db()
     for brand in BRANDS:

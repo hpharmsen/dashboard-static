@@ -4,8 +4,9 @@
 import sys
 from pathlib import Path
 
-import pymysql
 from hplib import dbClass
+from pymysql.err import OperationalError as pymysql_OperationalError
+from sqlalchemy.exc import OperationalError as sqlalchemy_OperationalError
 
 middleware_db = None
 
@@ -16,7 +17,7 @@ def get_middleware_db():
         try:
             middleware_db = dbClass.from_inifile(scriptpath / '..' / 'sources' / 'credentials.ini',
                                                  section='aws-dashboard')
-        except pymysql.err.OperationalError:
+        except (pymysql_OperationalError, sqlalchemy_OperationalError):
             panic("middleware_utils.py get_middleware_db() Can't connect to MySQL server on AWS.")
 
     return middleware_db

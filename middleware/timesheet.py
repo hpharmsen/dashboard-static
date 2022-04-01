@@ -36,9 +36,11 @@ class Timesheet(BaseTable):
                turnover {MONEY} NOT NULL,
                corrections {HOURS} NOT NULL,
                corrections_value {MONEY} NOT NULL,
+               
+               created_at DATETIME NOT NULL,
             """
         self.primary_key = 'day, employee, service_id'
-        self.index_fields = "day employee project_number type updated year__week"
+        self.index_fields = "day employee project_number type updated year__week created_at"
         super().__init__()
         self.service_dict = None  # Hash table of all services. Used to lookup extra service data
         # try:
@@ -279,5 +281,6 @@ def hours_dataframe(period: Period):
 
 if __name__ == "__main__":
     timesheet_table = Timesheet()
-    timesheet_table.update(Day('2022-02-14'))
-    timesheet_table.correct_revenue_groups()
+    timesheet_table.repopulate()
+    # timesheet_table.update(Day('2022-02-14'))
+    # timesheet_table.correct_revenue_groups()

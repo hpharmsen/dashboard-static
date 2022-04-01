@@ -10,8 +10,9 @@ from layout.table import Table, TableConfig
 from model.travelbase import BRANDS, get_bookings_per_week
 from settings import get_output_folder
 
-CHART_COLORS = [['#6666cc', '#ddeeff'], ['#66cc66', '#eeffdd'], ['#cc6666', '#ffddee'], ['#ccc66', '#ffffdd']]
-BAR_COLORS = ['#6666cc', '#66cc66', '#cc6666', '#cccc66']
+CHART_COLORS = [['#6666cc', '#ddeeff'], ['#66cc66', '#eeffdd'], ['#cc6666', '#ffddee'], ['#ccc66', '#ffffdd'],
+                ['#cc66cc', '#ffddff']]
+BAR_COLORS = ['#6666cc', '#66cc66', '#cc6666', '#cccc66', '#cc66cc']
 
 
 def render_travelbase_page(output_folder):

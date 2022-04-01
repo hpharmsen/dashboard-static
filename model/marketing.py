@@ -23,6 +23,8 @@ class Marketing(HeaderSheet):
     def kpi_row(self, row_header: str):
         def normalize(value: str):
             value = value.replace('€ ', '').replace('.', '').replace(',', '.').strip()
+            if not value:
+                return 0
             try:
                 return int(value)
             except ValueError:
