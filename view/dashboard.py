@@ -46,7 +46,6 @@ def marketing_block():
 
 ######### Column 2: Sales
 
-
 def sales_block():
     sales_waarde_value = sales_waarde()
     sales_waarde_color = dependent_color(sales_waarde_value, 250000, 350000)
@@ -66,13 +65,12 @@ def sales_block():
                 tooltip="Som van openstaande trajecten<br/>maal hun kans.",
             ),
             TrendLines().chart("sales_waarde", 250, 150, min_y_axis=0, x_start=months_ago(6)),
-            sales_waarde_block()
+            sales_waarde_block(),
         ]
     )
 
 
 ######### Kolom 3: Operations ###########
-
 
 def operations_block():
     return VBlock(
@@ -103,8 +101,8 @@ def finance_block():
         ]
     )
 
-######### Kolom 5: HR ###########
 
+######### Kolom 5: HR ###########
 
 def hr_block():
     return VBlock(
@@ -113,8 +111,8 @@ def hr_block():
             team_block(),
             tevredenheid_block(),
             verzuim_block(),
-            TextBlock('Uren boeken', MID_SIZE),
-            TextBlock('Aantal dagen volledig geboekt voor 12:00', DEF_SIZE, color=GRAY),
+            TextBlock("Uren boeken", MID_SIZE),
+            TextBlock("Percentage dagen dat volledig is geboekt voor 12:00", DEF_SIZE, color=GRAY),
             booked_before_noon_chart(250, 200),
             # vakantiedagen_block(),
             travelbase_block(),
@@ -137,7 +135,6 @@ def travelbase_block():
         ],
         link="travelbase.html",
     )
-
 
 
 def error_block():

@@ -1,8 +1,10 @@
 import os
 import sys
+import time
 from collections import defaultdict
 
 import gspread  # https://github.com/burnash/gspread
+from google.auth.transport import requests
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2.service_account import Credentials
 
@@ -41,14 +43,18 @@ def get_spreadsheet(sheet_name):
         gc = gspread.Client(auth=scoped_credentials)
         gc.session = AuthorizedSession(scoped_credentials)
 
-        try:
-            sheet = gc.open(sheet_name)
-        except gspread.exceptions.SpreadsheetNotFound:
-            log.log_error("googlesheet.py", "get_spreasheeet()", "Could not find " + sheet_name)
-            return None
-        except gspread.exceptions.APIError:
-            log.log_error("googlesheet.py", "get_spreasheeet()", "Could not open " + sheet_name)
-            return None
+        for attempt in range(3):
+            try:
+                sheet = gc.open(sheet_name)
+                break
+            except gspread.exceptions.SpreadsheetNotFound:
+                log.log_error("googlesheet.py", "get_spreasheeet()", "Could not find " + sheet_name)
+                return None
+            except gspread.exceptions.APIError:
+                log.log_error("googlesheet.py", "get_spreasheeet()", "Could not open " + sheet_name)
+                return None
+            except requests.exceptions.ReadTimeout:
+                time.sleep(1)
         SHEETS[sheet_name] = sheet
     return SHEETS[sheet_name]
 

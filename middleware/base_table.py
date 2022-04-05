@@ -1,16 +1,12 @@
 from typing import Generator
 
-from pymysql.err import OperationalError as PymysqlOperationalerror
-from sqlalchemy.exc import OperationalError as SqlalchemyOperationalerror, ProgrammingError
-
-from middleware.middleware_utils import get_middleware_db, panic
+from middleware.middleware_utils import get_middleware_db, panic, SQL_ERRORS
 
 SIMPLICATE_ID = 'VARCHAR(50)'
 PROJECT_NUMBER = 'VARCHAR(10)'
 EMPLOYEE_NAME = 'VARCHAR(40)'
 HOURS = 'DECIMAL(6,2)'
 MONEY = 'DECIMAL(9,2)'
-SQL_ERRORS = (PymysqlOperationalerror, SqlalchemyOperationalerror, ProgrammingError)
 
 
 class BaseTable:

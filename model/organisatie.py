@@ -1,12 +1,13 @@
 import datetime
 import os
+from collections import defaultdict
 from datetime import datetime
 
 import pandas as pd
 
 import middleware.middleware_utils
 from middleware.timesheet import Timesheet
-from model.caching import cache
+from model.caching import cache, load_cache
 from model.utilities import fraction_of_the_year_past, Period, Day
 from sources.googlesheet import sheet_tab, sheet_value, HeaderSheet
 from sources.simplicate import simplicate
@@ -17,13 +18,13 @@ FTE_ROW = 30
 FTE_START_COL = 4
 
 
-# @cache(hours=168)
+@cache(hours=168)
 def aantal_mensen(hours=168):
     tab = HeaderSheet('Contracten werknemers', 'stats')
     return tab['Mensen', 'Totaal']
 
 
-#@cache(hours=168)
+@cache(hours=168)
 def aantal_fte():
     tab = HeaderSheet('Contracten werknemers', 'stats')
     return tab['FTE', 'Totaal'], tab['Direct FTE', 'Totaal']
@@ -120,28 +121,65 @@ def vrije_dagen_pool():
     return vrije_dagen_overschot / FTEs
 
 
-# @cache(hours=24)
+def roster_days_per_week(period):
+    result = defaultdict(float)
+    for t in simplicate().timetable():
+        if t.get("end_date") and t['end_date'] < period.fromday or t['start_date'] >= period.untilday or not \
+        t['employee']['name'] or t['employee']['name'] == 'Freelancer':
+            continue
+        start_day_str = max(str(period.fromday), t['start_date'])
+        end_day = min(period.untilday, Day(t.get('end_date', '2099-12-31')))
+        day = Day(start_day_str).last_monday()
+        while day < end_day:
+            key = f'{day.y}_{day.week_number()}'
+            even_odd = 'even' if day.week_number() % 2 == 0 else 'odd'
+            for v in t[f'{even_odd}_week'].values():
+                if v['hours'] >= 7:
+                    result[key] += 1
+            day = day.plus_days(7)
+    return result
+
+
+@cache(hours=8)
 def booked_days_before_noon(period: Period):
     db = middleware.middleware_utils.get_middleware_db()
     fromday = period.fromday.last_monday()
     untilday = period.untilday.last_monday() if period.untilday else Day().last_monday()
     query = f'''
-        select year, week, count(*) as aantal from (
-            select `day`, `week`, `year`, employee, sum(hours) as tot_hours
+        select year, week, count(type="normal") as aantal from (
+            select `day`, `week`, `year`, employee, type, sum(hours) as tot_hours
             from timesheet
-            where day>='{fromday}' and day < '{untilday}' and
+            where `day` >= '{fromday}' and `day` < '{untilday}' and
                   (DATEDIFF(DATE(created_at), DATE(`day`)) = 0 or 
                   (DATEDIFF(DATE(created_at), DATE(`day`)) = 1 and TIME(created_at) <= '12:00:00'))
-            group by `day`, employee
+            group by `day`, employee, type
             having tot_hours>=7
             order by employee) q1
-        group by year, week
-        order by year, week'''
-    results = db.query(query)
+        group by `year`, `week`
+        order by `year`, `week`'''
+    results = [rec for rec in db.query(query)]  # Needed to exaust generator for caching purposes
+    roster = roster_days_per_week(Period(fromday, untilday))
+    leaves_query = f'''
+        select year(`day`) as year, week(`day`) as week, count(*) as aantal from 
+            (select `day`, employee, sum(hours) as hours
+            from timesheet 
+            where `day` >= '{fromday}' and `day` < '{untilday}' and `type` != 'normal' and hours > 0
+            group by `day`, employee, hours
+            having hours > 1) q1
+        group by `year`, `week`'''
+    leaves = {f'{rec["year"]}_{rec["week"]}': rec['aantal'] for rec in db.query(leaves_query)}
+    for res in results:
+        key = f"{res['year']}_{res['week']}"
+        roster_days = roster[key]
+        leave_days = leaves.get(key, 0)
+        res['percentage'] = int(round(100.0 * res['aantal'] / (roster_days - leave_days)))
     return results
 
 
 if __name__ == '__main__':
     os.chdir('..')
-    m = Day().last_monday()
-    b = booked_days_before_noon(Period('2022-01-01'))
+    load_cache()
+    period = Period('2022-03-22', '2022-04-05')
+    # roster_hours_per_week(period)
+    # m = Day().last_monday()
+    b = booked_days_before_noon(period)

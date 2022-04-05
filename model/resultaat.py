@@ -264,7 +264,7 @@ def vulling_van_de_planning():
     # Planned hours
     last_week = (datetime.today() + timedelta(weeks=-1)).strftime(DATE_FORMAT)
     # last_day = trends.last_registered_day('omzet_per_week')
-    query = f"""select year(day) as year, week(day,5) as weekno, ifnull(round(sum(dayhours)),0) as plannedhours from
+    planned_hours_query = f"""select year(day) as year, week(day,5) as weekno, ifnull(round(sum(dayhours)),0) as plannedhours from
         (select day, sum(hours) as dayhours from
             (select date(startDate) as day,
                     sum(least((enddate - startDate)/10000,8)) as hours
@@ -277,8 +277,8 @@ def vulling_van_de_planning():
     group by year(day), weekno
     order by day
     limit 16"""
-    table = db.dataframe(query)
-    if not isinstance(table, pd.DataFrame):
+    planned_hours_table = db.dataframe(planned_hours_query)
+    if not isinstance(planned_hours_table, pd.DataFrame):
         return  # Error occured, no use to proceed
 
     # Roster
@@ -295,7 +295,8 @@ def vulling_van_de_planning():
     }
     odd_tot = sum([sum(week) for week in odd.values()])
     even_tot = sum([sum(week) for week in even.values()])
-    table["roster"] = table.apply(lambda a: even_tot if a["weekno"] % 2 == 0 else odd_tot, axis=1)
+    planned_hours_table["roster"] = planned_hours_table.apply(lambda a: even_tot if a["weekno"] % 2 == 0 else odd_tot,
+                                                              axis=1)
 
     # Leaves
     simplicate_leaves = simplicate().leave({"start_date": str(last_week)})
@@ -325,15 +326,16 @@ def vulling_van_de_planning():
             return leave_hours_per_week.at[weekno, "hours"]
         return 0
 
-    table["leaves"] = table.apply(get_leave_hours_for_week, axis=1)
+    planned_hours_table["leaves"] = planned_hours_table.apply(get_leave_hours_for_week, axis=1)
 
     # Filled
-    table["filled"] = table.apply(lambda row: int(100 * row["plannedhours"] / (row["roster"] - row["leaves"])), axis=1)
-    table["monday"] = table.apply(
+    planned_hours_table["filled"] = planned_hours_table.apply(
+        lambda row: int(100 * row["plannedhours"] / (row["roster"] - row["leaves"])), axis=1)
+    planned_hours_table["monday"] = planned_hours_table.apply(
         lambda row: datetime.strptime(f'{int(row["year"])}-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT),
         axis=1,
     )
-    res = table[["monday", "filled"]].to_dict("records")
+    res = planned_hours_table[["monday", "filled"]].to_dict("records")
     return res
 
 

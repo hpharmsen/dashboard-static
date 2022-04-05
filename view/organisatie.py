@@ -92,7 +92,7 @@ def tevredenheid_block():
 def booked_before_noon_chart(width: int, height: int):
     period = Period('2022-01-03')
     data = [d for d in booked_days_before_noon(period)]
-    series = [[d['aantal'] for d in data]]
+    series = [[d['percentage'] for d in data]]
     config = ChartConfig(
         width=width,
         height=height,
@@ -100,7 +100,9 @@ def booked_before_noon_chart(width: int, height: int):
         labels=[d['week'] for d in data],
         series_labels=[""],
         min_y_axis=0,
+        max_y_axis=100,
         y_axis_max_ticks=5,
+        y_axis_step_size=20,
         show_legend=False,
         tension=.2,
     )

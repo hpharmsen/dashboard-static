@@ -33,6 +33,7 @@ class ChartConfig(NamedTuple):
     x_axis_max_ticks: int = 0
     x_axis_font_size: int = 0
     y_axis_max_ticks: int = 0
+    y_axis_step_size: int = 0
     y_axis_font_size: int = 0
     y_axes_placement: list = ['left']  # For each series either the left or the right y_axes is used
     tension: float = 0  # How smooth the (line) chart is 1 is very (extremely) smooth
@@ -82,7 +83,8 @@ class Chart(Block):
         self.x_axis_font_size = f'fontSize: {config.x_axis_font_size if config.x_axis_font_size else 9},'
         self.ymin = 'min: 0,' if config.min_y_axis == None else f'suggestedMin: {config.min_y_axis},'
         self.ymax = '' if config.max_y_axis == None else f'max: {config.max_y_axis},'
-        self.y_axis_max_ticks = f'maxTicksLimit: {config.y_axis_max_ticks},' if config.y_axis_max_ticks else ''
+        self.y_axis_step_size = f'stepSize: {config.y_axis_step_size},' if config.y_axis_step_size else ''
+        self.y_axis_max_ticks = f'maxTicksLimit: {config.y_axis_max_ticks},' if config.y_axis_max_ticks and not config.y_axis_step_size else ''
         self.y_axis_font_size = f'fontSize: {config.y_axis_font_size if config.y_axis_font_size else 9},'
 
     def do_render(self, position: str, options: dict):
@@ -178,6 +180,7 @@ class BarChart(Chart):
                 yAxes: [{{
                     ticks: {{
                         {self.y_axis_max_ticks}
+                        {self.y_axis_step_size}
                         {self.y_axis_font_size}
                         {self.ymin}
                         {self.ymax}
@@ -252,6 +255,7 @@ class StackedBarChart(Chart):
                     stacked: true,
                     ticks: {{
                         {self.y_axis_max_ticks}
+                        {self.y_axis_step_size}
                         {self.y_axis_font_size}
                         {self.ymin}
                         {self.ymax}
@@ -295,6 +299,7 @@ class LineChart(Chart):
                     min: 0,
                     ticks: {{
                         {self.y_axis_max_ticks}
+                        {self.y_axis_step_size}
                         {self.y_axis_font_size}
                         {self.ymin}
                         {self.ymax}
@@ -396,6 +401,7 @@ class ScatterChart(Chart):
                 yAxes: [{{
                     ticks: {{
                         {self.y_axis_max_ticks}
+                        {self.y_axis_step_size}
                         {self.y_axis_font_size}
                         {self.ymin}
                         {self.ymax}
@@ -473,6 +479,7 @@ class MultiScatterChart(Chart):
                 yAxes: [{{
                     ticks: {{
                         {self.y_axis_max_ticks}
+                        {self.y_axis_step_size}
                         {self.y_axis_font_size}
                         {self.ymin}
                         {self.ymax}
