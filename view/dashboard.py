@@ -37,7 +37,7 @@ def marketing_block():
             TextBlock(""),  # Todo: verticale marge mogelijk maken
             TextBlock("Resultaten", MID_SIZE, padding=10),
             marketing_results_chart(sheet),
-            TextBlock("Uitgaven", MID_SIZE, padding=10),
+            TextBlock("Investering", MID_SIZE, padding=10),
             marketing_expenses_chart(sheet),
         ],
         link=marketing_link,
@@ -125,7 +125,7 @@ def travelbase_block():
     bookings = get_bookings_per_week(booking_type="bookings", only_complete_weeks=True)
     if not isinstance(bookings, pd.DataFrame):
         return TextBlock("Kon boekingen niet ophalen", color=RED)
-    legend = ", ".join([f"{brand}: {int(bookings[brand].sum())}" for brand in BRANDS])
+    legend = ", ".join([f"{brand[:3]}: {int(bookings[brand].sum())}" for brand in BRANDS])
     return VBlock(
         [
             TextBlock("Travelbase", HEADER_SIZE),

@@ -295,8 +295,9 @@ def vulling_van_de_planning():
     }
     odd_tot = sum([sum(week) for week in odd.values()])
     even_tot = sum([sum(week) for week in even.values()])
-    planned_hours_table["roster"] = planned_hours_table.apply(lambda a: even_tot if a["weekno"] % 2 == 0 else odd_tot,
-                                                              axis=1)
+    planned_hours_table["roster"] = planned_hours_table.apply(
+        lambda a: even_tot if a["weekno"] % 2 == 0 else odd_tot, axis=1
+    )
 
     # Leaves
     simplicate_leaves = simplicate().leave({"start_date": str(last_week)})
@@ -330,7 +331,8 @@ def vulling_van_de_planning():
 
     # Filled
     planned_hours_table["filled"] = planned_hours_table.apply(
-        lambda row: int(100 * row["plannedhours"] / (row["roster"] - row["leaves"])), axis=1)
+        lambda row: int(100 * row["plannedhours"] / (row["roster"] - row["leaves"])), axis=1
+    )
     planned_hours_table["monday"] = planned_hours_table.apply(
         lambda row: datetime.strptime(f'{int(row["year"])}-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT),
         axis=1,

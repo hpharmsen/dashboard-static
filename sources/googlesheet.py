@@ -123,8 +123,8 @@ class HeaderSheet:
         row, col = key
         try:
             return self.data[row.strip()][col.strip()]
-        except IndexError:
-            return None
+        except KeyError:
+            return ''
 
     def rows(self):
         return self.data

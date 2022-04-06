@@ -165,7 +165,7 @@ class VBlock(Block):
             children=children,
             width=width,
             height=height,
-            padding=40,
+            padding=padding,
             bg_color=bg_color,
             block_id=block_id,
             align_children='vertical',

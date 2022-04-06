@@ -9,7 +9,7 @@ class Marketing(HeaderSheet):
         super().__init__(sheetname, tabname, header_row, header_col)
 
         year = 2022
-        self.column_headers = ['okt. 2021', 'nov. 2021', 'dec. 2021']  # Tijdelijk
+        self.column_headers = ['okt. 2021', 'nov. 2021', 'dec. 2021']
         while True:
             for month in MAANDEN:
                 monthstamp = f'{month.lower()}. {year}'

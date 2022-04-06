@@ -162,17 +162,25 @@ def corrections_percentage(period: Period):
 
 
 def largest_corrections(minimum, period: Period):
+    def format_project_name(line):
+        name = line["organization"] + " - " + line["project_name"]
+        if len(name) > 45:
+            name = name[:45 - 1] + ".."
+        return name
+
     df = hours_dataframe(period)
     query = "corrections < 0"
     top_corrections = (
         df.query(query)
-            .groupby(["project_number", "project_name"])[["corrections"]]
+            .groupby(["project_name", "organization"])[["corrections"]]
             .sum()
             .query(f"corrections<-{minimum}")
             .sort_values(by="corrections")
             .reset_index()  # make index a column
     )
     top_corrections["corrections"] = -top_corrections["corrections"]
+    top_corrections["project_name"] = top_corrections.apply(format_project_name, axis=1)
+    top_corrections = top_corrections.drop("organization", axis=1)
     return top_corrections
 
 
@@ -237,10 +245,6 @@ if __name__ == "__main__":
     os.chdir("..")
     load_cache()
 
-    h = hours_dataframe()
     period_ = Period("2021-06-01", "2021-10-01")
-    # Get the list of current employees
-    employees_ = set(hours_dataframe(period_).employee.unique())
-
-    for e in employees_:
-        r, v, z = beschikbare_uren_volgens_rooster(period_, [e])
+    l = largest_corrections(1, period_)
+    print(l)

@@ -52,8 +52,8 @@ def marketing_results_chart(sheet: Marketing):
 def marketing_expenses_chart(sheet):
     width = 250
     height = 200
-    series_labels = ["€ Totaal", "Uren marketing intern"]
-    series = [sheet.kpi_row(label) for label in series_labels]
+    kpi_sheet_row_headers = ["Totaal investering", "Uren marketing intern"]
+    series = [sheet.kpi_row(label) for label in kpi_sheet_row_headers]
     config = ChartConfig(
         width=width,
         height=height,

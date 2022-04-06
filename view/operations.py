@@ -196,9 +196,6 @@ def corrections_block():
     def corrections_percentage_coloring(value):
         return dependent_color(value, red_treshold=5, green_treshold=3)
 
-    def project_link(_, fullline):
-        return f"https://oberon.simplicate.com/projects/{fullline[0]}/hours"
-
     result = VBlock(
         [
             TextBlock("Correcties", MID_SIZE),
@@ -222,13 +219,11 @@ def corrections_block():
                 largest_corrections(interesting_correction, period),
                 TableConfig(
                     headers=[],
-                    aligns=["left", "left", "right"],
-                    hide_columns=[0],
-                    row_linking=project_link,
+                    aligns=["left", "right"]
                 ),
             ),
         ],
-        link="corrections.html",
+        link="corrections.html", padding=-40,
     )
     return result
 
