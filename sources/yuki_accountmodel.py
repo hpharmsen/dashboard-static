@@ -378,5 +378,5 @@ def balans_en_wv(year, month):
 
 if __name__ == '__main__':
     load_cache()
-    balans_en_wv(2022, 1)
+    balans_en_wv(2022, 3)
     # model.walk( print_with_subs)

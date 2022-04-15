@@ -8,7 +8,6 @@ import requests
 from bs4 import BeautifulSoup
 
 from middleware.middleware_utils import panic
-from model.caching import cache
 from model.utilities import Day
 from settings import ini
 
@@ -171,8 +170,7 @@ class Yuki:
 
         # if (not balance_type or item.attrs["balancetype"] == balance_type) and valid_code(item.attrs["code"])
 
-    # @lru_cache()
-    @cache(hours=1)
+    @lru_cache()
     def day_balance(self, day: Day):
         params = {"transactionDate": str(day)}
         body = self.call(f"/GLAccountBalance", params)

@@ -9,11 +9,11 @@ class Marketing(HeaderSheet):
         super().__init__(sheetname, tabname, header_row, header_col)
 
         year = 2022
-        self.column_headers = ['okt. 2021', 'nov. 2021', 'dec. 2021']
+        self.column_headers = ["okt. 2021", "nov. 2021", "dec. 2021"]
         while True:
             for month in MAANDEN:
-                monthstamp = f'{month.lower()}. {year}'
-                bijgewerkt = self['Bijgewerkt', monthstamp]
+                monthstamp = f"{month.lower()}. {year}"
+                bijgewerkt = self["Bijgewerkt", monthstamp]
                 if int(bijgewerkt):
                     self.column_headers += [monthstamp]
                 else:
@@ -22,7 +22,7 @@ class Marketing(HeaderSheet):
 
     def kpi_row(self, row_header: str):
         def normalize(value: str):
-            value = value.replace('€ ', '').replace('.', '').replace(',', '.').strip()
+            value = value.replace("€ ", "").replace(".", "").replace(",", ".").strip()
             if not value:
                 return 0
             try:
@@ -39,9 +39,9 @@ class Marketing(HeaderSheet):
         return self.kpi_row(row_header)[-1]
 
 
-if __name__ == '__main__':
-    os.chdir('..')
+if __name__ == "__main__":
+    os.chdir("..")
     sheet = Marketing("Oberon - Budget + KPI's", "KPIs voor MT", 1, 1)
-    print(sheet.kpi_row('Bereik'))
-    print(sheet.kpi_row('€ Totaal'))
+    print(sheet.kpi_row("Bereik"))
+    print(sheet.kpi_row("€ Totaal"))
     print(sheet.column_headers)

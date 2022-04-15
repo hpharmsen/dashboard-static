@@ -17,7 +17,10 @@ from settings import (
     EFFECTIVITY_GREEN,
     get_output_folder,
     CORRECTIONS_RED,
-    CORRECTIONS_GREEN, GREEN, RED, GRAY,
+    CORRECTIONS_GREEN,
+    GREEN,
+    RED,
+    GRAY,
 )
 
 
@@ -65,31 +68,31 @@ from settings import (
 def render_operations_page(output_folder: Path, year: int = None):
     if year:
         # Use given year. Create page with year name in it
-        html_page = f'operations {year}.html'
+        html_page = f"operations {year}.html"
         weeks = 52
         description = f"Belangrijkste KPI's over {year}"
-        total_period = Period(f'{year}-01-01', f'{year + 1}-01-01')
+        total_period = Period(f"{year}-01-01", f"{year + 1}-01-01")
     else:
         # Use the current year (default)
-        year = int(datetime.datetime.today().strftime('%Y'))
-        html_page = 'operations.html'
+        year = int(datetime.datetime.today().strftime("%Y"))
+        html_page = "operations.html"
         weeks = min(Day().week_number(), 20)
         description = f"Belangrijkste KPI's per week de afgelopen {weeks} weken"
-        total_period = Period(f'{year}-01-01', Day())
+        total_period = Period(f"{year}-01-01", Day())
     page = Page(
         [
-            TextBlock('Operations KPI' 's', HEADER_SIZE),
+            TextBlock("Operations KPI" "s", HEADER_SIZE),
             TextBlock(
                 description,
                 color="gray",
             ),
-            kpi_block(weeks=weeks, total_period=total_period, total_title='YTD'),
+            kpi_block(weeks=weeks, total_period=total_period, total_title="YTD"),
         ]
     )
     page.render(output_folder / html_page)
 
 
-def kpi_block(weeks=4, verbose=True, total_period=None, total_title=''):
+def kpi_block(weeks=4, verbose=True, total_period=None, total_title=""):
     week_numbers, hours_data = operations_data(weeks, total_period, total_title)
     effectivity_coloring = lambda value: dependent_color(value.effectivity(), EFFECTIVITY_RED, EFFECTIVITY_GREEN)
     corrections_coloring = lambda value: dependent_color(value.correcties_perc(), CORRECTIONS_RED, CORRECTIONS_GREEN)
@@ -102,7 +105,7 @@ def kpi_block(weeks=4, verbose=True, total_period=None, total_title=''):
     )
 
 
-def operations_data(weeks, total_period=None, total_title=''):
+def operations_data(weeks, total_period=None, total_title=""):
     monday = Day().plus_days(-2).last_monday()  # Wednesday gives the last monday, Monday and Tuesday the week before
     hours_data = []
     headers = []
@@ -110,10 +113,10 @@ def operations_data(weeks, total_period=None, total_title=''):
         monday_earlier = monday.plus_days(-7)
         period = Period(monday_earlier, monday)
         hours_data = [HoursData(period)] + hours_data
-        headers = [monday_earlier.strftime('wk %W')] + headers
+        headers = [monday_earlier.strftime("wk %W")] + headers
         monday = monday_earlier
     if total_period:
-        headers += ['', total_title]
+        headers += ["", total_title]
         hours_data += [None, HoursData(total_period)]
     return headers, hours_data
 
@@ -217,17 +220,15 @@ def corrections_block():
             ),
             Table(
                 largest_corrections(interesting_correction, period),
-                TableConfig(
-                    headers=[],
-                    aligns=["left", "right"]
-                ),
+                TableConfig(headers=[], aligns=["left", "right"]),
             ),
         ],
-        link="corrections.html", padding=-40,
+        link="corrections.html",
+        padding=-40,
     )
     return result
 
 
-if __name__ == '__main__':
-    os.chdir('..')
+if __name__ == "__main__":
+    os.chdir("..")
     render_operations_page(get_output_folder())

@@ -40,7 +40,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
     # Nieuwe methode:
     # 1. Alle active projecten en de diensten daarvan
     service_df = simplicate_projects_and_services(sim, day)  # todo: kan dit niet uit middleware?
-    #service_df = service_df.query('project_number=="TEX-2" | project_number=="TUI-4"')
+    # service_df = service_df.query('project_number=="BAM-1"')
 
     # 2. Omzet -/- correcties berekenen
     service_ids = service_df["service_id"].tolist()
@@ -201,7 +201,7 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     return project_service
 
 
-@cache(hours=4)
+@lru_cache()
 def invoiced_by_date(day: Day):
     period = Period("2021-01-01", day)
     invoice = Invoice()
