@@ -87,6 +87,11 @@ def render_operations_page(output_folder: Path, year: int = None):
                 color="gray",
             ),
             kpi_block(weeks=weeks, total_period=total_period, total_title="YTD"),
+            TextBlock('Effectiviteit is het percentage van de beschikbare uren dat we voor klanten werken.'),
+            TextBlock('Billable uren zijn de uren die we daadwerkelijk factureren.'),
+            TextBlock('Billable % is als percentage van de beschikbare uren.'),
+            TextBlock(
+                'Bij omzet op uren tellen fixed price diensten mee als omzet / gemaakte uren maar bij diensten die nog open zijn, wordt dit uurtarief gemaximeerd op €100.')
         ]
     )
     page.render(output_folder / html_page)

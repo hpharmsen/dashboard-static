@@ -221,7 +221,7 @@ def balance_block(yuki_result: YukiResult):
     grid = Grid(cols=6, has_header=False, aligns=['left', 'right', 'right', '', 'right', 'right'])
     toelichtingen = []
     try:
-        toelichting_sheet = HeaderSheet('Begroting 2021', str(month))  # Todo: Onafhankelijk van het jaar maken
+        toelichting_sheet = HeaderSheet(f'Begroting {year}', str(month))
     except WorksheetNotFound:
         toelichting_sheet = None  # Todo: Same code as in profit_and_loss_block. Refactor.
 

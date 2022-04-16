@@ -48,10 +48,6 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
 
     def calculate_turover(row):
         hours, turnover = service_turnovers.get(row["service_id"], (0, 0))
-        if row["invoice_method"] == "FixedFee":
-            # Fixed fee: tel als onderhanden werk een gemiddeld uurloon van 100 maal het aantal gemaakte uren.
-            # Gerealiseerde omzet kan nooit meer zijn dan de afgesproken prijs
-            turnover = min(float(row.get("price")), hours * 100.0)  # 100 als gemiddeld uurlopon
         return turnover
 
     service_df["turnover"] = service_df.apply(calculate_turover, axis=1).astype(int)
@@ -78,7 +74,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
 
     # 5. Onderhanden werk berekenen
     service_df["service_ohw"] = service_df["turnover"] + service_df["service_costs"] - service_df["invoiced"]
-    service_df = service_df.query("service_ohw != 0").copy()
+    service_df = service_df.query("service_ohw >=100 | service_ohw < -100").copy()
 
     # Group by project either to return projects or to be able to sort the services by project OHW
     project_df = (

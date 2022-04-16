@@ -88,6 +88,6 @@ if __name__ == '__main__':
     update_timesheet()
     update_travelbase()
     update_finance()
-    update_invoices()
+    update_invoices(Day().plus_months(-1))
 
     mark_as_has_run_today()

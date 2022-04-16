@@ -74,6 +74,7 @@ class Timesheet(BaseTable):
             self.insert_dicts(data_func)
             day = day.next()
         self.correct_revenue_groups()
+        self.correct_fixed_price()
 
     def correct_revenue_groups(self):
         self.execute('''
@@ -87,6 +88,22 @@ class Timesheet(BaseTable):
         update timesheet set revenue_group="Omzet overig" where project_number like "CAP-%";
         update timesheet set revenue_group="" where type in ("leave","absence");
         ''')
+        self.commit()
+
+    def correct_fixed_price(self):
+        calculate_hourly_rates_query = '''
+            select s.service_id, 
+              if(s.status='open', LEAST(price/sum(hours+corrections),100), price/sum(hours+corrections)) as hourly_rate 
+            from timesheet t
+            join service s on s.service_id=t.service_id
+            where invoice_method='FixedFee'
+            group by s.service_id
+            having hourly_rate>0'''
+        for rec in self.query(calculate_hourly_rates_query):
+            self.execute(f'''
+                update timesheet 
+                set tariff={rec['hourly_rate']}, turnover=(hours+corrections) * {rec['hourly_rate']} 
+                where service_id="{rec['service_id']}" ''')
         self.commit()
 
     def get_data(self):
@@ -281,6 +298,7 @@ def hours_dataframe(period: Period):
 
 if __name__ == "__main__":
     timesheet_table = Timesheet()
-    timesheet_table.repopulate()
-    # timesheet_table.update(Day('2022-02-14'))
-    # timesheet_table.correct_revenue_groups()
+    # timesheet_table.repopulate()
+    timesheet_table.update(Day('2022-01-01'))
+    timesheet_table.correct_revenue_groups()
+    timesheet_table.correct_fixed_price()
