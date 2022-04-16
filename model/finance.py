@@ -13,11 +13,13 @@ from sources.yuki import yuki
 
 
 def debiteuren_leeftijd_analyse():
-    df = (debiteuren_leeftijd_analyse_yuki()
-          .groupby(["factuuradres"])
-          .agg({'open': 'sum', 'a30': 'sum', "a60": 'sum', 'a90': 'sum', "90plus": 'sum'})
-          .reset_index()
-          .sort_values("open", ascending=False))
+    df = (
+        debiteuren_leeftijd_analyse_yuki()
+            .groupby(["factuuradres"])
+            .agg({'open': 'sum', 'a30': 'sum', "a60": 'sum', 'a90': 'sum', "90plus": 'sum'})
+            .reset_index()
+            .sort_values("open", ascending=False)
+    )
     return df
 
 

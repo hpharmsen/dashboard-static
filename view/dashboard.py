@@ -46,6 +46,7 @@ def marketing_block():
 
 ######### Column 2: Sales
 
+
 def sales_block():
     sales_waarde_value = sales_waarde()
     sales_waarde_color = dependent_color(sales_waarde_value, 250000, 350000)
@@ -71,6 +72,7 @@ def sales_block():
 
 
 ######### Kolom 3: Operations ###########
+
 
 def operations_block():
     return VBlock(
@@ -103,6 +105,7 @@ def finance_block():
 
 
 ######### Kolom 5: HR ###########
+
 
 def hr_block():
     return VBlock(

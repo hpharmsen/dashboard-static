@@ -20,8 +20,9 @@ def get_db():
 
 def get_travelbase_db():
     global travelbase_db
-    return travelbase_db or dbClass.from_inifile(scriptpath / '..' / 'sources' / 'credentials.ini',
-                                                 section='travelbase')
+    return travelbase_db or dbClass.from_inifile(
+        scriptpath / '..' / 'sources' / 'credentials.ini', section='travelbase'
+    )
 
 
 def value(query, database=None):

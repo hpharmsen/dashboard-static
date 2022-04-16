@@ -54,12 +54,12 @@ def verzuim_block():
                         MID_SIZE,
                         text_format="%",
                         color=verzuim_color,
-                        tooltip="Gemiddeld bij DDA in 2019: 3.0%. Groen bij 1,5%, rood bij 3%"
+                        tooltip="Gemiddeld bij DDA in 2019: 3.0%. Groen bij 1,5%, rood bij 3%",
                     ),
                     TextBlock("over de laatste 3 maanden", color=GRAY),
                 ],
                 padding=60,
-            )
+            ),
         ],
         link="absence.html",
     )
@@ -104,7 +104,7 @@ def booked_before_noon_chart(width: int, height: int):
         y_axis_max_ticks=5,
         y_axis_step_size=20,
         show_legend=False,
-        tension=.2,
+        tension=0.2,
     )
     chart = LineChart(series, config)
     chart.canvas_height_difference = 50

@@ -35,7 +35,8 @@ class BaseTable:
         for field in self.index_fields.split():
             try:
                 self.execute(
-                    f"CREATE INDEX {self.table_name}_{field} ON {self.table_name} ({field.replace('__', ',')})")
+                    f"CREATE INDEX {self.table_name}_{field} ON {self.table_name} ({field.replace('__', ',')})"
+                )
             except SQL_ERRORS:
                 pass  # Index already existent
         self.commit()
@@ -71,14 +72,14 @@ class BaseTable:
             panic('Lost connection to MySQL while executing query ' + query)
 
     def query(self, query) -> Generator:
-        """ For running a select query """
+        """For running a select query"""
         try:
             yield from self.db.query(query)
         except SQL_ERRORS:
             panic('Lost connection to MySQL while executing query ' + query)
 
     def execute(self, query, continue_on_error=False):
-        """ For executing a sql command """
+        """For executing a sql command"""
         try:
             return self.db.execute(query)
         except SQL_ERRORS:

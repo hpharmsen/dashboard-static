@@ -48,22 +48,28 @@ class Employee(BaseTable):
             employees = HeaderSheet("Contracten werknemers", tab, header_row=1, header_col=3)
             result = {}
             for name, values in employees.rows().items():
-                if name == 'Fadhlur Muhammad Fadhlurrohman': name = 'Fadhlur Zahri'
+                if name == 'Fadhlur Muhammad Fadhlurrohman':
+                    name = 'Fadhlur Zahri'
                 value = values[field].replace('€', '').replace(',', '.').strip()
                 if not value:
                     value = 0
                 else:
                     value = float(value)
-                value += OVERIGE_KOSTEN_PER_FREELANCER_PER_UUR if tab in (
-                'Freelance', 'Flex') else OVERIGE_KOSTEN_PER_FTE_PER_UUR
+                value += (
+                    OVERIGE_KOSTEN_PER_FREELANCER_PER_UUR
+                    if tab in ('Freelance', 'Flex')
+                    else OVERIGE_KOSTEN_PER_FTE_PER_UUR
+                )
                 result[name] = Decimal(value / PRODUCTIVITEIT)
             return result
 
-        employees = (sheet_data('ex werknemers', 'Kosten per uur') |
-                     sheet_data('Freelance', 'BrutoPerUur') |
-                     sheet_data('Stage', 'Kosten per uur') |
-                     sheet_data('Flex', 'BrutoPerUur') |
-                     sheet_data('Fixed', 'Kosten per uur'))
+        employees = (
+                sheet_data('ex werknemers', 'Kosten per uur')
+                | sheet_data('Freelance', 'BrutoPerUur')
+                | sheet_data('Stage', 'Kosten per uur')
+                | sheet_data('Flex', 'BrutoPerUur')
+                | sheet_data('Fixed', 'Kosten per uur')
+        )
         for employee in ['Hans-Peter Harmsen', 'Gert Braun', 'Richard de Boer', 'Joost Cornelissen']:
             employees[employee] = MT_FEE_PER_HOUR
         return employees

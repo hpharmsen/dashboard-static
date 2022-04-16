@@ -73,8 +73,8 @@ class Invoice(BaseTable):
                     'service_id': service_id,
                     'description': line['description'],
                     'amount': line['amount'],
-                    'price': line['price']}
-
+                    'price': line['price'],
+                }
 
     def lines(self, period: Period):
         query = f'''select * from invoice 
@@ -82,7 +82,6 @@ class Invoice(BaseTable):
                     group by invoice_number order by invoice date'''
         result = self.query(query)
         return result
-
 
     def invoices(self, period: Period):
         query = f'''select invoice_number, invoice_date, organization, project_number, sum(amount*price) as invoice_amount 

@@ -358,6 +358,7 @@ from sources.database import dataframe
 
 ## ============================================================================================================
 
+
 def winst_per_klant(period: Period) -> DataFrame:
     db = get_middleware_db()
     fixed_price_query = f'''

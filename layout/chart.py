@@ -84,7 +84,11 @@ class Chart(Block):
         self.ymin = 'min: 0,' if config.min_y_axis == None else f'suggestedMin: {config.min_y_axis},'
         self.ymax = '' if config.max_y_axis == None else f'max: {config.max_y_axis},'
         self.y_axis_step_size = f'stepSize: {config.y_axis_step_size},' if config.y_axis_step_size else ''
-        self.y_axis_max_ticks = f'maxTicksLimit: {config.y_axis_max_ticks},' if config.y_axis_max_ticks and not config.y_axis_step_size else ''
+        self.y_axis_max_ticks = (
+            f'maxTicksLimit: {config.y_axis_max_ticks},'
+            if config.y_axis_max_ticks and not config.y_axis_step_size
+            else ''
+        )
         self.y_axis_font_size = f'fontSize: {config.y_axis_font_size if config.y_axis_font_size else 9},'
 
     def do_render(self, position: str, options: dict):

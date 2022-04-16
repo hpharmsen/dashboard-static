@@ -77,8 +77,11 @@ class YukiAccountModel:
         self.alias('personell', 'Personeelskosten', ['people', 'WPerLesLoo'])
         self.alias('housing', 'Huisvesting', ['WBedHui', 'WBedEemRoi'])
         self.describe('WBedVkk', 'Sales/marketing')
-        self.alias('other_expenses', 'Overige kosten', ['WBed', 'WPerWkg', '-WPerWkgOsc', '-WBedHui', '-WBedVkk',
-                                                        '-WBedOvp', '-WBedEemRoi', 'WKprBtkBed'])
+        self.alias(
+            'other_expenses',
+            'Overige kosten',
+            ['WBed', 'WPerWkg', '-WPerWkgOsc', '-WBedHui', '-WBedVkk', '-WBedOvp', '-WBedEemRoi', 'WKprBtkBed'],
+        )
         # WKprBtkBed = Ontvangen betalingskortingen
 
         self.alias('company_costs', 'Bedrijfkosten', ['housing', 'WBedVkk', 'other_expenses'])
@@ -95,14 +98,21 @@ class YukiAccountModel:
         self.alias('fixed_assets', 'Vaste activa', ['BMva', 'financial_fixed_assets'])
         self.describe('BVorDeb', 'Debiteuren')
         self.alias('question_posts', 'Vraagposten', ['23020'])
-        self.alias('overlopende_activa', 'Overlopende activa',
-                   ['BVorOva', '-question_posts'])  # Overlopend minus vraagposten
-        self.alias('other_receivables', 'Overige vorderingen',
-                   ['BVor', '-BVorDeb', '-overlopende_activa', '-question_posts', '-BVorOvrWbs'])  # Waarborgsommen
+        self.alias(
+            'overlopende_activa', 'Overlopende activa', ['BVorOva', '-question_posts']
+        )  # Overlopend minus vraagposten
+        self.alias(
+            'other_receivables',
+            'Overige vorderingen',
+            ['BVor', '-BVorDeb', '-overlopende_activa', '-question_posts', '-BVorOvrWbs'],
+        )  # Waarborgsommen
         self.describe('BVrd', 'Onderhanden werk')
         self.alias('liquid_assets', 'Liquide middelen', ['BLim', '-BLimKru'])  # Minus betalingen onderweg
-        self.alias('current_assets', 'Vlottende activa',
-                   ['BVorDeb', 'overlopende_activa', 'other_receivables', 'BVrd', 'liquid_assets'])
+        self.alias(
+            'current_assets',
+            'Vlottende activa',
+            ['BVorDeb', 'overlopende_activa', 'other_receivables', 'BVrd', 'liquid_assets'],
+        )
         self.alias('total_assets', 'TOTAAL ACTIVA', ['current_assets', 'fixed_assets'])
 
         self.describe('BEivGok', 'Aandelen')
@@ -111,13 +121,18 @@ class YukiAccountModel:
         self.describe('BSchCre', 'Crediteuren')
         self.describe('BSchSal', 'Medewerkers')
         self.alias('taxes', 'Belastingen', ['BSchBep', 'BSchBtw'])
-        self.alias('other_debts', 'Overige schulden',
-                   ['BSchOvs', 'BLimKruCra'])  # Overig kortlopend en Visa / Schulden aan banken
-        self.alias('overlopende_passiva', 'Overlopende passiva',
-                   ['BSchOpa', 'question_posts', 'BLimKruSto'])  # Betalingen onderweg
+        self.alias(
+            'other_debts', 'Overige schulden', ['BSchOvs', 'BLimKruCra']
+        )  # Overig kortlopend en Visa / Schulden aan banken
+        self.alias(
+            'overlopende_passiva', 'Overlopende passiva', ['BSchOpa', 'question_posts', 'BLimKruSto']
+        )  # Betalingen onderweg
         # todo: overlopende passiva apart
-        self.alias('short_term_debt', 'Kortlopende schulden',
-                   ['overlopende_passiva', 'BSchSal', 'BSchCre', 'taxes', 'other_debts'])
+        self.alias(
+            'short_term_debt',
+            'Kortlopende schulden',
+            ['overlopende_passiva', 'BSchSal', 'BSchCre', 'taxes', 'other_debts'],
+        )
         self.alias('total_liabilities', 'TOTAAL PASSVIVA', ['equity', 'short_term_debt'])
 
         # Cashflow analysis
@@ -164,7 +179,7 @@ class YukiAccountModel:
         self.walk(fill_value, depth_first=True)
 
     def add_ohw(self, amount):
-        """ Voegt onderhanden werk toe aan de structuur zoals die uit Yuki komt """
+        """Voegt onderhanden werk toe aan de structuur zoals die uit Yuki komt"""
         balans_categories = ['30100'] + split_on_caps('BVrdOweVoo')
         wv_categories = ['80062'] + split_on_caps('WOmzGrpGr1')
         for post in balans_categories:
@@ -177,8 +192,8 @@ class YukiAccountModel:
             self.items[post].amount -= amount
 
     def post(self, code: str) -> (float, str):
-        """ Returns the value of the specified post
-            code can either be an alias or an item code
+        """Returns the value of the specified post
+        code can either be an alias or an item code
         """
         negative = False
         if code[0] == '-':
@@ -192,10 +207,12 @@ class YukiAccountModel:
             try:
                 amount = self.items[code].amount
             except KeyError:
-                print(f'Code {code} niet gevonden. Staat die wel in sources/yuki_rekeningschema.csv?\n' +
-                      'Doe anders een download op ' +
-                      'https://oberon.yukiworks.nl/domain/financial/aspx/finglaccounts.aspx?__subframe=1\n' +
-                      'Open daarna met Textmate en save als UTF-8.')
+                print(
+                    f'Code {code} niet gevonden. Staat die wel in sources/yuki_rekeningschema.csv?\n'
+                    + 'Doe anders een download op '
+                    + 'https://oberon.yukiworks.nl/domain/financial/aspx/finglaccounts.aspx?__subframe=1\n'
+                    + 'Open daarna met Textmate en save als UTF-8.'
+                )
                 sys.exit(1)
             description = self.items[code].description
         if not amount:
@@ -219,14 +236,14 @@ class YukiAccountModel:
 
 
 def split_on_caps(category_name):
-    """ Splits WFbeOrlOrl to ['W','WFbe','WFbeOrl','WFbeOrlOrl'] """
+    """Splits WFbeOrlOrl to ['W','WFbe','WFbeOrl','WFbeOrlOrl']"""
     res = category_name[0]
     for letter in category_name[1:]:
         if letter.isupper():
             res += '|'
         res += letter
     chunks = res.split('|')
-    result = [''.join(chunks[0:index + 1]) for index in range(len(chunks))]
+    result = [''.join(chunks[0: index + 1]) for index in range(len(chunks))]
     return result
 
 
@@ -372,8 +389,10 @@ def balans_en_wv(year, month):
     total_liabilities, _ = model.post('total_liabilities')
     if total_assets != -total_liabilities:
         print()
-        print(f'Total assets {total_assets} != total liabilities {-total_liabilities}.' +
-              'Difference of {abs(total_assets + total_liabilities)}')
+        print(
+            f'Total assets {total_assets} != total liabilities {-total_liabilities}.'
+            + 'Difference of {abs(total_assets + total_liabilities)}'
+        )
 
 
 if __name__ == '__main__':

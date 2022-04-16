@@ -36,12 +36,14 @@ ACCOUNT_CODES = {
     "undistributed_result": ["0900"],
     "liquid_assets": [11, 12],
     "debtors": 1300,
-    "other_receivables": [13200,  # Nog te factureren
-                          13210,  # Te ontvangen creditnota's
-                          13300,  # Nog te ontvangen goederen en diensten (staat niet in Yuki rekeningschema?!)
-                          13350,  # Vooruitbetalingen
-                          13999,  # Overige kortlopende vorderingen
-                          23310],  # Tussenrekening creditcard betalingen
+    "other_receivables": [
+        13200,  # Nog te factureren
+        13210,  # Te ontvangen creditnota's
+        13300,  # Nog te ontvangen goederen en diensten (staat niet in Yuki rekeningschema?!)
+        13350,  # Vooruitbetalingen
+        13999,  # Overige kortlopende vorderingen
+        23310,
+    ],  # Tussenrekening creditcard betalingen
     "crossposts": 23101,  # Special case, kan debet en credit zijn
     "creditors": [16000],
     "other_debts": [
@@ -146,7 +148,6 @@ class Yuki:
             ]
         return result
 
-
     def account_balance(self, day: Day = None, balance_type=None, account_codes=None):
         # Resultatenrekening en balans
         if not day:
@@ -162,10 +163,11 @@ class Yuki:
                     return True
             return False
 
-        res = [item
-               for item in self.day_balance(day)
-               if (not balance_type or item["balance_type"] == balance_type) and valid_code(item["code"])
-               ]
+        res = [
+            item
+            for item in self.day_balance(day)
+            if (not balance_type or item["balance_type"] == balance_type) and valid_code(item["code"])
+        ]
         return res
 
         # if (not balance_type or item.attrs["balancetype"] == balance_type) and valid_code(item.attrs["code"])
@@ -186,7 +188,8 @@ class Yuki:
                 "code": item.attrs["code"],
                 "balance_type": item.attrs["balancetype"],
             }
-            for item in items]
+            for item in items
+        ]
         return res
 
     def profit(self, date_str=None):

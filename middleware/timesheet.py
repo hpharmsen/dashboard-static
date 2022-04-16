@@ -77,7 +77,8 @@ class Timesheet(BaseTable):
         self.correct_fixed_price()
 
     def correct_revenue_groups(self):
-        self.execute('''
+        self.execute(
+            '''
         update timesheet set revenue_group="Omzet teampropositie" where project_number in ("BEN-1","VHC-1");
         update timesheet set revenue_group="Omzet productpropositie" where revenue_group in ("Omzet development","Omzet app development");
         update timesheet set revenue_group="Omzet Travelbase" where project_number like "TRAV-%" or project_number="TOR-3";
@@ -87,7 +88,8 @@ class Timesheet(BaseTable):
         update timesheet set revenue_group="Omzet productpropositie" where revenue_group="" and project_number not like "OBE-%";
         update timesheet set revenue_group="Omzet overig" where project_number like "CAP-%";
         update timesheet set revenue_group="" where type in ("leave","absence");
-        ''')
+        '''
+        )
         self.commit()
 
     def correct_fixed_price(self):
@@ -100,10 +102,12 @@ class Timesheet(BaseTable):
             group by s.service_id
             having hourly_rate>0'''
         for rec in self.query(calculate_hourly_rates_query):
-            self.execute(f'''
+            self.execute(
+                f'''
                 update timesheet 
                 set tariff={rec['hourly_rate']}, turnover=(hours+corrections) * {rec['hourly_rate']} 
-                where service_id="{rec['service_id']}" ''')
+                where service_id="{rec['service_id']}" '''
+            )
         self.commit()
 
     def get_data(self):
@@ -275,8 +279,10 @@ def complement_timesheet_data(timesheet_entry, services_dict):
             timesheet_entry["revenue_group"] = revenue_group['label']
 
     # De volgende is omdat in 2021 de indeling nog niet goed was
-    if timesheet_entry["type"] == "absence" and timesheet_entry[
-        "label"] == "Feestdagenverlof / National holidays leave":
+    if (
+            timesheet_entry["type"] == "absence"
+            and timesheet_entry["label"] == "Feestdagenverlof / National holidays leave"
+    ):
         timesheet_entry["type"] = "leave"
     return timesheet_entry
 

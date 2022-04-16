@@ -25,7 +25,7 @@ def omzet_chart():
                 x_start=x_start,
                 x_end=x_end,
                 min_y_axis=0,
-                max_y_axis=90000,
+                max_y_axis=100_000,
             ),
         ],
         link="billable.html",
@@ -36,7 +36,7 @@ def debiteuren_block():
     # betaaltermijn = gemiddelde_betaaltermijn()
     # betaaltermijn_color = dependent_color(betaaltermijn, 45, 30)
     debiteuren = debiteuren_30_60_90_yuki()
-    max_y = ceil(sum(debiteuren) / 100000) * 100000
+    max_y = ceil(sum(debiteuren) / 100_000) * 100_000
     return VBlock(
         [
             TextBlock("Debiteuren", MID_SIZE),
@@ -47,7 +47,7 @@ def debiteuren_block():
                     height=250,
                     labels=["<30 dg", "30-60 dg", "60-90 dg", "> 90 dg"],
                     colors=[GREEN, YELLOW, ORANGE, RED],
-                    max_y_axis=max(450000, max_y),
+                    max_y_axis=max(450_000, max_y),
                 ),
             ),
         ],
@@ -59,7 +59,7 @@ def cash_block():
     return VBlock(
         [
             TextBlock("Cash", MID_SIZE),
-            TrendLines().chart("cash", 250, 150, min_y_axis=0, x_start=months_ago(6)),
+            TrendLines().chart("cash", 250, 150, min_y_axis=0, max_y_axis=1_000_000, x_start=months_ago(6)),
         ]
     )
 

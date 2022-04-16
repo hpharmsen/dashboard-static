@@ -165,7 +165,7 @@ def largest_corrections(minimum, period: Period):
     def format_project_name(line):
         name = line["organization"] + " - " + line["project_name"]
         if len(name) > 45:
-            name = name[:45 - 1] + ".."
+            name = name[: 45 - 1] + ".."
         return name
 
     df = hours_dataframe(period)

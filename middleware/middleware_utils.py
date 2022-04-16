@@ -18,8 +18,9 @@ def get_middleware_db():
     global middleware_db
     if not middleware_db:
         try:
-            middleware_db = dbClass.from_inifile(scriptpath / '..' / 'sources' / 'credentials.ini',
-                                                 section='aws-dashboard')
+            middleware_db = dbClass.from_inifile(
+                scriptpath / '..' / 'sources' / 'credentials.ini', section='aws-dashboard'
+            )
         except SQL_ERRORS:
             panic("middleware_utils.py get_middleware_db() Can't connect to MySQL server on AWS.")
 

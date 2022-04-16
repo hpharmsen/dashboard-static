@@ -48,11 +48,13 @@ def verzuimpercentage(period: Period):
 
 def verzuim_list(period):
     timesheet = Timesheet()
-    list_of_dicts = list(timesheet.parameterized_query(
-        period,
-        'type="absence" and hours>0',
-        sort=['employee', 'day'],
-    ))
+    list_of_dicts = list(
+        timesheet.parameterized_query(
+            period,
+            'type="absence" and hours>0',
+            sort=['employee', 'day'],
+        )
+    )
     if not list_of_dicts:
         return []
     result = []
@@ -124,8 +126,13 @@ def vrije_dagen_pool():
 def roster_days_per_week(period):
     result = defaultdict(float)
     for t in simplicate().timetable():
-        if t.get("end_date") and t['end_date'] < period.fromday or t['start_date'] >= period.untilday or not \
-        t['employee']['name'] or t['employee']['name'] == 'Freelancer':
+        if (
+                t.get("end_date")
+                and t['end_date'] < period.fromday
+                or t['start_date'] >= period.untilday
+                or not t['employee']['name']
+                or t['employee']['name'] == 'Freelancer'
+        ):
             continue
         start_day_str = max(str(period.fromday), t['start_date'])
         end_day = min(period.untilday, Day(t.get('end_date', '2099-12-31')))

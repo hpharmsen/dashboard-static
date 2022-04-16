@@ -113,7 +113,7 @@ def fraction_of_the_year_past(start_day=None):
 
 
 def flatten_json(y):
-    """ What it says: turns a json structure into a flat list of dicts """
+    """What it says: turns a json structure into a flat list of dicts"""
     out = {}
 
     def flatten(x, name=""):
