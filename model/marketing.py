@@ -38,6 +38,13 @@ class Marketing(HeaderSheet):
     def last(self, row_header: str) -> int:
         return self.kpi_row(row_header)[-1]
 
+    def last_month(self):
+        stamp = self.column_headers[-1]
+        month_str, year_str = stamp.split('. ')
+        month = MAANDEN.index(month_str[0].upper() + month_str[1:]) + 1
+        year = int(year_str)
+        return year, month
+
 
 if __name__ == "__main__":
     os.chdir("..")

@@ -95,8 +95,8 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
             project_df["turnover"]
             + project_df["service_costs"]
             - project_df["invoiced"]
-            + project_df['project_costs']
-            - project_df['project_invoiced']
+            + project_df["project_costs"]
+            - project_df["project_invoiced"]
     )
 
     if group_by_project:
@@ -110,28 +110,28 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
         # Als er kosten direct op het project zijn geboekt of facturen direct op het project,
         # voeg dan een extra 'service' toe
         for index, project in project_df.iterrows():
-            invoiced = project['project_invoiced']
+            invoiced = project["project_invoiced"]
             if math.isnan(invoiced):
                 invoiced = 0
-            costs = project.get('project_costs', 0)
+            costs = project.get("project_costs", 0)
             if math.isnan(costs):
                 costs = 0
-            if project['project_number'] == 'SM2022':
-                project_df.at[index, 'project_invoiced'] -= 17575  # Hack, dit zijn uren die zijn meegenomen uit 2021
+            if project["project_number"] == "SM2022":
+                project_df.at[index, "project_invoiced"] -= 17575  # Hack, dit zijn uren die zijn meegenomen uit 2021
                 project_df.at[index, "project_ohw"] -= 17575
             if invoiced or costs:
                 new_row = {
-                    'project_id': project['project_id'],
-                    'project_number': project['project_number'],
-                    'project_name': project['project_name'],
-                    'turnover': 0,
-                    'service_name': 'Kosten/facturen direct op het project',
-                    'service_costs': costs,
-                    'invoiced': invoiced,
-                    'service_ohw': costs - invoiced,
-                    'organization': project['organization'],
-                    'pm': project['pm'],
-                    'project_costs': project['project_costs'],
+                    "project_id": project["project_id"],
+                    "project_number": project["project_number"],
+                    "project_name": project["project_name"],
+                    "turnover": 0,
+                    "service_name": "Kosten/facturen direct op het project",
+                    "service_costs": costs,
+                    "invoiced": invoiced,
+                    "service_ohw": costs - invoiced,
+                    "organization": project["organization"],
+                    "pm": project["pm"],
+                    "project_costs": project["project_costs"],
                 }
                 new_row = {key: [value] for key, value in new_row.items()}  # Make values into lists instead of scalars
                 service_df = pd.concat([service_df, pd.DataFrame(new_row)], ignore_index=True)
@@ -145,7 +145,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
             )
         project_df = service_df.sort_values(by="project_ohw", ascending=False)
 
-    pd.options.mode.chained_assignment = 'warn'
+    pd.options.mode.chained_assignment = "warn"
     return project_df
 
 

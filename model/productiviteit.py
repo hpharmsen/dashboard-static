@@ -178,6 +178,8 @@ def largest_corrections(minimum, period: Period):
             .sort_values(by="corrections")
             .reset_index()  # make index a column
     )
+    if top_corrections.empty:
+        return None
     top_corrections["corrections"] = -top_corrections["corrections"]
     top_corrections["project_name"] = top_corrections.apply(format_project_name, axis=1)
     top_corrections = top_corrections.drop("organization", axis=1)

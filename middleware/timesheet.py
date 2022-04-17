@@ -39,7 +39,7 @@ class Timesheet(BaseTable):
                
                created_at DATETIME NOT NULL,
             """
-        self.primary_key = 'day, employee, service_id'
+        self.primary_key = 'day, employee, service_id, label'
         self.index_fields = "day employee project_number type updated year__week created_at"
         super().__init__()
         self.service_dict = None  # Hash table of all services. Used to lookup extra service data
@@ -55,14 +55,14 @@ class Timesheet(BaseTable):
             self.service_dict = {s['id']: s for s in services}
         return self.service_dict
 
-    def update(self, day=None):
+    def update(self, day=None, only_this_day=False):
         """Updates all timesheet entries starting with day if provided,
         14 days before the latest entry if day is not provided
         or 1-1-2021 if there was no last entry."""
 
         # Find newest day in database
-        newest_result = self.db.first("select max(day) as day from timesheet")["day"]
         if not day:
+            newest_result = self.db.first("select max(day) as day from timesheet")["day"]
             if newest_result:
                 day = Day(newest_result).plus_days(-14)
             else:
@@ -73,6 +73,8 @@ class Timesheet(BaseTable):
             data_func = partial(self.get_day_data, day, self.get_service_dict())
             self.insert_dicts(data_func)
             day = day.next()
+            if only_this_day:
+                break
         self.correct_revenue_groups()
         self.correct_fixed_price()
 
@@ -125,7 +127,7 @@ class Timesheet(BaseTable):
         data = sim.hours({"day": day})
         if data:
             flat_data = flatten_hours_data(data)
-            grouped_data = group_by_daypersonservice(flat_data)
+            grouped_data = group_by_daypersonservicelabel(flat_data)
             for te in grouped_data:
                 yield complement_timesheet_data(te, services)  # %(name)s
 
@@ -235,14 +237,21 @@ class Timesheet(BaseTable):
         result = {r["service_id"]: (float(r["hours"]), int(r["turnover"])) for r in self.full_query(query)}
         return result
 
+    def netwerk_uren(self, period: Period):
+        query = f'''select sum(hours) as hours from timesheet 
+            where label='Netwerken' and day>='{period.fromday}' '''
+        if period.untilday:
+            query += f''' and day<='{period.untilday}' '''
+        return self.first(query)['hours']
 
-def group_by_daypersonservice(list_of_dicts):
+
+def group_by_daypersonservicelabel(list_of_dicts):
     df = pd.DataFrame(list_of_dicts)
 
     def first(x):
         return x.values[0]
 
-    key = ["day", "employee", "service_id"]
+    key = ["day", "employee", "service_id", "label"]
     agg = {colname: first for colname in df.columns if colname not in key}
     agg["hours"] = np.sum
     agg["corrections"] = np.sum
@@ -305,6 +314,6 @@ def hours_dataframe(period: Period):
 if __name__ == "__main__":
     timesheet_table = Timesheet()
     # timesheet_table.repopulate()
-    timesheet_table.update(Day('2022-01-01'))
+    timesheet_table.update(Day('2021-12-08'), only_this_day=False)
     timesheet_table.correct_revenue_groups()
     timesheet_table.correct_fixed_price()

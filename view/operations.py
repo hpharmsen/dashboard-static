@@ -205,6 +205,15 @@ def corrections_block():
     def corrections_percentage_coloring(value):
         return dependent_color(value, red_treshold=5, green_treshold=3)
 
+    corrections_list = largest_corrections(interesting_correction, period)
+    if not corrections_list.empty:
+        corrections_table = Table(
+            corrections_list,
+            TableConfig(headers=[], aligns=["left", "right"]),
+        )
+    else:
+        corrections_table = None
+
     result = VBlock(
         [
             TextBlock("Correcties", MID_SIZE),
@@ -224,10 +233,7 @@ def corrections_block():
                 ],
                 padding=70,
             ),
-            Table(
-                largest_corrections(interesting_correction, period),
-                TableConfig(headers=[], aligns=["left", "right"]),
-            ),
+            corrections_table
         ],
         link="corrections.html",
         padding=-40,

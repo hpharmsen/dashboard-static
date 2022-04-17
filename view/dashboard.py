@@ -13,7 +13,7 @@ from model.sales import sales_waarde
 from model.travelbase import get_bookings_per_week, BRANDS
 from settings import get_output_folder, RED, GRAY, dependent_color
 from view.finance import omzet_chart, debiteuren_block, cash_block
-from view.marketing import marketing_kpi_block, marketing_results_chart, marketing_expenses_chart
+from view.marketing import marketing_kpi_block, marketing_results_chart, marketing_expenses_chart, networking_block
 from view.operations import kpi_block, operations_chart, months_ago, planning_chart, corrections_block
 from view.organisatie import booked_before_noon_chart, team_block, verzuim_block, tevredenheid_block
 from view.sales import sales_waarde_block
@@ -39,6 +39,7 @@ def marketing_block():
             marketing_results_chart(sheet),
             TextBlock("Investering", MID_SIZE, padding=10),
             marketing_expenses_chart(sheet),
+            networking_block()
         ],
         link=marketing_link,
     )

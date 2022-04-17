@@ -83,7 +83,7 @@ class Employee(BaseTable):
 
     def interns(self) -> list:
         try:
-            result = self.select(self.table_name, {'function': 'Stagiair'})
+            result = self.select({'function': 'Stagiair'})
         except pymysql.err.OperationalError:
             # Todo: Retry en panic op een lager niveau implementeren. Bijvoorbeeld self.select en self.execute in base_table
             panic('Lost connection to MySQL server during select in function employee.py interns()')

@@ -19,7 +19,8 @@ class BaseTable:
 
         if force_recreate:
             for field in self.index_fields.split():
-                self.execute(f'DROP INDEX {self.table_name}_{field} ON {self.table_name}', continue_on_error=True)
+                self.execute(
+                    f'DROP INDEX {self.table_name}_{field} ON {self.table_name}', continue_on_error=True)
             self.execute(f'DROP TABLE IF EXISTS {self.table_name}')
 
         primary_key_definition = f', PRIMARY KEY({self.primary_key.replace("__", ",")})' if self.primary_key else ''
@@ -87,11 +88,11 @@ class BaseTable:
                 return
             panic('Lost connection to MySQL while executing query ' + query)
 
-    def select(self, table, conditions) -> Generator:
+    def select(self, conditions) -> Generator:
         try:
-            yield from self.db.select(table, conditions)
+            yield from self.db.select(self.table_name, conditions)
         except SQL_ERRORS:
-            panic('Lost connection to MySQL while executing select')
+            panic(f'Lost connection to MySQL while executing select on {self.table_name} ' + str(conditions))
 
     def commit(self):
         self.db.commit()

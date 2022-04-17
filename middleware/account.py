@@ -59,10 +59,10 @@ class Account(BaseTable):
 
     @lru_cache
     def day_balance(self, day: Day):
-        accounts = self.select(self.table_name, {'day': day})
+        accounts = self.select({'day': day})
         if not accounts:
             self.update(day)
-            accounts = self.select(self.table_name, {'day': day})
+            accounts = self.select({'day': day})
         return {acc['account']: acc['amount'] for acc in accounts}
 
     def post(self, name: str, account_type: str, day: Day):
