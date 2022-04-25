@@ -50,7 +50,7 @@ def marketing_block():
 
 def sales_block():
     sales_waarde_value = sales_waarde()
-    sales_waarde_color = dependent_color(sales_waarde_value, 250000, 350000)
+    sales_waarde_color = dependent_color(sales_waarde_value, 325000, 450000)
     return VBlock(
         [
             TextBlock("Sales", HEADER_SIZE),

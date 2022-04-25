@@ -1,6 +1,5 @@
 import datetime
 import locale
-import sys
 from decimal import Decimal
 from functools import lru_cache
 
@@ -94,6 +93,14 @@ def cached_get_url(url):
         panic('ConnectionError while trying to access Yuki')
 
 
+class YukiEmptyBodyException(Exception):
+    pass
+
+
+class YukiInternalServerErrorException(Exception):
+    pass
+
+
 class Yuki:
     def __init__(self):
         api_key = ini["yuki"]["api_key"]
@@ -111,10 +118,13 @@ class Yuki:
             for key, value in params.items():
                 url += f"{key}={value}&"
         response = cached_get_url(url)
-        soup = BeautifulSoup(response.text, "lxml")
+        soup = BeautifulSoup(markup=response.text, features="xml")
         if response.status_code == 500:
             print("Yuki:", response.text)
-            sys.exit()
+            raise YukiInternalServerErrorException
+        if not soup.html:
+            print("Yuki call to", endpoint, 'is empty')
+            raise YukiEmptyBodyException
         return soup.html.body
 
     def administrations(self):

@@ -6,6 +6,7 @@ from sources.simplicate import simplicate
 @singleton
 class Project(BaseTable):
     def __init__(self):
+        super().__init__()
         self.table_name = 'project'
         self.table_definition = f"""
                project_id {SIMPLICATE_ID} NOT NULL,
@@ -20,7 +21,6 @@ class Project(BaseTable):
             """
         self.primary_key = 'project_id'
         self.index_fields = 'organization project_number start_date end_date status'
-        super().__init__()
 
     def get_data(self):
         sim = simplicate()

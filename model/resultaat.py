@@ -21,7 +21,7 @@ from sources.googlesheet import sheet_tab, sheet_value
 from sources.simplicate import simplicate
 from sources.yuki import yuki
 
-BEGROTING_SHEET = "Begroting 2021"
+BEGROTING_SHEET = "Begroting"  # Year will be added
 BEGROTING_TAB = "Begroting"
 BEGROTING_KOSTEN_ROW = 23
 BEGROTING_INKOMSTEN_ROW = 32
@@ -96,11 +96,11 @@ def omzet_begroot_na_maand(m):
 
 
 @cache(hours=24)
-def omzet_begroot_tm_maand(m):
+def omzet_begroot_tm_maand(y, m):
     """Begrote kosten t/m maand m"""
     if m == 0:
         return 0
-    tab = sheet_tab(BEGROTING_SHEET, BEGROTING_TAB)
+    tab = sheet_tab(BEGROTING_SHEET + ' ' + y, BEGROTING_TAB)
     res = sheet_value(tab, BEGROTING_INKOMSTEN_ROW, m + 2) * 1000
     return Decimal(res)
 
@@ -144,10 +144,9 @@ def kosten_boekhoudkundig_tm_maand(y, m):
 @cache(hours=24)
 def kosten_begroot_tm_maand(y, m):
     """Begrote kosten t/m maand m"""
-    # todo: !! Rekening houden met het jaar
     if m == 0:
         return 0
-    tab = sheet_tab(BEGROTING_SHEET, BEGROTING_TAB)
+    tab = sheet_tab(BEGROTING_SHEET + ' ' + y, BEGROTING_TAB)
     res = sheet_value(tab, BEGROTING_KOSTEN_ROW, m + 2) * 1000
     return Decimal(res)
 
@@ -155,18 +154,18 @@ def kosten_begroot_tm_maand(y, m):
 @cache(hours=24)
 def kosten_begroot_na_maand(y, m):
     """Begrote kosten na maand m gerekend tot vandaag"""
-    # todo: !! Rekening houden met het jaar
     h = huidige_maand()
     begroot_tm_m = kosten_begroot_tm_maand(y, m)
-    begroot_tm_h = kosten_begroot_tm_maand(h)
+    begroot_tm_h = kosten_begroot_tm_maand(y, h)
     aantal_maanden_na_laatste_maand = Decimal(h - m - 1 + datetime.today().day / 30)
     res = (begroot_tm_h - begroot_tm_m) / (h - m) * aantal_maanden_na_laatste_maand
     return Decimal(res)
 
 
 def kosten_begroot():
+    y = datetime.now().strftime('%Y')
     """Het begrote aantal kosten t/m nu"""
-    res = kosten_begroot_na_maand(0)
+    res = kosten_begroot_na_maand(y, 0)
     return res
 
 
@@ -191,7 +190,8 @@ def kosten_werkelijk():
 
 def laatste_geboekte_maand():
     # Nummer van de laatste maand die in de boekhouding is bijgewerkt
-    tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
+    y = datetime.now().strftime('%Y')
+    tab = sheet_tab(BEGROTING_SHEET + ' ' + y, RESULTAAT_TAB)
     for m in range(12):
         data = sheet_value(tab, RESULTAAT_BIJGEWERKT_ROW, m + 3)
         if not data:
@@ -203,7 +203,8 @@ def laatste_geboekte_maand():
 def bijgewerkt():
     """Checkt in de Resultaat tab van het Keycijfers sheet of de boekhouding van afgelopen
     maand al is ingevuld."""
-    tab = sheet_tab(BEGROTING_SHEET, RESULTAAT_TAB)
+    y = datetime.now().strftime('%Y')
+    tab = sheet_tab(BEGROTING_SHEET + ' ' + y, RESULTAAT_TAB)
     vm = vorige_maand()
     data = sheet_value(tab, RESULTAAT_BIJGEWERKT_ROW, vm + 2)
     return data

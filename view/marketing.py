@@ -7,7 +7,7 @@ from model.utilities import Day, Period
 from settings import GRAY, BLUE, GREEN, RED, ORANGE
 
 
-def kpi_block(header, amount, description, link='', text_format=''):
+def kpi_block(header, amount, description, link="", text_format=""):
     return VBlock(
         [
             TextBlock(header, DEF_SIZE, padding=5, color=GRAY) if header else None,
@@ -27,8 +27,10 @@ def marketing_kpi_block(sheet: Marketing):
         "https://docs.google.com/spreadsheets/d/1eKR3Ez1SYOt_wAlTXGcxcVyH_d4GHTq76CKJM3Dyxqc/edit#gid=1979554936"
     )
     block = HBlock(
-        [kpi_block(kpi, sheet.total(kpi), f"  (+{sheet.last(kpi)})", link=new_business_link, text_format="0")
-         for kpi in ["MQL", "SQL", "RFP"]]
+        [
+            kpi_block(kpi, sheet.total(kpi), f"  (+{sheet.last(kpi)})", link=new_business_link, text_format="0")
+            for kpi in ["MQL", "SQL", "RFP"]
+        ]
     )
     return block
 
@@ -77,5 +79,9 @@ def networking_block():
     timesheet = Timesheet()
     period = Period(Day().plus_days(-14))
     hours = timesheet.netwerk_uren(period)
-    return VBlock([TextBlock('Netwerken', font_size=MID_SIZE),
-                   kpi_block('', hours, 'uur de afgelopen twee weken', text_format='0')])
+    return VBlock(
+        [
+            TextBlock("Netwerken", font_size=MID_SIZE),
+            kpi_block("", hours, "uur de afgelopen twee weken", text_format="0"),
+        ]
+    )

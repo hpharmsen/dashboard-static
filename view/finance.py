@@ -7,6 +7,7 @@ from middleware.trendline import TrendLines
 from model.finance import debiteuren_30_60_90_yuki
 from model.utilities import Day
 from settings import GRAY, GREEN, YELLOW, ORANGE, RED
+from sources.yuki import YukiEmptyBodyException
 from view.operations import months_ago
 
 
@@ -35,22 +36,23 @@ def omzet_chart():
 def debiteuren_block():
     # betaaltermijn = gemiddelde_betaaltermijn()
     # betaaltermijn_color = dependent_color(betaaltermijn, 45, 30)
-    debiteuren = debiteuren_30_60_90_yuki()
-    max_y = ceil(sum(debiteuren) / 100_000) * 100_000
-    return VBlock(
-        [
-            TextBlock("Debiteuren", MID_SIZE),
-            StackedBarChart(
-                debiteuren,
-                ChartConfig(
-                    width=240,
-                    height=250,
-                    labels=["<30 dg", "30-60 dg", "60-90 dg", "> 90 dg"],
-                    colors=[GREEN, YELLOW, ORANGE, RED],
-                    max_y_axis=max(450_000, max_y),
-                ),
+    try:
+        debiteuren = debiteuren_30_60_90_yuki()
+        max_y = ceil(sum(debiteuren) / 100_000) * 100_000
+        chart = StackedBarChart(
+            debiteuren,
+            ChartConfig(
+                width=240,
+                height=250,
+                labels=["<30 dg", "30-60 dg", "60-90 dg", "> 90 dg"],
+                colors=[GREEN, YELLOW, ORANGE, RED],
+                max_y_axis=max(450_000, max_y),
             ),
-        ],
+        )
+    except YukiEmptyBodyException:
+        chart = TextBlock('Yuki api returned an empty page', color=RED)
+    return VBlock(
+        [TextBlock("Debiteuren", MID_SIZE), chart],
         link="debiteuren.html",
     )
 

@@ -5,10 +5,6 @@ import sys
 from pathlib import Path
 
 from hplib import dbClass
-from pymysql import OperationalError as PymysqlOperationalerror
-from sqlalchemy.exc import OperationalError as SqlalchemyOperationalerror, ProgrammingError
-
-SQL_ERRORS = (PymysqlOperationalerror, SqlalchemyOperationalerror, ProgrammingError)
 
 scriptpath = Path(__file__).resolve().parent
 middleware_db = None
@@ -17,13 +13,7 @@ middleware_db = None
 def get_middleware_db():
     global middleware_db
     if not middleware_db:
-        try:
-            middleware_db = dbClass.from_inifile(
-                scriptpath / '..' / 'sources' / 'credentials.ini', section='aws-dashboard'
-            )
-        except SQL_ERRORS:
-            panic("middleware_utils.py get_middleware_db() Can't connect to MySQL server on AWS.")
-
+        middleware_db = dbClass.from_inifile(scriptpath / '..' / 'sources' / 'credentials.ini', section='aws-dashboard')
     return middleware_db
 
 

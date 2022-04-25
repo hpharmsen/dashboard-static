@@ -2,10 +2,8 @@
 from decimal import Decimal
 from os import chdir
 
-import pymysql
-
 from middleware.base_table import BaseTable, EMPLOYEE_NAME
-from middleware.middleware_utils import singleton, panic
+from middleware.middleware_utils import singleton
 from sources.googlesheet import HeaderSheet
 from sources.simplicate import simplicate
 
@@ -20,6 +18,7 @@ PRODUCTIVITEIT = 0.85
 @singleton
 class Employee(BaseTable):
     def __init__(self):
+        super().__init__()
         self.table_name = 'employee'
         self.table_definition = f"""
                name {EMPLOYEE_NAME} NOT NULL,
@@ -29,7 +28,6 @@ class Employee(BaseTable):
             """
         self.primary_key = 'name'
         self.index_fields = ''
-        super().__init__()
 
     def get_data(self):
         hourly_costs_per_user = self.employee_hour_costs()
@@ -78,20 +76,16 @@ class Employee(BaseTable):
         query = 'select * from employee where active=1'
         if not include_interns:
             query += ' and function != "Stagiair"'
-        result = self.query(query)
+        result = self.db.query(query)
         return [res['name'] for res in result]
 
     def interns(self) -> list:
-        try:
-            result = self.select({'function': 'Stagiair'})
-        except pymysql.err.OperationalError:
-            # Todo: Retry en panic op een lager niveau implementeren. Bijvoorbeeld self.select en self.execute in base_table
-            panic('Lost connection to MySQL server during select in function employee.py interns()')
+        result = self.db.select(self.table_name, {'function': 'Stagiair'})
         return [res['name'] for res in result]
 
     def __getitem__(self, employee_name):
         query = f'select * from employee where name="{employee_name}"'
-        result = self.query(query)
+        result = self.db.query(query)
         if not result:
             raise KeyError(f'{employee_name} not found in employee database')
         return result[0]

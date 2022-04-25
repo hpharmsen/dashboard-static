@@ -6,6 +6,9 @@ import requests
 
 from middleware.trendline import TrendLines
 from sources.database import get_travelbase_db, dataframe
+from sources.googlesheet import get_spreadsheet, fill_range
+
+VALID_STATUSES = ('accepted', 'cancelled-guest', 'cancelled-partner', 'no-show')
 
 # STRUCTUUR:
 # [{'arrival_date': d   atetime.date(2021, 5, 24),
@@ -49,7 +52,7 @@ def get_bookings_per_week(booking_type: str = 'bookings', only_complete_weeks=Fa
     for brand in BRANDS:
         sql = f'''select YEAR(created_at) as year, WEEK(created_at, {mysql_week_mode}) as week, count(*) as aantal 
                   from {booking_type} 
-                  where brand="{brand}" and status in ('accepted', 'cancelled-guest', 'cancelled-partner', 'no-show')
+                  where brand="{brand}" and status in {VALID_STATUSES}
                   group by year, week 
                   order by year, week'''
         df = dataframe(sql, db)
@@ -79,23 +82,42 @@ def get_bookings_per_week(booking_type: str = 'bookings', only_complete_weeks=Fa
     return all
 
 
-# @cache(hours=6)
+# # @cache(hours=6)
+# def update_bookings_per_day(booking_type: str, start_day:Day):
+#     # todo: Dit moet veel sneller kunnen. Eerst alle waardes ophalen en dan in 1x wegschrijven naar Google
+#     db = get_travelbase_db()
+#     for brand in BRANDS:
+#         day, value = get_latest(booking_type, brand)
+#         if start_day: # Update from an earlier date
+#             day = start_day
+#         day_constraint = f'and created_at>="{day}"' if day else ''
+#         sql = f'''select DATE(created_at) as day, count(*) as aantal
+#                   from {booking_type}
+#                   where brand="{brand}" {day_constraint} and status in {VALID_STATUSES}
+#                   group by day
+#                   order by day'''
+#         df = dataframe(sql, db)
+#         if not isinstance(df, pd.DataFrame):
+#             return  # Error occurred, no use to proceed
+#         for index, row in df.iterrows():
+#             if row['day'] != day or row['value'] != value:
+#                 save_value(booking_type, brand, row['day'], row['aantal'])
+#     return True
+
+
 def update_bookings_per_day(booking_type: str):
     db = get_travelbase_db()
+    sheet = get_spreadsheet('Travelbase dashboard')
     for brand in BRANDS:
-        day, value = get_latest(booking_type, brand)
-        day_constraint = f'and created_at>="{day}"' if day else ''
         sql = f'''select DATE(created_at) as day, count(*) as aantal 
                   from {booking_type} 
-                  where brand="{brand}" {day_constraint} and status in ('accepted', 'cancelled-guest', 'cancelled-partner')
+                  where brand="{brand}" and status in {VALID_STATUSES}
                   group by day 
                   order by day'''
-        df = dataframe(sql, db)
-        if not isinstance(df, pd.DataFrame):
-            return  # Error occurred, no use to proceed
-        for index, row in df.iterrows():
-            if row['day'] != day or row['value'] != value:
-                save_value(booking_type, brand, row['day'], row['aantal'])
+        data = [[(rec['day'] - datetime.date(1899, 12, 31)).days, rec['aantal']] for rec in db.query(sql)]
+        tab_name = brand if booking_type == 'bookings' else brand + '_tickets'
+        tab = sheet.worksheet(tab_name)
+        fill_range(tab, 1, 1, data)
     return True
 
 
@@ -126,9 +148,9 @@ if __name__ == '__main__':
     os.chdir('..')
     # sql = f'''select count(*) as aantal
     #               from bookings
-    #               where brand="texel" and month(created_at)=8 and status in ('accepted', 'cancelled-guest', 'cancelled-partner')'''
+    #               where brand="texel" and month(created_at)=8 and status in {VALID_STATUSES}'''
     # db = get_travelbase_db()
     # print(db.execute(sql))
-    update_bookings_per_day(booking_type='tickets')
-    update_bookings_per_day(booking_type='bookings')
+    # update_bookings_per_day(booking_type='tickets')
+    update_bookings_per_day2(booking_type='bookings')
     # get_bookings_per_week(type='tickets')

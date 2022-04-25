@@ -48,6 +48,7 @@ from model.finance import cash
 from model.log import init_log
 from settings import get_output_folder
 # from view.billable import render_billable_page
+from sources.yuki import YukiEmptyBodyException
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
@@ -73,7 +74,10 @@ def main():
 
 
 def module_initialisations():
-    cash()  # Update cash trend on loading of this module'''
+    try:  # todo: cash should check the AWS db instead of yuki. Then the except is not needed anymore
+        cash()  # Update cash trend on loading of this module'''
+    except YukiEmptyBodyException:
+        pass
     init_log()  # Start log entry with the current date
 
 

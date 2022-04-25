@@ -11,6 +11,7 @@ from sources.database import get_db
 @singleton
 class TrendLines(BaseTable):
     def __init__(self):
+        super().__init__()
         self.db = get_db()  # Nog uit extranet
         self.table_name = "trends"
         self.table_definition = """
@@ -20,7 +21,6 @@ class TrendLines(BaseTable):
             """
         self.primary_key = 'trendline__date'
         self.index_fields = ""
-        super().__init__()
         self.trends = defaultdict(list)
         self.load()
 
@@ -100,6 +100,9 @@ class TrendLines(BaseTable):
             y_axis_max_ticks=5,
         )
         return ScatterChart(xy, chart_config)
+
+    def get_data(self):
+        pass  # Not implemented but necessary to include since it's inherited from ABC class BaseTable
 
 
 if __name__ == "__main__":

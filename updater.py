@@ -13,6 +13,7 @@ from model.resultaat import update_omzet_per_week
 from model.travelbase import update_bookings_per_day
 from model.utilities import Day
 from settings import get_output_folder
+from sources.yuki import YukiEmptyBodyException, YukiInternalServerErrorException
 
 
 def update_employee():
@@ -46,7 +47,14 @@ def update_travelbase():
 
 
 def update_finance():
-    cash = finance.cash()
+    try:
+        cash = finance.cash()
+    except YukiEmptyBodyException:
+        print('!! Yuki returned an empty body')
+        return
+    except YukiInternalServerErrorException:
+        print('!! Yuki returned an internal server error')
+        return
     TrendLines().update('cash', int(cash))
     update_omzet_per_week()
 
@@ -82,11 +90,11 @@ if __name__ == '__main__':
     if '--nocache' in sys.argv:
         clear_cache()
 
+    update_travelbase()
     update_employee()
     update_project()
     update_service()
     update_timesheet()
-    update_travelbase()
     update_finance()
     update_invoices(Day().plus_months(-1))
 

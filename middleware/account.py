@@ -10,6 +10,7 @@ from sources.yuki import Yuki, ACCOUNT_CODES, ASSETS, LIABILITIES
 @singleton
 class Account(BaseTable):
     def __init__(self):
+        super().__init__()
         self.yuki = Yuki()
         self.table_name = 'account'
         self.table_definition = f"""
@@ -19,7 +20,6 @@ class Account(BaseTable):
             """
         self.primary_key = 'day__account'
         self.index_fields = ''
-        super().__init__()
 
     def get_data(self):
         today = Day()
@@ -52,17 +52,17 @@ class Account(BaseTable):
             yield {'day': day, 'account': account, 'amount': amount}
 
     def update(self, day):
-        self.execute(f'delete from account where day="{day}"')
-        self.commit()
+        self.db.execute(f'delete from account where day="{day}"')
+        self.db.commit()
         data_func = partial(self.get_day_data, day)
         self.insert_dicts(data_func)
 
     @lru_cache
     def day_balance(self, day: Day):
-        accounts = self.select({'day': day})
+        accounts = self.db.select(self.table_name, {'day': day})
         if not accounts:
-            self.update(day)
-            accounts = self.select({'day': day})
+            self.db.update(day)
+            accounts = self.db.select(self.table_name, {'day': day})
         return {acc['account']: acc['amount'] for acc in accounts}
 
     def post(self, name: str, account_type: str, day: Day):

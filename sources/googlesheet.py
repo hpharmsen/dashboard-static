@@ -7,6 +7,7 @@ import gspread  # https://github.com/burnash/gspread
 from google.auth.transport import requests
 from google.auth.transport.requests import AuthorizedSession
 from google.oauth2.service_account import Credentials
+from gspread import Worksheet
 
 from model import log
 
@@ -91,6 +92,17 @@ def to_float(something):
 
 def to_int(something):
     return int(round(to_float(something)))
+
+
+def fill_range(sheet_tab: Worksheet, row: int, col: int, data: list):
+    if not isinstance(data[0], list):
+        data = [data]  # 1-dimensional, make 2-dimensional
+    # Select a range
+    cell_list = sheet_tab.range(row, col, row + len(data) - 1, col + len(data[0]) - 1)  # row, col, lastrow, lastcol
+    for cell in cell_list:
+        cell.value = data[cell.row - row][cell.col - col]
+    # Update in batch
+    sheet_tab.update_cells(cell_list)
 
 
 class HeaderSheet:

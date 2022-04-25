@@ -12,5 +12,6 @@ python-dateutil
 beautifulsoup4
 lxml
 jupyterlab
+pdfkit
 -e git+https://github.com/hpharmsen/hplib#egg=hplib
 -e git+https://github.com/hpharmsen/pysimplicate#egg=pysimplicate

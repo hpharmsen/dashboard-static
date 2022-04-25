@@ -8,10 +8,15 @@ from layout.block import TextBlock, Page
 from layout.table import Table, TableConfig
 from model.finance import debiteuren_leeftijd_analyse
 from settings import get_output_folder
+from sources.yuki import YukiEmptyBodyException
 
 
 def render_debiteuren_page(output_folder: Path):
-    debiteuren = debiteuren_leeftijd_analyse()
+    try:
+        debiteuren = debiteuren_leeftijd_analyse()
+    except YukiEmptyBodyException:
+        print('!! Cannot render debiteuren page because Yuki api returned an empty page.')
+        return
     if not isinstance(debiteuren, pd.DataFrame):
         return  # Error occurred, no use to proceed
     page = Page(

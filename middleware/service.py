@@ -7,6 +7,7 @@ from sources.simplicate import simplicate
 @singleton
 class Service(BaseTable):
     def __init__(self):
+        super().__init__()
         self.table_name = 'service'
         self.table_definition = f"""
                service_id {SIMPLICATE_ID} NOT NULL,
@@ -21,7 +22,6 @@ class Service(BaseTable):
             """
         self.primary_key = 'service_id'
         self.index_fields = 'project_id start_date end_date status'
-        super().__init__()
 
     def get_data(self):
         sim = simplicate()
