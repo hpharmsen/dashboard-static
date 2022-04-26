@@ -6,7 +6,7 @@ from layout.block import Page, TextBlock, VBlock
 from layout.chart import StackedBarChart, ChartConfig
 from model.booked import booked
 from model.utilities import Day, Period
-from settings import get_output_folder, GREEN, BLUE, RED, ORANGE, GRAY
+from settings import get_output_folder, GREEN, BLUE, RED, ORANGE, GRAY, LIGHT_GRAY
 
 
 def render_booked_page(output_folder: Path):
@@ -39,8 +39,8 @@ def booked_chart(period: Period):
         horizontal=True,
         width=800,
         height=1200,
-        colors=[GREEN, RED, BLUE, ORANGE, GRAY],
-        max_x_axis=40,
+        colors=[GREEN, RED, BLUE, ORANGE, GRAY, LIGHT_GRAY],
+        max_x_axis=50,
         labels=series.keys(),
         series_labels=name_labels,
     )
