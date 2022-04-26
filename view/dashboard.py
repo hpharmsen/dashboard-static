@@ -15,7 +15,7 @@ from settings import get_output_folder, RED, GRAY, dependent_color
 from view.finance import omzet_chart, debiteuren_block, cash_block
 from view.marketing import marketing_kpi_block, marketing_results_chart, marketing_expenses_chart, networking_block
 from view.operations import kpi_block, operations_chart, months_ago, planning_chart, corrections_block
-from view.organisatie import booked_before_noon_chart, team_block, verzuim_block, tevredenheid_block
+from view.organisatie import team_block, verzuim_block, tevredenheid_block, uren_boek_block
 from view.sales import sales_waarde_block
 from view.travelbase import scatterchart as travelbase_scatterchart
 
@@ -115,9 +115,7 @@ def hr_block():
             team_block(),
             tevredenheid_block(),
             verzuim_block(),
-            TextBlock("Uren boeken", MID_SIZE),
-            TextBlock("Percentage dagen dat volledig is geboekt voor 12:00", DEF_SIZE, color=GRAY),
-            booked_before_noon_chart(250, 200),
+            uren_boek_block(),
             # vakantiedagen_block(),
             travelbase_block(),
             error_block(),

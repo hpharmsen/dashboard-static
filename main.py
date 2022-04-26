@@ -49,6 +49,7 @@ from model.log import init_log
 from settings import get_output_folder
 # from view.billable import render_billable_page
 from sources.yuki import YukiEmptyBodyException
+from view.booked import render_booked_page
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
 from view.debiteuren import render_debiteuren_page
@@ -134,6 +135,8 @@ def render_all_pages(output_folder):
     render_verzuim_page(output_folder)
     print('..travelbase')
     render_travelbase_page(output_folder)
+    print('..geboekte uren')
+    render_booked_page(get_output_folder())
 
     # Pages missing since the move to Simplicate. They might or might not return.
     # render_resultaat_vergelijking_page(output_folder)

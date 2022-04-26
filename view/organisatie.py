@@ -89,6 +89,14 @@ def tevredenheid_block():
     return None  # VBlock([TextBlock('Happiness', midsize), TextBlock('Data nodig...', color=GRAY)])
 
 
+def uren_boek_block():
+    return VBlock([
+        TextBlock("Uren boeken", MID_SIZE),
+        TextBlock("Percentage dagen dat volledig is geboekt voor 12:00", DEF_SIZE, color=GRAY),
+        booked_before_noon_chart(250, 200)
+    ], link="booked.html")
+
+
 def booked_before_noon_chart(width: int, height: int):
     period = Period('2022-01-03')
     data = [d for d in booked_days_before_noon(period)]

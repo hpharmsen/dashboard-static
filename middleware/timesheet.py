@@ -60,7 +60,7 @@ class Timesheet(BaseTable):
         14 days before the latest entry if day is not provided
         or 1-1-2021 if there was no last entry."""
 
-        # Find newest day in database
+        # Find the newest day in database
         if not day:
             newest_result = self.db.first("select max(day) as day from timesheet")["day"]
             if newest_result:
@@ -82,12 +82,16 @@ class Timesheet(BaseTable):
         self.db.execute(
             '''
         update timesheet set revenue_group="Omzet teampropositie" where project_number in ("BEN-1","VHC-1");
-        update timesheet set revenue_group="Omzet productpropositie" where revenue_group in ("Omzet development","Omzet app development");
-        update timesheet set revenue_group="Omzet Travelbase" where project_number like "TRAV-%" or project_number="TOR-3";
+        update timesheet set revenue_group="Omzet productpropositie" 
+            where revenue_group in ("Omzet development","Omzet app development");
+        update timesheet set revenue_group="Omzet Travelbase" 
+            where project_number like "TRAV-%" or project_number="TOR-3";
         update timesheet set revenue_group="Omzet productpropositie" where project_number in ("SLIM-30","THIE-17");
         update timesheet set revenue_group='Omzet teampropositie' where project_number like "COL-%";
-        update timesheet set revenue_group="" where project_number like "OBE-%" or project_number like "QIKK-%" or label="Internal";
-        update timesheet set revenue_group="Omzet productpropositie" where revenue_group="" and project_number not like "OBE-%";
+        update timesheet set revenue_group="" 
+            where project_number like "OBE-%" or project_number like "QIKK-%" or label="Internal";
+        update timesheet set revenue_group="Omzet productpropositie" 
+            where revenue_group="" and project_number not like "OBE-%";
         update timesheet set revenue_group="Omzet overig" where project_number like "CAP-%";
         update timesheet set revenue_group="" where type in ("leave","absence");
         '''
@@ -195,10 +199,10 @@ class Timesheet(BaseTable):
         """Number of hours with the type absence in Period. Filtering on employees is optional."""
         return self.hours_with_type(period, "absence", employees)
 
-    def hours_with_type(self, period: Period, type: str, employees: list = []):
-        """Number of hours with the given type (normal, absence, leave) in Period. Filtering on employees is optional."""
+    def hours_with_type(self, period: Period, hours_type: str, employees: list = []):
+        """Logged hours with the given type (normal, absence, leave) in Period. Filtering on employees is optional."""
         query = "select sum(hours) as result from timesheet " + self.where_clause(
-            period, users=employees, hours_type=type
+            period, users=employees, hours_type=hours_type
         )
         query_result = self.db.first(query)
         result = float(query_result["result"] or 0)
@@ -229,7 +233,7 @@ class Timesheet(BaseTable):
             service_ids: list,
             day: Day,
     ) -> dict[str, tuple[float, int]]:
-        """Dict with the given service_ids as keys and their their turnovers up to the given day as values"""
+        """Dict with the given service_ids as keys and their turnovers up to the given day as values"""
         services_string = '("' + '","'.join(service_ids) + '")'
         query = f"""select service_id, sum(hours) as hours, sum(turnover) as turnover from timesheet 
                     where service_id in {services_string} and day<="{day}"
@@ -314,6 +318,6 @@ def hours_dataframe(period: Period):
 if __name__ == "__main__":
     timesheet_table = Timesheet()
     # timesheet_table.repopulate()
-    timesheet_table.update(Day('2021-12-08'), only_this_day=False)
+    timesheet_table.update(Day('2022-04-18'), only_this_day=False)
     timesheet_table.correct_revenue_groups()
     timesheet_table.correct_fixed_price()
