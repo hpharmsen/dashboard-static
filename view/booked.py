@@ -18,14 +18,17 @@ def render_booked_page(output_folder: Path):
         until = start
 
     page_content = [
-        VBlock([
-            TextBlock(f'Uren van week {period.fromday.week_number()}', MID_SIZE),
-            booked_chart(period)
-        ]) for period in periods
+        VBlock(
+            [
+                TextBlock(f"Uren van week {period.fromday.week_number()}", MID_SIZE),
+                booked_chart(period),
+            ]
+        )
+        for period in periods
     ]
 
-    page = Page([TextBlock('Geboekte uren', HEADER_SIZE)] + page_content)
-    page.render(output_folder / 'booked.html')
+    page = Page([TextBlock("Geboekte uren", HEADER_SIZE)] + page_content)
+    page.render(output_folder / "booked.html")
 
 
 def booked_chart(period: Period):
@@ -44,7 +47,7 @@ def booked_chart(period: Period):
     return StackedBarChart(chartdata, chart_config)
 
 
-if __name__ == '__main__':
-    os.chdir('..')
+if __name__ == "__main__":
+    os.chdir("..")
 
     render_booked_page(get_output_folder())
