@@ -10,7 +10,6 @@ from beautiful_date import *
 from middleware.timesheet import hours_dataframe
 from middleware.trendline import TrendLines
 from model.caching import cache
-
 # from model.onderhanden_werk import simplicate_onderhanden_werk
 from model.onderhanden_werk import ohw_sum
 from model.productiviteit import tuple_of_productie_users
