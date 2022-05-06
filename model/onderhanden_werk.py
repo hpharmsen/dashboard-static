@@ -9,7 +9,7 @@ from pysimplicate import Simplicate
 from middleware.invoice import Invoice
 from middleware.timesheet import Timesheet
 from model.caching import load_cache
-from model.utilities import Day, Period, cache
+from model.utilities import Day, Period
 from sources.simplicate import simplicate
 
 
@@ -39,12 +39,16 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
 
     # Nieuwe methode:
     # 1. Alle active projecten en de diensten daarvan
-    service_df = simplicate_projects_and_services(sim, day)  # todo: kan dit niet uit middleware?
+    service_df = simplicate_projects_and_services(
+        sim, day
+    )  # todo: kan dit niet uit middleware?
     # service_df = service_df.query('project_number=="BAM-1"')
 
     # 2. Omzet -/- correcties berekenen
     service_ids = service_df["service_id"].tolist()
-    service_turnovers = Timesheet().services_with_their_hours_and_turnover(service_ids, day)
+    service_turnovers = Timesheet().services_with_their_hours_and_turnover(
+        service_ids, day
+    )
 
     def calculate_turover(row):
         hours, turnover = service_turnovers.get(row["service_id"], (0, 0))
@@ -73,12 +77,23 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
     service_df["invoiced"] = service_df.apply(get_service_invoiced, axis=1).astype(int)
 
     # 5. Onderhanden werk berekenen
-    service_df["service_ohw"] = service_df["turnover"] + service_df["service_costs"] - service_df["invoiced"]
+    service_df["service_ohw"] = (
+            service_df["turnover"] + service_df["service_costs"] - service_df["invoiced"]
+    )
     service_df = service_df.query("service_ohw >=100 | service_ohw < -100").copy()
 
     # Group by project either to return projects or to be able to sort the services by project OHW
     project_df = (
-        service_df.groupby(["organization", "pm", "project_number", "project_name", "project_costs", "project_id"])
+        service_df.groupby(
+            [
+                "organization",
+                "pm",
+                "project_number",
+                "project_name",
+                "project_costs",
+                "project_id",
+            ]
+        )
             .agg({"turnover": "sum", "invoiced": "sum", "service_costs": "sum"})
             .reset_index()
     )
@@ -89,7 +104,9 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
             res = 0
         return res
 
-    project_df["project_invoiced"] = project_df.apply(get_project_invoiced, axis=1).astype(int)
+    project_df["project_invoiced"] = project_df.apply(
+        get_project_invoiced, axis=1
+    ).astype(int)
 
     project_df["project_ohw"] = (
             project_df["turnover"]
@@ -101,7 +118,9 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
 
     if group_by_project:
         if minimal_intesting_value:
-            project_df = project_df.query(f"ohw>{minimal_intesting_value} | ohw<-{minimal_intesting_value}").copy()
+            project_df = project_df.query(
+                f"ohw>{minimal_intesting_value} | ohw<-{minimal_intesting_value}"
+            ).copy()
         project_df = project_df.sort_values(by="ohw", ascending=False)
     else:
         if service_df.empty:
@@ -117,7 +136,9 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
             if math.isnan(costs):
                 costs = 0
             if project["project_number"] == "SM2022":
-                project_df.at[index, "project_invoiced"] -= 17575  # Hack, dit zijn uren die zijn meegenomen uit 2021
+                project_df.at[
+                    index, "project_invoiced"
+                ] -= 17575  # Hack, dit zijn uren die zijn meegenomen uit 2021
                 project_df.at[index, "project_ohw"] -= 17575
             if invoiced or costs:
                 new_row = {
@@ -133,12 +154,20 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
                     "pm": project["pm"],
                     "project_costs": project["project_costs"],
                 }
-                new_row = {key: [value] for key, value in new_row.items()}  # Make values into lists instead of scalars
-                service_df = pd.concat([service_df, pd.DataFrame(new_row)], ignore_index=True)
+                new_row = {
+                    key: [value] for key, value in new_row.items()
+                }  # Make values into lists instead of scalars
+                service_df = pd.concat(
+                    [service_df, pd.DataFrame(new_row)], ignore_index=True
+                )
 
         # Sort services by the total owh of their project
-        project_ohws = {p["project_number"]: p["project_ohw"] for _, p in project_df.iterrows()}
-        service_df["project_ohw"] = service_df.apply(lambda row: project_ohws.get(row["project_number"], 0), axis=1)
+        project_ohws = {
+            p["project_number"]: p["project_ohw"] for _, p in project_df.iterrows()
+        }
+        service_df["project_ohw"] = service_df.apply(
+            lambda row: project_ohws.get(row["project_number"], 0), axis=1
+        )
         if minimal_intesting_value:
             service_df = service_df.query(
                 f"project_ohw > {minimal_intesting_value} | project_ohw < -{minimal_intesting_value}"
@@ -149,7 +178,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
     return project_df
 
 
-@cache(hours=8)
+# @cache(hours=8)
 def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     """Returns a dataframe with all active projects and services at a given date"""
 
@@ -178,7 +207,17 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     services = (
         sim.to_pandas(services_json)
             .query(status_query)[
-            ["project_id", "status", "id", "name", "start_date", "end_date", "invoice_method", "service_costs", "price"]
+            [
+                "project_id",
+                "status",
+                "id",
+                "name",
+                "start_date",
+                "end_date",
+                "invoice_method",
+                "service_costs",
+                "price",
+            ]
         ]
             .rename(columns={"id": "service_id", "name": "service_name"})
     )  # end_date > "{date}" &
@@ -198,7 +237,14 @@ def simplicate_projects_and_services(sim: Simplicate, day: Day) -> DataFrame:
     projects = (
         sim.to_pandas(projects_json)
             .query(project_query)[
-            ["id", "project_number", "name", "organization_name", "project_manager_name", "budget_costs_value_spent"]
+            [
+                "id",
+                "project_number",
+                "name",
+                "organization_name",
+                "project_manager_name",
+                "budget_costs_value_spent",
+            ]
         ]
             .rename(columns=project_renames)
     )

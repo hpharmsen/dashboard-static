@@ -21,7 +21,11 @@ def tuple_of_productie_users():
     }
     sim = simplicate()
     users = sim.employee({"status": "active"})
-    users = [u["name"] for u in users if set(t["name"] for t in u.get("teams", [])).intersection(productie_teams)]
+    users = [
+        u["name"]
+        for u in users
+        if set(t["name"] for t in u.get("teams", [])).intersection(productie_teams)
+    ]
     return users
 
 
@@ -85,7 +89,9 @@ def percentage_directe_werknemers():
 def billable_trend_person_week(user, period):
     # Returns a list of labels and a list of hours
     startweek = period.fromday.week_number()
-    untilweek = period.untilday.week_number() if period.untilday else Day().week_number()
+    untilweek = (
+        period.untilday.week_number() if period.untilday else Day().week_number()
+    )
     if untilweek > startweek:
         labels = list(range(startweek, untilweek))
     else:
@@ -100,9 +106,14 @@ def billable_trend_person_week(user, period):
             .to_dict("index")
     )
     for key, value in hours_per_week.items():
-        pos = key - startweek
-        if 0 <= pos < len(labels):
-            hours[pos] = value["hours"]
+        try:
+            pos = labels.index(key)
+        except ValueError:
+            pass
+        hours[pos] = value["hours"]
+        # pos = key - startweek
+        # if 0 <= pos < len(labels):
+        #    hours[pos] = value["hours"]
     return labels, hours
 
 
@@ -135,7 +146,9 @@ def corrections_count(period: Period):
         result["hours"] = ""
     else:
         result["project"] = hours_per_project.apply(format_project_name, axis=1)
-        result["hours"] = hours_per_project.apply(lambda a: f"{-int(a['corrections'])}/{int(a['hours'])}", axis=1)
+        result["hours"] = hours_per_project.apply(
+            lambda a: f"{-int(a['corrections'])}/{int(a['hours'])}", axis=1
+        )
     return result
 
 

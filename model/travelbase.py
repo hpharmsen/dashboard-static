@@ -2,13 +2,17 @@ import datetime
 import os
 
 import pandas as pd
-import requests
 
 from middleware.trendline import TrendLines
 from sources.database import get_travelbase_db, dataframe
 from sources.googlesheet import get_spreadsheet, fill_range
 
-VALID_STATUSES = ('accepted', 'cancelled-guest', 'cancelled-partner', 'no-show')
+VALID_STATUSES = (
+    "accepted",
+    "cancelled-guest",
+    "cancelled-partner",
+    "cancelled-external",
+)
 
 # STRUCTUUR:
 # [{'arrival_date': d   atetime.date(2021, 5, 24),
@@ -36,121 +40,95 @@ VALID_STATUSES = ('accepted', 'cancelled-guest', 'cancelled-partner', 'no-show')
 #
 # Boekingen in de view 'tickets' hebben alleen 'accepted' en 'waived' als mogelijke status.
 
-BRANDS = ['waterland', 'ameland', 'schier', 'texel', 'terschelling']
-GOOGLE_SHEETS_APP = (
-    'https://script.google.com/macros/s/AKfycbyFjOJY2OaCHouEuPRtOYMzwv1vnoIaP1iEKWY27PNDuakt5IIrKoyCGlvbMUn16N0MmQ/exec'
-)
+BRANDS = ["waterland", "ameland", "schier", "texel", "terschelling"]
+GOOGLE_SHEETS_APP = "https://script.google.com/macros/s/AKfycbyFjOJY2OaCHouEuPRtOYMzwv1vnoIaP1iEKWY27PNDuakt5IIrKoyCGlvbMUn16N0MmQ/exec"
 
 
 # @cache(hours=6)
-def get_bookings_per_week(booking_type: str = 'bookings', only_complete_weeks=False):
+def get_bookings_per_week(booking_type: str = "bookings", only_complete_weeks=False):
     """Get the full list of all booking amounts per brand per week and return it as a DataFrame"""
     # Todo: Uit Middleware halen
     db = get_travelbase_db()
     dfs = []
     mysql_week_mode = 5  # Week 1 is the first week with a Monday in this year
     for brand in BRANDS:
-        sql = f'''select YEAR(created_at) as year, WEEK(created_at, {mysql_week_mode}) as week, count(*) as aantal 
+        sql = f"""select YEAR(created_at) as year, WEEK(created_at, {mysql_week_mode}) as week, count(*) as aantal 
                   from {booking_type} 
                   where brand="{brand}" and status in {VALID_STATUSES}
                   group by year, week 
-                  order by year, week'''
+                  order by year, week"""
         df = dataframe(sql, db)
         if not isinstance(df, pd.DataFrame):
             return []  # Error occurred, no use to continue
-        df = df.set_index(['year', 'week'])
+        df = df.set_index(["year", "week"])
         if only_complete_weeks:
             df = df[:-1]
         dfs += [df]
     all = pd.concat(dfs, axis=1).fillna(0)
     all.columns = BRANDS
     all = all.reset_index()
-    all['day'] = all.apply(
-        lambda a: datetime.datetime.strptime(f"{int(a['year'])}-W{int(a['week'])}-1", "%Y-W%W-%w").date(), axis=1
+    all["day"] = all.apply(
+        lambda a: datetime.datetime.strptime(
+            f"{int(a['year'])}-W{int(a['week'])}-1", "%Y-W%W-%w"
+        ).date(),
+        axis=1,
     )
-    all = all.sort_values(by=['year', 'week'], ascending=[True, True])
+    all = all.sort_values(by=["year", "week"], ascending=[True, True])
 
     # Save to trends database
     trends = TrendLines()
-    if booking_type == 'tickets':
-        trend_name = 'travelbase_tickets_' + brand
+    if booking_type == "tickets":
+        trend_name = "travelbase_tickets_" + brand
     else:
-        trend_name = 'travelbase_' + brand
+        trend_name = "travelbase_" + brand
     for index, row in all.iterrows():
         for brand in BRANDS:
-            trends.update(trend_name, int(row[brand]), row['day'])
+            trends.update(trend_name, int(row[brand]), row["day"])
     return all
 
 
-# # @cache(hours=6)
-# def update_bookings_per_day(booking_type: str, start_day:Day):
-#     # todo: Dit moet veel sneller kunnen. Eerst alle waardes ophalen en dan in 1x wegschrijven naar Google
-#     db = get_travelbase_db()
-#     for brand in BRANDS:
-#         day, value = get_latest(booking_type, brand)
-#         if start_day: # Update from an earlier date
-#             day = start_day
-#         day_constraint = f'and created_at>="{day}"' if day else ''
-#         sql = f'''select DATE(created_at) as day, count(*) as aantal
-#                   from {booking_type}
-#                   where brand="{brand}" {day_constraint} and status in {VALID_STATUSES}
-#                   group by day
-#                   order by day'''
-#         df = dataframe(sql, db)
-#         if not isinstance(df, pd.DataFrame):
-#             return  # Error occurred, no use to proceed
-#         for index, row in df.iterrows():
-#             if row['day'] != day or row['value'] != value:
-#                 save_value(booking_type, brand, row['day'], row['aantal'])
-#     return True
-
-
-def update_bookings_per_day(booking_type: str):
+def update_bookings_per_month():
     db = get_travelbase_db()
-    sheet = get_spreadsheet('Travelbase dashboard')
+    sheet = get_spreadsheet("Travelbase dashboard")
+    curyear = datetime.datetime.now().year
+    curmonth = datetime.datetime.now().month
     for brand in BRANDS:
-        sql = f'''select DATE(created_at) as day, count(*) as aantal 
-                  from {booking_type} 
-                  where brand="{brand}" and status in {VALID_STATUSES}
-                  group by day 
-                  order by day'''
-        data = [[(rec['day'] - datetime.date(1899, 12, 31)).days, rec['aantal']] for rec in db.query(sql)]
-        tab_name = brand if booking_type == 'bookings' else brand + '_tickets'
-        tab = sheet.worksheet(tab_name)
-        fill_range(tab, 1, 1, data)
+        # Initialize month data to 0
+        month_data = {}
+        for year in range(2021, curyear + 1):
+            start_month = 2 if year == 2021 else 1
+            end_month = curmonth if year == curyear else 12
+            for month in range(start_month, end_month + 1):
+                month_data[(year, month)] = {"bookings": 0, "tickets": 0}
+        # Fill month_data with data from database
+        for booking_type in ["bookings", "tickets"]:
+            sql = f"""select YEAR(DATE(created_at)) as year, MONTH(DATE(created_at)) as month, count(*) as aantal 
+                      from {booking_type} 
+                      where brand="{brand}" and status in {VALID_STATUSES}
+                      group by year, month 
+                      order by year, month"""
+            for rec in db.query(sql):
+                year = rec["year"]
+                month = rec["month"]
+                month_data[(year, month)][booking_type] = rec["aantal"]
+        #
+        data = [
+            [format_month(*key), value["bookings"], value["tickets"]]
+            for key, value in month_data.items()
+        ]
+        tab = sheet.worksheet(brand)
+        fill_range(tab, 3, 1, data)
     return True
 
 
-def get_latest(type, brand):
-    """Latest value filled in into the Google sheet for the given brand"""
-    name = brand
-    if type == 'tickets':
-        name += '_tickets'
-    url = GOOGLE_SHEETS_APP + '?name=' + name
-    result = requests.get(url).text
-    try:
-        day, value = result.split(',')
-    except:
-        return (None, None)
-    return (day, value)
+def format_month(year, month):
+    return (
+            "jan feb mrt apr mei jun jul aug sep okt nov dec".split()[month - 1]
+            + " "
+            + str(year)
+    )
 
 
-def save_value(type: str, brand: str, day, value):
-    name = brand
-    if type == 'tickets':
-        name += '_tickets'
-    url = GOOGLE_SHEETS_APP + f'?name={name}&date={day}&value={value}'
-    result = requests.get(url).text
-    print(result)
-
-
-if __name__ == '__main__':
-    os.chdir('..')
-    # sql = f'''select count(*) as aantal
-    #               from bookings
-    #               where brand="texel" and month(created_at)=8 and status in {VALID_STATUSES}'''
-    # db = get_travelbase_db()
-    # print(db.execute(sql))
-    # update_bookings_per_day(booking_type='tickets')
-    update_bookings_per_day2(booking_type='bookings')
-    # get_bookings_per_week(type='tickets')
+if __name__ == "__main__":
+    os.chdir("..")
+    update_bookings_per_month()

@@ -5,26 +5,16 @@ from model.utilities import Period, Day
 
 def booked(period: Period):
     db = get_middleware_db()
-    query = f"""select employee, sum(hours) as hours, if(type != 'normal', type, if(label = 'internal' or 
-                    project_number = 'OBE-1', 'internal', if(turnover > 0, 'billable', 'nonbillable'))) as what
+    query = f"""select employee, sum(hours) as hours, 
+                       if(type != 'normal', type, 
+                            if(label = 'internal' or  project_number = 'OBE-1', 'internal', 
+                                if(turnover > 0, 'billable', 'nonbillable')
+                            )
+                        ) as what
                 from timesheet where day >= '{period.fromday}' and day < '{period.untilday}'
                 group by employee, what
                 having hours > 0
                 order by employee, what"""
-
-    # data: {
-    #                 datasets: [{
-    #                                     label: 'billlable',
-    #                                     data: [62, 52, 56, 51, 60.9, 52.2, 60.2, 58.3, 62.5, 57.9],
-    #                                     backgroundColor: 'green',
-    #                                     datalabels: {display: false }
-    #                                   },{
-    #                                     label: 'nonbillable',
-    #                                     data: [9.8, 12.0, 12.5, 11.2, 7.4, 7.6, 4.2, 5.0, 4.5, 2.9],
-    #                                     backgroundColor: '#c00',
-    #                                     datalabels: {display: false }
-    #                                   }],
-    #                 labels: ['angela', 'caspar', 'chris', 'eva']
 
     roster_hours = roster_hours_per_user(period)
     hourtypes = ["billable", "nonbillable", "internal", "absence", "leave"]

@@ -18,8 +18,9 @@
         <meta name="theme-color" content="#ffffff">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
         <!-- !! data labels on charts -->
         <script src="https://d3js.org/d3.v4.min.js"></script>
         <script src="https://apis.google.com/js/platform.js?onload=onLoadAuth" async defer></script>
@@ -41,10 +42,6 @@
                 <a href="booked.html">geboekte uren</a> -
             </div>
         </div>
-        <span class="no-print" style="float:right; margin:20px; border:1px solid #CCC">
-            <span id="user"></span>
-            <a href="#" onclick="signOut();">Sign out</a>
-        </span>
         <span style="float:right; color:#666; margin:20px; ">[timestamp]</span>
         [children]
         <script>

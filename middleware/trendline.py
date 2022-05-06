@@ -19,7 +19,7 @@ class TrendLines(BaseTable):
                `date` DATE NOT NULL,
                value FLOAT NOT NULL,
             """
-        self.primary_key = 'trendline__date'
+        self.primary_key = "trendline__date"
         self.index_fields = ""
         self.trends = defaultdict(list)
         self.load()
@@ -88,8 +88,21 @@ class TrendLines(BaseTable):
     #                 {'trendline': trendname, 'date': date, 'value': value},
     #             )
 
-    def chart(self, trendname, width, height, x_start="", x_end=None, min_y_axis=None, max_y_axis=None):
-        xy = [{"x": a[0], "y": a[1]} for a in self.trends[trendname] if a[0] >= x_start and (not x_end or a[0] < x_end)]
+    def chart(
+            self,
+            trendname,
+            width,
+            height,
+            x_start="",
+            x_end=None,
+            min_y_axis=None,
+            max_y_axis=None,
+    ):
+        xy = [
+            {"x": a[0], "y": a[1]}
+            for a in self.trends[trendname]
+            if a[0] >= x_start and (not x_end or a[0] < x_end)
+        ]
         chart_config = ChartConfig(
             width=width,
             height=height,
@@ -98,6 +111,7 @@ class TrendLines(BaseTable):
             min_y_axis=min_y_axis,
             max_y_axis=max_y_axis,
             y_axis_max_ticks=5,
+            tension=0.3,
         )
         return ScatterChart(xy, chart_config)
 

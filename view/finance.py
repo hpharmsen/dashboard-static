@@ -50,7 +50,7 @@ def debiteuren_block():
             ),
         )
     except YukiEmptyBodyException:
-        chart = TextBlock('Yuki api returned an empty page', color=RED)
+        chart = TextBlock("Yuki api returned an empty page", color=RED)
     return VBlock(
         [TextBlock("Debiteuren", MID_SIZE), chart],
         link="debiteuren.html",
@@ -61,7 +61,14 @@ def cash_block():
     return VBlock(
         [
             TextBlock("Cash", MID_SIZE),
-            TrendLines().chart("cash", 250, 150, min_y_axis=0, max_y_axis=1_000_000, x_start=months_ago(6)),
+            TrendLines().chart(
+                "cash",
+                250,
+                150,
+                min_y_axis=0,
+                max_y_axis=1_000_000,
+                x_start=months_ago(6),
+            ),
         ]
     )
 

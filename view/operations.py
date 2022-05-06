@@ -87,11 +87,13 @@ def render_operations_page(output_folder: Path, year: int = None):
                 color="gray",
             ),
             kpi_block(weeks=weeks, total_period=total_period, total_title="YTD"),
-            TextBlock('Effectiviteit is het percentage van de beschikbare uren dat we voor klanten werken.'),
-            TextBlock('Billable uren zijn de uren die we daadwerkelijk factureren.'),
-            TextBlock('Billable % is als percentage van de beschikbare uren.'),
             TextBlock(
-                'Bij omzet op uren tellen fixed price diensten mee als omzet / gemaakte uren maar bij diensten die nog open zijn, wordt dit uurtarief gemaximeerd op €100.'
+                "Effectiviteit is het percentage van de beschikbare uren dat we voor klanten werken."
+            ),
+            TextBlock("Billable uren zijn de uren die we daadwerkelijk factureren."),
+            TextBlock("Billable % is als percentage van de beschikbare uren."),
+            TextBlock(
+                "Bij omzet op uren tellen fixed price diensten mee als omzet / gemaakte uren maar bij diensten die nog open zijn, wordt dit uurtarief gemaximeerd op €100."
             ),
         ]
     )
@@ -100,8 +102,12 @@ def render_operations_page(output_folder: Path, year: int = None):
 
 def kpi_block(weeks=4, verbose=True, total_period=None, total_title=""):
     week_numbers, hours_data = operations_data(weeks, total_period, total_title)
-    effectivity_coloring = lambda value: dependent_color(value.effectivity(), EFFECTIVITY_RED, EFFECTIVITY_GREEN)
-    corrections_coloring = lambda value: dependent_color(value.correcties_perc(), CORRECTIONS_RED, CORRECTIONS_GREEN)
+    effectivity_coloring = lambda value: dependent_color(
+        value.effectivity(), EFFECTIVITY_RED, EFFECTIVITY_GREEN
+    )
+    corrections_coloring = lambda value: dependent_color(
+        value.correcties_perc(), CORRECTIONS_RED, CORRECTIONS_GREEN
+    )
     return kpi_grid(
         week_numbers,
         hours_data,
@@ -112,7 +118,9 @@ def kpi_block(weeks=4, verbose=True, total_period=None, total_title=""):
 
 
 def operations_data(weeks, total_period=None, total_title=""):
-    monday = Day().plus_days(-2).last_monday()  # Wednesday gives the last monday, Monday and Tuesday the week before
+    monday = (
+        Day().plus_days(-2).last_monday()
+    )  # Wednesday gives the last monday, Monday and Tuesday the week before
     hours_data = []
     headers = []
     for w in range(weeks):
@@ -132,7 +140,9 @@ def operations_chart():
     height = 200
     week_numbers, hours_data = operations_data(10)
     billable = [round(h.billable_perc(), 1) for h in hours_data]
-    effective_delta = [round(h.effectivity() - h.billable_perc(), 1) for h in hours_data]
+    effective_delta = [
+        round(h.effectivity() - h.billable_perc(), 1) for h in hours_data
+    ]
     chartdata = [billable, effective_delta]
     chart_config = ChartConfig(
         width=width,
@@ -160,7 +170,9 @@ def billable_chart():
                 DEF_SIZE,
                 color=GRAY,
             ),
-            TrendLines().chart("billable_hele_team", 250, 150, x_start=months_ago(months_back)),
+            TrendLines().chart(
+                "billable_hele_team", 250, 150, x_start=months_ago(months_back)
+            ),
         ]
     )
 
@@ -189,6 +201,7 @@ def planning_chart():
                     max_x_axis=xy_values[-2]["x"],
                     min_y_axis=0,
                     max_y_axis=100,
+                    tension=0.2,
                 ),
             ),
         ]
@@ -198,7 +211,9 @@ def planning_chart():
 def corrections_block():
     weeks_back = 4
     interesting_correction = 8
-    end_day = Day().plus_days(-2).last_monday()  # Wednesday gives the last monday, Monday and Tuesday the week before
+    end_day = (
+        Day().plus_days(-2).last_monday()
+    )  # Wednesday gives the last monday, Monday and Tuesday the week before
     start_day = end_day.plus_weeks(-weeks_back)
     period = Period(start_day, end_day)
 
@@ -233,7 +248,7 @@ def corrections_block():
                 ],
                 padding=70,
             ),
-            corrections_table
+            corrections_table,
         ],
         link="corrections.html",
         padding=-40,

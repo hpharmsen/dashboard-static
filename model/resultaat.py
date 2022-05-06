@@ -10,6 +10,7 @@ from beautiful_date import *
 from middleware.timesheet import hours_dataframe
 from middleware.trendline import TrendLines
 from model.caching import cache
+
 # from model.onderhanden_werk import simplicate_onderhanden_werk
 from model.onderhanden_werk import ohw_sum
 from model.productiviteit import tuple_of_productie_users
@@ -100,7 +101,7 @@ def omzet_begroot_tm_maand(y, m):
     """Begrote kosten t/m maand m"""
     if m == 0:
         return 0
-    tab = sheet_tab(BEGROTING_SHEET + ' ' + y, BEGROTING_TAB)
+    tab = sheet_tab(BEGROTING_SHEET + " " + y, BEGROTING_TAB)
     res = sheet_value(tab, BEGROTING_INKOMSTEN_ROW, m + 2) * 1000
     return Decimal(res)
 
@@ -146,7 +147,7 @@ def kosten_begroot_tm_maand(y, m):
     """Begrote kosten t/m maand m"""
     if m == 0:
         return 0
-    tab = sheet_tab(BEGROTING_SHEET + ' ' + y, BEGROTING_TAB)
+    tab = sheet_tab(BEGROTING_SHEET + " " + y, BEGROTING_TAB)
     res = sheet_value(tab, BEGROTING_KOSTEN_ROW, m + 2) * 1000
     return Decimal(res)
 
@@ -163,7 +164,7 @@ def kosten_begroot_na_maand(y, m):
 
 
 def kosten_begroot():
-    y = datetime.now().strftime('%Y')
+    y = datetime.now().strftime("%Y")
     """Het begrote aantal kosten t/m nu"""
     res = kosten_begroot_na_maand(y, 0)
     return res
@@ -182,7 +183,9 @@ def kosten_verschil():
 def kosten_werkelijk():
     """De daadwerkelijk gerealiseerde kosten tot nu toe"""
     laatste_maand = laatste_geboekte_maand()
-    return kosten_boekhoudkundig_tm_maand(laatste_maand) + kosten_begroot_na_maand(laatste_maand)
+    return kosten_boekhoudkundig_tm_maand(laatste_maand) + kosten_begroot_na_maand(
+        laatste_maand
+    )
 
 
 ##### DIVERSEN #####
@@ -190,8 +193,8 @@ def kosten_werkelijk():
 
 def laatste_geboekte_maand():
     # Nummer van de laatste maand die in de boekhouding is bijgewerkt
-    y = datetime.now().strftime('%Y')
-    tab = sheet_tab(BEGROTING_SHEET + ' ' + y, RESULTAAT_TAB)
+    y = datetime.now().strftime("%Y")
+    tab = sheet_tab(BEGROTING_SHEET + " " + y, RESULTAAT_TAB)
     for m in range(12):
         data = sheet_value(tab, RESULTAAT_BIJGEWERKT_ROW, m + 3)
         if not data:
@@ -203,8 +206,8 @@ def laatste_geboekte_maand():
 def bijgewerkt():
     """Checkt in de Resultaat tab van het Keycijfers sheet of de boekhouding van afgelopen
     maand al is ingevuld."""
-    y = datetime.now().strftime('%Y')
-    tab = sheet_tab(BEGROTING_SHEET + ' ' + y, RESULTAAT_TAB)
+    y = datetime.now().strftime("%Y")
+    tab = sheet_tab(BEGROTING_SHEET + " " + y, RESULTAAT_TAB)
     vm = vorige_maand()
     data = sheet_value(tab, RESULTAAT_BIJGEWERKT_ROW, vm + 2)
     return data
@@ -242,9 +245,15 @@ def update_omzet_per_week():
     """Tabel van dag, omzet waarbij dag steeds de maandag is van de week waar het om gaat"""
     trends = TrendLines()
     trend_name = "omzet_per_week"
-    last_day = trends.second_last_registered_day(trend_name)  # Always recalculate the last since hours may have changed
+    last_day = trends.second_last_registered_day(
+        trend_name
+    )  # Always recalculate the last since hours may have changed
     y, m, d = str(last_day).split("-")
-    last_day = BeautifulDate(int(y), int(m), int(d)) - MO  # Last Monday on or before the last calculated day
+    last_day2 = last_day.last_monday()
+    last_day = (
+            BeautifulDate(int(y), int(m), int(d)) - MO
+    )  # Last Monday on or before the last calculated day
+    assert last_day2 == last_day  # TEST of BeautifulDate eruit kan
     last_sunday = D.today() - SU
     for monday in drange(last_day, last_sunday, 7 * days):
         sunday = monday + 6 * days
@@ -289,10 +298,16 @@ def vulling_van_de_planning():
         if not t.get("end_date") and t["employee"]["name"] in tuple_of_productie_users()
     ]
     odd = {
-        table["employee"]["name"]: [table["odd_week"][f"day_{i}"]["hours"] for i in range(1, 6)] for table in timetable
+        table["employee"]["name"]: [
+            table["odd_week"][f"day_{i}"]["hours"] for i in range(1, 6)
+        ]
+        for table in timetable
     }
     even = {
-        table["employee"]["name"]: [table["even_week"][f"day_{i}"]["hours"] for i in range(1, 6)] for table in timetable
+        table["employee"]["name"]: [
+            table["even_week"][f"day_{i}"]["hours"] for i in range(1, 6)
+        ]
+        for table in timetable
     }
     odd_tot = sum([sum(week) for week in odd.values()])
     even_tot = sum([sum(week) for week in even.values()])
@@ -308,11 +323,15 @@ def vulling_van_de_planning():
         start_day = leave["start_date"].split()[0]
         hours = -leave["hours"]
         while hours:
-            to_add = min(hours, 8)  # Technisch niet 100% correct maar we smeren langer verlof uit als 8 uur per werkdag
+            to_add = min(
+                hours, 8
+            )  # Technisch niet 100% correct maar we smeren langer verlof uit als 8 uur per werkdag
             leave_list += [
                 {
                     "day": start_day,
-                    "week": int(datetime.strptime(start_day, DATE_FORMAT).strftime("%W")),
+                    "week": int(
+                        datetime.strptime(start_day, DATE_FORMAT).strftime("%W")
+                    ),
                     "hours": to_add,
                     "employee": leave["employee"]["name"],
                 }
@@ -328,14 +347,19 @@ def vulling_van_de_planning():
             return leave_hours_per_week.at[weekno, "hours"]
         return 0
 
-    planned_hours_table["leaves"] = planned_hours_table.apply(get_leave_hours_for_week, axis=1)
+    planned_hours_table["leaves"] = planned_hours_table.apply(
+        get_leave_hours_for_week, axis=1
+    )
 
     # Filled
     planned_hours_table["filled"] = planned_hours_table.apply(
-        lambda row: int(100 * row["plannedhours"] / (row["roster"] - row["leaves"])), axis=1
+        lambda row: int(100 * row["plannedhours"] / (row["roster"] - row["leaves"])),
+        axis=1,
     )
     planned_hours_table["monday"] = planned_hours_table.apply(
-        lambda row: datetime.strptime(f'{int(row["year"])}-W{int(row["weekno"])}-1', "%Y-W%W-%w").strftime(DATE_FORMAT),
+        lambda row: datetime.strptime(
+            f'{int(row["year"])}-W{int(row["weekno"])}-1', "%Y-W%W-%w"
+        ).strftime(DATE_FORMAT),
         axis=1,
     )
     res = planned_hours_table[["monday", "filled"]].to_dict("records")
@@ -373,19 +397,28 @@ def simplicate_gefactureerd(tm_maand=12):
     params = {"from_date": Day("2021-01-01").str, "until_date": Day().str}
     inv = sim.invoice(params)
     inv_df = sim.to_pandas(inv)
-    invs = inv_df[["invoice_number", "total_excluding_vat", "status_name", "organization_name", "project_name", "date"]]
+    invs = inv_df[
+        [
+            "invoice_number",
+            "total_excluding_vat",
+            "status_name",
+            "organization_name",
+            "project_name",
+            "date",
+        ]
+    ]
     return decimal.Decimal(invs["total_excluding_vat"].sum())
 
 
 if __name__ == "__main__":
     os.chdir("..")
 
-    vulling_van_de_planning()
-    print(simplicate_gefactureerd())
-    print(yuki().income())
-    print(simplicate_gefactureerd() - yuki().income())
+    # vulling_van_de_planning()
+    # print(simplicate_gefactureerd())
+    # print(yuki().income())
+    # print(simplicate_gefactureerd() - yuki().income())
 
-    # update_omzet_per_week()
+    update_omzet_per_week()
     # print(debiteuren_leeftijd_analyse())
     # print(debiteuren_30_60_90_yuki())
     # print(toekomstige_omzet_per_week())

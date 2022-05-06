@@ -13,9 +13,25 @@ from model.sales import sales_waarde
 from model.travelbase import get_bookings_per_week, BRANDS
 from settings import get_output_folder, RED, GRAY, dependent_color
 from view.finance import omzet_chart, debiteuren_block, cash_block
-from view.marketing import marketing_kpi_block, marketing_results_chart, marketing_expenses_chart, networking_block
-from view.operations import kpi_block, operations_chart, months_ago, planning_chart, corrections_block
-from view.organisatie import team_block, verzuim_block, tevredenheid_block, uren_boek_block
+from view.marketing import (
+    marketing_kpi_block,
+    marketing_results_chart,
+    marketing_expenses_chart,
+    networking_block,
+)
+from view.operations import (
+    kpi_block,
+    operations_chart,
+    months_ago,
+    planning_chart,
+    corrections_block,
+)
+from view.organisatie import (
+    team_block,
+    verzuim_block,
+    tevredenheid_block,
+    uren_boek_block,
+)
 from view.sales import sales_waarde_block
 from view.travelbase import scatterchart as travelbase_scatterchart
 
@@ -25,9 +41,7 @@ from view.travelbase import scatterchart as travelbase_scatterchart
 
 def marketing_block():
     sheet = Marketing("Oberon - Budget + KPI's", "KPIs voor MT", 1, 1)
-    marketing_link = (
-        "https://docs.google.com/spreadsheets/d/1eKR3Ez1SYOt_wAlTXGcxcVyH_d4GHTq76CKJM3Dyxqc/edit#gid=1965783742"
-    )
+    marketing_link = "https://docs.google.com/spreadsheets/d/1eKR3Ez1SYOt_wAlTXGcxcVyH_d4GHTq76CKJM3Dyxqc/edit#gid=1965783742"
     return VBlock(
         [
             TextBlock("Marketing", HEADER_SIZE),
@@ -39,7 +53,7 @@ def marketing_block():
             marketing_results_chart(sheet),
             TextBlock("Investering", MID_SIZE, padding=10),
             marketing_expenses_chart(sheet),
-            networking_block()
+            networking_block(),
         ],
         link=marketing_link,
     )
@@ -66,7 +80,10 @@ def sales_block():
                 color=sales_waarde_color,
                 tooltip="Som van openstaande trajecten<br/>maal hun kans.",
             ),
-            TrendLines().chart("sales_waarde", 250, 150, min_y_axis=0, x_start=months_ago(6)),
+            TrendLines().chart(
+                "sales_waarde", 250, 150, min_y_axis=0, x_start=months_ago(6)
+            ),
+            TextBlock(""),  # todo: margin mogelijk maken
             sales_waarde_block(),
         ]
     )
@@ -127,7 +144,9 @@ def travelbase_block():
     bookings = get_bookings_per_week(booking_type="bookings", only_complete_weeks=True)
     if not isinstance(bookings, pd.DataFrame):
         return TextBlock("Kon boekingen niet ophalen", color=RED)
-    legend = ", ".join([f"{brand[:3]}: {int(bookings[brand].sum())}" for brand in BRANDS])
+    legend = ", ".join(
+        [f"{brand[:3]}: {int(bookings[brand].sum())}" for brand in BRANDS]
+    )
     return VBlock(
         [
             TextBlock("Travelbase", HEADER_SIZE),
@@ -156,7 +175,19 @@ def error_block():
 
 
 def render_dashboard(output_folder):
-    page = Page([HBlock([marketing_block(), sales_block(), operations_block(), finance_block(), hr_block()])])
+    page = Page(
+        [
+            HBlock(
+                [
+                    marketing_block(),
+                    sales_block(),
+                    operations_block(),
+                    finance_block(),
+                    hr_block(),
+                ]
+            )
+        ]
+    )
     page.render(output_folder / "dashboard.html")
 
 
