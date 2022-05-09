@@ -12,7 +12,7 @@ from sources.database import get_db
 class TrendLines(BaseTable):
     def __init__(self):
         super().__init__()
-        self.db = get_db()  # Nog uit extranet
+        self.db = get_db()  # todo: Trends komen nog uit extranet
         self.table_name = "trends"
         self.table_definition = """
                trendline VARCHAR(30) NOT NULL,

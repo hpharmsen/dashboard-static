@@ -1,5 +1,6 @@
 import datetime
 import locale
+import warnings
 from decimal import Decimal
 from functools import lru_cache
 
@@ -10,7 +11,7 @@ from middleware.middleware_utils import panic
 from model.utilities import Day
 from settings import ini
 
-locale.setlocale(locale.LC_ALL, '')
+locale.setlocale(locale.LC_ALL, "")
 
 BASE_URL = "https://api.yukiworks.nl/ws/Accounting.asmx"
 
@@ -90,7 +91,7 @@ def cached_get_url(url):
         return requests.get(url)
     except requests.exceptions.ConnectionError:
         # Todo: vervangen door een algemene get die een retry doet
-        panic('ConnectionError while trying to access Yuki')
+        panic("ConnectionError while trying to access Yuki")
 
 
 class YukiEmptyBodyException(Exception):
@@ -118,12 +119,16 @@ class Yuki:
             for key, value in params.items():
                 url += f"{key}={value}&"
         response = cached_get_url(url)
-        soup = BeautifulSoup(markup=response.text, features="xml")
+
+        warnings.filterwarnings("XMLParsedAsHTMLWarning")
+        soup = BeautifulSoup(response.text, "lxml")
         if response.status_code == 500:
             print("Yuki:", response.text)
             raise YukiInternalServerErrorException
+        # if endpoint == "/Authenticate":
+        #    return soup
         if not soup.html:
-            print("Yuki call to", endpoint, 'is empty')
+            print("Yuki call to", endpoint, "is empty")
             raise YukiEmptyBodyException
         return soup.html.body
 
@@ -176,7 +181,8 @@ class Yuki:
         res = [
             item
             for item in self.day_balance(day)
-            if (not balance_type or item["balance_type"] == balance_type) and valid_code(item["code"])
+            if (not balance_type or item["balance_type"] == balance_type)
+               and valid_code(item["code"])
         ]
         return res
 
@@ -186,7 +192,7 @@ class Yuki:
     def day_balance(self, day: Day):
         params = {"transactionDate": str(day)}
         body = self.call(f"/GLAccountBalance", params)
-        items = body.glaccountbalance.find_all("glaccount")
+        items = body.find_all("glaccount")
         # <glaccount balancetype="B" code="02110">
         #   <description>Verbouwingen</description>
         #   <amount>104488.58</amount>
@@ -206,11 +212,15 @@ class Yuki:
         return self.income(date_str) - self.costs(date_str)
 
     def income(self, date_str=None):
-        res = -sum([a["amount"] for a in self.account_balance(date_str, account_codes="8")])
+        res = -sum(
+            [a["amount"] for a in self.account_balance(date_str, account_codes="8")]
+        )
         return res
 
     def direct_costs(self, date_str=None):
-        res = sum([a["amount"] for a in self.account_balance(date_str, account_codes=["6"])])
+        res = sum(
+            [a["amount"] for a in self.account_balance(date_str, account_codes=["6"])]
+        )
         return res
 
     def costs(self, date_str=None):
@@ -265,7 +275,7 @@ class Yuki:
             res = []
             for code in codes:
                 for item in day_balance:
-                    if item['code'].startswith(str(code)):
+                    if item["code"].startswith(str(code)):
                         res += [item]
             return res
 
@@ -276,11 +286,15 @@ class Yuki:
             print()
             total = 0
             for item in items:
-                amount = item['amount'] * self.multiplier(item["code"], item['balance_type'])
+                amount = item["amount"] * self.multiplier(
+                    item["code"], item["balance_type"]
+                )
                 total += amount
                 if len(items) > 1:
-                    print(f'{item["code"]:8}{item["description"][:36]:40}{amount:>10,.0f}')
-            print(f'{str(codes[0]):8}{name:54}{total:>10,.0f}')
+                    print(
+                        f'{item["code"]:8}{item["description"][:36]:40}{amount:>10,.0f}'
+                    )
+            print(f"{str(codes[0]):8}{name:54}{total:>10,.0f}")
 
     @staticmethod
     def test_codes():
@@ -306,7 +320,7 @@ class Yuki:
 if __name__ == "__main__":
     yuki = Yuki()
     yuki.test_codes()
-    day = Day('2021-12-31')
+    day = Day("2021-12-31")
     yuki.full_balance(day)
     # j = yuki.account_balance("2021-01-31")
     # s = yuki.account_balance("2021-09-30")

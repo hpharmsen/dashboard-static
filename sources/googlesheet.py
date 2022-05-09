@@ -10,6 +10,7 @@ from google.oauth2.service_account import Credentials
 from gspread import Worksheet
 
 from model import log
+from model.caching import cache
 
 
 def panic(message):
@@ -35,7 +36,10 @@ def get_spreadsheet(sheet_name):
         # Updated call since v2.0: See https://github.com/google/oauth2client/releases/tag/v2.0.0
 
         # Sheet should be shared with: 859748496829-pm6qtlliimaqt35o8nqcti0h77doigla@developer.gserviceaccount.com
-        scopes = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+        scopes = [
+            "https://spreadsheets.google.com/feeds",
+            "https://www.googleapis.com/auth/drive",
+        ]
 
         # Latest version from:
         # https://stackoverflow.com/questions/51618127/credentials-object-has-no-attribute-access-token-when-using-google-auth-wi
@@ -49,10 +53,18 @@ def get_spreadsheet(sheet_name):
                 sheet = gc.open(sheet_name)
                 break
             except gspread.exceptions.SpreadsheetNotFound:
-                log.log_error("googlesheet.py", "get_spreasheeet()", "Could not find " + sheet_name)
+                log.log_error(
+                    "googlesheet.py",
+                    "get_spreasheeet()",
+                    "Could not find " + sheet_name,
+                )
                 return None
             except gspread.exceptions.APIError:
-                log.log_error("googlesheet.py", "get_spreasheeet()", "Could not open " + sheet_name)
+                log.log_error(
+                    "googlesheet.py",
+                    "get_spreasheeet()",
+                    "Could not open " + sheet_name,
+                )
                 return None
             except requests.exceptions.ReadTimeout:
                 time.sleep(1)
@@ -63,7 +75,7 @@ def get_spreadsheet(sheet_name):
 TABS = {}
 
 
-# @cache(hours=2)
+@cache(hours=2)
 def sheet_tab(sheetname, tabname):
     key = (sheetname, tabname)
     if not TABS.get(key):
@@ -73,7 +85,9 @@ def sheet_tab(sheetname, tabname):
         try:
             TABS[key] = sheet.worksheet(tabname).get_all_values()
         except ConnectionError:
-            log.log_error("googlesheet.py", "sheet_tab", f"Could not load {sheetname} - {tabname}")
+            log.log_error(
+                "googlesheet.py", "sheet_tab", f"Could not load {sheetname} - {tabname}"
+            )
             return []
     return TABS[key]
 
@@ -87,7 +101,14 @@ def sheet_value(tab, row, col):
 def to_float(something):
     if not something:
         return 0
-    return float(str(something).replace("€", "").replace(".", "").replace("%", "").replace(" ", "").replace(",", "."))
+    return float(
+        str(something)
+            .replace("€", "")
+            .replace(".", "")
+            .replace("%", "")
+            .replace(" ", "")
+            .replace(",", ".")
+    )
 
 
 def to_int(something):
@@ -98,7 +119,9 @@ def fill_range(sheet_tab: Worksheet, row: int, col: int, data: list):
     if not isinstance(data[0], list):
         data = [data]  # 1-dimensional, make 2-dimensional
     # Select a range
-    cell_list = sheet_tab.range(row, col, row + len(data) - 1, col + len(data[0]) - 1)  # row, col, lastrow, lastcol
+    cell_list = sheet_tab.range(
+        row, col, row + len(data) - 1, col + len(data[0]) - 1
+    )  # row, col, lastrow, lastcol
     for cell in cell_list:
         cell.value = data[cell.row - row][cell.col - col]
     # Update in batch
@@ -136,7 +159,7 @@ class HeaderSheet:
         try:
             return self.data[row.strip()][col.strip()]
         except KeyError:
-            return ''
+            return ""
 
     def rows(self):
         return self.data

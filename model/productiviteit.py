@@ -29,51 +29,6 @@ def tuple_of_productie_users():
     return users
 
 
-# # @cache(hours=2)
-# def geboekte_uren_users(period: Period, users, only_clients=0, only_billable=0):
-#     querystring = create_querystring(
-#         users, only_clients=only_clients, only_billable=only_billable
-#     )
-#     df = hours_dataframe(period).query(querystring)
-#     hours = df["hours"].sum()
-#     if only_billable:
-#         hours += df["corrections"].sum()
-#     return hours
-
-
-# @cache(hours=2)
-# def geboekte_omzet_users(period: Period, users, only_clients=0, only_billable=0):
-#     querystring = create_querystring(
-#         users, only_clients=only_clients, only_billable=only_billable
-#     )
-#     df = hours_dataframe(period).query(querystring)
-#     turnover = df["turnover"].sum()
-#     return turnover
-
-
-# def create_querystring(users, only_clients=0, only_billable=0):
-#     query = ['type=="normal"']
-#     if only_clients:
-#         query += ['organization not in ("Oberon", "Qikker Online B.V.") ']
-#     if users:
-#         if isinstance(users, str):
-#             users = (users,)  # make it a tuple
-#         query += [f"employee in {users}"]
-#     else:
-#         interns = get_interns(simplicate())
-#         query += [f"""employee not in ("{'","'.join(interns)}")"""]
-#     if only_billable:
-#         query += ["tariff > 0"]
-#
-#     return " and ".join(query)
-
-
-# @cache(hours=24)
-# def get_interns(sim):
-#     """ Returns a set of users with function Stagiair"""
-#     return {employee["name"] for employee in sim.employee({"function": "Stagiair"})}
-
-
 def percentage_directe_werknemers():
     """DDA Cijfer. Is het percentage productiemedewerkers tov het geheel"""
     period = Period(Day().plus_months(-6))
@@ -90,7 +45,9 @@ def billable_trend_person_week(user, period):
     # Returns a list of labels and a list of hours
     startweek = period.fromday.week_number()
     untilweek = (
-        period.untilday.week_number() if period.untilday else Day().week_number()
+        period.untilday.week_number()
+        if period.untilday
+        else Day().plus_days(7).week_number()
     )
     if untilweek > startweek:
         labels = list(range(startweek, untilweek))

@@ -11,7 +11,7 @@ from settings import get_output_folder, GREEN, BLUE, RED, ORANGE, GRAY, LIGHT_GR
 
 def render_booked_page(output_folder: Path):
     periods = []
-    until = Day().last_monday()
+    until = Day().last_monday().plus_days(7)
     for _ in range(3):
         start = until.plus_days(-7)
         periods += [Period(start, until)]

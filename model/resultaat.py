@@ -10,6 +10,7 @@ from beautiful_date import *
 from middleware.timesheet import hours_dataframe
 from middleware.trendline import TrendLines
 from model.caching import cache
+
 # from model.onderhanden_werk import simplicate_onderhanden_werk
 from model.onderhanden_werk import ohw_sum
 from model.productiviteit import tuple_of_productie_users
@@ -250,7 +251,7 @@ def update_omzet_per_week():
     y, m, d = str(last_day).split("-")
     last_day2 = last_day.last_monday()
     last_day = (
-            BeautifulDate(int(y), int(m), int(d)) - MO
+        BeautifulDate(int(y), int(m), int(d)) - MO
     )  # Last Monday on or before the last calculated day
     assert last_day2 == last_day  # TEST of BeautifulDate eruit kan
     last_sunday = D.today() - SU

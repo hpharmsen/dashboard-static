@@ -4,6 +4,8 @@ import os
 import pandas as pd
 
 from middleware.trendline import TrendLines
+from model.caching import cache
+from model.utilities import Day
 from sources.database import get_travelbase_db, dataframe
 from sources.googlesheet import get_spreadsheet, fill_range
 
@@ -44,25 +46,29 @@ BRANDS = ["waterland", "ameland", "schier", "texel", "terschelling"]
 GOOGLE_SHEETS_APP = "https://script.google.com/macros/s/AKfycbyFjOJY2OaCHouEuPRtOYMzwv1vnoIaP1iEKWY27PNDuakt5IIrKoyCGlvbMUn16N0MmQ/exec"
 
 
-# @cache(hours=6)
+@cache(hours=6)
 def get_bookings_per_week(booking_type: str = "bookings", only_complete_weeks=False):
     """Get the full list of all booking amounts per brand per week and return it as a DataFrame"""
     # Todo: Uit Middleware halen
     db = get_travelbase_db()
     dfs = []
     mysql_week_mode = 5  # Week 1 is the first week with a Monday in this year
+    if only_complete_weeks:
+        curyear = Day().y
+        curweek = Day().week_number()
+        date_clause = f"and (YEAR(created_at) < {curyear} or WEEK(created_at, {mysql_week_mode}) < {curweek})"
+    else:
+        date_clause = ""
     for brand in BRANDS:
         sql = f"""select YEAR(created_at) as year, WEEK(created_at, {mysql_week_mode}) as week, count(*) as aantal 
                   from {booking_type} 
-                  where brand="{brand}" and status in {VALID_STATUSES}
+                  where brand="{brand}" and status in {VALID_STATUSES} {date_clause}
                   group by year, week 
                   order by year, week"""
         df = dataframe(sql, db)
         if not isinstance(df, pd.DataFrame):
             return []  # Error occurred, no use to continue
         df = df.set_index(["year", "week"])
-        if only_complete_weeks:
-            df = df[:-1]
         dfs += [df]
     all = pd.concat(dfs, axis=1).fillna(0)
     all.columns = BRANDS
@@ -131,4 +137,5 @@ def format_month(year, month):
 
 if __name__ == "__main__":
     os.chdir("..")
-    update_bookings_per_month()
+    # update_bookings_per_month()
+    get_bookings_per_week(booking_type="bookings", only_complete_weeks=True)

@@ -14,14 +14,14 @@ CHART_COLORS = [
     ["#6666cc", "#ddeeff"],
     ["#66cc66", "#eeffdd"],
     ["#cc6666", "#ffddee"],
-    ["#ccc66", "#ffffdd"],
+    ["#cccc66", "#ffffdd"],
     ["#cc66cc", "#ffddff"],
 ]
 BAR_COLORS = ["#6666cc", "#66cc66", "#cc6666", "#cccc66", "#cc66cc"]
 
 
 def render_travelbase_page(output_folder):
-    bookings = get_bookings_per_week(booking_type="bookings")
+    bookings = get_bookings_per_week(booking_type="bookings", only_complete_weeks=True)
     if not isinstance(bookings, pd.DataFrame):
         return  # An error occurred, no use to proceed
     totals = [(brand, bookings[brand].sum()) for brand in BRANDS]

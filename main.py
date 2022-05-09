@@ -44,11 +44,10 @@ import sys
 from pathlib import Path
 
 from model.caching import load_cache, clear_cache, cache_created_time_stamp
-from model.finance import cash
 from model.log import init_log
 from settings import get_output_folder
+
 # from view.billable import render_billable_page
-from sources.yuki import YukiEmptyBodyException
 from view.booked import render_booked_page
 from view.correcties import render_correcties_page
 from view.dashboard import render_dashboard
@@ -62,7 +61,7 @@ from view.winstgevendheid import render_winstgevendheid_page
 
 
 def main():
-    '''What it says: the main function'''
+    """What it says: the main function"""
     cd_to_script_path()
     output_folder = get_output_folder()
     clear_the_cache = process_command_line_params()
@@ -75,10 +74,6 @@ def main():
 
 
 def module_initialisations():
-    try:  # todo: cash should check the AWS db instead of yuki. Then the except is not needed anymore
-        cash()  # Update cash trend on loading of this module'''
-    except YukiEmptyBodyException:
-        pass
     init_log()  # Start log entry with the current date
 
 
@@ -91,13 +86,13 @@ def cd_to_script_path():
 def process_command_line_params():
     clear_the_cache = False
     for param in sys.argv[1:]:
-        if param == '--nocache':
+        if param == "--nocache":
             clear_the_cache = True
-        if param == '--onceaday':
+        if param == "--onceaday":
             cache_created = cache_created_time_stamp()
             yesterday = datetime.datetime.today().date() + datetime.timedelta(days=-1)
             if cache_created and cache_created.day() > yesterday:
-                print('Script has already run today: exiting')
+                print("Script has already run today: exiting")
                 sys.exit()
             clear_the_cache = True
     return clear_the_cache
@@ -105,9 +100,9 @@ def process_command_line_params():
 
 def copy_resources(output_folder):
     # Copy things like js and css files
-    resource_path = Path(__file__).resolve().parent / 'resources'
+    resource_path = Path(__file__).resolve().parent / "resources"
     for path in resource_path.iterdir():
-        if path.is_file() and path.name[0] != '.':
+        if path.is_file() and path.name[0] != ".":
             shutil.copyfile(path, output_folder / path.name)
 
 
@@ -115,35 +110,35 @@ def render_all_pages(output_folder):
     # render the html pages
     # print('..vrije dagen')
     # render_vrije_dagen_page(output_folder)
-    print('..sales')
+    print("..sales")
     render_sales_page(output_folder)
-    print('..onderhanden')
+    print("..onderhanden")
     render_onderhanden_werk_page(output_folder)
-    print('..debiteuren')
+    print("..debiteuren")
     render_debiteuren_page(output_folder)
-    print('..operations')
+    print("..operations")
     render_operations_page(output_folder)
-    print('..billable')
+    print("..billable")
     # render_billable_page(output_folder)
-    print('..winstgevendheid')
+    print("..winstgevendheid")
     render_winstgevendheid_page(output_folder)
     # print('..resultaatberekening')
     # render_resultaat_berekening(output_folder)
-    print('..correcties')
+    print("..correcties")
     render_correcties_page(output_folder)
-    print('..verzuim')
+    print("..verzuim")
     render_verzuim_page(output_folder)
-    print('..travelbase')
+    print("..travelbase")
     render_travelbase_page(output_folder)
-    print('..geboekte uren')
+    print("..geboekte uren")
     render_booked_page(get_output_folder())
 
     # Pages missing since the move to Simplicate. They might or might not return.
     # render_resultaat_vergelijking_page(output_folder)
     # render_productiviteit_page(output_folder)
-    print('..dashboard')
+    print("..dashboard")
     render_dashboard(output_folder)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

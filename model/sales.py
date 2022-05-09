@@ -54,10 +54,14 @@ def top_x_sales(number=99, minimal_amount=0):
         return name
 
     top = sorted(open_sales(), key=lambda a: -a["value"])
-    return [[format_project_name(a, 35), a["value"]] for a in top if a["value"] > minimal_amount][:number]
+    return [
+               [format_project_name(a, 35), a["value"]]
+               for a in top
+               if a["value"] > minimal_amount
+           ][:number]
 
 
-# @cache(hours=24)
+@cache(hours=24)
 def open_sales():
     sim = simplicate()
     return [s for s in sim.sales_flat() if 3 <= s["progress_position"] <= 7]

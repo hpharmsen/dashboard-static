@@ -197,7 +197,7 @@ def roster_hours_per_user(period: Period) -> dict:
     return result
 
 
-# @cache(hours=8)
+@cache(hours=8)
 def booked_days_before_noon(period: Period):
     db = middleware.middleware_utils.get_middleware_db()
     fromday = period.fromday.last_monday()
