@@ -321,7 +321,7 @@ class Yuki:
 if __name__ == "__main__":
     yuki = Yuki()
     yuki.test_codes()
-    day = Day("2021-12-31")
+    day = Day("2022-04-30")
     yuki.full_balance(day)
     # j = yuki.account_balance("2021-01-31")
     # s = yuki.account_balance("2021-09-30")
