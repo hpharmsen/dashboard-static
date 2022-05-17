@@ -120,8 +120,9 @@ class Yuki:
                 url += f"{key}={value}&"
         response = cached_get_url(url)
 
-        warnings.filterwarnings("XMLParsedAsHTMLWarning")
-        soup = BeautifulSoup(response.text, "lxml")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            soup = BeautifulSoup(response.text, "lxml")
         if response.status_code == 500:
             print("Yuki:", response.text)
             raise YukiInternalServerErrorException

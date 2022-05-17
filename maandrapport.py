@@ -23,6 +23,7 @@ from settings import (
     CORRECTIONS_GREEN,
     RED,
 )
+
 # TODO:
 # - Omzet Travelbase is nog nul
 # - Investeringen is nog nul
@@ -44,9 +45,15 @@ class HoursData:
 
     def __init__(self, period: Period, employees: list = None):
         timesheet = Timesheet()
-        self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(period, employees)
-        self.op_klant_geboekt_old = timesheet.geboekte_uren(period, users=employees, only_clients=1, only_billable=0)
-        self.op_klant_geboekt = timesheet.geboekte_uren(period, users=employees, only_clients=1, only_billable=0)
+        self.rooster, self.verlof, self.verzuim = beschikbare_uren_volgens_rooster(
+            period, employees
+        )
+        self.op_klant_geboekt_old = timesheet.geboekte_uren(
+            period, users=employees, only_clients=1, only_billable=0
+        )
+        self.op_klant_geboekt = timesheet.geboekte_uren(
+            period, users=employees, only_clients=1, only_billable=0
+        )
         self.billable = timesheet.geboekte_uren(
             period,
             users=employees,
@@ -54,13 +61,19 @@ class HoursData:
             only_billable=1,
         )
         # self.omzet_old = geboekte_omzet_users(period, users=employees, only_clients=1, only_billable=0)
-        self.omzet = timesheet.geboekte_omzet(period, users=employees, only_clients=1, only_billable=0)
+        self.omzet = timesheet.geboekte_omzet(
+            period, users=employees, only_clients=1, only_billable=0
+        )
 
     def beschikbaar(self) -> float:
         return self.rooster - self.verlof - self.verzuim
 
     def effectivity(self):
-        return 100 * self.op_klant_geboekt / self.beschikbaar() if self.beschikbaar() else 0
+        return (
+            100 * self.op_klant_geboekt / self.beschikbaar()
+            if self.beschikbaar()
+            else 0
+        )
 
     def billable_perc(self):
         return 100 * self.billable / self.beschikbaar() if self.beschikbaar() else 0
@@ -69,7 +82,11 @@ class HoursData:
         return self.op_klant_geboekt - self.billable
 
     def correcties_perc(self):
-        return (self.op_klant_geboekt - self.billable) / self.op_klant_geboekt if self.op_klant_geboekt else 0
+        return (
+            (self.op_klant_geboekt - self.billable) / self.op_klant_geboekt
+            if self.op_klant_geboekt
+            else 0
+        )
 
     def uurloon(self):
         return self.omzet / self.billable if self.billable else 0
@@ -77,14 +94,17 @@ class HoursData:
 
 def render_maandrapportage(output_folder, year, month):
     minimal_interesting_owh_value = 1000
-    yuki_result = YukiResult(year, month, minimal_interesting_owh_value=minimal_interesting_owh_value)
+    yuki_result = YukiResult(
+        year, month, minimal_interesting_owh_value=minimal_interesting_owh_value
+    )
 
-    afschrijvingen = yuki_result.post('-WAfs')
+    afschrijvingen = yuki_result.post("-WAfs")
     warning = (
         None
         if afschrijvingen
         else TextBlock(
-            'Dit is een voorlopig overzicht. De boekhouding van deze maand is nog niet compleet.\n', color=RED
+            "Dit is een voorlopig overzicht. De boekhouding van deze maand is nog niet compleet.\n",
+            color=RED,
         )
     )
 
@@ -92,7 +112,10 @@ def render_maandrapportage(output_folder, year, month):
         [
             VBlock(
                 [
-                    TextBlock(f"Maandrapportage {MAANDEN[month - 1].lower()}, {year}", HEADER_SIZE),
+                    TextBlock(
+                        f"Maandrapportage {MAANDEN[month - 1].lower()}, {year}",
+                        HEADER_SIZE,
+                    ),
                     warning,
                     hours_block(year, month),
                     profit_and_loss_block(yuki_result),
@@ -117,11 +140,21 @@ def no_func(_):
     return  # Create empty function
 
 
-def kpi_grid(columns_headers, data, effectivity_coloring=no_func, corrections_coloring=no_func, verbose=True):
+def kpi_grid(
+    columns_headers,
+    data,
+    effectivity_coloring=no_func,
+    corrections_coloring=no_func,
+    verbose=True,
+):
     assert len(columns_headers) == len(data)
     num_of_cols = len(data) + 1
-    aligns = ["left"] + ["right"] * len(data)  # First column left, the rest right aligned
-    grid = Grid(cols=num_of_cols, has_header=False, line_height=0, aligns=aligns)  # +1 is for the header column
+    aligns = ["left"] + ["right"] * len(
+        data
+    )  # First column left, the rest right aligned
+    grid = Grid(
+        cols=num_of_cols, has_header=False, line_height=0, aligns=aligns
+    )  # +1 is for the header column
 
     def add_row(title, row_data, text_format, coloring=no_func):
         row = [TextBlock(title)]
@@ -158,7 +191,12 @@ def kpi_grid(columns_headers, data, effectivity_coloring=no_func, corrections_co
         add_row("Klant uren", attr_list("op_klant_geboekt"), text_format=".")
 
     tooltip = f"Groen onder de {CORRECTIONS_GREEN * 100:.0f}%, Rood boven de {CORRECTIONS_RED * 100:.0f}%"
-    add_row("Correcties", attr_list("correcties", -1), coloring=corrections_coloring, text_format=".")
+    add_row(
+        "Correcties",
+        attr_list("correcties", -1),
+        coloring=corrections_coloring,
+        text_format=".",
+    )
     # grid.add_row(
     #     [TextBlock('Correcties', tooltip=tooltip)]
     #     + [TextBlock(-d.correcties(), color=corrections_coloring(d), text_format='.') for d in data]
@@ -191,7 +229,9 @@ def hours_block(year, month):
     if month > 1:  # Januari heeft geen YTD kolom
         headers += ["", str(year) if month == 12 else "YTD"]
         if year == curyear:
-            total_period = Period(str(curyear) + "-01-01", Day(year, month, 1).plus_months(1))
+            total_period = Period(
+                str(curyear) + "-01-01", Day(year, month, 1).plus_months(1)
+            )
         else:
             total_period = Period(Day(year, 1, 1), Day(year, month, 1).plus_months(1))
         data += [None, HoursData(total_period)]
@@ -271,14 +311,21 @@ def hours_block(year, month):
 
 def render_maandrapportage_page(monthly_folder, output_folder: Path):
     lines = []
-    files = sorted([f for f in monthly_folder.iterdir() if f.suffix == ".html"], reverse=True)
+    files = sorted(
+        [f for f in monthly_folder.iterdir() if f.suffix == ".html"], reverse=True
+    )
     for file in files:
         year, month = file.stem.split("_")
         htmlpath = monthly_folder / file
         pdfpath = os.path.relpath(htmlpath.with_suffix(".pdf"), start=output_folder)
         htmlpath = os.path.relpath(htmlpath, start=output_folder)
         lines += [
-            HBlock([TextBlock(MAANDEN[int(month) - 1] + " " + year, url=htmlpath), TextBlock("pdf", url=pdfpath)])
+            HBlock(
+                [
+                    TextBlock(MAANDEN[int(month) - 1] + " " + year, url=htmlpath),
+                    TextBlock("pdf", url=pdfpath),
+                ]
+            )
         ]
     page = Page([TextBlock("Maandrapportages", HEADER_SIZE)] + lines)
     page.render(output_folder / "maandrapportages.html")
@@ -296,7 +343,9 @@ def ohw_block(year, month, minimal_intesting_ohw_value: int):
     return VBlock(
         [
             TextBlock(f"Onderhanden werk", MID_SIZE),
-            onderhanden_werk_list(day, minimal_intesting_ohw_value=minimal_intesting_ohw_value),
+            onderhanden_werk_list(
+                day, minimal_intesting_ohw_value=minimal_intesting_ohw_value
+            ),
         ],
         css_class="page-break-before",
         style="page-break-before: always;",
@@ -330,13 +379,17 @@ def process_params():
 
         year = param
         months = today.month - 1 if year == today.year else 12
-        return [(year, month) for month in range(1, months + 1)]  # This year, all finished months so far
+        return [
+            (year, month) for month in range(1, months + 1)
+        ]  # This year, all finished months so far
 
     # Twee parameters
     month = int(sys.argv[1])
     year = int(sys.argv[2])
     if month > 12:
-        panic(f"Invalid parameter {month} for month. Usage: python maandrapport.py 5 2022")
+        panic(
+            f"Invalid parameter {month} for month. Usage: python maandrapport.py 5 2022"
+        )
     return [(year, month)]
 
 

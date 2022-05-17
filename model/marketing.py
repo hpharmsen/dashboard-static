@@ -14,7 +14,7 @@ class Marketing(HeaderSheet):
             for month in MAANDEN:
                 monthstamp = f"{month.lower()}. {year}"
                 bijgewerkt = self["Bijgewerkt", monthstamp]
-                if int(bijgewerkt):
+                if bijgewerkt and int(bijgewerkt):
                     self.column_headers += [monthstamp]
                 else:
                     return
@@ -30,7 +30,10 @@ class Marketing(HeaderSheet):
             except ValueError:
                 return value
 
-        return [normalize(self[row_header, column_header]) for column_header in self.column_headers]
+        return [
+            normalize(self[row_header, column_header])
+            for column_header in self.column_headers
+        ]
 
     def total(self, row_header: str) -> int:
         return sum(self.kpi_row(row_header))
@@ -40,7 +43,7 @@ class Marketing(HeaderSheet):
 
     def last_month(self):
         stamp = self.column_headers[-1]
-        month_str, year_str = stamp.split('. ')
+        month_str, year_str = stamp.split(". ")
         month = MAANDEN.index(month_str[0].upper() + month_str[1:]) + 1
         year = int(year_str)
         return year, month

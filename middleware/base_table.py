@@ -32,14 +32,21 @@ class BaseTable(ABC):
         """Creates the table to store timesheet data plus it's indexes"""
 
         if force_recreate:
+            self.db.attempts = 1
             for field in self.index_fields.split():
                 try:
                     self.db.execute(
                         f"DROP INDEX {self.table_name}_{field} ON {self.table_name}"
                     )
-                except (sqlalchemy.exc.OperationalError, pymysql.err.OperationalError):
+                except (
+                        sqlalchemy.exc.OperationalError,
+                        sqlalchemy.exc.ProgrammingError,
+                        pymysql.err.OperationalError,
+                        pymysql.err.ProgrammingError,
+                ):
                     pass
             self.db.execute(f"DROP TABLE IF EXISTS {self.table_name}")
+            self.db.attempts = 3
 
         primary_key_definition = (
             f', PRIMARY KEY({self.primary_key.replace("__", ",")})'

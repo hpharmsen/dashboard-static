@@ -95,7 +95,11 @@ def get_bookings_per_week(booking_type: str = "bookings", only_complete_weeks=Fa
 
 def update_bookings_per_month():
     db = get_travelbase_db()
-    sheet = get_spreadsheet("Travelbase dashboard")
+    sheetname = "Travelbase dashboard"
+    sheet = get_spreadsheet(sheetname)
+    if not sheet:
+        print(f"Could not open {sheetname}")
+        return
     curyear = datetime.datetime.now().year
     curmonth = datetime.datetime.now().month
     for brand in BRANDS:
