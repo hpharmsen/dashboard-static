@@ -13,7 +13,7 @@ from settings import ini
 
 locale.setlocale(locale.LC_ALL, "")
 
-BASE_URL = "https://api.yukiworks.nl/ws/Accounting.asmx"
+BASE_URL = "https://api.yukiworks.nl/ws/"
 
 _yuki = None  # Singleton
 
@@ -50,12 +50,13 @@ ACCOUNT_CODES = {
         15,  # Credit card
         16100,  # Nog te ontvangen facturen
         16150,  # Nog te leveren goederen en diensten
+        16510,  # Te betalen dividendbelasting
         16999,  # Overige kortlopende schulden
         23000,  # Betalingen onderweg
         23010,  # Rekening onbekend
         23020,  # Vraagposten
     ],  # Vraagposten
-    "debts_to_employees": [170, 175, 20000],
+    "debts_to_employees": [170, 175, 20],
     "taxes": [171, 176, 179, 18, 24],
     "costs": 4,
     "people": 40,
@@ -72,7 +73,7 @@ ACCOUNT_CODES = {
     "subsidy": 40105,
     "income": 8,
     "hosting_expenses": 60352,
-    "outsourcing_expenses": 60350,
+    "outsourcing_expenses": [60301, 60350],
     "project_expenses": 60351,
     "financial_result": [85, 86, 87, 88, 89],
 }
@@ -106,7 +107,7 @@ class Yuki:
     def __init__(self):
         api_key = ini["yuki"]["api_key"]
         self.administration_id = ini["yuki"]["administration_id"]
-        body = self.call("/Authenticate", {"accessKey": api_key})
+        body = self.call("Accounting.asmx/Authenticate", {"accessKey": api_key})
         self.session_id = body.text
 
     def call(self, endpoint, params=None):
@@ -134,14 +135,14 @@ class Yuki:
         return soup.html.body
 
     def administrations(self):
-        body = self.call(f"/Administrations")
+        body = self.call(f"Accounting.asmx/Administrations")
         admins = body.administrations.find_all("administration")
         return [(a.contents[1].text, a["id"]) for a in admins]
 
     def debtors(self):
         # Returns list of date:datetime, days:int, customer:str, description:str, open:Decimal
         params = {"includeBankTransactions": "false", "sortOrder": "1"}
-        body = self.call(f"/OutstandingDebtorItems", params)
+        body = self.call(f"Accounting.asmx/OutstandingDebtorItems", params)
         items = body.outstandingdebtoritems.find_all("item")
         result = []
         for item in items:
@@ -192,7 +193,7 @@ class Yuki:
     @lru_cache()
     def day_balance(self, day: Day):
         params = {"transactionDate": str(day)}
-        body = self.call(f"/GLAccountBalance", params)
+        body = self.call(f"Accounting.asmx/GLAccountBalance", params)
         items = body.find_all("glaccount")
         # <glaccount balancetype="B" code="02110">
         #   <description>Verbouwingen</description>
@@ -314,12 +315,44 @@ class Yuki:
             else:
                 print(f"code {post['code']} ({post['description']} ) niet gevonden.")
                 continue
-        else:
-            print("Grote else")
+        # else:
+        #    print("Grote else")
+
+    def account_scheme(self):
+        body = self.call(f"AccountingInfo.asmx/GetRGSScheme", {"rgsVersion": "3.0"})
+        accounts = body.next_element.find_all("rgsentry")
+
+        # <RGSEntry>
+        #     <YukiCode>100000</YukiCode>
+        #     <YukiIsEnabled>True</YukiIsEnabled>
+        #     <YukiDescription>Geplaatst kapitaal</YukiDescription>
+        #     <RgsReferenceCode>BEivGokGea</RgsReferenceCode>
+        #     <RgsDescription>Normale aandelen aandelenkapitaal</RgsDescription>
+        # </RGSEntry>
+
+        def getrefcode(item):
+            refcode = item.rgsreferencecode
+            return refcode.text if refcode else ""
+
+        def getrgsdescription(item):
+            description = item.rgsdescription
+            return description.text if description else ""
+
+        res = [
+            {
+                "Code": item.yukicode.text,
+                "RGS Code": getrefcode(item),
+                "Omschrijving": item.yukidescription.text,
+                "RGS Omschrijving": getrgsdescription(item),
+            }
+            for item in accounts
+        ]
+        return res
 
 
 if __name__ == "__main__":
     yuki = Yuki()
+    a = yuki.account_scheme()
     yuki.test_codes()
     day = Day("2022-04-30")
     yuki.full_balance(day)

@@ -1,10 +1,8 @@
 """ Class to represent the Yuki account model """
 
-import csv
 import sys
 from dataclasses import dataclass
 from decimal import Decimal
-from pathlib import Path
 from typing import Optional
 
 from model.caching import load_cache
@@ -37,33 +35,29 @@ class YukiAccountModel:
             self.fill(day)
 
     def load_schema(self):
-        # todo: Kan dit ook via de API ingelezen worden?
-        with open(Path(__file__).parent / "yuki rekeningschema.csv") as f:
-            reader = csv.DictReader(f, skipinitialspace=True, delimiter=";")
-            for row in reader:
+        for row in self.yuki.account_scheme():
+            code = row["Code"]
+            if not code:
+                continue
+            category_code = row["RGS Code"]
+            if not category_code:
+                continue
 
-                code = row["Code"]
-                if not code:
-                    continue
-                category_code = row["RGS Code"]
-                if not category_code:
-                    continue
+            # Split in main categories like 'WPerLesLoo' and add them if needed
+            main_categories = split_on_caps(category_code)
+            for index in range(len(main_categories)):
+                sub_categories = (
+                    [main_categories[index + 1]]
+                    if index < len(main_categories) - 1
+                    else []
+                )
+                self.add_category(main_categories[index], "", sub_categories)
 
-                # Split in main categories like 'WPerLesLoo' and add them if needed
-                main_categories = split_on_caps(category_code)
-                for index in range(len(main_categories)):
-                    sub_categories = (
-                        [main_categories[index + 1]]
-                        if index < len(main_categories) - 1
-                        else []
-                    )
-                    self.add_category(main_categories[index], "", sub_categories)
+            # Add the category as new category or add the item to the categoruy
+            self.add_category(category_code, row["RGS Omschrijving"], [code])
 
-                # Add the category as new category or add the item to the categoruy
-                self.add_category(category_code, row["RGS Omschrijving"], [code])
-
-                # Add the item
-                self.add_post(code, row["Omschrijving"])
+            # Add the item
+            self.add_post(code, row["Omschrijving"])
 
         # W&V
         self.describe("WOmz", "Omzet volgens de boekhouding")
@@ -269,12 +263,7 @@ class YukiAccountModel:
             try:
                 amount = self.items[code].amount
             except KeyError:
-                print(
-                    f"Code {code} niet gevonden. Staat die wel in sources/yuki_rekeningschema.csv?\n"
-                    + "Doe anders een download op "
-                    + "https://oberon.yukiworks.nl/domain/financial/aspx/finglaccounts.aspx?__subframe=1\n"
-                    + "Open daarna met Textmate en save als UTF-8."
-                )
+                print(f"Code {code} niet gevonden in het rekeningschema")
                 sys.exit(1)
             description = self.items[code].description
         if not amount:
