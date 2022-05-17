@@ -103,11 +103,11 @@ def to_float(something):
         return 0
     return float(
         str(something)
-            .replace("€", "")
-            .replace(".", "")
-            .replace("%", "")
-            .replace(" ", "")
-            .replace(",", ".")
+        .replace("€", "")
+        .replace(".", "")
+        .replace("%", "")
+        .replace(" ", "")
+        .replace(",", ".")
     )
 
 

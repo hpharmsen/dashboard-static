@@ -133,9 +133,9 @@ def update_bookings_per_month():
 
 def format_month(year, month):
     return (
-            "jan feb mrt apr mei jun jul aug sep okt nov dec".split()[month - 1]
-            + " "
-            + str(year)
+        "jan feb mrt apr mei jun jul aug sep okt nov dec".split()[month - 1]
+        + " "
+        + str(year)
     )
 
 

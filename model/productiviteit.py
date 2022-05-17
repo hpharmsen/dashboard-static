@@ -34,9 +34,9 @@ def percentage_directe_werknemers():
     period = Period(Day().plus_months(-6))
     productie_users = tuple_of_productie_users()
     return (
-            100
-            * beschikbare_uren_volgens_rooster(period, employees=productie_users)[0]
-            / beschikbare_uren_volgens_rooster(period)[0]
+        100
+        * beschikbare_uren_volgens_rooster(period, employees=productie_users)[0]
+        / beschikbare_uren_volgens_rooster(period)[0]
     )
 
 
@@ -57,10 +57,10 @@ def billable_trend_person_week(user, period):
 
     hours_per_week = (
         hours_dataframe(period)
-            .query(f'type=="normal" and employee=="{user}" and tariff>0')
-            .groupby(["week"])[["hours"]]
-            .sum()
-            .to_dict("index")
+        .query(f'type=="normal" and employee=="{user}" and tariff>0')
+        .groupby(["week"])[["hours"]]
+        .sum()
+        .to_dict("index")
     )
     for key, value in hours_per_week.items():
         try:
@@ -91,11 +91,11 @@ def corrections_count(period: Period):
     df = hours_dataframe(period)
     hours_per_project = (
         df.groupby(["organization", "project_name"])
-            .agg({"hours": "sum", "corrections": "sum"})
-            .sort_values("corrections")
-            .query("corrections < -10")
-            .reset_index()
-            .copy()
+        .agg({"hours": "sum", "corrections": "sum"})
+        .sort_values("corrections")
+        .query("corrections < -10")
+        .reset_index()
+        .copy()
     )
     result = pd.DataFrame()
     if hours_per_project.empty:
@@ -142,11 +142,11 @@ def largest_corrections(minimum, period: Period):
     query = "corrections < 0"
     top_corrections = (
         df.query(query)
-            .groupby(["project_name", "organization"])[["corrections"]]
-            .sum()
-            .query(f"corrections<-{minimum}")
-            .sort_values(by="corrections")
-            .reset_index()  # make index a column
+        .groupby(["project_name", "organization"])[["corrections"]]
+        .sum()
+        .query(f"corrections<-{minimum}")
+        .sort_values(by="corrections")
+        .reset_index()  # make index a column
     )
     if top_corrections.empty:
         return None
@@ -178,14 +178,14 @@ def beschikbare_uren_volgens_rooster(period: Period, employees=None):
     tot = 0
     for timetable in timetables:
         if (
-                not timetable["employee"]["name"]
-                or employees
-                and timetable["employee"]["name"] not in employees
-                or not employees
-                and timetable["employee"]["name"] in interns
-                or period.untilday
-                and timetable["start_date"] >= period.untilday.str
-                or timetable.get("end_date", "9999") < period.fromday.str
+            not timetable["employee"]["name"]
+            or employees
+            and timetable["employee"]["name"] not in employees
+            or not employees
+            and timetable["employee"]["name"] in interns
+            or period.untilday
+            and timetable["start_date"] >= period.untilday.str
+            or timetable.get("end_date", "9999") < period.fromday.str
         ):
             continue
         day = Day(max(timetable["start_date"], period.fromday.str))

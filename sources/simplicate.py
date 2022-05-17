@@ -35,7 +35,7 @@ def simplicate():
 
 def calculate_turnover(row):
     if row["project_number"] == "TOR-3" and not row["service"].count(
-            "ase 2"
+        "ase 2"
     ):  # !! For TOR only count fase 2 services
         # Changed service_name to service
         return 0

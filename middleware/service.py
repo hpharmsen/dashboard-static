@@ -38,8 +38,8 @@ class Service(BaseTable):
             # wat de status was op de opgegeven datum. Eens flushed, altijd flushed dus.
             # Een beetje geschiedvervalsing wellicht?
             if (
-                    service["invoice_method"] == "Subscription"
-                    or service["status"] == "flushed"
+                service["invoice_method"] == "Subscription"
+                or service["status"] == "flushed"
             ):
                 continue
 

@@ -39,10 +39,10 @@ class BaseTable(ABC):
                         f"DROP INDEX {self.table_name}_{field} ON {self.table_name}"
                     )
                 except (
-                        sqlalchemy.exc.OperationalError,
-                        sqlalchemy.exc.ProgrammingError,
-                        pymysql.err.OperationalError,
-                        pymysql.err.ProgrammingError,
+                    sqlalchemy.exc.OperationalError,
+                    sqlalchemy.exc.ProgrammingError,
+                    pymysql.err.OperationalError,
+                    pymysql.err.ProgrammingError,
                 ):
                     pass
             self.db.execute(f"DROP TABLE IF EXISTS {self.table_name}")
@@ -81,12 +81,12 @@ class BaseTable(ABC):
                     value_str = str(value)
                 else:
                     value_str = (
-                            '"'
-                            + str(value)
-                            .replace("\\", "\\\\")
-                            .replace("'", r"\'")
-                            .replace('"', r"\"")
-                            + '"'
+                        '"'
+                        + str(value)
+                        .replace("\\", "\\\\")
+                        .replace("'", r"\'")
+                        .replace('"', r"\"")
+                        + '"'
                     )
                 value_strings += [value_str]
             values = ",".join(value_strings)

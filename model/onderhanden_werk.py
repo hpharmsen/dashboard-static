@@ -47,7 +47,7 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
 
     # 5. Onderhanden werk berekenen
     service_df["service_ohw"] = (
-            service_df["turnover"] - service_df["invoiced"]  # + service_df["service_costs"]
+        service_df["turnover"] - service_df["invoiced"]  # + service_df["service_costs"]
     )
     service_df = service_df.query("service_ohw >=100 | service_ohw < -100").copy()
 
@@ -63,8 +63,8 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
                 "project_id",
             ]
         )
-            .agg({"turnover": "sum", "invoiced": "sum"})  # , "service_costs": "sum"
-            .reset_index()
+        .agg({"turnover": "sum", "invoiced": "sum"})  # , "service_costs": "sum"
+        .reset_index()
     )
 
     def get_project_invoiced(row):
@@ -78,11 +78,11 @@ def ohw_list(day: Day, minimal_intesting_value: int, group_by_project=0) -> Data
     ).astype(int)
 
     project_df["project_ohw"] = (
-            project_df["turnover"]
-            # + project_df["service_costs"]
-            - project_df["invoiced"]
-            + project_df["project_costs"]
-            - project_df["project_invoiced"]
+        project_df["turnover"]
+        # + project_df["service_costs"]
+        - project_df["invoiced"]
+        + project_df["project_costs"]
+        - project_df["project_invoiced"]
     )
 
     if group_by_project:

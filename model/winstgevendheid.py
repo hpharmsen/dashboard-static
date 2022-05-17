@@ -35,10 +35,10 @@ def winst_per_klant(period: Period) -> DataFrame:
         lambda a: float(fixed_price_dict.get(a["customer"], 0)), axis=1
     )
     result["turnover per hour"] = (
-                                          result["turnover hours"] + result["turnover fixed"]
-                                  ) / result["hours"]
+        result["turnover hours"] + result["turnover fixed"]
+    ) / result["hours"]
     result["margin"] = (
-            result["turnover hours"] + result["turnover fixed"] - result["costs of hours"]
+        result["turnover hours"] + result["turnover fixed"] - result["costs of hours"]
     )
     result["margin per hour"] = result["margin"] / result["hours"]
     result = result.sort_values(by="margin", ascending=False)
@@ -75,10 +75,10 @@ def winst_per_project(period: Period) -> DataFrame:
         lambda a: float(fixed_price_dict.get(a["number"], 0)), axis=1
     )
     result["turnover per hour"] = (
-                                          result["turnover hours"] + result["turnover fixed"]
-                                  ) / result["hours"]
+        result["turnover hours"] + result["turnover fixed"]
+    ) / result["hours"]
     result["margin"] = (
-            result["turnover hours"] + result["turnover fixed"] - result["costs of hours"]
+        result["turnover hours"] + result["turnover fixed"] - result["costs of hours"]
     )
     result["margin per hour"] = result["margin"] / result["hours"]
     result = result.sort_values(by="margin", ascending=False)

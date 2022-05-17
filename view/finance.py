@@ -72,6 +72,7 @@ def cash_block():
         ]
     )
 
+
 # def resultaat_block():
 #     return None
 #

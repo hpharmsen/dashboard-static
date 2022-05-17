@@ -89,14 +89,14 @@ class TrendLines(BaseTable):
     #             )
 
     def chart(
-            self,
-            trendname,
-            width,
-            height,
-            x_start="",
-            x_end=None,
-            min_y_axis=None,
-            max_y_axis=None,
+        self,
+        trendname,
+        width,
+        height,
+        x_start="",
+        x_end=None,
+        min_y_axis=None,
+        max_y_axis=None,
     ):
         xy = [
             {"x": a[0], "y": a[1]}

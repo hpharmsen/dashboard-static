@@ -14,18 +14,18 @@ class Block:
     # This is what it takes in a base UI object
 
     def __init__(
-            self,
-            children: list = [],
-            width=None,
-            height=None,
-            bg_color="white",
-            align_children="absolute",
-            block_id="",
-            tooltip="",
-            padding=40,
-            link=None,
-            css_class="",
-            style="",
+        self,
+        children: list = [],
+        width=None,
+        height=None,
+        bg_color="white",
+        align_children="absolute",
+        block_id="",
+        tooltip="",
+        padding=40,
+        link=None,
+        css_class="",
+        style="",
     ):
         self.block_id = block_id
         self.width = width
@@ -87,10 +87,10 @@ class Block:
         return self.do_render("relative", options, block_id=block_id)
 
     def do_render(
-            self,
-            position,
-            options,
-            block_id="",
+        self,
+        position,
+        options,
+        block_id="",
     ):
         height = f"height:{self.height}px; " if self.height else ""
         width = f"width:{self.width}px; " if self.width else ""
@@ -131,15 +131,15 @@ class HBlock(Block):
     # This is what it takes to be a UI widget
 
     def __init__(
-            self,
-            children: list,
-            width=None,
-            height=None,
-            padding=40,
-            bg_color="white",
-            block_id="",
-            link=None,
-            tooltip=None,
+        self,
+        children: list,
+        width=None,
+        height=None,
+        padding=40,
+        bg_color="white",
+        block_id="",
+        link=None,
+        tooltip=None,
     ):
         super().__init__(
             children=children,
@@ -161,17 +161,17 @@ class VBlock(Block):
     # This is what it takes to be a UI widget
 
     def __init__(
-            self,
-            children: list,
-            width=None,
-            height=None,
-            padding=40,
-            bg_color="white",
-            block_id="",
-            link=None,
-            tooltip=None,
-            css_class="",
-            style="",
+        self,
+        children: list,
+        width=None,
+        height=None,
+        padding=40,
+        bg_color="white",
+        block_id="",
+        link=None,
+        tooltip=None,
+        css_class="",
+        style="",
     ):
         super().__init__(
             children=children,
@@ -195,22 +195,22 @@ class TextBlock(Block):
     # pylint: disable=too-many-arguments
     # This is what it takes to be a UI widget
     def __init__(
-            self,
-            text,
-            font_size=12,
-            width=None,
-            height=None,
-            bg_color="",
-            color="",
-            font_family="Arial",
-            style="",
-            text_format="",
-            url=None,
-            tooltip="",
-            padding=30.0,
-            pagebreak=False,
-            css_class="",
-            block_id="",
+        self,
+        text,
+        font_size=12,
+        width=None,
+        height=None,
+        bg_color="",
+        color="",
+        font_family="Arial",
+        style="",
+        text_format="",
+        url=None,
+        tooltip="",
+        padding=30.0,
+        pagebreak=False,
+        css_class="",
+        block_id="",
     ):
         super().__init__(
             [],
@@ -252,7 +252,7 @@ def wrap(string, width):
             chunks += [string]
         else:
             chunks += [string[:width].rsplit(" ", 1)[0]]
-        string = string[len(chunks[-1]):].strip()
+        string = string[len(chunks[-1]) :].strip()
     return "<br/>".join(chunks)
 
 
@@ -262,15 +262,15 @@ class Grid(Block):
     # pylint: disable=too-many-arguments
     # This is what it takes to be a UI widget
     def __init__(
-            self,
-            rows=0,
-            cols=0,
-            width=None,
-            line_height=None,
-            block_id="",
-            aligns=None,
-            has_header=False,
-            children=None,
+        self,
+        rows=0,
+        cols=0,
+        width=None,
+        line_height=None,
+        block_id="",
+        aligns=None,
+        has_header=False,
+        children=None,
     ):
         super().__init__(width=width, block_id=block_id)
         self.rows = rows
@@ -311,7 +311,7 @@ class Grid(Block):
                     child_html = "&nbsp"
                 else:
                     if isinstance(
-                            child, str
+                        child, str
                     ):  # Grid children should be blocks. If it's a string, turn it into a block
                         child = TextBlock(child)
                     child_html = child.render()
@@ -346,9 +346,9 @@ class Page(Block):
                 template_html = template_file.read()
             page_html = (
                 template_html.replace("[timestamp]", timestamp)
-                    .replace("[children]", self.render_children())
-                    .replace("[onloadcode]", self.onloadcode)
-                    .replace("[base]", base)
+                .replace("[children]", self.render_children())
+                .replace("[onloadcode]", self.onloadcode)
+                .replace("[base]", base)
             )
             html_file.write(page_html)
 

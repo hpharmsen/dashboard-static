@@ -250,7 +250,7 @@ class StackedBarChart(Chart):
 
         self.datasets = "["
         for label, value, color, dls in zip(
-                config.labels, self.values, config.colors, dl
+            config.labels, self.values, config.colors, dl
         ):
             if type(value) != type([]):
                 # Single bar
@@ -317,7 +317,7 @@ class LineChart(Chart):
         self.datasets = self.datasets[:-1] + "]"
 
         y_axes_placement = config.y_axes_placement + ["left"] * (
-                len(values) - len(config.y_axes_placement)
+            len(values) - len(config.y_axes_placement)
         )
         # y_axes_config = "[" if len(config.series_labels) > 1 else ""
         y_axes_config = ""

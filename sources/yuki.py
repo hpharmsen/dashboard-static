@@ -183,7 +183,7 @@ class Yuki:
             item
             for item in self.day_balance(day)
             if (not balance_type or item["balance_type"] == balance_type)
-               and valid_code(item["code"])
+            and valid_code(item["code"])
         ]
         return res
 

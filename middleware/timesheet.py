@@ -150,7 +150,7 @@ class Timesheet(BaseTable):
 
     @staticmethod
     def where_clause(
-            period: Period, only_clients=0, only_billable=0, users=None, hours_type=None
+        period: Period, only_clients=0, only_billable=0, users=None, hours_type=None
     ):
         query = f'where day>="{period.fromday}"'
         if period.untilday:
@@ -160,9 +160,9 @@ class Timesheet(BaseTable):
 
         if only_clients:
             query = (
-                    " join project on project.project_number=timesheet.project_number "
-                    + query
-                    + ' and organization not in ("Oberon", "Qikker Online B.V.") '
+                " join project on project.project_number=timesheet.project_number "
+                + query
+                + ' and organization not in ("Oberon", "Qikker Online B.V.") '
             )
         if users:
             if isinstance(users, str):
@@ -182,7 +182,7 @@ class Timesheet(BaseTable):
         return self.db.execute("select count(*) as aantal from timesheet")[0]["aantal"]
 
     def geboekte_uren(
-            self, period, users=None, only_clients=0, only_billable=0
+        self, period, users=None, only_clients=0, only_billable=0
     ) -> float:
 
         query = self.where_clause(
@@ -200,7 +200,7 @@ class Timesheet(BaseTable):
         return result
 
     def geboekte_omzet(
-            self, period, users=None, only_clients=0, only_billable=0
+        self, period, users=None, only_clients=0, only_billable=0
     ) -> float:
         query = self.where_clause(
             period,
@@ -236,7 +236,7 @@ class Timesheet(BaseTable):
         return result
 
     def parameterized_query(
-            self, period: Period, where: str = "", sort=None, with_project_data=False
+        self, period: Period, where: str = "", sort=None, with_project_data=False
     ):
         if with_project_data:
             query_string = f"""SELECT t.*, p.organization, p.project_name, p.pm, p.status as project_status 
@@ -308,7 +308,7 @@ def complement_timesheet_data(timesheet_entry, services_dict):
     del timesheet_entry["billable"]
     del timesheet_entry["status"]
     if not timesheet_entry["tariff"] and (
-            timesheet_entry["employee"] not in Employee().interns()
+        timesheet_entry["employee"] not in Employee().interns()
     ):
         timesheet_entry["tariff"] = timesheet_entry["service_tariff"]
     del timesheet_entry["service_tariff"]
@@ -320,7 +320,7 @@ def complement_timesheet_data(timesheet_entry, services_dict):
         timesheet_entry["day"]
     )
     timesheet_entry["corrections_value"] = (
-            timesheet_entry["corrections"] * timesheet_entry["tariff"]
+        timesheet_entry["corrections"] * timesheet_entry["tariff"]
     )
 
     # Find the revenue group
@@ -333,8 +333,8 @@ def complement_timesheet_data(timesheet_entry, services_dict):
 
     # De volgende is omdat in 2021 de indeling nog niet goed was
     if (
-            timesheet_entry["type"] == "absence"
-            and timesheet_entry["label"] == "Feestdagenverlof / National holidays leave"
+        timesheet_entry["type"] == "absence"
+        and timesheet_entry["label"] == "Feestdagenverlof / National holidays leave"
     ):
         timesheet_entry["type"] = "leave"
     return timesheet_entry

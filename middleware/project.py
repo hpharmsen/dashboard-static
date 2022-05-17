@@ -55,8 +55,8 @@ class Project(BaseTable):
                 "project_number": project["project_number"],
                 "pm": pm,
                 "status": project["project_status"]["label"][
-                          5:
-                          ],  # tab_pactive -> active
+                    5:
+                ],  # tab_pactive -> active
                 "start_date": project.get("start_date"),
                 "end_date": project.get("end_date"),
                 "project_costs": project_costs,

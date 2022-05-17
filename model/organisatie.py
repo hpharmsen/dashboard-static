@@ -62,9 +62,9 @@ def verzuim_list(period):
     last_day = Day(last["day"])
     for d in list_of_dicts[1:]:
         if (
-                d["employee"] == last["employee"]
-                and d["label"] == last["label"]
-                and Day(d["day"]) - last_day <= 4
+            d["employee"] == last["employee"]
+            and d["label"] == last["label"]
+            and Day(d["day"]) - last_day <= 4
         ):
             last["hours"] += d["hours"]
         else:
@@ -98,10 +98,10 @@ def vrije_dagen_overzicht():
     )
 
     year_start = (
-            balance_list.query(f"year<{year}")
-            .groupby(["employee_name"])
-            .sum("balance")["balance"]
-            / 8
+        balance_list.query(f"year<{year}")
+        .groupby(["employee_name"])
+        .sum("balance")["balance"]
+        / 8
     )
 
     # 2. Get the newly available free days this year
@@ -110,7 +110,7 @@ def vrije_dagen_overzicht():
         "leavetype_affects_balance==True"
     )
     this_year_new = (
-            this_year.groupby(["employee_name"]).max("hours")["hours"] / 8
+        this_year.groupby(["employee_name"]).max("hours")["hours"] / 8
     )  # ouch!
 
     # 2b. Calculate the days already past
@@ -153,11 +153,11 @@ def roster_days_per_week(period: Period) -> dict:
     result = defaultdict(float)
     for t in simplicate().timetable():
         if (
-                t.get("end_date")
-                and t["end_date"] < period.fromday
-                or t["start_date"] >= period.untilday
-                or not t["employee"]["name"]
-                or t["employee"]["name"] == "Freelancer"
+            t.get("end_date")
+            and t["end_date"] < period.fromday
+            or t["start_date"] >= period.untilday
+            or not t["employee"]["name"]
+            or t["employee"]["name"] == "Freelancer"
         ):
             continue
         start_day_str = max(str(period.fromday), t["start_date"])
@@ -178,11 +178,11 @@ def roster_hours_per_user(period: Period) -> dict:
     result = defaultdict(float)
     for t in simplicate().timetable():
         if (
-                t.get("end_date")
-                and t["end_date"] < period.fromday
-                or t["start_date"] >= period.untilday
-                or not t["employee"]["name"]
-                or t["employee"]["name"] == "Freelancer"
+            t.get("end_date")
+            and t["end_date"] < period.fromday
+            or t["start_date"] >= period.untilday
+            or not t["employee"]["name"]
+            or t["employee"]["name"] == "Freelancer"
         ):
             continue
         day = max(period.fromday, Day(t["start_date"]))
