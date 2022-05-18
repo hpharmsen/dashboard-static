@@ -92,7 +92,7 @@ class Service(BaseTable):
                         sum(hours) as hours, sum(turnover) as turnover  
                     from service s
                     join project p on p.project_id=s.project_id
-                    left join timesheet ts on ts.service_id=s.service_id
+                    left join timesheet ts on ts.service_id=s.service_id and ts.day <= "{day}"
                     where invoice_method != "Subscription" 
                       and s.status != "flushed"
                       and p.status != "closed"

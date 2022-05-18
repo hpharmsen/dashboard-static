@@ -10,7 +10,6 @@ from google.oauth2.service_account import Credentials
 from gspread import Worksheet
 
 from model import log
-from model.caching import cache
 
 
 def panic(message):
@@ -75,7 +74,6 @@ def get_spreadsheet(sheet_name):
 TABS = {}
 
 
-@cache(hours=2)
 def sheet_tab(sheetname, tabname):
     key = (sheetname, tabname)
     if not TABS.get(key):

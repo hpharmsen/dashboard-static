@@ -16,7 +16,7 @@ from sources.yuki import Yuki
 class Item:
     description: str
     sub_codes: set[str]
-    amount: Optional[float]
+    amount: Optional[Decimal]
 
     def add_subcodes(self, codes: list[str]):
         self.sub_codes.update(codes)
@@ -61,11 +61,12 @@ class YukiAccountModel:
 
         # W&V
         self.describe("WOmz", "Omzet volgens de boekhouding")
-        self.alias("turnover", "Omzet!", ["WOmz", "-80070"])  # Onderverhuur eruit
+        self.alias("turnover", "Omzet", ["WOmz", "-80070"])  # OHW en Onderverhuur eruit
+        self.describe("80062", "Toename onderhanden werk")
         self.describe("60351", "Projectkosten")
         self.describe("60350", "Uitbesteed werk")
         self.describe("60352", "Hostingkosten")
-        self.alias("bbi", "BBI", ["turnover", "60350", "60351", "60352"])
+        self.alias("bbi", "BBI", ["turnover", "-80062", "60350", "60351", "60352"])
         self.alias(
             "other_income", "Overige inkomsten", ["80070"]
         )  # Onderverhuur er weer bij
@@ -111,7 +112,7 @@ class YukiAccountModel:
         self.describe("WFbe", "Financiëel resultaat")
         self.alias(
             "profit",
-            "Winst volgens de boekhouding",
+            "Winst",
             ["total_income", "operating_expenses", "WAfs", "WFbe"],
         )
 
@@ -216,6 +217,7 @@ class YukiAccountModel:
         self.aliases[alias_code] = Item(description, set(subcodes), None)
 
     def fill(self, day):
+        self.day = day
         balance = {d["code"]: d["amount"] for d in self.yuki.day_balance(day)}
 
         def fill_value(code: str, item: Item):
@@ -237,7 +239,7 @@ class YukiAccountModel:
     def add_ohw(self, amount):
         """Voegt onderhanden werk toe aan de structuur zoals die uit Yuki komt"""
         balans_categories = ["30100"] + split_on_caps("BVrdOweVoo")
-        wv_categories = ["80062"] + split_on_caps("WOmzGrpGr1")
+        wv_categories = ["80062"]  # + split_on_caps("WOmzGrpGr1")
         for post in balans_categories:
             if self.items[post].amount is None:
                 self.items[post].amount = 0
@@ -245,7 +247,7 @@ class YukiAccountModel:
         for post in wv_categories:
             if self.items[post].amount is None:
                 self.items[post].amount = 0
-            self.items[post].amount -= Decimal(amount)
+            self.items[post].amount += Decimal(amount)
 
     def post(self, code: str) -> (float, str):
         """Returns the value of the specified post
@@ -307,7 +309,9 @@ def balans_en_wv(year, month):
     day = Day(last_day_of_month(year, month))
     model = YukiAccountModel()
     model.fill(day)
-    model.add_ohw(ohw_sum(day, 1000))
+    ohw = ohw_sum(day, 1000)
+    # ohw = 8000000
+    model.add_ohw(ohw)
 
     afschrijvingen, _ = model.post("-WAfs")
     if not afschrijvingen:
@@ -321,7 +325,9 @@ def balans_en_wv(year, month):
     last_day = Day(last_day_of_month(last_y, last_m))
     last_month = YukiAccountModel()
     last_month.fill(last_day)
-    last_month.add_ohw(ohw_sum(last_day, 1000))
+    last_month_ohw = ohw_sum(last_day, 1000)
+    # last_month_ohw = 6000000
+    last_month.add_ohw(last_month_ohw)
 
     def balans(code: str):
         amount, descr = model.post(code)
@@ -336,7 +342,7 @@ def balans_en_wv(year, month):
             amount2 = 0
         else:
             amount2, _ = last_month.post(code)
-        print(f"{descr:40} {amount - amount2:>10.2f} {amount:>10.2f}")
+        print(f"{descr:40} {amount - amount2:>10.2f} {amount:>10.2f}  {amount2:>10.2f}")
 
     def cash(code: str):
         amount, descr = model.post(code)
@@ -346,6 +352,7 @@ def balans_en_wv(year, month):
     print("WINST EN VERLIESREKENING                      maand        YTD")
     print("                                              -----      -----")
     wv("-turnover")  # Omzet
+    wv("80062")  # Verandering in onderhanden werk
     wv("-60351")  # Projectkosten
     wv("-60350")  # Uitbesteed werk
     wv("-60352")  # Hostingkosten
@@ -441,12 +448,12 @@ def balans_en_wv(year, month):
     if total_assets != -total_liabilities:
         print()
         print(
-            f"Total assets {total_assets} != total liabilities {-total_liabilities}."
-            + "Difference of {abs(total_assets + total_liabilities)}"
+            f"Total assets {total_assets:.2f} != total liabilities {-total_liabilities:.2f}."
+            + f"\nDifference of {abs(total_assets + total_liabilities):.2f}"
         )
 
 
 if __name__ == "__main__":
     load_cache()
-    balans_en_wv(2022, 3)
+    balans_en_wv(2022, 4)
     # model.walk( print_with_subs)

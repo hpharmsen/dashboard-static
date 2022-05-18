@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from gspread import WorksheetNotFound
 
 from layout.basic_layout import MID_SIZE
@@ -10,16 +12,44 @@ from sources.googlesheet import HeaderSheet
 # Winst-en-verliesrekening
 
 
+class Explanation:
+    """Class to collect explanations from Begroting sheet and list them when needed"""
+
+    def __init__(self, year, month):
+        self.explanation_lines = []
+        try:
+            self.explanation_sheet = HeaderSheet(f"Begroting {year}", str(month))
+        except WorksheetNotFound:
+            self.explanation_sheet = None
+        self.current = 0  # For iteration
+
+    def update(self, title):
+        if self.explanation_sheet.data:
+            description = self.explanation_sheet[title, "Toelichting"]
+            if description:
+                self.explanation_lines += [(title, description)]
+
+    def __len__(self):
+        return len(self.explanation_lines)
+
+    def __iter__(self):  # Make Explanation an iterator
+        return self
+
+    def __next__(self):
+        if self.current == len(self.explanation_lines):
+            raise StopIteration
+        self.current += 1
+        return self.explanation_lines[self.current - 1]
+
+
 def profit_and_loss_block(yuki_result: YukiResult):
     month = yuki_result.month
     maand = MAANDEN[month - 1]
-    begroting = HeaderSheet(f"Begroting {yuki_result.year}", "Begroting", header_col=2, header_row=2)
+    begroting = HeaderSheet(
+        f"Begroting {yuki_result.year}", "Begroting", header_col=2, header_row=2
+    )
     # omzetplanning = HeaderSheet('Begroting 2021', 'Omzetplanning')
-    toelichtingen = []
-    try:
-        toelichting_sheet = HeaderSheet(f"Begroting {yuki_result.year}", str(month))
-    except WorksheetNotFound:
-        toelichting_sheet = None
+    explanations = Explanation(yuki_result.year, month)
 
     grid = Grid(
         cols=8,
@@ -47,12 +77,7 @@ def profit_and_loss_block(yuki_result: YukiResult):
                 budget_ytd,
             ]
         )
-        if toelichting_sheet.data:
-            toelichting = toelichting_sheet[title, "Toelichting"]
-            if toelichting:
-                b = toelichtingen  # zeer merkwaardige constructie maar krijg een foutmelding
-                # als ik direct iets toevoeg aan toelichtingen
-                b += [(title, toelichting)]
+        explanations.update(title)
 
     def add_subtotal_row(title, code, budget=None, style=TOPLINE):
         subtotal = yuki_result.month_ytd(code)
@@ -74,6 +99,7 @@ def profit_and_loss_block(yuki_result: YukiResult):
             ],
             styles=["", style, style, "", "", style, style, ""],
         )
+        explanations.update(title)
 
     # def turnover_planning(begroting_posts):
     #     def budget_ytd(sheet, post):
@@ -99,8 +125,12 @@ def profit_and_loss_block(yuki_result: YukiResult):
 
         if type(begroting_posts) != list:
             begroting_posts = [begroting_posts]
-        planned_month = sum([budget_month(begroting, post) for post in begroting_posts]) * 1000
-        planned_ytd = sum([budget_column(begroting, post) for post in begroting_posts]) * 1000
+        planned_month = (
+                sum([budget_month(begroting, post) for post in begroting_posts]) * 1000
+        )
+        planned_ytd = (
+                sum([budget_column(begroting, post) for post in begroting_posts]) * 1000
+        )
         return planned_month, planned_ytd
 
     def get_int(string):
@@ -125,6 +155,7 @@ def profit_and_loss_block(yuki_result: YukiResult):
     )
     # Omzet
     add_normal_row("Omzet", "-turnover")
+    add_normal_row("Verandering in onderhanden werk", "80062")
     add_normal_row("Projectkosten", "-60351")
     add_normal_row("Uitbesteed werk", "-60350")
     add_normal_row("Hostingkosten", "-60352")
@@ -139,7 +170,9 @@ def profit_and_loss_block(yuki_result: YukiResult):
     # TOTAAL INKOMSTEN
     grid.add_row()
     margin_budgeted = tuple_add(turnover_budgeted, other_budgeted)
-    add_subtotal_row("Totaal bruto marge", "-total_income", margin_budgeted, style=DOUBLE_TOPLINE)
+    add_subtotal_row(
+        "Totaal bruto marge", "-total_income", margin_budgeted, style=DOUBLE_TOPLINE
+    )
     grid.add_row()
     grid.add_row()
 
@@ -168,9 +201,18 @@ def profit_and_loss_block(yuki_result: YukiResult):
 
     # BEDRIJFSLASTEN
     operating_expenses_budgeted = tuple_add(
-        people_budgeted, wbso_budgeted, housing_budgeted, marketing_budgeted, other_expenses_budgeted
+        people_budgeted,
+        wbso_budgeted,
+        housing_budgeted,
+        marketing_budgeted,
+        other_expenses_budgeted,
     )
-    add_subtotal_row("TOTAAL BEDRIJFSLASTEN", "operating_expenses", operating_expenses_budgeted, style=DOUBLE_TOPLINE)
+    add_subtotal_row(
+        "TOTAAL BEDRIJFSLASTEN",
+        "operating_expenses",
+        operating_expenses_budgeted,
+        style=DOUBLE_TOPLINE,
+    )
     grid.add_row()
     grid.add_row()
 
@@ -186,7 +228,9 @@ def profit_and_loss_block(yuki_result: YukiResult):
 
     # Winst
     # total_costs =  [oe+d-f for oe,d,f in zip(operating_expenses, depreciation, financial)]
-    total_costs_budgeted = tuple_add(operating_expenses_budgeted, depreciation_budgeted, financial_budgeted)
+    total_costs_budgeted = tuple_add(
+        operating_expenses_budgeted, depreciation_budgeted, financial_budgeted
+    )
     profit_budgeted = [m - c for m, c in zip(margin_budgeted, total_costs_budgeted)]
     add_subtotal_row("Winst", "-profit", None, style=DOUBLE_TOPLINE)
 
@@ -208,8 +252,14 @@ def profit_and_loss_block(yuki_result: YukiResult):
     #     styles=['', '', 'border:2px solid gray', '', '', '', 'border:2px solid gray'],
     # )
 
-    contents = [TextBlock(f"Winst & verliesrekening", MID_SIZE), grid, toelichting_block(toelichtingen)]
-    return VBlock(contents, css_class="page-break-before", style="page-break-before: always;")
+    contents = [
+        TextBlock(f"Winst & verliesrekening", MID_SIZE),
+        grid,
+        toelichting_block(explanations),
+    ]
+    return VBlock(
+        contents, css_class="page-break-before", style="page-break-before: always;"
+    )
 
 
 # Balans
@@ -217,12 +267,12 @@ def balance_block(yuki_result: YukiResult):
     year, month = yuki_result.year, yuki_result.month
     maand = MAANDEN[month - 1]
     vorige_maand = MAANDEN[month - 2] if month >= 2 else f"Begin {year}"
-    grid = Grid(cols=6, has_header=False, aligns=["left", "right", "right", "", "right", "right"])
-    toelichtingen = []
-    try:
-        toelichting_sheet = HeaderSheet(f"Begroting {year}", str(month))
-    except WorksheetNotFound:
-        toelichting_sheet = None  # Todo: Same code as in profit_and_loss_block. Refactor.
+    grid = Grid(
+        cols=6,
+        has_header=False,
+        aligns=["left", "right", "right", "", "right", "right"],
+    )
+    explanations = Explanation(yuki_result.year, month)
 
     def add_normal_row(title, code):
         result = yuki_result.month_prev(code)
@@ -236,12 +286,7 @@ def balance_block(yuki_result: YukiResult):
                 "",
             ]
         )
-        if toelichting_sheet.data:
-            toelichting = toelichting_sheet[title, "Toelichting"]
-            if toelichting:
-                b = toelichtingen  # zeer merkwaardige constructie maar krijg een foutmelding
-                # als ik direct iets toevoeg aan toelichtingen
-                b += [(title, toelichting)]
+        explanations.update(title)
 
     def add_subtotal_row(title, code, style=TOPLINE):
         subtotal = yuki_result.month_prev(code)
@@ -256,6 +301,7 @@ def balance_block(yuki_result: YukiResult):
             ],
             styles=["", style, style, "", style, style],
         )
+        explanations.update(title)
 
     # Header
     grid.add_row(
@@ -303,19 +349,29 @@ def balance_block(yuki_result: YukiResult):
     total_liabilities = yuki_result.month_prev("total_liabilities")
     if total_assets[0] != -total_liabilities[0]:
         grid.add_row(
-            [TextBlock(f"Balansverschil in {maand} van {abs(total_assets[0] + total_liabilities[0])}", color=RED)]
+            [
+                TextBlock(
+                    f"Balansverschil in {maand} van {abs(total_assets[0] + total_liabilities[0])}",
+                    color=RED,
+                )
+            ]
         )
     if total_assets[1] != -total_liabilities[1]:
         grid.add_row(
             [
                 TextBlock(
-                    f"Balansverschil in {vorige_maand} van {abs(total_assets[1] + total_liabilities[1])}", color=RED
+                    f"Balansverschil in {vorige_maand} van {abs(total_assets[1] + total_liabilities[1])}",
+                    color=RED,
                 )
             ]
         )
 
     return VBlock(
-        [TextBlock(f"Balans per einde {maand.lower()} {year}", MID_SIZE), grid, toelichting_block(toelichtingen)],
+        [
+            TextBlock(f"Balans per einde {maand.lower()} {year}", MID_SIZE),
+            grid,
+            toelichting_block(explanations),
+        ],
         css_class="page-break-before",
         style="page-break-before: always;",
     )
@@ -366,23 +422,35 @@ def cashflow_analysis_block(yuki_result):
             - other_receivables[1]
             - financial_fixed_assets[1]
     )
-    descr = "Toegenomen vorderingen" if increase_receivables >= 0 else "Afgenomen vorderingen"
+    descr = (
+        "Toegenomen vorderingen"
+        if increase_receivables >= 0
+        else "Afgenomen vorderingen"
+    )
     add_normal_row(descr, -increase_receivables)
 
     # Toename onderhanden werk
     in_progress = yuki_result.get_work_in_progress()
     increase_in_progress = in_progress[0] - in_progress[1]
-    descr = "Toegenomen onderhanden werk" if increase_in_progress >= 0 else "Afgenomen onderhanden werk"
+    descr = (
+        "Toegenomen onderhanden werk"
+        if increase_in_progress >= 0
+        else "Afgenomen onderhanden werk"
+    )
     add_normal_row(descr, -increase_in_progress)
 
     # Toename crediteuren
     short_term_debt = yuki_result.short_term_debt()
     increase_creditors = short_term_debt[0] - short_term_debt[1]
-    descr = "Toegenomen crediteuren" if increase_creditors >= 0 else "Afgenomen crediteuren"
+    descr = (
+        "Toegenomen crediteuren" if increase_creditors >= 0 else "Afgenomen crediteuren"
+    )
     add_normal_row(descr, increase_creditors)
 
     # Verandering van netto werkkapitaal
-    increase_working_capital = -increase_receivables - increase_in_progress + increase_creditors
+    increase_working_capital = (
+            -increase_receivables - increase_in_progress + increase_creditors
+    )
     add_subtotal_row("Verandering van netto werkkapitaal", increase_working_capital)
     grid.add_row([])
 
@@ -392,7 +460,9 @@ def cashflow_analysis_block(yuki_result):
 
     # Investeringen
     investment_in_assets = yuki_result.month_prev("investments")
-    investments = investment_in_assets[0] - investment_in_assets[1]  # This month - last month = investments
+    investments = (
+            investment_in_assets[0] - investment_in_assets[1]
+    )  # This month - last month = investments
     add_normal_row("Investeringen", -investments, shift=True)
 
     # Mutaties eigen vermogen
@@ -407,7 +477,12 @@ def cashflow_analysis_block(yuki_result):
     liquid_assets = yuki_result.month_prev("liquid_assets")
     increase_liquid_assets = liquid_assets[0] - liquid_assets[1]
     color = RED if increase_liquid_assets != net_cash_flow else None
-    add_normal_row("Toename liquide middelen", increase_liquid_assets, shift=True, value_color=color)
+    add_normal_row(
+        "Toename liquide middelen",
+        increase_liquid_assets,
+        shift=True,
+        value_color=color,
+    )
 
     return VBlock(
         [TextBlock(f"Cashflow analyse", MID_SIZE), grid],
@@ -416,10 +491,12 @@ def cashflow_analysis_block(yuki_result):
     )
 
 
-def toelichting_block(toelichtingen):
-    if not toelichtingen:
+def toelichting_block(explanations: Iterable[tuple[str, str]]):
+    if not explanations:
         return
     toelichting_grid = Grid(cols=2)
-    for t in toelichtingen:
-        toelichting_grid.add_row([TextBlock(t[0], style=BOLD), TextBlock(t[1], style=ITALIC)])
+    for post, explanation in explanations:
+        toelichting_grid.add_row(
+            [TextBlock(post, style=BOLD), TextBlock(explanation, style=ITALIC)]
+        )
     return VBlock([TextBlock(f"Toelichting", style=BOLD), toelichting_grid])
