@@ -49,7 +49,6 @@ GOOGLE_SHEETS_APP = "https://script.google.com/macros/s/AKfycbyFjOJY2OaCHouEuPRt
 @cache(hours=6)
 def get_bookings_per_week(booking_type: str = "bookings", only_complete_weeks=False):
     """Get the full list of all booking amounts per brand per week and return it as a DataFrame"""
-    # Todo: Uit Middleware halen
     db = get_travelbase_db()
     dfs = []
     mysql_week_mode = 5  # Week 1 is the first week with a Monday in this year

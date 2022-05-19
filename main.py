@@ -6,7 +6,6 @@
 # Padding left/right/top/bottom mogelijk maken
 
 # OPERATIONS
-# - Wensen van Gert: https://www.notion.so/teamoberon/Dashboard-wensen-5305f0b45827460ba6b0d1c5a408dffd
 # Service Team wordt volgens mij nu niet meegerekend als 'gepland', of ik kijk verkeerd. Zou wel moeten.
 
 # FINANCE
@@ -17,24 +16,12 @@
 # - Percentage Herhaalopdrachten (churn)
 
 # CORRECTIES
-# Joost: Idee: bij deze getallen in het dashboard ook de totale geboekte uren totaan dat moment weergeven.
+# Joost: Idee: bij deze getallen in het dashboard ook de totale geboekte uren tot aan dat moment weergeven.
 # Of nog beter: een percentage van de totale uren tot aan dat moment. Zet het in perspectief.
 
 # HR
 # - Begroot aantal mensen
 # - Absence.html grafisch met 13 weken op de hor as en mensen op de ver as. Totaal eronder per week.
-
-# Nieuwe opzet
-#
-#       Simplicate/Yuki/Google sheets
-#                      |
-#                  Sources
-#                      |        Model --> Static views
-# Cron jobs -> Updater |         ^
-#                      v         |
-#                      Middleware
-#                        v    ^
-#                     RWS Database --> Tortoise --> API --> Live views
 
 
 import datetime
