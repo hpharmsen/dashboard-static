@@ -123,10 +123,10 @@ def profit_and_loss_block(yuki_result: YukiResult):
         if type(begroting_posts) != list:
             begroting_posts = [begroting_posts]
         planned_month = (
-                sum([budget_month(begroting, post) for post in begroting_posts]) * 1000
+            sum([budget_month(begroting, post) for post in begroting_posts]) * 1000
         )
         planned_ytd = (
-                sum([budget_column(begroting, post) for post in begroting_posts]) * 1000
+            sum([budget_column(begroting, post) for post in begroting_posts]) * 1000
         )
         return planned_month, planned_ytd
 
@@ -412,12 +412,12 @@ def cashflow_analysis_block(yuki_result):
     other_receivables = yuki_result.other_receivables()
     financial_fixed_assets = yuki_result.month_prev("financial_fixed_assets")
     increase_receivables = (
-            debtors[0]
-            + other_receivables[0]
-            + financial_fixed_assets[0]
-            - debtors[1]
-            - other_receivables[1]
-            - financial_fixed_assets[1]
+        debtors[0]
+        + other_receivables[0]
+        + financial_fixed_assets[0]
+        - debtors[1]
+        - other_receivables[1]
+        - financial_fixed_assets[1]
     )
     descr = (
         "Toegenomen vorderingen"
@@ -446,7 +446,7 @@ def cashflow_analysis_block(yuki_result):
 
     # Verandering van netto werkkapitaal
     increase_working_capital = (
-            -increase_receivables - increase_in_progress + increase_creditors
+        -increase_receivables - increase_in_progress + increase_creditors
     )
     add_subtotal_row("Verandering van netto werkkapitaal", increase_working_capital)
     grid.add_row([])
@@ -458,7 +458,7 @@ def cashflow_analysis_block(yuki_result):
     # Investeringen
     investment_in_assets = yuki_result.month_prev("investments")
     investments = (
-            investment_in_assets[0] - investment_in_assets[1]
+        investment_in_assets[0] - investment_in_assets[1]
     )  # This month - last month = investments
     add_normal_row("Investeringen", -investments, shift=True)
 

@@ -66,11 +66,11 @@ class Employee(BaseTable):
             return result
 
         employees = (
-                sheet_data("ex werknemers", "Kosten per uur")
-                | sheet_data("Freelance", "BrutoPerUur")
-                | sheet_data("Stage", "Kosten per uur")
-                | sheet_data("Flex", "BrutoPerUur")
-                | sheet_data("Fixed", "Kosten per uur")
+            sheet_data("ex werknemers", "Kosten per uur")
+            | sheet_data("Freelance", "BrutoPerUur")
+            | sheet_data("Stage", "Kosten per uur")
+            | sheet_data("Flex", "BrutoPerUur")
+            | sheet_data("Fixed", "Kosten per uur")
         )
         for employee in [
             "Hans-Peter Harmsen",
