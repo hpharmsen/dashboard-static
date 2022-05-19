@@ -9,9 +9,8 @@ from sources.simplicate import simplicate
 
 MT_FEE_PER_HOUR = Decimal(110000 / 45 / 40)
 OVERIGE_KOSTEN_PER_FTE_PER_UUR = 1000 * 12 / 45 / 40
-OVERIGE_KOSTEN_PER_FREELANCER_PER_UUR = (
-        (139 + 168 + 47) / 4 / 40
-)  # Overige personeelskosten, kantoorkosten (niet huur), Afschrijvingen (niet kantoor)
+# Overige personeelskosten, kantoorkosten (niet huur), Afschrijvingen (niet kantoor)
+OVERIGE_KOSTEN_PER_FREELANCER_PER_UUR = (139 + 168 + 47) / 4 / 40
 PRODUCTIVITEIT = 0.85
 
 
