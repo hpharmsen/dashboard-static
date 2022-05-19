@@ -112,9 +112,6 @@ def profit_and_loss_block(yuki_result: YukiResult):
     #     return (planned_month, planned_ytd)
 
     def budgeted(begroting_posts):
-        if yuki_result.year == 2022:
-            return 0, 0  # TODO: Verwijderen zodra de 2022 begroting af is
-
         def budget_month(sheet, post):
             if month:
                 res = get_int(sheet[post, MAANDEN[month - 1]])
