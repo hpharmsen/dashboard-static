@@ -10,7 +10,6 @@ from beautiful_date import *
 from middleware.timesheet import hours_dataframe
 from middleware.trendline import TrendLines
 from model.caching import cache
-
 # from model.onderhanden_werk import simplicate_onderhanden_werk
 from model.onderhanden_werk import ohw_sum
 from model.productiviteit import tuple_of_productie_users
@@ -202,38 +201,9 @@ def laatste_geboekte_maand():
     return 12
 
 
-@cache(hours=24)
-def bijgewerkt():
-    """Checkt in de Resultaat tab van het Keycijfers sheet of de boekhouding van afgelopen
-    maand al is ingevuld."""
-    y = datetime.now().strftime("%Y")
-    tab = sheet_tab(BEGROTING_SHEET + " " + y, RESULTAAT_TAB)
-    vm = vorige_maand()
-    data = sheet_value(tab, RESULTAAT_BIJGEWERKT_ROW, vm + 2)
-    return data
-
-
-def vorige_maand():
-    """Nummer van de vorige maand. 1..11"""
-    # todo: in januari retourneert dit 0. Dat is gek.
-    return datetime.today().month - 1
-
-
 def huidige_maand():
     """Nummer van de huidige maand. 1..12"""
     return datetime.today().month
-
-
-def volgende_maand():
-    """Nummer van de volgende maand."""
-    return datetime.today().month + 1
-
-
-def last_day_of_last_month():
-    y = datetime.now().year
-    m = vorige_maand()
-    d = calendar.monthrange(y, m)[1]
-    return datetime(y, m, d)
 
 
 def last_day_of_month(y, m):

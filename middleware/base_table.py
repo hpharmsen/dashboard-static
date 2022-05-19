@@ -13,7 +13,6 @@ HOURS = "DECIMAL(6,2)"
 MONEY = "DECIMAL(9,2)"
 
 
-# TODO: Make this an abstract base class
 class BaseTable(ABC):
     def __init__(self):
         super().__init__()
