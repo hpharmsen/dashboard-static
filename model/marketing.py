@@ -12,7 +12,11 @@ class Marketing(HeaderSheet):
         self.column_headers = ["okt. 2021", "nov. 2021", "dec. 2021"]
         while True:
             for month in MAANDEN:
-                monthstamp = f"{month.lower()}. {year}"
+                monthstamp = (
+                    f"mei {year}"
+                    if month.lower() == "mei"
+                    else f"{month.lower()}. {year}"
+                )
                 bijgewerkt = self["Bijgewerkt", monthstamp]
                 if bijgewerkt and int(bijgewerkt):
                     self.column_headers += [monthstamp]

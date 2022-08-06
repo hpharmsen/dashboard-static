@@ -51,7 +51,7 @@ def winst_per_project(period: Period) -> DataFrame:
         select p.project_number as number, sum(price-service_costs) as `turnover fixed`
         from project p 
         join service s on s.project_id=p.project_id
-        where p.project_number is not null and p.project_number not like 'OBE-%' 
+        where p.project_number is not null and p.project_number not like 'OBE-%%' 
           and (s.end_date is null or s.end_date >'{period.fromday}')
         group by p.project_id
         having `turnover fixed` != 0"""

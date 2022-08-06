@@ -94,12 +94,12 @@ class Timesheet(BaseTable):
     def correct_revenue_groups(self):
         self.db.execute(
             """
-        update timesheet set revenue_group="Omzet teampropositie" where project_number in ("BEN-1","VHC-1");
+        update timesheet set revenue_group="Omzet teampropositie" where project_number in ("BEN-1","VHC-1",'EASY-6');
         update timesheet set revenue_group="Omzet productpropositie" 
             where revenue_group in ("Omzet development","Omzet app development");
         update timesheet set revenue_group="Omzet Travelbase" 
             where project_number like "TRAV-%" or project_number="TOR-3";
-        update timesheet set revenue_group="Omzet productpropositie" where project_number in ("SLIM-30","THIE-17");
+        update timesheet set revenue_group="Omzet productpropositie" where project_number in ("SLIM-30","THIE-17",'VERH-1','TER-2');
         update timesheet set revenue_group='Omzet teampropositie' where project_number like "COL-%";
         update timesheet set revenue_group="" 
             where project_number like "OBE-%" or project_number like "QIKK-%" or label="Internal";
@@ -107,6 +107,7 @@ class Timesheet(BaseTable):
             where revenue_group="" and project_number not like "OBE-%";
         update timesheet set revenue_group="Omzet overig" where project_number like "CAP-%";
         update timesheet set revenue_group="" where type in ("leave","absence");
+        update timesheet set revenue_group='Omzet service' where project_number='MANA-6';
         """
         )
         self.db.commit()
@@ -357,11 +358,12 @@ def hours_dataframe(period: Period):
 
 if __name__ == "__main__":
     timesheet_table = Timesheet()
-    timesheet_table.hours_with_type(
-        Period("2022-04-26", "2022-04-28"), hours_type="leave"
-    )
-    pass
+    timesheet_table.update(Day("2021-01-01"), only_this_day=False)
+    # timesheet_table.hours_with_type(
+    #     Period("2022-04-26", "2022-04-28"), hours_type="leave"
+    # )
+    # pass
     # timesheet_table.repopulate()
-    # timesheet_table.update(Day('2022-04-18'), only_this_day=False)
+    #
     # timesheet_table.correct_revenue_groups()
     # timesheet_table.correct_fixed_price()

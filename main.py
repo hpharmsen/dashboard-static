@@ -23,6 +23,10 @@
 # - Begroot aantal mensen
 # - Absence.html grafisch met 13 weken op de hor as en mensen op de ver as. Totaal eronder per week.
 
+# Interactieve pagina waar je gegevens kan vinden zoals
+# - Rooster uren, verlof, verzuim, beschikbare uren, effectiviteit, klant uren correcties, billable uren billable perc uurloon en omzet op uren
+# - Per tijdseenheid, voor directe fte's of iedereen, per team, per persoon, per project
+
 
 import datetime
 import os
@@ -31,7 +35,6 @@ import sys
 from pathlib import Path
 
 from model.caching import load_cache, clear_cache, cache_created_time_stamp
-from model.log import init_log
 from settings import get_output_folder
 
 # from view.billable import render_billable_page
@@ -55,13 +58,8 @@ def main():
     if clear_the_cache:
         clear_cache()
     load_cache()
-    module_initialisations()
     copy_resources(output_folder)
     render_all_pages(output_folder)
-
-
-def module_initialisations():
-    init_log()  # Start log entry with the current date
 
 
 def cd_to_script_path():

@@ -1,5 +1,5 @@
 """ Class to represent the Yuki account model """
-
+import os
 import sys
 from dataclasses import dataclass
 from decimal import Decimal
@@ -95,6 +95,7 @@ class YukiAccountModel:
                 "-WBedOvp",
                 "-WBedEemRoi",
                 "WKprBtkBed",
+                "WOvbBuaDeg",
             ],
         )
         # WKprBtkBed = Ontvangen betalingskortingen
@@ -136,7 +137,8 @@ class YukiAccountModel:
                 "-BVorDeb",
                 "-overlopende_activa",
                 "-question_posts",
-                "-BVorOvrWbs",
+                "-BVorOvrWbs",  # Waarborgsommen overige vorderingen
+                "WNerNewNew",  # Vennoorschapsbelasting Todo: Hoord deze hier?
             ],
         )  # Waarborgsommen
         self.describe("BVrd", "Onderhanden werk")
@@ -183,7 +185,7 @@ class YukiAccountModel:
         self.alias(
             "receivables",
             "Toegenomen vorderingen",
-            ["BVorDeb", "other_receivables", "overlopende_activa"],
+            ["BVorDeb", "other_receivables"],
         )
         self.alias(
             "working_capital",
@@ -432,7 +434,7 @@ def balans_en_wv(year, month):
     print()
     cash("-receivables")
     cash("-BVrd")  # Onderhanden werk
-    cash("-BSchCre")  # Crediteuren
+    cash("-short_term_debt")  # Kortlopende vorderingen
     print("---------------------")
     cash("-working_capital")
     print("---------------------")
@@ -454,6 +456,7 @@ def balans_en_wv(year, month):
 
 
 if __name__ == "__main__":
+    os.chdir("..")
     load_cache()
-    balans_en_wv(2022, 4)
+    balans_en_wv(2022, 5)
     # model.walk( print_with_subs)

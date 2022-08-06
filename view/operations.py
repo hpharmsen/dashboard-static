@@ -6,7 +6,8 @@ from layout.basic_layout import HEADER_SIZE, DEF_SIZE, MID_SIZE
 from layout.block import Page, TextBlock, VBlock, HBlock
 from layout.chart import ChartConfig, StackedBarChart, ScatterChart
 from layout.table import Table, TableConfig
-from maandrapport import HoursData, kpi_grid
+from maandrapport import kpi_grid
+from model.hoursdata import HoursData
 from middleware.trendline import TrendLines
 from model.productiviteit import corrections_percentage, largest_corrections
 from model.resultaat import vulling_van_de_planning

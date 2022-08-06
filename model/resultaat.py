@@ -238,7 +238,7 @@ def get_turnover_from_simplicate(period):
     return int(turnover)
 
 
-@cache(hours=24)
+# @cache(hours=24)
 def vulling_van_de_planning():
     # Planned hours
     last_week = (datetime.today() + timedelta(weeks=-1)).strftime(DATE_FORMAT)
@@ -250,7 +250,7 @@ def vulling_van_de_planning():
              from planning_reservation pr
              join planning_location pl on pl.id=pr.planning_locationId
              left join project p on p.id=pr.projectId
-             where startDate > "{last_week}" AND planning_typeId = '17' and (p.customerId is null or p.customerId <> 4)
+             where startDate > "{last_week}" AND startDate < endDate AND planning_typeId = '17' and (p.customerId is null or p.customerId <> 4)
              group by day) q1
         group by day) q2
     group by year(day), weekno

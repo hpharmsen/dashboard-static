@@ -8,11 +8,24 @@ ini.read(Path(__file__).resolve().parent / "sources" / "credentials.ini")
 
 
 def get_output_folder():
-    return Path(ini["output"]["folder"])
+    output_folder = ini["output"]["folder"]
+    if output_folder.startswith("[GOOGLE_DRIVE]"):
+        for folder in Path("/Volumes").iterdir():
+            if folder.name.startswith("GoogleDrive-"):
+                possible_folder = output_folder.replace(
+                    "[GOOGLE_DRIVE]", str(folder)
+                )  # Replace the placeholder with the actual name
+                if Path(possible_folder).exists():  # Found it!
+                    output_folder = possible_folder
+                    break
+        else:
+            raise Exception("Google Drive folder not found")
+    return Path(output_folder)
 
 
 def get_monthly_folder():
-    return Path(ini["output"]["monthly"])
+    return get_output_folder().parent / "Finance" / "Maandrapportages"
+    # return Path(ini["output"]["monthly"])
 
 
 GREEN = "green"  # '#7C7'

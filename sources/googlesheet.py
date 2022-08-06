@@ -2,6 +2,7 @@ import os
 import sys
 import time
 from collections import defaultdict
+from pathlib import Path
 
 import gspread  # https://github.com/burnash/gspread
 from google.auth.transport import requests
@@ -42,7 +43,8 @@ def get_spreadsheet(sheet_name):
 
         # Latest version from:
         # https://stackoverflow.com/questions/51618127/credentials-object-has-no-attribute-access-token-when-using-google-auth-wi
-        credentials = Credentials.from_service_account_file("sources/oauth_key.json")
+        key_file = Path(__file__).resolve().parent / "oauth_key.json"
+        credentials = Credentials.from_service_account_file(key_file)
         scoped_credentials = credentials.with_scopes(scopes)
         gc = gspread.Client(auth=scoped_credentials)
         gc.session = AuthorizedSession(scoped_credentials)

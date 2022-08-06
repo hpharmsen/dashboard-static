@@ -91,7 +91,6 @@ def cached_get_url(url):
     try:
         return requests.get(url)
     except requests.exceptions.ConnectionError:
-        # Todo: vervangen door een algemene get die een retry doet
         panic("ConnectionError while trying to access Yuki")
 
 

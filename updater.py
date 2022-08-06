@@ -83,18 +83,24 @@ def mark_as_has_run_today():
 
 if __name__ == "__main__":
     cd_to_script_path()
-    if "--onceaday" in sys.argv:
-        check_if_has_run_today()
-        clear_cache()
-    if "--nocache" in sys.argv:
-        clear_cache()
+    specific_update_to_run = None
+    for param in sys.argv[1:]:
+        if param == "--onceaday":
+            check_if_has_run_today()
+            clear_cache()
+        elif param == "--nocache":
+            clear_cache()
+        else:
+            specific_update_to_run = "update_" + param
+            locals()[specific_update_to_run]()
 
-    update_finance()
-    update_travelbase()
-    update_employee()
-    update_project()
-    update_service()
-    update_timesheet()
-    update_invoices(Day().plus_months(-1))
+    if not specific_update_to_run:
+        update_finance()
+        update_travelbase()
+        update_employee()
+        update_project()
+        update_service()
+        update_timesheet()
+        update_invoices(Day().plus_months(-1))
 
-    mark_as_has_run_today()
+        mark_as_has_run_today()

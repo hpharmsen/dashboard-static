@@ -10,7 +10,7 @@ from model.utilities import Day, Period
 from sources.simplicate import simplicate
 
 
-@cache(hours=24)
+# @cache(hours=24)
 def tuple_of_productie_users():
     productie_teams = {
         "Development",
@@ -25,12 +25,15 @@ def tuple_of_productie_users():
         u["name"]
         for u in users
         if set(t["name"] for t in u.get("teams", [])).intersection(productie_teams)
+        and u["name"] != "Angela Duijs"
     ]
     return users
 
 
 def percentage_directe_werknemers():
-    """DDA Cijfer. Is het percentage productiemedewerkers tov het geheel"""
+    """DDA Cijfer. Is het percentage productiemedewerkers tov het geheel
+    todo: interessanter is het percentage van de salariskosten.
+    Salariskosten (incl pensioen en belasting) van de directe mensen moeten 70%-75% zijn (Olivier)."""
     period = Period(Day().plus_months(-6))
     productie_users = tuple_of_productie_users()
     return (

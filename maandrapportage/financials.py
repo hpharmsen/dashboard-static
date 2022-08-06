@@ -1,3 +1,4 @@
+import os
 from typing import Iterable
 
 from gspread import WorksheetNotFound
@@ -81,21 +82,21 @@ def profit_and_loss_block(yuki_result: YukiResult):
 
     def add_subtotal_row(title, code, budget=None, style=TOPLINE):
         subtotal = yuki_result.month_ytd(code)
-        if budget:
-            budget_month = TextBlock(budget[0], text_format=".", color=GRAY, style=BOLD)
-            budget_ytd = TextBlock(budget[1], text_format=".", color=GRAY, style=BOLD)
-        else:
-            budget_month, budget_ytd = 0, 0
+        # if budget:
+        #    budget_month = TextBlock(budget[0], text_format=".", color=GRAY, style=BOLD)
+        #    budget_ytd = TextBlock(budget[1], text_format=".", color=GRAY, style=BOLD)
+        # else:
+        #    budget_month, budget_ytd = 0, 0
         grid.add_row(
             [
                 TextBlock(title, style=BOLD),
                 "",
                 TextBlock(subtotal[0], text_format=".", style=BOLD),
-                budget_month,
+                # budget_month,
                 "",
                 "",
                 TextBlock(subtotal[1], text_format=".", style=BOLD),
-                budget_ytd,
+                # budget_ytd,
             ],
             styles=["", style, style, "", "", style, style, ""],
         )
@@ -142,11 +143,11 @@ def profit_and_loss_block(yuki_result: YukiResult):
             "",
             "",
             TextBlock(maand, style=BOLD),
-            TextBlock("begroot", color=GRAY),
+            # TextBlock("begroot", color=GRAY),
             "",
             "",
             TextBlock("ytd", style=BOLD),
-            TextBlock("begroot", color=GRAY),
+            # TextBlock("begroot", color=GRAY),
         ],
         styles=["width:160px;", "", "", "", "width:80px;"],
     )

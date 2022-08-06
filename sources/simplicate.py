@@ -5,7 +5,7 @@ import pandas as pd
 from pysimplicate import Simplicate
 
 from model.caching import cache
-from model.log import log
+from model.log import log_error
 from settings import ini
 
 _simplicate = None  # Singleton
@@ -65,7 +65,11 @@ def flatten_hours_data(data):
     def convert(d):
         tariff = d.get("tariff")
         if tariff is None:
-            log(f"{d['project']['name']} has no tariff for {d['employee']['name']}")
+            log_error(
+                "sources/simplicate.py",
+                "flatten_hours_data",
+                f"{d['project']['name']} has no tariff for {d['employee']['name']}",
+            )
             tariff = 0
         return {
             "hours_id": d["id"],
